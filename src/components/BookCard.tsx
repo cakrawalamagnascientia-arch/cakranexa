@@ -65,7 +65,7 @@ export const BookCard: React.FC<BookCardProps> = ({
         {/* Title */}
         <h4 
           onClick={() => onSelectBook(book)}
-          className="text-xs sm:text-sm font-semibold leading-snug text-slate-900 group-hover:text-[#9A7B38] transition-colors mb-1 line-clamp-2 cursor-pointer min-h-[2.5rem]"
+          className="text-xs sm:text-sm font-semibold leading-snug text-slate-900 group-hover:text-[#9A7B38] transition-colors mb-1 cursor-pointer"
           title={toTitleCase(book?.title || book?.name)}
         >
           {toTitleCase(book?.title || book?.name) || 'Judul Buku'}
@@ -136,7 +136,7 @@ export const BookCard: React.FC<BookCardProps> = ({
             <ArrowRight className="w-3 h-3" />
           </button>
         ) : (
-        <div className="grid grid-cols-[38px_1fr] gap-2 w-full">
+        <div className="grid grid-cols-[38px_minmax(0,1fr)] gap-2 w-full">
           <button
             id={`btn-cart-${book?.id}`}
             onClick={() => onAddToCart(book)}
@@ -149,7 +149,7 @@ export const BookCard: React.FC<BookCardProps> = ({
           <button
             id={`btn-buy-now-${book?.id}`}
             onClick={() => onQuickBuy(book)}
-            className="bg-[#D4AF37] hover:bg-[#c5a059] text-slate-950 h-8.5 px-3 text-xs font-semibold transition-colors rounded-lg cursor-pointer whitespace-nowrap flex items-center justify-center gap-1.5 shadow-xs"
+            className="min-w-0 bg-[#D4AF37] hover:bg-[#c5a059] text-slate-950 h-8.5 px-2 sm:px-3 text-xs font-semibold transition-colors rounded-lg cursor-pointer whitespace-nowrap flex items-center justify-center gap-1.5 shadow-xs"
             title="Beli Sekarang"
           >
             <span>Beli Sekarang</span>

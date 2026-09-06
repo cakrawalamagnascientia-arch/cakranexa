@@ -199,7 +199,7 @@ export const BookCarousel: React.FC<BookCarouselProps> = ({
             {(displayedBooks || []).map((book) => (
               <div
                 key={book.id}
-                className="w-[calc(50%-8px)] sm:w-[calc(33.333%-14px)] md:w-[calc(25%-15px)] lg:w-[calc(20%-16px)] xl:w-[calc(16.666%-17px)] shrink-0"
+                className="w-[calc(100vw-2.5rem)] sm:w-[calc(50%-10px)] md:w-[calc(33.333%-14px)] lg:w-[calc(25%-15px)] xl:w-[calc(20%-16px)] shrink-0"
               >
                 <BookCard
                   book={book}
