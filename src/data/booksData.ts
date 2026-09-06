@@ -348,6 +348,11 @@ export const INITIAL_BOOKS: Book[] = RAW_BOOKS.map((book) => {
   };
 });
 
+export const withLocalBookCover = (book: Book): Book => {
+  const localBook = INITIAL_BOOKS.find((candidate) => candidate.id === book.id);
+  return localBook ? { ...book, coverBuku: localBook.coverBuku } : book;
+};
+
 /** Buku yang sudah bisa dipesan (harga tersedia) */
 export const isBookPurchasable = (book: Pick<Book, 'harga'>): boolean => Number(book.harga) > 0;
 

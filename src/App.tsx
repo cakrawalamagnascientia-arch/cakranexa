@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { INITIAL_BOOKS } from './data/booksData';
+import { INITIAL_BOOKS, withLocalBookCover } from './data/booksData';
 import { Book, CartItem, Order, ActivePage, SubSection, BookCategory, SeoSettings, SiteContentSettings } from './types';
 import { apiClient, ApiError } from './services/apiClient';
 import { parseLocation, pushRoute, RouteState } from './utils/router';
@@ -83,7 +83,7 @@ export default function App() {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
           return parsed.map((b: any) => ({
-            ...b,
+            ...withLocalBookCover(b),
             name: toTitleCase(b.name || ''),
             title: toTitleCase(b.title || b.name || '')
           }));
@@ -158,7 +158,7 @@ export default function App() {
       if (isMounted && remoteBooks && remoteBooks.length > 0) {
         // Backend/Supabase adalah sumber kebenaran katalog; cache lokal hanya untuk first paint.
         setBooks(remoteBooks.map((b) => ({
-          ...b,
+          ...withLocalBookCover(b),
           name: toTitleCase(b.name || ''),
           title: toTitleCase(b.title || b.name || '')
         })));
