@@ -268,10 +268,9 @@ async function updateOrderStatus(orderId: string, paymentStatus?: string, tracki
 // ============================================================================
 // SERVER
 // ============================================================================
-let app: express.Express;
+const app = express();
 
 async function startServer() {
-  app = express();
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
 
