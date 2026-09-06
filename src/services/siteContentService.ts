@@ -130,7 +130,7 @@ export const DEFAULT_SITE_CONTENT: SiteContentSettings = {
       secondaryCtaText: 'Kirim Naskah',
       secondaryCtaPage: 'penerbitan',
       secondaryCtaSubSection: 'kirim-naskah',
-      bgImageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=1920&q=80',
+      bgImageUrl: '/images/banners/hero-literatur.png',
       order: 1
     },
     {
@@ -142,7 +142,7 @@ export const DEFAULT_SITE_CONTENT: SiteContentSettings = {
       primaryCtaPage: 'katalog',
       secondaryCtaText: 'Beli Paket Monografi',
       secondaryCtaPage: 'katalog',
-      bgImageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1920&q=80',
+      bgImageUrl: '/images/banners/hero-hukum-pajak.png',
       order: 2
     },
     {
@@ -155,7 +155,7 @@ export const DEFAULT_SITE_CONTENT: SiteContentSettings = {
       secondaryCtaText: 'Panduan Penulisan',
       secondaryCtaPage: 'penerbitan',
       secondaryCtaSubSection: 'panduan',
-      bgImageUrl: 'https://images.unsplash.com/photo-1507842229451-7f01be7ff602?auto=format&fit=crop&w=1920&q=80',
+      bgImageUrl: '/images/banners/hero-buku-teks.png',
       order: 3
     }
   ],

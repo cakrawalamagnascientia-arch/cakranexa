@@ -34,7 +34,7 @@ const DEFAULT_HERO_SLIDES: HeroSlideType[] = [
     secondaryCtaText: 'Kirim Naskah',
     secondaryCtaPage: 'penerbitan',
     secondaryCtaSubSection: 'kirim-naskah',
-    bgImageUrl: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1200',
+    bgImageUrl: '/images/banners/hero-literatur.png',
     order: 1
   },
   {
@@ -46,7 +46,7 @@ const DEFAULT_HERO_SLIDES: HeroSlideType[] = [
     primaryCtaPage: 'katalog',
     secondaryCtaText: 'KONSULTASI REDAKSI',
     secondaryCtaPage: 'kontak',
-    bgImageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=1200',
+    bgImageUrl: '/images/banners/hero-hukum-pajak.png',
     order: 2
   },
   {
@@ -59,7 +59,7 @@ const DEFAULT_HERO_SLIDES: HeroSlideType[] = [
     secondaryCtaText: 'PANDUAN PENULIS',
     secondaryCtaPage: 'penerbitan',
     secondaryCtaSubSection: 'panduan',
-    bgImageUrl: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1200',
+    bgImageUrl: '/images/banners/hero-buku-teks.png',
     order: 3
   },
   {
@@ -72,9 +72,16 @@ const DEFAULT_HERO_SLIDES: HeroSlideType[] = [
     primaryCtaSubSection: 'kirim-naskah',
     secondaryCtaText: 'LAYANAN PENERBITAN',
     secondaryCtaPage: 'penerbitan',
-    bgImageUrl: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1200',
+    bgImageUrl: '/images/banners/hero-peer-review.png',
     order: 4
   }
+];
+
+const LOCAL_HERO_BANNERS = [
+  '/images/banners/hero-literatur.png',
+  '/images/banners/hero-hukum-pajak.png',
+  '/images/banners/hero-buku-teks.png',
+  '/images/banners/hero-peer-review.png'
 ];
 
 export const Hero: React.FC<HeroProps> = ({ 
@@ -83,7 +90,13 @@ export const Hero: React.FC<HeroProps> = ({
   onExploreCatalog,
   onPublishBook,
 }) => {
-  const activeSlides = slides && slides.length > 0 ? slides : DEFAULT_HERO_SLIDES;
+  const sourceSlides = slides && slides.length > 0 ? slides : DEFAULT_HERO_SLIDES;
+  const activeSlides = sourceSlides.map((slide, index) => ({
+    ...slide,
+    bgImageUrl: slide.bgImageUrl?.includes('unsplash.com')
+      ? LOCAL_HERO_BANNERS[index % LOCAL_HERO_BANNERS.length]
+      : slide.bgImageUrl || LOCAL_HERO_BANNERS[index % LOCAL_HERO_BANNERS.length]
+  }));
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
