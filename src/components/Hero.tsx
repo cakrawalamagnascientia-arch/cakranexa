@@ -177,8 +177,8 @@ export const Hero: React.FC<HeroProps> = ({
         />
       ))}
 
-      {/* Deep Rich Gradient Overlay for High Contrast Legibility */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-[#0F172A]/85 to-[#0F172A]/70 pointer-events-none" />
+      {/* Subtle navy overlay keeps the background visible while preserving text contrast */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/55 via-[#0F172A]/42 to-[#0F172A]/35 pointer-events-none" />
       
       {/* Subtle Architectural Grid Accent */}
       <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:32px_32px] opacity-25 pointer-events-none" />
