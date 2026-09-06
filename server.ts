@@ -779,7 +779,7 @@ async function startServer() {
     console.warn('Initial catalog load fallback:', err);
   }
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.VERCEL !== '1') {
     app.listen(PORT, HOST, () => {
       console.log(`🚀 CakraNexa Express Server running on http://${HOST}:${PORT} [${IS_PRODUCTION ? 'production' : 'development'}]`);
       console.log(`🔐 Admin login: ${ADMIN_PASSWORD ? 'aktif' : 'NONAKTIF (set ADMIN_PASSWORD)'} | 💳 Midtrans: ${MIDTRANS_ENABLED ? (MIDTRANS_IS_PRODUCTION ? 'production' : 'sandbox') : 'simulasi'}`);
