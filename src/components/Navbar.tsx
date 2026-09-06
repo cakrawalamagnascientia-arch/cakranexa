@@ -13,7 +13,6 @@ import {
   Phone, 
   Building2, 
   Briefcase, 
-  Layers
 } from 'lucide-react';
 import { ActivePage, SubSection, BookCategory } from '../types';
 import { CakraNexaLogo } from './CakraNexaLogo';
@@ -443,7 +442,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </nav>
 
-          {/* Action Buttons: Search, Admin Portal, Artistic Gold Cart */}
+          {/* Action Buttons: Search and Artistic Gold Cart */}
           <div className="flex items-center space-x-2 sm:space-x-3">
             {/* Quick Search */}
             <button
@@ -453,16 +452,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               title="Cari Judul / ISBN / Penulis"
             >
               <Search className="w-4 h-4" />
-            </button>
-
-            {/* Admin Portal Button */}
-            <button
-              id="btn-admin-portal"
-              onClick={() => onNavigate('admin')}
-              className="hidden sm:inline-flex items-center gap-1.5 bg-white/10 p-2 rounded-full px-4 text-[10px] uppercase font-bold tracking-tighter border border-white/20 text-white hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all cursor-pointer"
-            >
-              <Layers className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span>Admin Portal</span>
             </button>
 
             {/* Artistic Flair Cart Button */}
@@ -649,18 +638,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             </div>
 
-            <div className="border-t border-white/10 pt-3">
-              <button
-                onClick={() => {
-                  onNavigate('admin');
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded bg-gradient-to-r from-[#DFBF64] to-[#C5A059] text-[#0F172A] font-bold text-xs"
-              >
-                <Layers className="w-4 h-4" />
-                <span>Admin Backend Portal</span>
-              </button>
-            </div>
           </div>
         </div>
       )}

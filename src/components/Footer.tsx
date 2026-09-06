@@ -241,7 +241,7 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
           </ul>
         </div>
 
-        {/* Column 4: Perusahaan & Portal Admin */}
+        {/* Column 4: Perusahaan */}
         <div className="space-y-3 text-xs">
           <h4 className="font-serif font-bold text-sm text-white uppercase tracking-wider">
             Perusahaan
@@ -293,15 +293,6 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
                 className="hover:text-[#D4AF37] transition-colors cursor-pointer"
               >
                 Hubungi Kami
-              </button>
-            </li>
-            <li className="pt-2">
-              <button 
-                id="footer-btn-admin-portal"
-                onClick={() => onNavigate('admin')}
-                className="px-2.5 py-1 rounded-xs bg-slate-800 text-[#D4AF37] text-[10px] uppercase font-bold tracking-wider hover:bg-slate-700 transition-colors inline-block cursor-pointer"
-              >
-                Portal Admin CRUD
               </button>
             </li>
           </ul>
