@@ -36,34 +36,45 @@ export function resolveImageUrl(src?: string | null, defaultType: 'book' | 'bann
     return trimmed;
   }
 
+  let path: string;
+
   // If already an absolute path starting with /
   if (trimmed.startsWith('/')) {
-    return trimmed;
+    path = trimmed;
   }
-
   // If relative path like "images/..."
-  if (trimmed.startsWith('images/')) {
-    return `/${trimmed}`;
+  else if (trimmed.startsWith('images/')) {
+    path = `/${trimmed}`;
   }
-
   // If simple filename like "book-1.jpg" or "banner-1.jpg"
-  if (defaultType === 'book') {
-    return `/images/books/${trimmed}`;
+  else if (defaultType === 'book') {
+    path = `/images/books/${trimmed}`;
   }
-  if (defaultType === 'banner') {
-    return `/images/banners/${trimmed}`;
+  else if (defaultType === 'banner') {
+    path = `/images/banners/${trimmed}`;
   }
-  if (defaultType === 'blog') {
-    return `/images/blog/${trimmed}`;
+  else if (defaultType === 'blog') {
+    path = `/images/blog/${trimmed}`;
   }
-  if (defaultType === 'logo') {
-    return `/images/logo/${trimmed}`;
+  else if (defaultType === 'logo') {
+    path = `/images/logo/${trimmed}`;
   }
-  if (defaultType === 'payment') {
-    return `/images/payment/${trimmed}`;
+  else if (defaultType === 'payment') {
+    path = `/images/payment/${trimmed}`;
+  }
+  else {
+    path = `/${trimmed}`;
   }
 
-  return `/${trimmed}`;
+  // Always encode URI for local filesystem paths (spaces -> %20, unicode -> percent-encoded)
+  // Without this, Windows filenames containing spaces or UTF-8 chars produce HTTP 000 / 404 in <img src>.
+  const encodePathSegment = (seg: string) => seg === '' ? seg : encodeURIComponent(seg).replace(/%2F/g, '/');
+  if (path.startsWith('/')) {
+    const [, ...rest] = path.split('/');
+    return '/' + rest.map(encodePathSegment).join('/');
+  }
+  const parts = path.split('/');
+  return parts.map(encodePathSegment).join('/');
 }
 
 /**
