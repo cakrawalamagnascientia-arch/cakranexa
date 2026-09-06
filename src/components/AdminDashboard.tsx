@@ -1543,8 +1543,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <input
                     type="number"
                     required
-                    min={50000}
-                    step={5000}
                     value={formData.harga || 200000}
                     onChange={(e) => setFormData({ ...formData, harga: Number(e.target.value) })}
                     className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-slate-800 font-mono"
@@ -1558,8 +1556,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <label className="font-semibold text-slate-700 block mb-1">Harga Asli / Coret (Opsional)</label>
                   <input
                     type="number"
-                    min={50000}
-                    step={5000}
                     value={formData.originalHarga || ''}
                     onChange={(e) => setFormData({ ...formData, originalHarga: e.target.value ? Number(e.target.value) : undefined })}
                     placeholder="Contoh: 260000"
