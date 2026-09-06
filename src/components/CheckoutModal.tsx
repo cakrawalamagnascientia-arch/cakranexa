@@ -104,6 +104,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [copiedVA, setCopiedVA] = useState(false);
   const [copiedBankAcc, setCopiedBankAcc] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'info' | 'error'; text: string } | null>(null);
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
   // Update customer.courier label whenever current courier or shipping cost changes
   useEffect(() => {
@@ -121,8 +122,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     setToastMessage({ type, text });
     setTimeout(() => setToastMessage(null), 3500);
   };
-
-  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
   const handleProceedToPayment = async (e: React.FormEvent) => {
     e.preventDefault();
