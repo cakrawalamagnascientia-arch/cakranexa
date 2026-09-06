@@ -268,8 +268,10 @@ async function updateOrderStatus(orderId: string, paymentStatus?: string, tracki
 // ============================================================================
 // SERVER
 // ============================================================================
+let app: express.Express;
+
 async function startServer() {
-  const app = express();
+  app = express();
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
 
@@ -778,10 +780,14 @@ async function startServer() {
     console.warn('Initial catalog load fallback:', err);
   }
 
-  app.listen(PORT, HOST, () => {
-    console.log(`🚀 CakraNexa Express Server running on http://${HOST}:${PORT} [${IS_PRODUCTION ? 'production' : 'development'}]`);
-    console.log(`🔐 Admin login: ${ADMIN_PASSWORD ? 'aktif' : 'NONAKTIF (set ADMIN_PASSWORD)'} | 💳 Midtrans: ${MIDTRANS_ENABLED ? (MIDTRANS_IS_PRODUCTION ? 'production' : 'sandbox') : 'simulasi'}`);
-  });
+  if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, HOST, () => {
+      console.log(`🚀 CakraNexa Express Server running on http://${HOST}:${PORT} [${IS_PRODUCTION ? 'production' : 'development'}]`);
+      console.log(`🔐 Admin login: ${ADMIN_PASSWORD ? 'aktif' : 'NONAKTIF (set ADMIN_PASSWORD)'} | 💳 Midtrans: ${MIDTRANS_ENABLED ? (MIDTRANS_IS_PRODUCTION ? 'production' : 'sandbox') : 'simulasi'}`);
+    });
+  }
 }
 
 startServer();
+
+export default app;
