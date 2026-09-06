@@ -278,6 +278,7 @@ async function startServer() {
   const configuredOrigins = (process.env.ALLOWED_ORIGINS || '')
     .split(',')
     .map((s) => s.trim())
+    .map((s) => s.replace(/\/$/, ''))
     .filter(Boolean);
 
   app.use(
