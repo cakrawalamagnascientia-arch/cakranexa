@@ -200,13 +200,10 @@ export function handleImageError(
 
   target.dataset.errorAttempts = String(attempts + 1);
 
-  // First fallback attempt: Try standard online placeholder if local file isn't uploaded yet
+  // For books: directly use generated SVG cover (branded CakraNexa) — NO external stock photo fallback
+  // Stock photos cause jarring mismatch when local PNG is missing or path is wrong.
   if (fallbackType === 'book') {
-    if (attempts === 0 && !currentSrc.includes('unsplash.com')) {
-      target.src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80';
-    } else {
-      target.src = createFallbackBookCoverSvg(meta);
-    }
+    target.src = createFallbackBookCoverSvg(meta);
   } else if (fallbackType === 'banner') {
     target.src = 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1200';
   } else {

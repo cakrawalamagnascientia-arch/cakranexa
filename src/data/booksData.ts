@@ -28,7 +28,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: true,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '/images/books/7. Reformulasi Subjek Pajak Pertambahan Nilai (PPN) Di Era Digitalisasi Di Indonesia.png',
+    coverBuku: '/images/books/7. reformulasi-subjek-pajak-pertambahan-nilai-ppn-di-era-digitalisasi-di-indonesia.png',
     badge: "Trilogi PPN Digital",
     beratGram: 500
   },
@@ -47,7 +47,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: true,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '/images/books/8. Reformulasi Objek Pajak Pertambahan Nilai (PPN) Di Era Digitalisasi Di Indonesia.png',
+    coverBuku: '/images/books/8. reformulasi-objek-pajak-pertambahan-nilai-ppn-di-era-digitalisasi-di-indonesia.png',
     badge: "Trilogi PPN Digital",
     beratGram: 500
   },
@@ -66,7 +66,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: true,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '/images/books/9. Reformulasi Mekanisme Pajak Pertambahan Nilai (PPN) Dalam Penanganan Tantangan Digitalisasi Di Indonesia.png',
+    coverBuku: '/images/books/9. reformulasi-mekanisme-pajak-pertambahan-nilai-ppn-dalam-penanganan-tantangan-digitalisasi-di-indonesia.png',
     badge: "Trilogi PPN Digital",
     beratGram: 500
   },
@@ -85,7 +85,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: true,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '',
+    coverBuku: '/images/books/10. prinsip-prinsip-transfer-pricing-konsep-dan-aplikasi-di-indonesia.png',
     badge: "Pajak Internasional",
     beratGram: 500
   },
@@ -104,7 +104,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: false,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '/images/books/17. Prinsip Dan Konsep Audit Dalam Akuntansi Dan Pelaksanaan Kewajiban Perpajakan Di Indonesia.png',
+    coverBuku: '/images/books/17. prinsip-dan-konsep-audit-dalam-akuntansi-dan-pelaksanaan-kewajiban-perpajakan-di-indonesia.png',
     badge: "Audit & Perpajakan",
     beratGram: 500
   },
@@ -123,7 +123,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: false,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '',
+    coverBuku: '/images/books/14. peranan-hukum-dalam-penanganan-tantangan-pajak-e-commerce-di-indonesia.png',
     badge: "Hukum Pajak Digital",
     beratGram: 500
   },
@@ -142,7 +142,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: false,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '/images/books/13. Hukum Pidana Di Bidang Perpajakan Di Indonesia.png',
+    coverBuku: '/images/books/13. hukum-pidana-di-bidang-perpajakan-di-indonesia.png',
     badge: "Hukum Pidana Pajak",
     beratGram: 500
   },
@@ -161,7 +161,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: false,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '',
+    coverBuku: '/images/books/12. pidana-badan-dan-pertanggungjawabannya-di-bidang-perpajakan-di-indonesia.png',
     badge: "Hukum Pidana Korporasi",
     beratGram: 500
   },
@@ -180,7 +180,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: false,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '/images/books/11. Alternative Dispute Resolution Dalam Pidana Pajak Di Indonesia.png',
+    coverBuku: '/images/books/11. alternative-dispute-resolution-dalam-pidana-pajak-di-indonesia.png',
     badge: "Restorative Justice",
     beratGram: 500
   },
@@ -199,7 +199,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: false,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '/images/books/16. Akuntansi Pajak Teori Dan Praktik Di Indonesia.png',
+    coverBuku: '/images/books/16. akuntansi-pajak-teori-dan-praktik-di-indonesia.png',
     badge: "Buku Teks",
     beratGram: 500
   },
@@ -218,7 +218,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: false,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '/images/books/15. Pajak Merger Dan Akuisisi (M&A) Di Indonesia Prinsip Dan Konsep.png',
+    coverBuku: '/images/books/15. pajak-merger-dan-akuisisi-m-dan-a-di-indonesia-prinsip-dan-konsep.png',
     badge: "Pajak Korporasi",
     beratGram: 500
   },
@@ -256,7 +256,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: true,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '/images/books/2. Jejak Audit Pajak Pertambahan Nilai PPN Teknologi, Invoicing, dan Pencegahan Fraud di Indonesia.png',
+    coverBuku: '/images/books/2. jejak-audit-pajak-pertambahan-nilai-ppn-teknologi-invoicing-dan-pencegahan-fraud-di-indonesia.png',
     badge: "Segera Terbit",
     beratGram: 500
   },
@@ -275,7 +275,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: true,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '/images/books/3. Treaty Shopping dan Anti Abuse Hukum, Kebijakan, dan Penegakan Hukum.png',
+    coverBuku: '/images/books/3. treaty-shopping-dan-anti-abuse-hukum-kebijakan-dan-penegakan-hukum.png',
     badge: "Segera Terbit",
     beratGram: 500
   },
@@ -294,7 +294,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: true,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '/images/books/4. Actus Reus dalam Tindak Pidana Perpajakan Teori Delik, Unsur Objektif, dan Perbandingan Internasional.png',
+    coverBuku: '/images/books/4. actus-reus-dalam-tindak-pidana-perpajakan-teori-delik-unsur-objektif-dan-perbandingan-internasional.png',
     badge: "Segera Terbit",
     beratGram: 500
   },
@@ -313,7 +313,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: true,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '/images/books/1. Rekayasa Keuangan untuk Siklus Publik yang Volatil di Indonesia.png',
+    coverBuku: '/images/books/1. rekayasa-keuangan-untuk-siklus-publik-yang-volatil-di-indonesia.png',
     badge: "Segera Terbit",
     beratGram: 500
   },
@@ -332,7 +332,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: true,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '/images/books/6. Bukti dan Pembuktian dalam Administrasi Perpajakan di Indonesia.png',
+    coverBuku: '/images/books/6. bukti-dan-pembuktian-dalam-administrasi-perpajakan-di-indonesia.png',
     badge: "Segera Terbit",
     beratGram: 500
   },

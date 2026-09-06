@@ -263,7 +263,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     linkPembelian: '#',
     bukuTerbaru: false,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
+    coverBuku: '',
     stock: 50
   });
 
@@ -313,7 +313,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       linkPembelian: '#',
       bukuTerbaru: true,
       penerbit: 'PT Cakrawala Magna Scientia',
-      coverBuku: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
+      coverBuku: '',
       stock: 50
     });
     setIsFormModalOpen(true);
@@ -373,7 +373,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         linkPembelian: formData.linkPembelian || '#',
         bukuTerbaru: Boolean(formData.bukuTerbaru),
         penerbit: formData.penerbit || 'PT Cakrawala Magna Scientia',
-        coverBuku: formData.coverBuku || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80'
+        coverBuku: formData.coverBuku || ''
       };
       onUpdateBook(updated);
       showNotification(`Buku "${updated?.name || ''}" berhasil diperbarui.`);
@@ -398,7 +398,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         linkPembelian: formData.linkPembelian || '#',
         bukuTerbaru: Boolean(formData.bukuTerbaru),
         penerbit: formData.penerbit || 'PT Cakrawala Magna Scientia',
-        coverBuku: formData.coverBuku || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
+        coverBuku: formData.coverBuku || '',
         stock: formData.stock !== undefined && formData.stock !== null && String(formData.stock) !== '' ? Number(formData.stock) : undefined,
         rating: 5.0,
         reviewsCount: 1

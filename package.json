@@ -45,6 +45,7 @@
     "@vitejs/plugin-react": "^5.0.4",
     "cross-env": "^7.0.3",
     "esbuild": "^0.25.0",
+    "pdf-parse": "^2.4.5",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
