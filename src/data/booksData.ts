@@ -237,7 +237,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: true,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '',
+    coverBuku: '/images/books/1. pajak-pertambangan-di-indonesia-dari-rente-mineral-ke-kesejahteraan publik.png',
     badge: "Segera Terbit",
     beratGram: 500
   },
@@ -313,7 +313,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: true,
     penerbit: 'PT Cakrawala Magna Scientia',
-    coverBuku: '/images/books/1. rekayasa-keuangan-untuk-siklus-publik-yang-volatil-di-indonesia.png',
+    coverBuku: '/images/books/5. rekayasa-keuangan-untuk-siklus-publik-yang-volatil-di-indonesia.png',
     badge: "Segera Terbit",
     beratGram: 500
   },
