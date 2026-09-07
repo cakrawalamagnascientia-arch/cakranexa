@@ -1,5 +1,5 @@
 import { Book, Order, OrderStatus, Author } from '../types';
-import { INITIAL_BOOKS } from '../data/booksData';
+import { INITIAL_BOOKS, normalizeBookAuthors } from '../data/booksData';
 import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS } from '../data/authorsData';
 import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
 import { getAdminToken, clearAdminToken } from './adminAuth';
@@ -85,7 +85,7 @@ export interface CreateOrderResponse {
   paymentStatus?: OrderStatus;
 }
 
-const rowToBook = (row: any): Book => ({
+const rowToBook = (row: any): Book => normalizeBookAuthors({
   id: row.id,
   name: row.name,
   slug: row.slug,

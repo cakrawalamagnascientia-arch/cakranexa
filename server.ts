@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { INITIAL_BOOKS } from './src/data/booksData';
+import { INITIAL_BOOKS, normalizeBookAuthors } from './src/data/booksData';
 import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS } from './src/data/authorsData';
 import type { Book, Author, Book as BookType } from './src/types';
 
@@ -64,7 +64,7 @@ let inMemoryBookAuthors: Array<{ id?: string; book_id: string; author_id: string
 // ============================================================================
 // HELPERS
 // ============================================================================
-const rowToBook = (b: any): Book => ({
+const rowToBook = (b: any): Book => normalizeBookAuthors({
   id: b.id,
   name: b.name,
   slug: b.slug,
@@ -451,7 +451,7 @@ async function startServer() {
   // POST /api/books - Create or Update Book (Admin)
   app.post('/api/books', requireAdmin, async (req, res) => {
     try {
-      const bookData = req.body as Book;
+      const bookData = normalizeBookAuthors(req.body as Book);
       if (!bookData?.id || !bookData.name || !bookData.slug || typeof bookData.harga !== 'number') {
         return res.status(400).json({ error: 'Field wajib: id, name, slug, harga (number).' });
       }

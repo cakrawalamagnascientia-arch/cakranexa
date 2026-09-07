@@ -348,12 +348,38 @@ export const INITIAL_BOOKS: Book[] = RAW_BOOKS.map((book) => {
   };
 });
 
+const PDF_AUTHOR_BY_SLUG: Record<string, string> = {
+  'pajak-pertambangan-di-indonesia-dari-rente-mineral-ke-kesejahteraan-publik': 'Henry Dianto P. Sinaga; Yuli Teguh Hidayat',
+  'jejak-audit-pajak-pertambahan-nilai-ppn-teknologi-invoicing-dan-pencegahan-fraud-di-indonesia': 'Liza Khoironi; Sigit Haryoko',
+  'treaty-shopping-dan-anti-abuse-hukum-kebijakan-dan-penegakan-hukum': 'Sigit Haryoko; Naufal Akbarsyah Gunawan',
+  'actus-reus-dalam-tindak-pidana-perpajakan-teori-delik-unsur-objektif-dan-perbandingan-internasional': 'Wahyu Widodo',
+  'rekayasa-keuangan-untuk-siklus-publik-yang-volatil-di-indonesia': 'Yuli Teguh Hidayat; Henry Dianto P. Sinaga',
+  'bukti-dan-pembuktian-dalam-administrasi-perpajakan-di-indonesia': 'Sigit Haryoko; Liza Khoironi',
+  'reformulasi-subjek-pajak-pertambahan-nilai-ppn-di-era-digitalisasi-di-indonesia': 'Bonarsius Sipayung',
+  'reformulasi-objek-pajak-pertambahan-nilai-ppn-di-era-digitalisasi-di-indonesia': 'Bonarsius Sipayung',
+  'reformulasi-mekanisme-pajak-pertambahan-nilai-ppn-dalam-penanganan-tantangan-digitalisasi-di-indonesia': 'Bonarsius Sipayung',
+  'prinsip-prinsip-transfer-pricing-konsep-dan-aplikasi-di-indonesia': 'Henry Dianto P. Sinaga & Andi Banua Adams',
+  'alternative-dispute-resolution-dalam-pidana-pajak-di-indonesia': 'Wahyu Widodo',
+  'pidana-badan-dan-pertanggungjawabannya-di-bidang-perpajakan-di-indonesia': 'Henry Dianto P. Sinaga & Edy Edwin P. Ginting',
+  'hukum-pidana-di-bidang-perpajakan-di-indonesia': 'Bonarsius Sipayung, Henry Dianto P. Sinaga, & Anton Hartanto',
+  'peranan-hukum-dalam-penanganan-tantangan-pajak-e-commerce-di-indonesia': 'Henry Dianto P. Sinaga',
+  'pajak-merger-dan-akuisisi-m-dan-a-di-indonesia-prinsip-dan-konsep': 'ANDI BANUA ADAMS & JOKO PURNOMO RAHARJO',
+  'akuntansi-pajak-teori-dan-praktik-di-indonesia': 'Yudha Pramana',
+  'prinsip-dan-konsep-audit-dalam-akuntansi-dan-pelaksanaan-kewajiban-perpajakan-di-indonesia': 'Yudha Pramana & Joko Purnomo Raharjo'
+};
+
+/** Menyamakan atribusi card buku dengan kolom Author pada PDF katalog resmi. */
+export const normalizeBookAuthors = (book: Book): Book => ({
+  ...book,
+  author: PDF_AUTHOR_BY_SLUG[book.slug] || book.author
+});
+
 export const withLocalBookCover = (book: Book): Book => {
   const localBook = INITIAL_BOOKS.find((candidate) => candidate.id === book.id);
   const coverPath = localBook?.coverBuku || book.coverBuku || '';
   const isScientiaIntegritasTitle = /\/images\/books\/(?:7|8|9|10|11|12|13|14|15|16|17)\./i.test(coverPath);
   return {
-    ...book,
+    ...normalizeBookAuthors(book),
     ...(localBook ? { coverBuku: localBook.coverBuku } : {}),
     ...(isScientiaIntegritasTitle ? { penerbit: 'PT Scientia Integritas Utama' } : {})
   };
