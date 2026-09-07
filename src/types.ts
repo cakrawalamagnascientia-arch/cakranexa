@@ -27,7 +27,7 @@ export interface Book {
   originalHarga?: number;
   discountPercentage?: number;
   releaseDate?: string;
-  scheduledUpload?: string;
+  scheduledUpload?: string | boolean;
   rating?: number;
   reviewsCount?: number;
   daftarIsi?: string[];

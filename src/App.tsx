@@ -740,8 +740,15 @@ export default function App() {
                     const latest = (books || []).filter(b => {
                       if (b?.bukuTerbaru) return true;
                       if (b?.scheduledUpload) {
-                        const sDate = new Date(b.scheduledUpload);
-                        if (!isNaN(sDate.getTime()) && sDate <= new Date()) return true;
+                        if (typeof b.scheduledUpload === 'boolean') {
+                          if (b?.releaseDate) {
+                            const rDate = new Date(b.releaseDate);
+                            if (!isNaN(rDate.getTime()) && rDate <= new Date()) return true;
+                          }
+                        } else {
+                          const sDate = new Date(b.scheduledUpload);
+                          if (!isNaN(sDate.getTime()) && sDate <= new Date()) return true;
+                        }
                       }
                       if (b?.releaseDate) {
                         const rDate = new Date(b.releaseDate);
