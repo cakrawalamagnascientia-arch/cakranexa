@@ -24,7 +24,7 @@ export interface FallbackBookMeta {
 export function resolveImageUrl(src?: string | null, defaultType: 'book' | 'banner' | 'logo' | 'blog' | 'payment' = 'book', bookId?: string): string {
   if (!src || typeof src !== 'string' || src.trim() === '') {
     if (defaultType === 'book' && bookId) {
-      return `/images/books/${bookId.replace('book-', 'book-')}.jpg`;
+      return `/images/books/${bookId.replace('book-', 'book-')}.png`;
     }
     return '';
   }
@@ -204,17 +204,36 @@ export function handleImageError(
   const attempts = parseInt(target.dataset.errorAttempts || '0', 10);
 
   // Prevent infinite loop
-  if (attempts >= 2) {
+  if (attempts >= 3) {
     target.src = createFallbackBookCoverSvg(meta);
     return;
   }
 
   target.dataset.errorAttempts = String(attempts + 1);
 
-  // For books: directly use generated SVG cover (branded CakraNexa) — NO external stock photo fallback
-  // Stock photos cause jarring mismatch when local PNG is missing or path is wrong.
+  // For books: first try swapping extension (.png <-> .jpg / .jpeg) before SVG fallback
   if (fallbackType === 'book') {
-    target.src = createFallbackBookCoverSvg(meta);
+    if (attempts === 0) {
+      let altSrc = '';
+      const decodedSrc = decodeURIComponent(currentSrc);
+      if (decodedSrc.toLowerCase().endsWith('.jpg') || decodedSrc.toLowerCase().endsWith('.jpeg')) {
+        altSrc = currentSrc.replace(/\.(jpg|jpeg)$/i, '.png');
+      } else if (decodedSrc.toLowerCase().endsWith('.png')) {
+        altSrc = currentSrc.replace(/\.png$/i, '.jpg');
+      } else if (decodedSrc.includes('/images/books/')) {
+        altSrc = currentSrc + (currentSrc.endsWith('/') ? '' : '.png');
+      }
+      if (altSrc && altSrc !== currentSrc) {
+        target.src = altSrc;
+        return;
+      }
+    }
+    // After extension swap fails or attempt 1+: use branded SVG fallback
+    if (attempts >= 1) {
+      target.src = createFallbackBookCoverSvg(meta);
+    } else {
+      target.src = createFallbackBookCoverSvg(meta);
+    }
   } else if (fallbackType === 'banner') {
     target.src = 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1200';
   } else {

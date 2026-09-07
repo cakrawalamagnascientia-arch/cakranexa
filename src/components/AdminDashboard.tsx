@@ -262,7 +262,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     sinopsis: '',
     linkPembelian: '#',
     bukuTerbaru: false,
-    penerbit: 'PT Cakrawala Magna Scientia',
+    penerbit: 'PT Scientia Integritas Utama',
     coverBuku: '',
     stock: 50
   });
@@ -274,6 +274,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     'Ekonomi & Bisnis', 
     'Filsafat', 
     'Teologia'
+  ];
+
+  const PENERBIT_OPTIONS = [
+    'PT Scientia Integritas Utama',
+    'PT Cakrawala Magna Scientia'
   ];
 
   const showNotification = (msg: string) => {
@@ -312,7 +317,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       sinopsis: '',
       linkPembelian: '#',
       bukuTerbaru: true,
-      penerbit: 'PT Cakrawala Magna Scientia',
+      penerbit: 'PT Scientia Integritas Utama',
       coverBuku: '',
       stock: 50
     });
@@ -372,7 +377,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         sinopsis: formData.sinopsis || '',
         linkPembelian: formData.linkPembelian || '#',
         bukuTerbaru: Boolean(formData.bukuTerbaru),
-        penerbit: formData.penerbit || 'PT Cakrawala Magna Scientia',
+        penerbit: formData.penerbit || 'PT Scientia Integritas Utama',
         coverBuku: formData.coverBuku || ''
       };
       onUpdateBook(updated);
@@ -394,10 +399,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         discountPercentage: formData.discountPercentage ? Number(formData.discountPercentage) : undefined,
         releaseDate: formData.releaseDate || '2026-06-01',
         scheduledUpload: formData.scheduledUpload || undefined,
-        sinopsis: formData.sinopsis || 'Sinopsis monografi ilmiah PT Cakrawala Magna Scientia.',
+        sinopsis: formData.sinopsis || 'Sinopsis monografi ilmiah PT Scientia Integritas Utama.',
         linkPembelian: formData.linkPembelian || '#',
         bukuTerbaru: Boolean(formData.bukuTerbaru),
-        penerbit: formData.penerbit || 'PT Cakrawala Magna Scientia',
+        penerbit: formData.penerbit || 'PT Scientia Integritas Utama',
         coverBuku: formData.coverBuku || '',
         stock: formData.stock !== undefined && formData.stock !== null && String(formData.stock) !== '' ? Number(formData.stock) : undefined,
         rating: 5.0,
@@ -847,6 +852,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <tr>
                     <th className="py-3.5 px-4 font-semibold">Buku & ISBN</th>
                     <th className="py-3.5 px-4 font-semibold">Kategori</th>
+                    <th className="py-3.5 px-4 font-semibold">Penerbit</th>
                     <th className="py-3.5 px-4 font-semibold">Harga (IDR)</th>
                     <th className="py-3.5 px-4 font-semibold text-center">Tahun / Hlm</th>
                     <th className="py-3.5 px-4 font-semibold text-center">Buku Terbaru</th>
@@ -896,6 +902,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <span className="px-2.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-800 border border-slate-200">
                           {book?.category || 'Katalog'}
                         </span>
+                      </td>
+
+                      {/* Penerbit */}
+                      <td className="py-3.5 px-4 whitespace-nowrap text-[11px]">
+                        {book?.penerbit ? (
+                          <span className={`inline-flex px-2 py-0.5 rounded border text-[10px] font-semibold ${
+                            book.penerbit === 'PT Scientia Integritas Utama'
+                              ? 'bg-[#DFBF64]/10 text-[#8a6e16] border-[#D4AF37]/40'
+                              : 'bg-slate-100 text-slate-700 border-slate-200'
+                          }`}>
+                            {book.penerbit.replace('PT ', '')}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400">-</span>
+                        )}
                       </td>
 
                       {/* Price */}
@@ -1522,6 +1543,33 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <option key={c} value={c}>{c}</option>
                     ))}
                   </select>
+                </div>
+              </div>
+
+              {/* Penerbit & Stok */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Penerbit Resmi *</label>
+                  <select
+                    value={formData.penerbit || 'PT Scientia Integritas Utama'}
+                    onChange={(e) => setFormData({ ...formData, penerbit: e.target.value })}
+                    className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-slate-800 bg-white cursor-pointer"
+                  >
+                    {PENERBIT_OPTIONS.map((p) => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Stok / Inventaris</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={formData.stock !== undefined && formData.stock !== null ? String(formData.stock) : ''}
+                    onChange={(e) => setFormData({ ...formData, stock: e.target.value === '' ? undefined : Number(e.target.value) })}
+                    placeholder="Contoh: 50"
+                    className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-slate-800 font-mono"
+                  />
                 </div>
               </div>
 
