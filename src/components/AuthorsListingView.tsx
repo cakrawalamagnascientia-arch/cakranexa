@@ -8,15 +8,6 @@ export interface AuthorsListingViewProps {
   onSelectAuthor: (author: Author) => void;
 }
 
-const FALLBACK_AVATAR =
-  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'><rect width='160' height='160' fill='%23F1F5F9'/><circle cx='80' cy='60' r='28' fill='%2394A3B8'/><path d='M32,140 C32,108 56,92 80,92 C104,92 128,108 128,140 Z' fill='%2394A3B8'/></svg>";
-
-const resolveAuthorPhoto = (photoUrl: string | undefined): string => {
-  if (!photoUrl || typeof photoUrl !== 'string') return FALLBACK_AVATAR;
-  if (photoUrl.startsWith('data:') || photoUrl.startsWith('http')) return photoUrl;
-  return photoUrl;
-};
-
 export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors, onSelectAuthor }) => {
   const safeAuthors = Array.isArray(authors) ? authors : [];
   const sliceAuthors = safeAuthors.slice(0, 6);
@@ -86,11 +77,7 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 lg:gap-8">
             {sliceAuthors.map((author) => {
-              const photo = resolveAuthorPhoto(author.photo_url);
               const gelar = author.academic_titles?.trim();
-              const profesiRingkas = gelar
-                ? (gelar.length <= 40 ? gelar : 'Dosen &amp; Peneliti')
-                : 'Dosen &amp; Peneliti';
               return (
                 <article
                   key={author.id}
@@ -101,17 +88,8 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
                     <div className="absolute inset-0 opacity-20"
                          style={{ backgroundImage: 'radial-gradient(circle at 30% 30%, #D4AF37 1px, transparent 1px), radial-gradient(circle at 70% 80%, #DFBF64 1px, transparent 1px)', backgroundSize: '18px 18px' }} />
                     <div className="absolute left-1/2 top-[62%] -translate-x-1/2 -translate-y-1/2">
-                      <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl border-2 border-[#D4AF37]/60 shadow-xl overflow-hidden bg-slate-100 ring-4 ring-white/20 group-hover:ring-[#D4AF37]/30 transition">
-                        <img
-                          src={photo}
-                          alt={toTitleCase(author.name)}
-                          loading="lazy"
-                          onError={(e) => {
-                            const img = e.currentTarget;
-                            if (img.src !== FALLBACK_AVATAR) img.src = FALLBACK_AVATAR;
-                          }}
-                          className="w-full h-full object-cover"
-                        />
+                      <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl border-2 border-[#D4AF37]/60 shadow-xl overflow-hidden bg-slate-100 ring-4 ring-white/20 group-hover:ring-[#D4AF37]/30 transition flex items-center justify-center">
+                        <User className="w-16 h-16 text-slate-300" aria-label="Foto belum diunggah" />
                       </div>
                     </div>
                   </div>
@@ -120,22 +98,22 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
                   <div className="pt-16 sm:pt-20 px-5 sm:px-6 pb-6 sm:pb-7 flex flex-col flex-1">
                     <div className="text-center">
                       <h3 className="text-lg sm:text-xl font-bold text-[#0F172A] leading-tight">
-                        {toTitleCase(author.name)}
+                        {author.name}
                       </h3>
                       {gelar && (
                         <div className="mt-1.5 text-xs sm:text-sm font-semibold text-[#A9850C]"
                              dangerouslySetInnerHTML={{ __html: gelar }} />
                       )}
-                      <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0F172A]/5 border border-[#0F172A]/10 text-[11px] sm:text-xs font-semibold text-[#0F172A]/80">
+                      {gelar && <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0F172A]/5 border border-[#0F172A]/10 text-[11px] sm:text-xs font-semibold text-[#0F172A]/80">
                         <GraduationCap className="w-3.5 h-3.5 text-[#A9850C]" />
-                        <span dangerouslySetInnerHTML={{ __html: profesiRingkas }} />
-                      </div>
+                        <span>Gelar/Profesi</span>
+                      </div>}
                     </div>
 
                     <div className="mt-4 grid grid-cols-2 gap-2 text-[11px] sm:text-xs">
                       {author.scopus_id ? (
                         <div className="px-2 py-1.5 rounded-lg bg-[#0F172A] text-[#DFBF64] font-bold text-center truncate">
-                          Scopus
+                          Scopus: {author.scopus_id}
                         </div>
                       ) : (
                         <div className="px-2 py-1.5 rounded-lg bg-slate-50 text-slate-400 text-center">
@@ -144,7 +122,7 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
                       )}
                       {author.orcid_id ? (
                         <div className="px-2 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 font-bold text-center truncate border border-emerald-200/60">
-                          ORCID
+                          ORCID: {author.orcid_id}
                         </div>
                       ) : (
                         <div className="px-2 py-1.5 rounded-lg bg-slate-50 text-slate-400 text-center">

@@ -20,15 +20,6 @@ export interface AuthorDetailViewProps {
   onSelectBook: (book: Book) => void;
 }
 
-const FALLBACK_AVATAR =
-  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 320'><rect width='320' height='320' fill='%23F1F5F9'/><circle cx='160' cy='120' r='56' fill='%2394A3B8'/><path d='M64,280 C64,216 112,184 160,184 C208,184 256,216 256,280 Z' fill='%2394A3B8'/></svg>";
-
-const resolvePhoto = (photoUrl: string | undefined): string => {
-  if (!photoUrl || typeof photoUrl !== 'string') return FALLBACK_AVATAR;
-  if (photoUrl.startsWith('data:') || photoUrl.startsWith('http')) return photoUrl;
-  return photoUrl;
-};
-
 type AuthorTabKey = 1 | 2 | 3 | 4;
 
 const TABS: { key: AuthorTabKey; label: string; icon: typeof GraduationCap; hint: string }[] = [
@@ -111,7 +102,6 @@ const resolveBookCover = (b: Book): string => b.coverBuku || '/images/books/plac
 
 export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allBooks, onSelectBook }) => {
   const [tab, setTab] = useState<AuthorTabKey>(1);
-  const photo = resolvePhoto(author.photo_url);
 
   const authorBooks: Book[] = useMemo(() => {
     if (Array.isArray(author.books) && author.books.length > 0) return author.books;
@@ -151,22 +141,16 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
                 {/* FOTO */}
                 <div className="p-5 sm:p-6 pb-0">
                   <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-inner aspect-square">
-                    <img
-                      src={photo}
-                      alt={toTitleCase(author.name)}
-                      onError={(e) => {
-                        const img = e.currentTarget;
-                        if (img.src !== FALLBACK_AVATAR) img.src = FALLBACK_AVATAR;
-                      }}
-                      className="w-full h-full object-cover"
-                    />
+                    <div className="w-full h-full flex items-center justify-center">
+                      <User className="w-24 h-24 text-slate-300" aria-label="Foto belum diunggah" />
+                    </div>
                   </div>
                 </div>
 
                 {/* IDENTITAS */}
                 <div className="px-5 sm:px-6 py-5 sm:py-6 text-center">
                   <h1 className="text-2xl sm:text-[26px] font-extrabold text-[#0F172A] leading-tight">
-                    {toTitleCase(author.name)}
+                    {author.name}
                   </h1>
                   {author.academic_titles && (
                     <div
@@ -182,8 +166,7 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
 
                 {/* AKADEMIK BADGES */}
                 <div className="px-5 sm:px-6 pb-4 space-y-2">
-                  {scopusLink || orcidLink ? (
-                    <div className="grid grid-cols-2 gap-2 text-[11px] sm:text-xs">
+                  <div className="grid grid-cols-2 gap-2 text-[11px] sm:text-xs">
                       {scopusLink ? (
                         <a
                           href={scopusLink}
@@ -191,7 +174,7 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
                           rel="noreferrer noopener"
                           className="group px-3 py-2 rounded-xl bg-[#0F172A] hover:bg-[#0B1120] text-[#DFBF64] font-bold flex items-center justify-center gap-1.5 transition"
                         >
-                          <span>Scopus</span>
+                          <span>Scopus: {author.scopus_id}</span>
                           <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition" />
                         </a>
                       ) : (
@@ -206,7 +189,7 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
                           rel="noreferrer noopener"
                           className="group px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold flex items-center justify-center gap-1.5 hover:bg-emerald-100 transition"
                         >
-                          <span>ORCID</span>
+                          <span>ORCID: {author.orcid_id}</span>
                           <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition" />
                         </a>
                       ) : (
@@ -215,7 +198,6 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
                         </div>
                       )}
                     </div>
-                  ) : null}
                 </div>
 
                 {/* KONTAK */}
