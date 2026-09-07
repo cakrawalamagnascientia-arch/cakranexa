@@ -350,7 +350,13 @@ export const INITIAL_BOOKS: Book[] = RAW_BOOKS.map((book) => {
 
 export const withLocalBookCover = (book: Book): Book => {
   const localBook = INITIAL_BOOKS.find((candidate) => candidate.id === book.id);
-  return localBook ? { ...book, coverBuku: localBook.coverBuku } : book;
+  const coverPath = localBook?.coverBuku || book.coverBuku || '';
+  const isScientiaIntegritasTitle = /\/images\/books\/(?:7|8|9|10|11|12|13|14|15|16|17)\./i.test(coverPath);
+  return {
+    ...book,
+    ...(localBook ? { coverBuku: localBook.coverBuku } : {}),
+    ...(isScientiaIntegritasTitle ? { penerbit: 'PT Scientia Integritas Utama' } : {})
+  };
 };
 
 /** Buku yang sudah bisa dipesan (harga tersedia) */
