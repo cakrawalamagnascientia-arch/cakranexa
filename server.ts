@@ -856,12 +856,8 @@ async function startServer() {
       };
 
       if (supabaseAdmin) {
-        try {
-          const { error } = await supabaseAdmin.from('authors').insert(authorToRow(payload));
-          if (error) console.warn('Supabase insert author warning:', error.message);
-        } catch (e) {
-          console.warn('Supabase author insert catch:', (e as any).message);
-        }
+        const { error } = await supabaseAdmin.from('authors').insert(authorToRow(payload));
+        if (error) return res.status(500).json({ error: `Supabase: ${error.message}` });
       }
       inMemoryAuthors.push(payload);
       return res.status(201).json(payload);
@@ -888,15 +884,11 @@ async function startServer() {
       };
       if (body.name) updated.name = String(body.name).trim();
       if (supabaseAdmin) {
-        try {
-          const { error } = await supabaseAdmin
-            .from('authors')
-            .update(authorToRow(updated))
-            .eq('id', id);
-          if (error) console.warn('Supabase update author warning:', error.message);
-        } catch (e) {
-          console.warn('Supabase author update catch:', (e as any).message);
-        }
+        const { error } = await supabaseAdmin
+          .from('authors')
+          .update(authorToRow(updated))
+          .eq('id', id);
+        if (error) return res.status(500).json({ error: `Supabase: ${error.message}` });
       }
       inMemoryAuthors[idx] = updated;
       return res.json(updated);
@@ -910,18 +902,17 @@ async function startServer() {
     try {
       const id = String(req.params.id || '').trim();
       await loadAuthors();
+      if (!inMemoryAuthors.some((a) => a.id === id)) {
+        return res.status(404).json({ error: 'Penulis tidak ditemukan.' });
+      }
       await loadBookAuthors();
       inMemoryAuthors = inMemoryAuthors.filter((a) => a.id !== id);
       inMemoryBookAuthors = inMemoryBookAuthors.filter((r) => r.author_id !== id);
       if (supabaseAdmin) {
-        try {
-          const { error: e1 } = await supabaseAdmin.from('book_authors').delete().eq('author_id', id);
-          if (e1) console.warn('Supabase book_authors delete warning:', e1.message);
-          const { error: e2 } = await supabaseAdmin.from('authors').delete().eq('id', id);
-          if (e2) console.warn('Supabase authors delete warning:', e2.message);
-        } catch (e) {
-          console.warn('Supabase author delete catch:', (e as any).message);
-        }
+        const { error: e1 } = await supabaseAdmin.from('book_authors').delete().eq('author_id', id);
+        if (e1) return res.status(500).json({ error: `Supabase relasi: ${e1.message}` });
+        const { error: e2 } = await supabaseAdmin.from('authors').delete().eq('id', id);
+        if (e2) return res.status(500).json({ error: `Supabase author: ${e2.message}` });
       }
       return res.json({ success: true, deletedId: id });
     } catch (err: any) {
@@ -937,6 +928,10 @@ async function startServer() {
       const bookIds: string[] = Array.isArray(body.book_ids)
         ? body.book_ids.map((s: any) => String(s))
         : [];
+      await loadAuthors();
+      if (!inMemoryAuthors.some((a) => a.id === authorId)) {
+        return res.status(404).json({ error: 'Penulis tidak ditemukan.' });
+      }
       await loadBookAuthors();
       // Hapus relasi lama untuk author ini
       inMemoryBookAuthors = inMemoryBookAuthors.filter((r) => r.author_id !== authorId);

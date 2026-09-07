@@ -280,9 +280,9 @@ export const apiClient = {
     return { ...seed, books };
   },
 
-  /** Admin: create / update penulis (server melakukan penyimpanan ke Supabase) */
-  async saveAuthor(author: Author): Promise<Author> {
-    const method = author.id && !INITIAL_AUTHORS.some((a) => a.id === author.id) ? 'PUT' : 'POST';
+  /** Admin: create / update penulis (server melakukan penyimpanan ke Supabase). */
+  async saveAuthor(author: Author, operation: 'create' | 'update' = 'update'): Promise<Author> {
+    const method = operation === 'update' ? 'PUT' : 'POST';
     const res = await fetchWithTimeout(
       method === 'PUT' ? apiUrl(`/api/authors/${encodeURIComponent(author.id)}`) : apiUrl('/api/authors'),
       {

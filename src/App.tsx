@@ -703,15 +703,15 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const syncAuthorToServer = (author: Author, verb: string) => {
-    apiClient.saveAuthor(author).catch((err) => {
+  const syncAuthorToServer = (author: Author, verb: string, operation: 'create' | 'update') => {
+    apiClient.saveAuthor(author, operation).catch((err) => {
       showNotification(err instanceof ApiError ? `Gagal ${verb} penulis di server: ${err.message}` : `Penulis ${verb} lokal saja (backend offline).`);
     });
   };
 
   const handleAddAuthor = (newAuthor: Author) => {
     setAuthors((prev) => [newAuthor, ...prev]);
-    syncAuthorToServer(newAuthor, 'menambah');
+    syncAuthorToServer(newAuthor, 'menambah', 'create');
   };
 
   const handleUpdateAuthor = (updatedAuthor: Author) => {
@@ -719,7 +719,7 @@ export default function App() {
     if (selectedAuthor && selectedAuthor.id === updatedAuthor.id) {
       setSelectedAuthor(attachAuthorBooks(updatedAuthor));
     }
-    syncAuthorToServer(updatedAuthor, 'memperbarui');
+    syncAuthorToServer(updatedAuthor, 'memperbarui', 'update');
   };
 
   const handleDeleteAuthor = (id: string) => {
