@@ -1549,7 +1549,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {/* Penerbit & Stok */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Penerbit Resmi *</label>
+                  <label className="font-semibold text-slate-700 block mb-1">Penerbit Utama *</label>
                   <select
                     value={formData.penerbit || 'PT Scientia Integritas Utama'}
                     onChange={(e) => setFormData({ ...formData, penerbit: e.target.value })}

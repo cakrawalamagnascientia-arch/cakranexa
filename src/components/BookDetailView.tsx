@@ -168,8 +168,8 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
             <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-start gap-2.5">
               <Building className="w-4 h-4 text-slate-700 mt-0.5 flex-shrink-0" />
               <div>
-                <div className="text-xs font-bold text-slate-800">Penerbit Resmi</div>
-                <div className="text-[11px] text-slate-500 truncate">{book?.penerbit || 'PT Cakrawala Magna Scientia'}</div>
+                <div className="text-xs font-bold text-slate-800">Penjual Resmi</div>
+                <div className="text-[11px] text-slate-500 truncate">PT CAKRAWALA MAGNA SCIENTIA</div>
               </div>
             </div>
           </div>
@@ -202,7 +202,7 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
               </div>
               <div className="flex items-center gap-1.5">
                 <Building className="w-4 h-4 text-slate-400" />
-                <span className="font-medium">Penerbit: <strong className="text-slate-900 font-semibold">{book?.penerbit}</strong></span>
+                <span className="font-medium">Penerbit Utama: <strong className="text-slate-900 font-semibold">{book?.penerbit}</strong></span>
               </div>
               {hasReviews && (
                 <div className="flex items-center gap-1 text-[#DFBF64]">
