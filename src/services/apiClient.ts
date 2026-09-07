@@ -1,6 +1,6 @@
 import { Book, Order, OrderStatus, Author } from '../types';
 import { INITIAL_BOOKS, normalizeBookAuthors } from '../data/booksData';
-import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS } from '../data/authorsData';
+import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthorProfile } from '../data/authorsData';
 import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
 import { getAdminToken, clearAdminToken } from './adminAuth';
 
@@ -115,7 +115,7 @@ const rowToBook = (row: any): Book => normalizeBookAuthors({
   featured: Boolean(row.featured)
 });
 
-const rowToAuthor = (row: any): Author => ({
+const rowToAuthor = (row: any): Author => normalizeAuthorProfile({
   id: row.id,
   name: row.name,
   academic_titles: row.academic_titles || undefined,

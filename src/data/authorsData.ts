@@ -233,6 +233,18 @@ export const INITIAL_AUTHORS: Author[] = [
   }
 ];
 
+/** Hanya mempertahankan nama/gelar/kontak yang sudah diverifikasi dari referensi profil. */
+export const normalizeAuthorProfile = (author: Author): Author => {
+  const name = String(author.name || '').trim().toLowerCase();
+  if (name.includes('bonarsius')) return { ...author, name: 'Bonarsius Sipayung', academic_titles: '', photo_url: '', email: '' };
+  if (name.includes('edy gunawan')) return { ...author, name: 'Dr. Edy Gunawan', academic_titles: 'S.E., Ak., S.H., M.Ak., M.H., M.Kn., BKP., CLA., Mediator., CertDa., CIISA', photo_url: '', email: '' };
+  if (name.includes('henry dianto')) return { ...author, name: 'Henry Dianto P. Sinaga', academic_titles: '', photo_url: '', email: '' };
+  if (name.includes('joko purnomo')) return { ...author, name: 'Joko Purnomo Raharjo', academic_titles: '', photo_url: '', email: 'jokopurnomo.jpr@gmail.com' };
+  if (name.includes('wahyu widodo')) return { ...author, name: 'Dr. Wahyu Widodo, Ak., CA., S.H., M.Si.', academic_titles: '', photo_url: '', email: '' };
+  if (name.includes('yudha pramana')) return { ...author, name: 'Yudha Pramana', academic_titles: '', photo_url: '', email: '' };
+  return { ...author, photo_url: '' };
+};
+
 /**
  * Junction relasi many-to-many antara books.id <-> authors.id
  * author_order: 0 = penulis utama (pertama), 1 = penulis kedua/kontributor, dst.

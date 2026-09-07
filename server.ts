@@ -5,7 +5,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { INITIAL_BOOKS, normalizeBookAuthors } from './src/data/booksData';
-import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS } from './src/data/authorsData';
+import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthorProfile } from './src/data/authorsData';
 import type { Book, Author, Book as BookType } from './src/types';
 
 // Load environment variables
@@ -138,7 +138,7 @@ async function loadBooks(): Promise<Book[]> {
 // ============================================================================
 // AUTHORS HELPERS (Mapping Snake ↔ Camel + Load from Supabase)
 // ============================================================================
-const rowToAuthor = (row: any): Author => ({
+const rowToAuthor = (row: any): Author => normalizeAuthorProfile({
   id: row.id,
   name: row.name,
   academic_titles: row.academic_titles || undefined,
