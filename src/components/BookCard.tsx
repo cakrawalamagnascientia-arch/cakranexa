@@ -25,10 +25,10 @@ export const BookCard: React.FC<BookCardProps> = ({
   return (
     <article 
       id={`book-card-${book?.id || 'item'}`}
-      className={`group flex flex-col justify-between bg-white border border-slate-200 hover:border-slate-300 rounded-xl p-4 transition-all duration-200 shadow-xs hover:shadow-md text-left ${className}`}
+      className={`group flex h-full flex-col justify-between bg-white border border-slate-200 hover:border-slate-300 rounded-xl p-4 transition-all duration-200 shadow-xs hover:shadow-md text-left ${className}`}
     >
       {/* Top Part: Cover & Metadata */}
-      <div>
+      <div className="flex flex-1 flex-col">
         {/* Clean Cover Presentation Container - No text or badge overlays */}
         <div 
           onClick={() => onSelectBook(book)}
@@ -65,19 +65,19 @@ export const BookCard: React.FC<BookCardProps> = ({
         {/* Title */}
         <h4 
           onClick={() => onSelectBook(book)}
-          className="text-xs sm:text-sm font-semibold leading-snug text-slate-900 group-hover:text-[#9A7B38] transition-colors mb-1 cursor-pointer"
+          className="h-[5.5rem] line-clamp-4 text-xs sm:text-sm font-semibold leading-snug text-slate-900 group-hover:text-[#9A7B38] transition-colors mb-1 cursor-pointer"
           title={toTitleCase(book?.title || book?.name)}
         >
           {toTitleCase(book?.title || book?.name) || 'Judul Buku'}
         </h4>
 
         {/* Author */}
-        <p className="text-xs text-slate-500 mb-2 font-normal line-clamp-1">
+        <p className="min-h-4 text-xs text-slate-500 mb-2 font-normal line-clamp-1">
           {book?.author || '-'}
         </p>
 
         {/* Rating (hanya jika ada ulasan nyata) & Jumlah Halaman (hanya jika sudah diisi) */}
-        <div className="flex items-center justify-between text-[11px] text-slate-400 mb-3 font-mono min-h-[16px]">
+        <div className="flex min-h-[16px] items-center justify-between text-[11px] text-slate-400 mb-3 font-mono">
           {book?.rating && book?.reviewsCount ? (
             <div className="flex items-center gap-1 text-amber-500">
               <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
@@ -94,7 +94,7 @@ export const BookCard: React.FC<BookCardProps> = ({
       {/* Price & Action Row */}
       <div className="pt-3 border-t border-slate-100 flex flex-col gap-2.5">
         {/* Price Information */}
-        <div className="flex items-baseline justify-between gap-1 w-full">
+        <div className="flex min-h-[2.25rem] items-baseline justify-between gap-1 w-full">
           <div>
             {book?.originalHarga && book.originalHarga > book.harga ? (
               <div className="flex items-center gap-1.5 mb-0.5">
