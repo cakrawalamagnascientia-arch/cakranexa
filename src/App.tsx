@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { INITIAL_BOOKS, withLocalBookCover } from './data/booksData';
-import { Book, CartItem, Order, ActivePage, SubSection, BookCategory, SeoSettings, SiteContentSettings } from './types';
+import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS } from './data/authorsData';
+import { Book, CartItem, Order, ActivePage, SubSection, BookCategory, SeoSettings, SiteContentSettings, Author } from './types';
 import { apiClient, ApiError } from './services/apiClient';
 import { parseLocation, pushRoute, RouteState } from './utils/router';
 import { AdminLoginGate } from './components/AdminLoginGate';
@@ -32,6 +33,8 @@ import { QuickSearchModal } from './components/QuickSearchModal';
 import { BookCarousel } from './components/BookCarousel';
 import { PublisherShowcase } from './components/PublisherShowcase';
 import { Footer } from './components/Footer';
+import { AuthorsListingView } from './components/AuthorsListingView';
+import { AuthorDetailView } from './components/AuthorDetailView';
 import { ScrollReveal } from './components/ScrollReveal';
 import { ScrollProgress } from './components/ScrollProgress';
 import { isAdminAuthenticated } from './services/adminAuth';
@@ -171,6 +174,44 @@ export default function App() {
     };
   }, []);
 
+  // 1b. Persistent Authors & Contributors State
+  const [authors, setAuthors] = useState<Author[]>(() => {
+    try {
+      const saved = localStorage.getItem('cakranexa_authors_v1');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {
+      // fallback to initial
+    }
+    return INITIAL_AUTHORS;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cakranexa_authors_v1', JSON.stringify(authors));
+    } catch {
+      // ignore storage limits
+    }
+  }, [authors]);
+
+  useEffect(() => {
+    let isMounted = true;
+    apiClient.getAuthors().then((remoteAuthors) => {
+      if (isMounted && remoteAuthors && remoteAuthors.length > 0) {
+        setAuthors(remoteAuthors);
+      }
+    }).catch((err) => {
+      console.warn('Silent API authors sync fallback:', err);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null);
+
   // 2. Persistent Shopping Cart State
   const [cart, setCart] = useState<CartItem[]>(() => {
     try {
@@ -242,11 +283,22 @@ export default function App() {
   // Slug buku dari URL (/katalog/<slug>) yang belum bisa di-resolve sebelum katalog termuat
   const [pendingBookSlug, setPendingBookSlug] = useState<string | null>(initialRoute.bookSlug || null);
 
+  // Pulihkan detail penulis dari URL saat halaman dibuka langsung atau di-refresh.
+  useEffect(() => {
+    if (initialRoute.page !== 'katalog' || !initialRoute.selectedAuthorId) return;
+    const author = authors.find((item) => item.id === initialRoute.selectedAuthorId);
+    if (!author) return;
+    setSelectedAuthor(attachAuthorBooks(author));
+    setActivePage('katalog');
+    setActiveSubSection('penulis');
+  }, [authors, initialRoute]);
+
   // 4b. Step-by-Step Navigation History Stack
   const [navHistory, setNavHistory] = useState<Array<{
     page: ActivePage;
     subSection?: SubSection;
     selectedBookId?: string | null;
+    selectedAuthorId?: string | null;
     catalogCategory?: string;
     catalogSearch?: string;
   }>>([]);
@@ -273,10 +325,11 @@ export default function App() {
       page: activePage,
       subSection: activeSubSection,
       bookSlug: activePage === 'katalog' && selectedBook ? selectedBook.slug || selectedBook.id : null,
-      category: activePage === 'katalog' && !selectedBook ? catalogCategory : undefined,
-      search: activePage === 'katalog' && !selectedBook ? catalogSearch : undefined
-    }, activePage === 'katalog' && !selectedBook && (catalogSearch !== '' || catalogCategory !== 'all'));
-  }, [activePage, activeSubSection, selectedBook, catalogCategory, catalogSearch, pendingBookSlug]);
+      selectedAuthorId: activePage === 'katalog' && selectedAuthor ? selectedAuthor.id : null,
+      category: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogCategory : undefined,
+      search: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogSearch : undefined
+    }, activePage === 'katalog' && !selectedBook && !selectedAuthor && (catalogSearch !== '' || catalogCategory !== 'all'));
+  }, [activePage, activeSubSection, selectedBook, selectedAuthor, catalogCategory, catalogSearch, pendingBookSlug]);
 
   // Tombol Back/Forward browser
   useEffect(() => {
@@ -286,18 +339,31 @@ export default function App() {
       setActiveSubSection(route.subSection);
       setCatalogCategory(route.category || 'all');
       setCatalogSearch(route.search || '');
-      if (route.bookSlug) {
+      if (route.selectedAuthorId) {
+        const foundA = authors.find((a) => a.id === route.selectedAuthorId);
+        if (foundA) {
+          setSelectedAuthor(foundA);
+          setSelectedBook(null);
+        } else {
+          setSelectedAuthor(null);
+        }
+      } else if (route.bookSlug) {
         const found = books.find((b) => b.slug === route.bookSlug || b.id === route.bookSlug);
-        if (found) setSelectedBook(found);
-        else setPendingBookSlug(route.bookSlug);
+        if (found) {
+          setSelectedBook(found);
+          setSelectedAuthor(null);
+        } else {
+          setPendingBookSlug(route.bookSlug);
+        }
       } else {
         setSelectedBook(null);
+        setSelectedAuthor(null);
       }
       window.scrollTo({ top: 0 });
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
-  }, [books]);
+  }, [books, authors]);
   const [homeCategoryPreview, setHomeCategoryPreview] = useState<string>('all');
 
   // Universal Back 1 Step handler across all views
@@ -307,11 +373,17 @@ export default function App() {
       setNavHistory((prevHistory) => prevHistory.slice(0, -1));
       setActivePage(prev.page);
       setActiveSubSection(prev.subSection);
-      if (prev.selectedBookId) {
+      if (prev.selectedAuthorId) {
+        const foundA = authors.find((a) => a.id === prev.selectedAuthorId);
+        setSelectedAuthor(foundA || null);
+        setSelectedBook(null);
+      } else if (prev.selectedBookId) {
         const found = books.find((b) => b.id === prev.selectedBookId);
         setSelectedBook(found || null);
+        setSelectedAuthor(null);
       } else {
         setSelectedBook(null);
+        setSelectedAuthor(null);
       }
       if (prev.catalogCategory) {
         setCatalogCategory(prev.catalogCategory);
@@ -321,13 +393,18 @@ export default function App() {
       }
     } else {
       // Fallback if no prior history was tracked yet
-      if (selectedBook) {
+      if (selectedAuthor) {
+        setSelectedAuthor(null);
+        setActivePage('katalog');
+        setActiveSubSection('penulis');
+      } else if (selectedBook) {
         setSelectedBook(null);
         setActivePage('katalog');
       } else if (activePage !== 'beranda' && activePage !== 'home') {
         setActivePage('beranda');
         setActiveSubSection(undefined);
         setSelectedBook(null);
+        setSelectedAuthor(null);
       } else {
         if (typeof window !== 'undefined' && window.history.length > 1) {
           window.history.back();
@@ -379,7 +456,13 @@ export default function App() {
     const pageTitles: Record<string, string> = {
       beranda: 'Beranda | PT CAKRAWALA MAGNA SCIENTIA',
       home: 'Beranda | PT CAKRAWALA MAGNA SCIENTIA',
-      katalog: selectedBook ? `${toTitleCase(selectedBook.title || selectedBook.name)} | Katalog Buku` : 'Katalog Buku Akademik & Monograf',
+      katalog: selectedAuthor
+        ? `${toTitleCase(selectedAuthor.name)} | Profil Penulis & Kontributor`
+        : selectedBook
+          ? `${toTitleCase(selectedBook.title || selectedBook.name)} | Katalog Buku`
+          : activeSubSection === 'penulis'
+            ? 'Penulis & Kontributor CakraNexa'
+            : 'Katalog Buku Akademik & Monograf',
       penerbitan: 'Layanan Penerbitan Buku & Prosiding',
       pelatihan: 'Layanan Pelatihan & Workshop Akademik',
       jurnal: 'Publikasi Jurnal Ilmiah Bereputasi',
@@ -394,7 +477,7 @@ export default function App() {
     const title = pageTitles[activePage] || 'PT CAKRAWALA MAGNA SCIENTIA';
     const pageUrl = window.location.origin + window.location.pathname + window.location.search;
     trackPageView(pageUrl, title);
-  }, [activePage, selectedBook]);
+  }, [activePage, selectedBook, selectedAuthor, activeSubSection]);
 
   // Apply dynamic Open Graph, meta tags, and Book Schema JSON-LD on route/book change
   useSeoMetadata({
@@ -414,13 +497,14 @@ export default function App() {
 
   // Scroll to top upon page navigation
   const navigateTo = (page: ActivePage, subSection?: SubSection) => {
-    if (page !== activePage || subSection !== activeSubSection || selectedBook !== null) {
+    if (page !== activePage || subSection !== activeSubSection || selectedBook !== null || selectedAuthor !== null) {
       setNavHistory((prev) => [
         ...prev,
         {
           page: activePage,
           subSection: activeSubSection,
           selectedBookId: selectedBook ? selectedBook.id : null,
+          selectedAuthorId: selectedAuthor ? selectedAuthor.id : null,
           catalogCategory,
           catalogSearch
         }
@@ -430,6 +514,16 @@ export default function App() {
     setActiveSubSection(subSection);
     if (page !== 'katalog') {
       setSelectedBook(null);
+      setSelectedAuthor(null);
+    } else {
+      if (subSection === 'penulis') {
+        setSelectedBook(null);
+      } else if ((activeSubSection as string) === 'penulis' && (subSection as string) !== 'penulis') {
+        setSelectedAuthor(null);
+      }
+      if (!subSection || (subSection !== 'penulis' && !['Perpajakan', 'Akuntansi', 'Hukum', 'Ekonomi & Bisnis', 'Filsafat', 'Teologia'].includes(subSection))) {
+        setSelectedAuthor(null);
+      }
     }
     // Handle category preset if navigating from dropdown
     if (subSection && ['Perpajakan', 'Akuntansi', 'Hukum', 'Ekonomi & Bisnis', 'Filsafat', 'Teologia'].includes(subSection as string)) {
@@ -579,6 +673,65 @@ export default function App() {
     INITIAL_BOOKS.forEach((b) => apiClient.saveBook(b).catch(() => undefined));
   };
 
+  const attachAuthorBooks = (author: Author): Author => {
+    if (author.books && Array.isArray(author.books) && author.books.length > 0) return author;
+    const bookIds = INITIAL_BOOK_AUTHORS
+      .filter((r) => r.author_id === author.id)
+      .sort((a, b) => a.author_order - b.author_order)
+      .map((r) => r.book_id);
+    const relatedBooks = books.filter((b) => bookIds.includes(b.id));
+    return { ...author, books: relatedBooks };
+  };
+
+  const handleSelectAuthor = (author: Author) => {
+    setNavHistory((prev) => [
+      ...prev,
+      {
+        page: activePage,
+        subSection: activeSubSection,
+        selectedBookId: selectedBook ? selectedBook.id : null,
+        selectedAuthorId: selectedAuthor ? selectedAuthor.id : null,
+        catalogCategory,
+        catalogSearch
+      }
+    ]);
+    const enriched = attachAuthorBooks(author);
+    setSelectedAuthor(enriched);
+    setSelectedBook(null);
+    setActivePage('katalog');
+    setActiveSubSection('penulis');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const syncAuthorToServer = (author: Author, verb: string) => {
+    apiClient.saveAuthor(author).catch((err) => {
+      showNotification(err instanceof ApiError ? `Gagal ${verb} penulis di server: ${err.message}` : `Penulis ${verb} lokal saja (backend offline).`);
+    });
+  };
+
+  const handleAddAuthor = (newAuthor: Author) => {
+    setAuthors((prev) => [newAuthor, ...prev]);
+    syncAuthorToServer(newAuthor, 'menambah');
+  };
+
+  const handleUpdateAuthor = (updatedAuthor: Author) => {
+    setAuthors((prev) => prev.map((a) => (a.id === updatedAuthor.id ? updatedAuthor : a)));
+    if (selectedAuthor && selectedAuthor.id === updatedAuthor.id) {
+      setSelectedAuthor(attachAuthorBooks(updatedAuthor));
+    }
+    syncAuthorToServer(updatedAuthor, 'memperbarui');
+  };
+
+  const handleDeleteAuthor = (id: string) => {
+    setAuthors((prev) => prev.filter((a) => a.id !== id));
+    if (selectedAuthor && selectedAuthor.id === id) {
+      setSelectedAuthor(null);
+    }
+    apiClient.deleteAuthor(id).catch((err) => {
+      showNotification(err instanceof ApiError ? `Gagal menghapus penulis di server: ${err.message}` : 'Penulis dihapus lokal saja (backend offline).');
+    });
+  };
+
   const handleSelectBook = (book: Book) => {
     setNavHistory((prev) => [
       ...prev,
@@ -586,6 +739,7 @@ export default function App() {
         page: activePage,
         subSection: activeSubSection,
         selectedBookId: selectedBook ? selectedBook.id : null,
+        selectedAuthorId: selectedAuthor ? selectedAuthor.id : null,
         catalogCategory,
         catalogSearch
       }
@@ -596,6 +750,7 @@ export default function App() {
       title: toTitleCase(book.title || book.name || '')
     };
     setSelectedBook(normalized);
+    setSelectedAuthor(null);
     setActivePage('katalog');
     trackViewContent(normalized);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -645,7 +800,7 @@ export default function App() {
             <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
               <span className="hidden sm:inline">Lokasi Halaman:</span>
               <span className="font-semibold text-slate-800 uppercase tracking-wide bg-slate-100 px-2.5 py-0.5 rounded text-[11px] font-mono border border-slate-200">
-                {selectedBook ? 'Detail Buku' : activePage.replace('-', ' ')}
+                {selectedAuthor ? 'Detail Penulis' : selectedBook ? 'Detail Buku' : activeSubSection === 'penulis' ? 'Penulis Kontributor' : activePage.replace('-', ' ')}
               </span>
             </div>
           </div>
@@ -793,10 +948,17 @@ export default function App() {
           </div>
         )}
 
-        {/* VIEW 2: KATALOG (BOOK DETAIL OR GRID LIST) */}
+        {/* VIEW 2: KATALOG (AUTHOR DETAIL, BOOK DETAIL, PENULIS LISTING, OR GRID LIST) */}
         {activePage === 'katalog' && (
           <div>
-            {selectedBook ? (
+            {selectedAuthor ? (
+              <AuthorDetailView
+                author={selectedAuthor}
+                allBooks={books}
+                onBack={handleGoBack}
+                onSelectBook={handleSelectBook}
+              />
+            ) : selectedBook ? (
               <BookDetailView
                 book={selectedBook}
                 onBack={handleGoBack}
@@ -804,6 +966,11 @@ export default function App() {
                 onBuyNow={handleBuyNow}
                 relatedBooks={books.filter(b => b.category === selectedBook.category && b.id !== selectedBook.id).slice(0, 4)}
                 onSelectRelatedBook={handleSelectBook}
+              />
+            ) : activeSubSection === 'penulis' ? (
+              <AuthorsListingView
+                authors={authors}
+                onSelectAuthor={handleSelectAuthor}
               />
             ) : (
               <div className="py-8">
@@ -867,9 +1034,13 @@ export default function App() {
           <AdminDashboard
             books={books}
             orders={orders}
+            authors={authors}
             onAddBook={handleAddBook}
             onUpdateBook={handleUpdateBook}
             onDeleteBook={handleDeleteBook}
+            onAddAuthor={handleAddAuthor}
+            onUpdateAuthor={handleUpdateAuthor}
+            onDeleteAuthor={handleDeleteAuthor}
             onToggleBukuTerbaru={handleToggleBukuTerbaru}
             onResetSeedData={handleResetSeedData}
             onViewBookDetail={handleSelectBook}

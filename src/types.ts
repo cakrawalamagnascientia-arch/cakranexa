@@ -44,6 +44,24 @@ export interface CartItem {
   quantity: number;
 }
 
+export interface Author {
+  id: string;
+  name: string;
+  academic_titles?: string;
+  photo_url?: string;
+  scopus_id?: string;
+  orcid_id?: string;
+  linkedin_url?: string;
+  email?: string;
+  profile_education?: string | string[];
+  work_experience?: string | string[];
+  organization_seminar?: string | string[];
+  publications?: string | string[];
+  created_at?: string;
+  updated_at?: string;
+  books?: Book[];
+}
+
 export interface CustomerDetails {
   name: string;
   email: string;

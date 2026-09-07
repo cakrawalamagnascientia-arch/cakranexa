@@ -40,9 +40,17 @@ import {
   Barcode,
   Copy,
   CheckCircle,
-  RefreshCw
+  RefreshCw,
+  Users,
+  UserPlus,
+  GraduationCap,
+  Building2,
+  Award,
+  Mail,
+  Linkedin
 } from 'lucide-react';
-import { Book as BookType, BookCategory, Order, OrderStatus, SeoSettings, SiteContentSettings } from '../types';
+import { Book as BookType, BookCategory, Order, OrderStatus, SeoSettings, SiteContentSettings, Author } from '../types';
+import { apiClient } from '../services/apiClient';
 import { notificationService } from '../services/NotificationService';
 import { resolveImageUrl, handleImageError } from '../utils/imageUtils';
 import { toTitleCase } from '../utils/formatters';
@@ -61,9 +69,13 @@ import { getStoredSiteContent, saveStoredSiteContent, resetSiteContentToDefault 
 interface AdminDashboardProps {
   books: BookType[];
   orders: Order[];
+  authors?: Author[];
   onAddBook: (book: BookType) => void;
   onUpdateBook: (book: BookType) => void;
   onDeleteBook: (id: string) => void;
+  onAddAuthor?: (author: Author) => void;
+  onUpdateAuthor?: (author: Author) => void;
+  onDeleteAuthor?: (id: string) => void;
   onToggleBukuTerbaru: (id: string) => void;
   onResetSeedData: () => void;
   onViewBookDetail: (book: BookType) => void;
@@ -79,9 +91,13 @@ interface AdminDashboardProps {
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   books = [],
   orders = [],
+  authors = [],
   onAddBook,
   onUpdateBook,
   onDeleteBook,
+  onAddAuthor,
+  onUpdateAuthor,
+  onDeleteAuthor,
   onToggleBukuTerbaru,
   onResetSeedData,
   onViewBookDetail,
@@ -93,7 +109,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onNavigateHome,
   onGoBack
 }) => {
-  const [activeTab, setActiveTab] = useState<'analytics' | 'inventory' | 'orders' | 'shipping' | 'payments' | 'cms' | 'seo-settings' | 'seo-analysis'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'inventory' | 'orders' | 'shipping' | 'payments' | 'cms' | 'seo-settings' | 'seo-analysis' | 'authors'>('analytics');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -157,6 +173,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [editingBook, setEditingBook] = useState<BookType | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
+
+  // Authors Management state
+  const [showAuthorModal, setShowAuthorModal] = useState(false);
+  const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
+  const [authorDeleteConfirmId, setAuthorDeleteConfirmId] = useState<string | null>(null);
+  const [authorSearchQuery, setAuthorSearchQuery] = useState('');
+  const [tempAuthorPhotoPreview, setTempAuthorPhotoPreview] = useState<string | null>(null);
+  const [selectedAuthorBookIds, setSelectedAuthorBookIds] = useState<Set<string>>(new Set());
+  const [authorForm, setAuthorForm] = useState<{
+    name: string;
+    academic_titles: string;
+    photo_url: string;
+    scopus_id: string;
+    orcid_id: string;
+    linkedin_url: string;
+    email: string;
+    profile_education: string;
+    work_experience: string;
+    organization_seminar: string;
+    publications: string;
+  }>({
+    name: '',
+    academic_titles: '',
+    photo_url: '',
+    scopus_id: '',
+    orcid_id: '',
+    linkedin_url: '',
+    email: '',
+    profile_education: '',
+    work_experience: '',
+    organization_seminar: '',
+    publications: ''
+  });
 
   // Orders Management state
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
@@ -330,6 +379,145 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setFormData({ ...book });
     setIsFormModalOpen(true);
   };
+
+  // ---------- AUTHORS CRUD HELPERS ----------
+  const handleOpenCreateAuthor = () => {
+    setEditingAuthor(null);
+    setAuthorForm({
+      name: '',
+      academic_titles: '',
+      photo_url: '',
+      scopus_id: '',
+      orcid_id: '',
+      linkedin_url: '',
+      email: '',
+      profile_education: '',
+      work_experience: '',
+      organization_seminar: '',
+      publications: ''
+    });
+    setTempAuthorPhotoPreview(null);
+    setSelectedAuthorBookIds(new Set());
+    setShowAuthorModal(true);
+  };
+
+  const handleOpenEditAuthor = (author: Author) => {
+    if (!author) return;
+    setEditingAuthor(author);
+    setAuthorForm({
+      name: author.name || '',
+      academic_titles: author.academic_titles || '',
+      photo_url: author.photo_url || '',
+      scopus_id: author.scopus_id || '',
+      orcid_id: author.orcid_id || '',
+      linkedin_url: author.linkedin_url || '',
+      email: author.email || '',
+      profile_education: Array.isArray(author.profile_education) ? author.profile_education.join('\n') : author.profile_education || '',
+      work_experience: Array.isArray(author.work_experience) ? author.work_experience.join('\n') : author.work_experience || '',
+      organization_seminar: Array.isArray(author.organization_seminar) ? author.organization_seminar.join('\n') : author.organization_seminar || '',
+      publications: Array.isArray(author.publications) ? author.publications.join('\n') : author.publications || ''
+    });
+    setTempAuthorPhotoPreview(author.photo_url || null);
+    const existingIds = new Set<string>();
+    (author.books || []).forEach((b: any) => existingIds.add(typeof b === 'object' ? b.id : b));
+    setSelectedAuthorBookIds(existingIds);
+    setShowAuthorModal(true);
+  };
+
+  const handleAuthorPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert('Ukuran file foto penulis maksimal 2MB.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result as string;
+        setTempAuthorPhotoPreview(dataUrl);
+        setAuthorForm({ ...authorForm, photo_url: dataUrl });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const toggleAuthorBook = (bookId: string) => {
+    const next = new Set(selectedAuthorBookIds);
+    if (next.has(bookId)) next.delete(bookId);
+    else next.add(bookId);
+    setSelectedAuthorBookIds(next);
+  };
+
+  const handleSaveAuthor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!authorForm.name.trim()) {
+      alert('Nama penulis wajib diisi.');
+      return;
+    }
+    const parseBio = (raw: string): string[] | string => {
+      const arr = raw.split('\n').map(l => l.trim()).filter(Boolean);
+      return arr.length > 0 ? arr : '';
+    };
+    const finalPhoto = tempAuthorPhotoPreview || authorForm.photo_url || '';
+    const bookIdsArr = [...selectedAuthorBookIds];
+    const timestamp = new Date().toISOString();
+    if (editingAuthor) {
+      const updated: Author = {
+        ...editingAuthor,
+        name: authorForm.name.trim(),
+        academic_titles: authorForm.academic_titles.trim(),
+        photo_url: finalPhoto,
+        scopus_id: authorForm.scopus_id.trim() || undefined,
+        orcid_id: authorForm.orcid_id.trim() || undefined,
+        linkedin_url: authorForm.linkedin_url.trim() || undefined,
+        email: authorForm.email.trim() || undefined,
+        profile_education: parseBio(authorForm.profile_education) as any,
+        work_experience: parseBio(authorForm.work_experience) as any,
+        organization_seminar: parseBio(authorForm.organization_seminar) as any,
+        publications: parseBio(authorForm.publications) as any
+      };
+      if (onUpdateAuthor) onUpdateAuthor(updated);
+      if (apiClient?.setAuthorBooks) {
+        try { await apiClient.setAuthorBooks(updated.id, bookIdsArr); } catch (_e) { /* ignore offline */ }
+      }
+      showNotification(`Data penulis ${updated.name} berhasil diperbarui.`);
+    } else {
+      const newId = crypto?.randomUUID ? crypto.randomUUID() : `auth-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+      const created: Author = {
+        id: newId,
+        name: authorForm.name.trim(),
+        academic_titles: authorForm.academic_titles.trim(),
+        photo_url: finalPhoto,
+        scopus_id: authorForm.scopus_id.trim() || undefined,
+        orcid_id: authorForm.orcid_id.trim() || undefined,
+        linkedin_url: authorForm.linkedin_url.trim() || undefined,
+        email: authorForm.email.trim() || undefined,
+        profile_education: parseBio(authorForm.profile_education) as any,
+        work_experience: parseBio(authorForm.work_experience) as any,
+        organization_seminar: parseBio(authorForm.organization_seminar) as any,
+        publications: parseBio(authorForm.publications) as any,
+        created_at: timestamp
+      };
+      if (onAddAuthor) onAddAuthor(created);
+      if (apiClient?.setAuthorBooks) {
+        try { await apiClient.setAuthorBooks(created.id, bookIdsArr); } catch (_e) { /* ignore offline */ }
+      }
+      showNotification(`Penulis baru ${created.name} berhasil ditambahkan.`);
+    }
+    setShowAuthorModal(false);
+    setEditingAuthor(null);
+    setTempAuthorPhotoPreview(null);
+  };
+
+  const handleDeleteAuthor = (id: string) => {
+    const target = (authors || []).find(a => a.id === id);
+    if (window.confirm(`Hapus penulis "${target?.name || id}" dari daftar penulis & kontributor? Aksi ini tidak bisa dibatalkan.`)) {
+      if (onDeleteAuthor) onDeleteAuthor(id);
+      showNotification(`Penulis ${target?.name || ''} berhasil dihapus.`);
+    }
+    setAuthorDeleteConfirmId(null);
+  };
+  // ---------- END AUTHORS CRUD HELPERS ----------
 
   const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -516,6 +704,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </span>
           </button>
 
+          {/* 2b. Penulis & Kontributor */}
+          <button
+            id="sidebar-btn-authors"
+            onClick={() => { setActiveTab('authors'); setIsMobileSidebarOpen(false); }}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+              activeTab === 'authors'
+                ? 'bg-slate-800 text-[#DFBF64] font-semibold'
+                : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <Users className={`w-4 h-4 ${activeTab === 'authors' ? 'text-[#DFBF64]' : 'text-slate-400'}`} />
+              <span>Penulis &amp; Kontributor</span>
+            </div>
+            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700">
+              {(authors || []).length}
+            </span>
+          </button>
+
           {/* 3. Pesanan & Dispatcher */}
           <button
             id="sidebar-btn-orders"
@@ -672,6 +879,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="text-xs font-semibold text-slate-900 truncate max-w-[150px]">
             {activeTab === 'analytics' && 'Executive Analytics'}
             {activeTab === 'inventory' && 'Katalog & Inventaris'}
+            {activeTab === 'authors' && 'Penulis & Kontributor'}
             {activeTab === 'orders' && 'Pesanan & Dispatcher'}
             {activeTab === 'shipping' && 'Management Pengiriman'}
             {activeTab === 'payments' && 'Management Pembayaran'}
@@ -709,6 +917,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
               {activeTab === 'analytics' && 'Executive Analytics & Performance'}
               {activeTab === 'inventory' && 'Katalog & Inventaris Buku'}
+              {activeTab === 'authors' && 'Manajemen Penulis & Kontributor'}
               {activeTab === 'orders' && 'Pesanan & Dispatcher Penjualan'}
               {activeTab === 'shipping' && 'Management Pengiriman & Ekspedisi'}
               {activeTab === 'payments' && 'Management Pembayaran & Rekening Bank'}
@@ -719,6 +928,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <p className="text-xs text-slate-500 mt-0.5">
               {activeTab === 'analytics' && 'Laporan eksekutif metrik penjualan, tren volume, dan performa redaksi.'}
               {activeTab === 'inventory' && 'Kelola katalog buku akademik, status Buku Terbaru (Featured), dan data ISBN.'}
+              {activeTab === 'authors' && 'Kelola database penulis, gelar akademik, foto profil, biografi, dan relasi buku karya.'}
               {activeTab === 'orders' && 'Verifikasi bukti transfer, dispatch faktur email, dan input nomor resi pengiriman.'}
               {activeTab === 'shipping' && 'Konfigurasi tarif kurir logistik (JNE, SiCepat, POS, J&T) dan free shipping promo.'}
               {activeTab === 'payments' && 'Kelola nomor rekening resmi perusahaan PT Cakrawala Magna Scientia & QRIS.'}
@@ -728,8 +938,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </p>
           </div>
 
-          {/* Action Buttons for Inventory */}
+          {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-2">
+            {activeTab === 'authors' && (
+              <>
+                <button
+                  id="btn-admin-create-author"
+                  onClick={handleOpenCreateAuthor}
+                  className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-[#0F172A] text-[#DFBF64] hover:bg-slate-800 transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer border border-[#D4AF37]/40"
+                >
+                  <UserPlus className="w-4 h-4 stroke-[2.5]" />
+                  <span>Tambah Penulis Baru</span>
+                </button>
+              </>
+            )}
             {activeTab === 'inventory' && (
               <>
                 <button
@@ -997,6 +1219,194 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             )}
           </div>
 
+        </div>
+      )}
+
+      {/* AUTHORS TAB CONTENT */}
+      {activeTab === 'authors' && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fadeIn">
+            <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-500 text-xs font-medium mb-1.5">
+                <span>Total Penulis &amp; Kontributor</span>
+                <Users className="w-4 h-4 text-slate-700" />
+              </div>
+              <div className="text-2xl font-bold text-slate-900 font-mono">
+                {(authors || []).length}
+              </div>
+              <span className="text-xs text-emerald-600 font-medium mt-1 block">Dosen, Peneliti &amp; Praktisi</span>
+            </div>
+            <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-500 text-xs font-medium mb-1.5">
+                <span>Punya Scopus ID</span>
+                <Search className="w-4 h-4 text-slate-700" />
+              </div>
+              <div className="text-2xl font-bold text-slate-900 font-mono">
+                {(authors || []).filter(a => a?.scopus_id).length}
+              </div>
+              <span className="text-xs text-slate-500 font-medium mt-1 block">Terindeks Scopus Elsevier</span>
+            </div>
+            <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-500 text-xs font-medium mb-1.5">
+                <span>Punya ORCID iD</span>
+                <GraduationCap className="w-4 h-4 text-slate-700" />
+              </div>
+              <div className="text-2xl font-bold text-slate-900 font-mono">
+                {(authors || []).filter(a => a?.orcid_id).length}
+              </div>
+              <span className="text-xs text-slate-500 font-medium mt-1 block">Open Researcher &amp; Contributor ID</span>
+            </div>
+            <div className="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between text-slate-500 text-xs font-medium mb-1.5">
+                <span>Total Buku Karya</span>
+                <Book className="w-4 h-4 text-slate-700" />
+              </div>
+              <div className="text-2xl font-bold text-slate-900 font-mono">
+                {(authors || []).reduce((sum, a) => sum + ((a as any)?.books?.length || 0), 0)}
+              </div>
+              <span className="text-xs text-slate-500 font-medium mt-1 block">Total relasi buku &amp; kontributor</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+            <div className="relative w-full sm:w-80">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Cari nama penulis, scopus, orcid, email..."
+                value={authorSearchQuery}
+                onChange={(e) => setAuthorSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:border-slate-800"
+              />
+            </div>
+            <div className="text-xs text-slate-500 font-medium">
+              Menampilkan {(authors || []).length} penulis &amp; kontributor
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50">
+                    <th className="py-3 px-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Profil</th>
+                    <th className="py-3 px-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Nama &amp; Gelar</th>
+                    <th className="py-3 px-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Scopus ID</th>
+                    <th className="py-3 px-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">ORCID iD</th>
+                    <th className="py-3 px-4 text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Jumlah Buku</th>
+                    <th className="py-3 px-4 text-right text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {(authors || [])
+                    .filter((a: Author) => {
+                      if (!authorSearchQuery.trim()) return true;
+                      const q = authorSearchQuery.toLowerCase();
+                      return (
+                        a.name?.toLowerCase().includes(q) ||
+                        a.scopus_id?.toLowerCase().includes(q) ||
+                        a.orcid_id?.toLowerCase().includes(q) ||
+                        a.email?.toLowerCase().includes(q) ||
+                        a.academic_titles?.toLowerCase().includes(q)
+                      );
+                    })
+                    .map((author: Author) => {
+                      const bookCount = (author as any)?.books?.length || 0;
+                      return (
+                        <tr key={author.id} className="hover:bg-slate-50 transition-colors">
+                          <td className="py-3.5 px-4 whitespace-nowrap">
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-[#D4AF37]/40 overflow-hidden bg-slate-100 flex items-center justify-center shrink-0">
+                              {author.photo_url ? (
+                                <img
+                                  src={resolveImageUrl(author.photo_url)}
+                                  alt={author.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => handleImageError(e, undefined, 'avatar')}
+                                />
+                              ) : (
+                                <Users className="w-5 h-5 text-slate-400" />
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3.5 px-4 min-w-[180px]">
+                            <div className="text-sm font-semibold text-slate-900 leading-tight">{author.name}</div>
+                            {author.academic_titles && (
+                              <div className="text-[11px] text-[#0F172A]/70 font-medium mt-0.5 line-clamp-1">{author.academic_titles}</div>
+                            )}
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {author.email && (
+                                <span className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200 font-medium">
+                                  <Mail className="w-2.5 h-2.5" />
+                                  <span className="truncate max-w-[120px]">{author.email}</span>
+                                </span>
+                              )}
+                              {author.linkedin_url && (
+                                <span className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-medium">
+                                  <Linkedin className="w-2.5 h-2.5" />
+                                  LinkedIn
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3.5 px-4 hidden md:table-cell whitespace-nowrap">
+                            {author.scopus_id ? (
+                              <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-mono font-semibold">
+                                {author.scopus_id}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-slate-400 italic">Belum terdaftar</span>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-4 hidden lg:table-cell whitespace-nowrap">
+                            {author.orcid_id ? (
+                              <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono font-semibold">
+                                {author.orcid_id}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-slate-400 italic">Belum terdaftar</span>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                            <span className={`inline-flex items-center justify-center min-w-[32px] px-2 py-0.5 rounded-full text-[11px] font-bold font-mono ${bookCount > 0 ? 'bg-[#0F172A] text-[#DFBF64] border border-[#D4AF37]/40' : 'bg-slate-100 text-slate-500 border border-slate-200'}`}>
+                              {bookCount}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                            <div className="inline-flex items-center gap-1.5">
+                              <button
+                                id={`btn-admin-edit-author-${author.id}`}
+                                onClick={() => handleOpenEditAuthor(author)}
+                                className="p-1.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                                title="Edit Data Penulis"
+                              >
+                                <Edit3 className="w-4 h-4" />
+                              </button>
+                              <button
+                                id={`btn-admin-delete-author-${author.id}`}
+                                onClick={() => handleDeleteAuthor(author.id)}
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                                title="Hapus Penulis"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
+            {(authors || []).filter(a => !authorSearchQuery.trim() ||
+              a.name?.toLowerCase().includes(authorSearchQuery.toLowerCase()) ||
+              a.scopus_id?.toLowerCase().includes(authorSearchQuery.toLowerCase()) ||
+              a.orcid_id?.toLowerCase().includes(authorSearchQuery.toLowerCase()) ||
+              a.email?.toLowerCase().includes(authorSearchQuery.toLowerCase())).length === 0 && (
+              <div className="p-8 text-center text-slate-500 text-xs">
+                Tidak ada data penulis yang sesuai dengan filter pencarian.
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -1835,6 +2245,323 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 setActiveTab('seo-analysis');
               }}
             />
+          </div>
+        </div>
+      )}
+
+      {/* AUTHOR CREATE / EDIT FORM MODAL */}
+      {showAuthorModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-xs flex items-start sm:items-center justify-center p-3 sm:p-4">
+          <div className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-4 sm:my-8 max-h-[93vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-[#0F172A] via-[#0F172A] to-[#1e293b] sticky top-0 z-10 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[#DFBF64]/15 border border-[#D4AF37]/40 flex items-center justify-center shrink-0">
+                  <UserPlus className="w-4.5 h-4.5 text-[#DFBF64]" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm sm:text-base text-white">
+                    {editingAuthor ? 'Edit Data Penulis &amp; Kontributor' : 'Tambah Penulis &amp; Kontributor Baru'}
+                  </h3>
+                  <p className="text-[11px] text-slate-300 mt-0.5 hidden sm:block">
+                    Isi biodata lengkap, foto profil, dan hubungkan dengan buku karya di katalog.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => { setShowAuthorModal(false); setEditingAuthor(null); setTempAuthorPhotoPreview(null); }}
+                className="p-1.5 rounded-full text-slate-300 hover:text-white hover:bg-white/10 cursor-pointer transition-colors shrink-0"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveAuthor} className="flex-1 overflow-y-auto">
+              <div className="p-5 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
+                <div className="lg:col-span-1 space-y-5">
+                  <div className="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-2.5">
+                      Foto Profil Penulis
+                    </label>
+                    <div className="aspect-[3/4] w-full max-w-[200px] mx-auto rounded-xl border-2 border-dashed border-slate-300 bg-white overflow-hidden flex items-center justify-center relative group">
+                      {tempAuthorPhotoPreview || authorForm.photo_url ? (
+                        <>
+                          <img
+                            src={resolveImageUrl(tempAuthorPhotoPreview || authorForm.photo_url)}
+                            alt="Preview Foto"
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={(e) => { e.preventDefault(); setTempAuthorPhotoPreview(null); setAuthorForm({ ...authorForm, photo_url: '' }); }}
+                            className="absolute top-2 right-2 p-1.5 rounded-full bg-rose-600 text-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                            title="Hapus foto"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <div className="flex flex-col items-center gap-2 text-slate-400 p-4 text-center">
+                          <Users className="w-14 h-14 opacity-60" />
+                          <span className="text-[11px] leading-relaxed">Belum ada foto.<br />Klik tombol dibawah untuk upload.</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-3">
+                      <label className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-[11px] font-semibold rounded-lg bg-[#0F172A] text-[#DFBF64] hover:bg-slate-800 cursor-pointer transition-colors border border-[#D4AF37]/40">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Upload Foto (Max 2MB)</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleAuthorPhotoUpload}
+                          className="hidden"
+                        />
+                      </label>
+                      <p className="text-[10px] text-slate-400 mt-1.5 text-center">
+                        Format: JPG, PNG, WebP • Rasio 3:4 portrait direkomendasikan
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
+                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                      <ShieldCheck className="w-3.5 h-3.5 text-[#DFBF64]" />
+                      ID Akademik &amp; Kontak
+                    </h4>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">Scopus ID (Elsevier)</label>
+                      <input
+                        type="text"
+                        value={authorForm.scopus_id}
+                        onChange={(e) => setAuthorForm({ ...authorForm, scopus_id: e.target.value })}
+                        placeholder="con: 57194873201"
+                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:border-slate-800 focus:outline-none font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">ORCID iD</label>
+                      <input
+                        type="text"
+                        value={authorForm.orcid_id}
+                        onChange={(e) => setAuthorForm({ ...authorForm, orcid_id: e.target.value })}
+                        placeholder="con: 0000-0002-1825-0097"
+                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:border-slate-800 focus:outline-none font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-1 flex items-center gap-1">
+                        <Linkedin className="w-3 h-3 text-[#0A66C2]" />
+                        LinkedIn URL
+                      </label>
+                      <input
+                        type="text"
+                        value={authorForm.linkedin_url}
+                        onChange={(e) => setAuthorForm({ ...authorForm, linkedin_url: e.target.value })}
+                        placeholder="https://linkedin.com/in/username"
+                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:border-slate-800 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-1 flex items-center gap-1">
+                        <Mail className="w-3 h-3 text-sky-600" />
+                        Email Kontak
+                      </label>
+                      <input
+                        type="email"
+                        value={authorForm.email}
+                        onChange={(e) => setAuthorForm({ ...authorForm, email: e.target.value })}
+                        placeholder="nama.lecturer@universitas.ac.id"
+                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:border-slate-800 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-xl border border-slate-200 p-4">
+                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-3 flex items-center gap-1.5">
+                      <BookOpen className="w-3.5 h-3.5 text-[#DFBF64]" />
+                      Hubungkan dengan Buku Karya <span className="text-[10px] font-normal normal-case text-slate-400">(Pilih semua yang relevan)</span>
+                    </h4>
+                    <div className="max-h-[280px] overflow-y-auto space-y-1.5 pr-1 border border-slate-100 rounded-lg p-2 bg-slate-50/50">
+                      {(books || []).length === 0 ? (
+                        <p className="text-[11px] text-slate-400 italic text-center py-4">Belum ada buku di katalog.</p>
+                      ) : (books || []).map((book) => (
+                        <label
+                          key={book.id}
+                          className={`flex items-start gap-2 p-2 rounded-lg cursor-pointer transition-colors border ${selectedAuthorBookIds.has(book.id) ? 'bg-[#0F172A] border-[#D4AF37]/40' : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedAuthorBookIds.has(book.id)}
+                            onChange={() => toggleAuthorBook(book.id)}
+                            className="mt-0.5 shrink-0 accent-[#DFBF64]"
+                          />
+                          <div className="min-w-0">
+                            <div className={`text-[11px] font-semibold leading-tight ${selectedAuthorBookIds.has(book.id) ? 'text-[#DFBF64]' : 'text-slate-800'}`}>
+                              {toTitleCase(book.title || book.name || '')}
+                            </div>
+                            <div className={`text-[10px] mt-0.5 truncate ${selectedAuthorBookIds.has(book.id) ? 'text-slate-300' : 'text-slate-500'}`}>
+                              {book.category} • {book.isbn || 'ISBN -'}
+                            </div>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-2 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                      Dipilih: {selectedAuthorBookIds.size} dari {(books || []).length} judul buku
+                    </p>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-2 space-y-5">
+                  <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3.5">
+                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5 text-[#DFBF64]" />
+                      Identitas Utama
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-6 gap-3">
+                      <div className="sm:col-span-6">
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                          Nama Lengkap <span className="text-rose-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={authorForm.name}
+                          onChange={(e) => setAuthorForm({ ...authorForm, name: e.target.value })}
+                          placeholder="Contoh: Prof. Dr. Ir. Nama Lengkap, M.Sc."
+                          className="w-full px-3 py-2.5 text-xs rounded-lg border border-slate-200 focus:border-[#0F172A] focus:outline-none font-semibold"
+                        />
+                      </div>
+                      <div className="sm:col-span-6">
+                        <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                          Gelar Akademik &amp; Jabatan / Profesi
+                        </label>
+                        <input
+                          type="text"
+                          value={authorForm.academic_titles}
+                          onChange={(e) => setAuthorForm({ ...authorForm, academic_titles: e.target.value })}
+                          placeholder="Contoh: Guru Besar Tetap Bidang Ilmu Perpajakan, Fakultas Ekonomi dan Bisnis Universitas Indonesia"
+                          className="w-full px-3 py-2.5 text-xs rounded-lg border border-slate-200 focus:border-[#0F172A] focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-4">
+                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5 pb-1 border-b border-slate-100">
+                      <GraduationCap className="w-3.5 h-3.5 text-[#DFBF64]" />
+                      4 Bagian Biografi Detail <span className="text-[10px] font-normal normal-case text-slate-400 ml-auto">(1 poin = 1 baris, pisahkan dengan enter)</span>
+                    </h4>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                        <GraduationCap className="w-3.5 h-3.5 text-sky-600" />
+                        Profil &amp; Riwayat Pendidikan
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={authorForm.profile_education}
+                        onChange={(e) => setAuthorForm({ ...authorForm, profile_education: e.target.value })}
+                        placeholder={"S1 - Universitas Indonesia, Akuntansi (2005)\nS2 - Universitas Gadjah Mada, Ilmu Perpajakan (2009)\nS3 - Vrije Universiteit Amsterdam, Tax Law & Economics (2015)\n... (tambahkan baris lain)"}
+                        className="w-full px-3 py-2.5 text-xs rounded-lg border border-slate-200 focus:border-sky-700 focus:outline-none leading-relaxed"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                        <Building2 className="w-3.5 h-3.5 text-indigo-600" />
+                        Pengalaman Kerja &amp; Karir
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={authorForm.work_experience}
+                        onChange={(e) => setAuthorForm({ ...authorForm, work_experience: e.target.value })}
+                        placeholder={"2018 - Sekarang: Profesor Bidang Ilmu Perpajakan, FE UI\n2013 - 2018: Ketua Program Magister Ilmu Perpajakan\n... (tambahkan baris lain)"}
+                        className="w-full px-3 py-2.5 text-xs rounded-lg border border-slate-200 focus:border-indigo-700 focus:outline-none leading-relaxed"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                        <Award className="w-3.5 h-3.5 text-amber-600" />
+                        Organisasi, Keprofesian &amp; Seminar
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={authorForm.organization_seminar}
+                        onChange={(e) => setAuthorForm({ ...authorForm, organization_seminar: e.target.value })}
+                        placeholder={"Ketua Ikatan Ahli Perpajakan Indonesia (IAPI) 2022-2025\nKeynote Speaker - International Tax Symposium Singapore 2024\n... (tambahkan baris lain)"}
+                        className="w-full px-3 py-2.5 text-xs rounded-lg border border-slate-200 focus:border-amber-700 focus:outline-none leading-relaxed"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5 text-emerald-600" />
+                        Publikasi &amp; Karya Ilmiah Unggulan
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={authorForm.publications}
+                        onChange={(e) => setAuthorForm({ ...authorForm, publications: e.target.value })}
+                        placeholder={"Tax Policy in Developing Countries (Scopus Q1, 2023)\nPeran Transformasi Digital dalam Kepatuhan Pajak UMKM (2024)\n... (tambahkan baris lain)"}
+                        className="w-full px-3 py-2.5 text-xs rounded-lg border border-slate-200 focus:border-emerald-700 focus:outline-none leading-relaxed"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="sticky bottom-0 bg-white/95 backdrop-blur-sm border-t border-slate-200 px-5 sm:px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-[10px] text-slate-500">
+                  {editingAuthor ? (
+                    <>
+                      <Edit3 className="w-3.5 h-3.5 text-amber-600" />
+                      <span>Mode Edit: Mengubah data penulis yang sudah ada.</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Mode Baru: Menambahkan penulis baru ke database.</span>
+                    </>
+                  )}
+                </div>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => { setShowAuthorModal(false); setEditingAuthor(null); setTempAuthorPhotoPreview(null); }}
+                    className="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 cursor-pointer transition-colors"
+                  >
+                    Batal
+                  </button>
+                  {editingAuthor && onDeleteAuthor && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (window.confirm(`Hapus penulis "${editingAuthor.name}"? Aksi ini tidak bisa dibatalkan.`)) {
+                          handleDeleteAuthor(editingAuthor.id);
+                          setShowAuthorModal(false);
+                          setEditingAuthor(null);
+                        }
+                      }}
+                      className="px-4 py-2 text-xs font-bold rounded-lg border border-rose-200 text-rose-700 bg-rose-50 hover:bg-rose-100 cursor-pointer transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Hapus Penulis</span>
+                    </button>
+                  )}
+                  <button
+                    type="submit"
+                    className="px-5 py-2 text-xs font-bold rounded-lg bg-[#0F172A] text-[#DFBF64] hover:bg-slate-800 cursor-pointer transition-colors shadow-sm border border-[#D4AF37]/40 flex items-center justify-center gap-1.5"
+                  >
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    <span>{editingAuthor ? 'Simpan Perubahan' : 'Simpan Penulis Baru'}</span>
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       )}

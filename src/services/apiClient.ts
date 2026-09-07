@@ -1,5 +1,6 @@
-import { Book, Order, OrderStatus } from '../types';
+import { Book, Order, OrderStatus, Author } from '../types';
 import { INITIAL_BOOKS } from '../data/booksData';
+import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS } from '../data/authorsData';
 import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
 import { getAdminToken, clearAdminToken } from './adminAuth';
 
@@ -114,6 +115,24 @@ const rowToBook = (row: any): Book => ({
   featured: Boolean(row.featured)
 });
 
+const rowToAuthor = (row: any): Author => ({
+  id: row.id,
+  name: row.name,
+  academic_titles: row.academic_titles || undefined,
+  photo_url: row.photo_url || undefined,
+  scopus_id: row.scopus_id || undefined,
+  orcid_id: row.orcid_id || undefined,
+  linkedin_url: row.linkedin_url || undefined,
+  email: row.email || undefined,
+  profile_education: row.profile_education ?? undefined,
+  work_experience: row.work_experience ?? undefined,
+  organization_seminar: row.organization_seminar ?? undefined,
+  publications: row.publications ?? undefined,
+  created_at: row.created_at,
+  updated_at: row.updated_at,
+  books: Array.isArray(row.books) ? row.books.map((b: any) => (typeof b === 'object' && 'id' in b ? rowToBook(b) : b)) : undefined
+});
+
 export const apiClient = {
   // ==========================================================================
   // ADMIN AUTH
@@ -214,6 +233,91 @@ export const apiClient = {
       headers: adminHeaders()
     });
     if (!res.ok) throw await parseError(res);
+  },
+
+  // ==========================================================================
+  // AUTHORS (Penulis & Kontributor)
+  // ==========================================================================
+  async getAuthors(): Promise<Author[]> {
+    try {
+      const res = await fetchWithTimeout(apiUrl('/api/authors'), { headers: jsonHeaders() }, 10000);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) return data.map((r: any) => rowToAuthor(r));
+      }
+    } catch (err) {
+      console.warn('REST API authors tidak tersedia, pakai seed lokal:', err);
+    }
+    if (isSupabaseConfigured()) {
+      try {
+        const client = getSupabaseClient();
+        if (client) {
+          const { data, error } = await client.from('authors').select('*').order('name', { ascending: true });
+          if (!error && data && data.length > 0) return data.map(rowToAuthor);
+        }
+      } catch (err) {
+        console.warn('Supabase author query gagal, pakai seed:', err);
+      }
+    }
+    return INITIAL_AUTHORS.map((a) => ({ ...a }));
+  },
+
+  async getAuthorDetail(id: string): Promise<Author | null> {
+    try {
+      const res = await fetchWithTimeout(apiUrl(`/api/authors/${encodeURIComponent(id)}`), { headers: jsonHeaders() }, 10000);
+      if (res.status === 200) {
+        const data = await res.json();
+        return rowToAuthor(data);
+      }
+    } catch (err) {
+      console.warn('GET author detail fallback ke seed:', err);
+    }
+    // Fallback: cari di INITIAL_AUTHORS + attach relasi buku dari INITIAL_BOOK_AUTHORS
+    const seed = INITIAL_AUTHORS.find((a) => a.id === id);
+    if (!seed) return null;
+    const bookIds = INITIAL_BOOK_AUTHORS.filter((r) => r.author_id === id).map((r) => r.book_id);
+    const books = INITIAL_BOOKS.filter((b) => bookIds.includes(b.id));
+    return { ...seed, books };
+  },
+
+  /** Admin: create / update penulis (server melakukan penyimpanan ke Supabase) */
+  async saveAuthor(author: Author): Promise<Author> {
+    const method = author.id && !INITIAL_AUTHORS.some((a) => a.id === author.id) ? 'PUT' : 'POST';
+    const res = await fetchWithTimeout(
+      method === 'PUT' ? apiUrl(`/api/authors/${encodeURIComponent(author.id)}`) : apiUrl('/api/authors'),
+      {
+        method,
+        headers: adminHeaders(),
+        body: JSON.stringify(author)
+      },
+      15000
+    );
+    if (!res.ok) throw await parseError(res);
+    return rowToAuthor(await res.json());
+  },
+
+  /** Admin: hapus penulis */
+  async deleteAuthor(id: string): Promise<void> {
+    const res = await fetchWithTimeout(apiUrl(`/api/authors/${encodeURIComponent(id)}`), {
+      method: 'DELETE',
+      headers: adminHeaders()
+    });
+    if (!res.ok) throw await parseError(res);
+  },
+
+  /** Admin: atur ulang relasi buku penulis */
+  async setAuthorBooks(authorId: string, bookIds: string[]): Promise<boolean> {
+    try {
+      const res = await fetchWithTimeout(apiUrl(`/api/authors/${encodeURIComponent(authorId)}/books`), {
+        method: 'POST',
+        headers: adminHeaders(),
+        body: JSON.stringify({ book_ids: bookIds })
+      });
+      return res.ok;
+    } catch (err) {
+      console.warn('setAuthorBooks gagal (offline-mode):', err);
+      return false;
+    }
   },
 
   // ==========================================================================

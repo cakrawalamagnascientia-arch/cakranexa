@@ -5,7 +5,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { INITIAL_BOOKS } from './src/data/booksData';
-import type { Book } from './src/types';
+import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS } from './src/data/authorsData';
+import type { Book, Author, Book as BookType } from './src/types';
 
 // Load environment variables
 dotenv.config();
@@ -53,6 +54,12 @@ if (supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project') && !supa
 // ============================================================================
 let inMemoryBooks: Book[] = INITIAL_BOOKS.map((b) => ({ ...b }));
 let inMemoryOrders: any[] = [];
+let inMemoryAuthors: Author[] = INITIAL_AUTHORS.map((a) => ({ ...a }));
+let inMemoryBookAuthors: Array<{ id?: string; book_id: string; author_id: string; author_order: number; created_at?: string }> = INITIAL_BOOK_AUTHORS.map((r, idx) => ({
+  id: `ba-${idx}-${Math.random().toString(36).slice(2, 8)}`,
+  ...r,
+  created_at: new Date().toISOString()
+}));
 
 // ============================================================================
 // HELPERS
@@ -127,6 +134,84 @@ async function loadBooks(): Promise<Book[]> {
   }
   return inMemoryBooks;
 }
+
+// ============================================================================
+// AUTHORS HELPERS (Mapping Snake ↔ Camel + Load from Supabase)
+// ============================================================================
+const rowToAuthor = (row: any): Author => ({
+  id: row.id,
+  name: row.name,
+  academic_titles: row.academic_titles || undefined,
+  photo_url: row.photo_url || undefined,
+  scopus_id: row.scopus_id || undefined,
+  orcid_id: row.orcid_id || undefined,
+  linkedin_url: row.linkedin_url || undefined,
+  email: row.email || undefined,
+  profile_education: row.profile_education || undefined,
+  work_experience: row.work_experience || undefined,
+  organization_seminar: row.organization_seminar || undefined,
+  publications: row.publications || undefined,
+  created_at: row.created_at ? new Date(row.created_at).toISOString() : undefined,
+  updated_at: row.updated_at ? new Date(row.updated_at).toISOString() : undefined
+});
+
+const authorToRow = (a: Author) => ({
+  id: a.id,
+  name: a.name,
+  academic_titles: a.academic_titles || null,
+  photo_url: a.photo_url || null,
+  scopus_id: a.scopus_id || null,
+  orcid_id: a.orcid_id || null,
+  linkedin_url: a.linkedin_url || null,
+  email: a.email || null,
+  profile_education: a.profile_education || null,
+  work_experience: a.work_experience || null,
+  organization_seminar: a.organization_seminar || null,
+  publications: a.publications || null,
+  updated_at: new Date().toISOString()
+});
+
+async function loadAuthors(): Promise<Author[]> {
+  if (supabaseAdmin) {
+    try {
+      const { data, error } = await supabaseAdmin.from('authors').select('*').order('name', { ascending: true });
+      if (!error && Array.isArray(data) && data.length > 0) {
+        inMemoryAuthors = data.map(rowToAuthor);
+      }
+    } catch (err) {
+      console.warn('Supabase authors load fallback ke in-memory:', (err as any)?.message);
+    }
+  }
+  return inMemoryAuthors;
+}
+
+async function loadBookAuthors(): Promise<typeof inMemoryBookAuthors> {
+  if (supabaseAdmin) {
+    try {
+      const { data, error } = await supabaseAdmin.from('book_authors').select('*');
+      if (!error && Array.isArray(data) && data.length > 0) {
+        inMemoryBookAuthors = data.map((row) => ({
+          id: row.id,
+          book_id: String(row.book_id),
+          author_id: row.author_id,
+          author_order: Number(row.author_order) || 0,
+          created_at: row.created_at
+        }));
+      }
+    } catch (err) {
+      console.warn('Supabase book_authors load fallback ke in-memory:', (err as any)?.message);
+    }
+  }
+  return inMemoryBookAuthors;
+}
+
+const attachAuthorBooks = (author: Author, allBooks: BookType[]): Author => {
+  const rels = inMemoryBookAuthors.filter((r) => r.author_id === author.id).sort((a, b) => a.author_order - b.author_order);
+  const books = rels
+    .map((r) => allBooks.find((b) => b.id === r.book_id))
+    .filter((b): b is BookType => Boolean(b));
+  return { ...author, books };
+};
 
 const safeEqual = (a: string, b: string): boolean => {
   const ab = Buffer.from(a);
@@ -712,6 +797,185 @@ async function startServer() {
   });
 
   // ==========================================================================
+  // AUTHORS API — /api/authors & /api/authors/:id + CRUD admin-protected
+  // ==========================================================================
+
+  // GET /api/authors — list semua penulis (diurut nama ASC)
+  app.get('/api/authors', async (_req, res) => {
+    try {
+      const authors = await loadAuthors();
+      const sorted = [...authors].sort((a, b) => String(a.name).localeCompare(String(b.name), 'id-ID'));
+      return res.json(sorted);
+    } catch (err: any) {
+      return res.status(500).json({ error: err?.message || 'Gagal memuat daftar penulis.' });
+    }
+  });
+
+  // GET /api/authors/:id — detail 1 penulis + attach relasi buku karyanya
+  app.get('/api/authors/:id', async (req, res) => {
+    try {
+      const id = String(req.params.id || '').trim();
+      await loadAuthors();
+      await loadBookAuthors();
+      const allBooks = await loadBooks();
+      const author = inMemoryAuthors.find((a) => a.id === id);
+      if (!author) {
+        return res.status(404).json({ error: 'Penulis tidak ditemukan.' });
+      }
+      const enriched = attachAuthorBooks(author, allBooks);
+      return res.json(enriched);
+    } catch (err: any) {
+      return res.status(500).json({ error: err?.message || 'Gagal memuat detail penulis.' });
+    }
+  });
+
+  // POST /api/authors — (Admin) buat penulis baru
+  app.post('/api/authors', requireAdmin, async (req, res) => {
+    try {
+      const body = req.body || {};
+      if (!body.name || !String(body.name).trim()) {
+        return res.status(400).json({ error: 'Nama penulis wajib diisi.' });
+      }
+      const newId = body.id || `author-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const now = new Date().toISOString();
+      const payload: Author = {
+        id: newId,
+        name: String(body.name).trim(),
+        academic_titles: body.academic_titles ? String(body.academic_titles).trim() : undefined,
+        photo_url: body.photo_url ? String(body.photo_url) : undefined,
+        scopus_id: body.scopus_id ? String(body.scopus_id).trim() : undefined,
+        orcid_id: body.orcid_id ? String(body.orcid_id).trim() : undefined,
+        linkedin_url: body.linkedin_url ? String(body.linkedin_url).trim() : undefined,
+        email: body.email ? String(body.email).trim() : undefined,
+        profile_education: body.profile_education ?? undefined,
+        work_experience: body.work_experience ?? undefined,
+        organization_seminar: body.organization_seminar ?? undefined,
+        publications: body.publications ?? undefined,
+        created_at: now,
+        updated_at: now
+      };
+
+      if (supabaseAdmin) {
+        try {
+          const { error } = await supabaseAdmin.from('authors').insert(authorToRow(payload));
+          if (error) console.warn('Supabase insert author warning:', error.message);
+        } catch (e) {
+          console.warn('Supabase author insert catch:', (e as any).message);
+        }
+      }
+      inMemoryAuthors.push(payload);
+      return res.status(201).json(payload);
+    } catch (err: any) {
+      return res.status(500).json({ error: err?.message || 'Gagal menyimpan penulis baru.' });
+    }
+  });
+
+  // PUT /api/authors/:id — (Admin) perbarui penulis
+  app.put('/api/authors/:id', requireAdmin, async (req, res) => {
+    try {
+      const id = String(req.params.id || '').trim();
+      await loadAuthors();
+      const idx = inMemoryAuthors.findIndex((a) => a.id === id);
+      if (idx < 0) return res.status(404).json({ error: 'Penulis tidak ditemukan.' });
+      const body = req.body || {};
+      const prev = inMemoryAuthors[idx];
+      const updated: Author = {
+        ...prev,
+        ...body,
+        id: prev.id,
+        created_at: prev.created_at || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      if (body.name) updated.name = String(body.name).trim();
+      if (supabaseAdmin) {
+        try {
+          const { error } = await supabaseAdmin
+            .from('authors')
+            .update(authorToRow(updated))
+            .eq('id', id);
+          if (error) console.warn('Supabase update author warning:', error.message);
+        } catch (e) {
+          console.warn('Supabase author update catch:', (e as any).message);
+        }
+      }
+      inMemoryAuthors[idx] = updated;
+      return res.json(updated);
+    } catch (err: any) {
+      return res.status(500).json({ error: err?.message || 'Gagal memperbarui data penulis.' });
+    }
+  });
+
+  // DELETE /api/authors/:id — (Admin) hapus penulis + cascade junction relasi bukunya
+  app.delete('/api/authors/:id', requireAdmin, async (req, res) => {
+    try {
+      const id = String(req.params.id || '').trim();
+      await loadAuthors();
+      await loadBookAuthors();
+      inMemoryAuthors = inMemoryAuthors.filter((a) => a.id !== id);
+      inMemoryBookAuthors = inMemoryBookAuthors.filter((r) => r.author_id !== id);
+      if (supabaseAdmin) {
+        try {
+          const { error: e1 } = await supabaseAdmin.from('book_authors').delete().eq('author_id', id);
+          if (e1) console.warn('Supabase book_authors delete warning:', e1.message);
+          const { error: e2 } = await supabaseAdmin.from('authors').delete().eq('id', id);
+          if (e2) console.warn('Supabase authors delete warning:', e2.message);
+        } catch (e) {
+          console.warn('Supabase author delete catch:', (e as any).message);
+        }
+      }
+      return res.json({ success: true, deletedId: id });
+    } catch (err: any) {
+      return res.status(500).json({ error: err?.message || 'Gagal menghapus penulis.' });
+    }
+  });
+
+  // POST /api/authors/:id/books — (Admin) atur ulang relasi buku
+  app.post('/api/authors/:id/books', requireAdmin, async (req, res) => {
+    try {
+      const authorId = String(req.params.id || '').trim();
+      const body = req.body || {};
+      const bookIds: string[] = Array.isArray(body.book_ids)
+        ? body.book_ids.map((s: any) => String(s))
+        : [];
+      await loadBookAuthors();
+      // Hapus relasi lama untuk author ini
+      inMemoryBookAuthors = inMemoryBookAuthors.filter((r) => r.author_id !== authorId);
+      // Tambahkan yang baru berurutan
+      const now = new Date().toISOString();
+      bookIds.forEach((bid, idx) => {
+        inMemoryBookAuthors.push({
+          id: `ba-${authorId}-${bid}-${Math.random().toString(36).slice(2, 8)}`,
+          book_id: bid,
+          author_id: authorId,
+          author_order: idx,
+          created_at: now
+        });
+      });
+      if (supabaseAdmin) {
+        try {
+          const { error: e1 } = await supabaseAdmin.from('book_authors').delete().eq('author_id', authorId);
+          if (e1) console.warn('Supabase book_authors reset warning:', e1.message);
+          if (bookIds.length > 0) {
+            const rows = bookIds.map((bid, idx) => ({
+              book_id: bid,
+              author_id: authorId,
+              author_order: idx,
+              created_at: now
+            }));
+            const { error: e2 } = await supabaseAdmin.from('book_authors').insert(rows);
+            if (e2) console.warn('Supabase book_authors insert warning:', e2.message);
+          }
+        } catch (e) {
+          console.warn('Supabase book_authors relation catch:', (e as any).message);
+        }
+      }
+      return res.json({ success: true, total_relations: bookIds.length });
+    } catch (err: any) {
+      return res.status(500).json({ error: err?.message || 'Gagal menyimpan relasi buku.' });
+    }
+  });
+
+  // ==========================================================================
   // SITEMAP & ROBOTS (dinamis, mengikuti katalog aktual & pengaturan SEO)
   // ==========================================================================
   const escapeXml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -776,8 +1040,10 @@ async function startServer() {
   // Muat katalog awal dari Supabase (jika ada) agar in-memory selaras dengan DB
   try {
     await loadBooks();
+    await loadAuthors();
+    await loadBookAuthors();
   } catch (err) {
-    console.warn('Initial catalog load fallback:', err);
+    console.warn('Initial catalog/authors load fallback:', err);
   }
 
   if (process.env.VERCEL !== '1') {

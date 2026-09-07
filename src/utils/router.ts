@@ -11,6 +11,7 @@ export interface RouteState {
   bookSlug?: string | null;
   category?: string;
   search?: string;
+  selectedAuthorId?: string | null;
 }
 
 const PAGE_PATHS: Record<string, ActivePage> = {
@@ -44,7 +45,16 @@ export const parseLocation = (pathname: string = window.location.pathname, searc
   const state: RouteState = { page };
 
   if (page === 'katalog') {
-    if (segments[1]) state.bookSlug = segments[1];
+    if (segments[1]) {
+      if (VALID_SUBSECTIONS.has(segments[1])) {
+        state.subSection = segments[1] as SubSection;
+        if (segments[1] === 'penulis' && segments[2]) {
+          state.selectedAuthorId = segments[2];
+        }
+      } else {
+        state.bookSlug = segments[1];
+      }
+    }
     const kategori = params.get('kategori');
     if (kategori && CATEGORIES.has(kategori)) state.category = kategori;
     const q = params.get('q');
@@ -56,12 +66,15 @@ export const parseLocation = (pathname: string = window.location.pathname, searc
 };
 
 export const buildPath = (state: RouteState): string => {
-  const { page, subSection, bookSlug, category, search } = state;
+  const { page, subSection, bookSlug, selectedAuthorId, category, search } = state;
   if (page === 'beranda' || page === 'home') return '/';
   const base = page === 'career' ? '/karir' : `/${page}`;
 
   if (page === 'katalog') {
     if (bookSlug) return `${base}/${encodeURIComponent(bookSlug)}`;
+    if (subSection === 'penulis' && selectedAuthorId) {
+      return `${base}/penulis/${encodeURIComponent(selectedAuthorId)}`;
+    }
     const params = new URLSearchParams();
     if (category && category !== 'all') params.set('kategori', category);
     if (search) params.set('q', search);
