@@ -12,7 +12,7 @@ import {
   Lock,
   Clock
 } from 'lucide-react';
-import { ActivePage, SubSection, SiteContentSettings } from '../types';
+import { ActivePage, ContactSettings, FooterSettings, SubSection, SiteContentSettings } from '../types';
 import { CakraNexaLogo } from './CakraNexaLogo';
 import { getStoredSiteContent } from '../services/siteContentService';
 
@@ -23,8 +23,8 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate, siteContent }) => {
   const content = siteContent || getStoredSiteContent();
-  const footerData = content?.footer || {};
-  const contactData = content?.contact || {};
+  const footerData: Partial<FooterSettings> = content?.footer || {};
+  const contactData: ContactSettings = content?.contact || {};
 
   const defaultAboutCompany = `PT CAKRAWALA MAGNA SCIENTIA - PT Cakrawala Magna Scientia adalah perusahaan pengetahuan yang membangun ekosistem untuk menerbitkan, memperbarui, mengembangkan, mengajarkan, melindungi, melisensikan, dan mewariskan pengetahuan kepada generasi mendatang.
 

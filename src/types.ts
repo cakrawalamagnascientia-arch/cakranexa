@@ -136,6 +136,13 @@ export type ActivePage =
   | 'admin';
 
 export type SubSection = 
+  | 'all'
+  | 'Perpajakan'
+  | 'Akuntansi'
+  | 'Hukum'
+  | 'Ekonomi & Bisnis'
+  | 'Filsafat'
+  | 'Teologia'
   | 'terbaru' 
   | 'kategori' 
   | 'penulis' 
@@ -145,6 +152,8 @@ export type SubSection =
   | 'panduan-penulis'
   | 'proses' 
   | 'faq' 
+  | 'isbn'
+  | 'dewan-redaksi'
   | 'profil' 
   | 'visi-misi' 
   | 'tim' 
@@ -349,6 +358,13 @@ export interface FooterSettings {
   columns: FooterColumn[];
 }
 
+export interface ContactSettings {
+  address?: string;
+  phone?: string;
+  email?: string;
+  workingHours?: string;
+}
+
 export interface PenerbitanPackage {
   id: string;
   name: string;
@@ -477,6 +493,7 @@ export interface SiteContentSettings {
   bestSellerSection: BestSellerSectionSettings;
   homeSections: HomeSectionConfig[];
   footer: FooterSettings;
+  contact?: ContactSettings;
   penerbitanPackages: PenerbitanPackage[];
   workshops: WorkshopItem[];
   academicModules?: AcademicModule[];

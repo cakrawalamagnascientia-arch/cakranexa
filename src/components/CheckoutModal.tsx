@@ -93,7 +93,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     email: 'ahmad.fauzi@universitas.ac.id',
     phone: '081288992341',
     address: 'Jl. Salemba Raya No. 4, Senen',
+    province: 'DKI Jakarta',
     city: 'Jakarta Pusat',
+    district: 'Senen',
     postalCode: '10430',
     courier: currentCourier ? `${currentCourier.name} (${currentCourier.service}) - Rp ${shippingCost.toLocaleString('id-ID')}` : 'JNE Regular - Rp 15.000',
     notes: 'Mohon kemas dengan bubble wrap tebal dan box kardus buku.'

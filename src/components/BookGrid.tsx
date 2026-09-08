@@ -138,7 +138,7 @@ export const BookGrid: React.FC<BookGridProps> = ({
             onlyNew={onlyNew}
             onToggleOnlyNew={() => setOnlyNew(!onlyNew)}
             maxPrice={maxPrice}
-            onMaxPriceChange={setMaxPrice}
+            onPriceChange={setMaxPrice}
             categoryCounts={categoryCounts}
             onResetFilters={handleResetFilters}
             onPublishClick={onNavigateToPenerbitan}
