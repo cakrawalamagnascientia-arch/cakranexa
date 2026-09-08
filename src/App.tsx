@@ -496,7 +496,7 @@ export default function App() {
   };
 
   // Scroll to top upon page navigation
-  const navigateTo = (page: ActivePage, subSection?: SubSection) => {
+  const navigateTo = (page: ActivePage, subSection?: SubSection, categoryFilter?: BookCategory) => {
     if (page !== activePage || subSection !== activeSubSection || selectedBook !== null || selectedAuthor !== null) {
       setNavHistory((prev) => [
         ...prev,
@@ -528,6 +528,8 @@ export default function App() {
     // Handle category preset if navigating from dropdown
     if (subSection && ['Perpajakan', 'Akuntansi', 'Hukum', 'Ekonomi & Bisnis', 'Filsafat', 'Teologia'].includes(subSection as string)) {
       setCatalogCategory(subSection as string);
+    } else if (categoryFilter) {
+      setCatalogCategory(categoryFilter);
     } else if (page === 'katalog' && (!subSection || (subSection as string) === 'all')) {
       setCatalogCategory('all');
     }

@@ -156,7 +156,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       className="w-full text-left px-3 py-2 rounded-lg text-xs text-white hover:bg-slate-800 hover:text-[#D4AF37] transition-colors flex items-center justify-between"
                     >
                       <span className="font-semibold tracking-wider">SEMUA BUKU</span>
-                      <span className="text-[10px] text-[#D4AF37] bg-white/10 px-1.5 py-0.5 rounded font-mono">17 Buku</span>
+                      <span className="text-[10px] text-[#D4AF37] bg-white/10 px-1.5 py-0.5 rounded font-mono">23 Buku</span>
                     </button>
 
                     <button
@@ -502,7 +502,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className="w-full text-left px-3 py-1.5 text-sm font-semibold text-[#DFBF64] flex items-center justify-between"
               >
-                <span>Katalog Buku (17 Buku)</span>
+                <span>Katalog Buku (23 Buku)</span>
               </button>
               <div className="pl-4 space-y-1 mt-1">
                 <button

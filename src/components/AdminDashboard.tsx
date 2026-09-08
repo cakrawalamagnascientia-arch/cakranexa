@@ -300,6 +300,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // Form input state
   const [formData, setFormData] = useState<Partial<BookType>>({
     name: '',
+    subtitle: '',
+    coverQuote: '',
     slug: '',
     author: 'Scientia Integritas Utama',
     category: 'Perpajakan',
@@ -355,6 +357,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setEditingBook(null);
     setFormData({
       name: '',
+      subtitle: '',
+      coverQuote: '',
       slug: '',
       author: 'Scientia Integritas Utama',
       category: 'Perpajakan',
@@ -1928,6 +1932,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     Pratinjau Title Case: <strong className="text-slate-800 font-semibold">{toTitleCase(formData.name)}</strong>
                   </p>
                 )}
+              </div>
+
+              {/* Author & Kategori */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Subjudul (Opsional)</label>
+                  <input
+                    type="text"
+                    value={formData.subtitle || ''}
+                    onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                    placeholder="Subjudul buku"
+                    className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-slate-800"
+                  />
+                </div>
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Kutipan Sampul (Opsional)</label>
+                  <input
+                    type="text"
+                    value={formData.coverQuote || ''}
+                    onChange={(e) => setFormData({ ...formData, coverQuote: e.target.value })}
+                    placeholder="Kutipan di atas judul sampul"
+                    className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-slate-800"
+                  />
+                </div>
               </div>
 
               {/* Author & Kategori */}

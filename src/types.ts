@@ -10,6 +10,8 @@ export interface Book {
   id: string;
   name: string;
   title?: string;
+  subtitle?: string;
+  coverQuote?: string;
   slug: string;
   author: string;
   category: BookCategory;

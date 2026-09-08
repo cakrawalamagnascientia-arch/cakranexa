@@ -194,6 +194,14 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
               {toTitleCase(book?.title || book?.name)}
             </h1>
+            {book?.subtitle && (
+              <p className="mt-2 text-sm sm:text-base text-slate-500 italic">{book.subtitle}</p>
+            )}
+            {book?.coverQuote && (
+              <blockquote className="mt-4 border-l-2 border-[#D4AF37] pl-4 text-sm text-slate-600 italic">
+                “{book.coverQuote}”
+              </blockquote>
+            )}
 
             <div className="mt-3 flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-600">
               <div className="flex items-center gap-1.5">

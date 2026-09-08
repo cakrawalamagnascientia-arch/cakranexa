@@ -67,6 +67,8 @@ let inMemoryBookAuthors: Array<{ id?: string; book_id: string; author_id: string
 const rowToBook = (b: any): Book => normalizeBookAuthors({
   id: b.id,
   name: b.name,
+  subtitle: b.subtitle || undefined,
+  coverQuote: b.cover_quote || undefined,
   slug: b.slug,
   author: b.author,
   category: b.category,
@@ -97,6 +99,8 @@ const rowToBook = (b: any): Book => normalizeBookAuthors({
 const bookToRow = (b: Book) => ({
   id: b.id,
   name: b.name,
+  subtitle: b.subtitle || null,
+  cover_quote: b.coverQuote || null,
   slug: b.slug,
   author: b.author,
   category: b.category,

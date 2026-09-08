@@ -88,6 +88,8 @@ export interface CreateOrderResponse {
 const rowToBook = (row: any): Book => normalizeBookAuthors({
   id: row.id,
   name: row.name,
+  subtitle: row.subtitle || undefined,
+  coverQuote: row.cover_quote || undefined,
   slug: row.slug,
   author: row.author,
   category: row.category,

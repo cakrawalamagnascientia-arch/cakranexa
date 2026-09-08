@@ -36,7 +36,7 @@ export const DEFAULT_SITE_CONTENT: SiteContentSettings = {
       isEnabled: true,
       hasDropdown: true,
       submenus: [
-        { id: 'sub-kat-all', label: 'SEMUA BUKU', subSection: 'all', badge: '17 Buku', order: 1 },
+        { id: 'sub-kat-all', label: 'SEMUA BUKU', subSection: 'all', badge: '23 Buku', order: 1 },
         { id: 'sub-kat-terbaru', label: 'BUKU TERBARU', subSection: 'terbaru', order: 2 },
         { id: 'sub-kat-pajak', label: 'Perpajakan', categoryParam: 'Perpajakan', order: 3 },
         { id: 'sub-kat-akuntansi', label: 'Akuntansi', categoryParam: 'Akuntansi', order: 4 },
@@ -280,7 +280,7 @@ export const DEFAULT_SITE_CONTENT: SiteContentSettings = {
         title: 'Katalog Buku',
         order: 1,
         links: [
-          { id: 'fl-1', label: 'Semua Koleksi (21 Buku)', page: 'katalog', category: 'all' },
+          { id: 'fl-1', label: 'Semua Koleksi (23 Buku)', page: 'katalog', category: 'all' },
           { id: 'fl-2', label: 'Buku Perpajakan & Fiskal', page: 'katalog', category: 'Perpajakan' },
           { id: 'fl-3', label: 'Buku Akuntansi & Audit Forensik', page: 'katalog', category: 'Akuntansi' },
           { id: 'fl-4', label: 'Buku Hukum Acara & Pidana', page: 'katalog', category: 'Hukum' },

@@ -32,7 +32,7 @@ const PAGE_PATHS: Record<string, ActivePage> = {
 };
 
 const VALID_SUBSECTIONS = new Set<string>([
-  'terbaru', 'kategori', 'penulis', 'layanan', 'kirim-naskah', 'panduan', 'panduan-penulis',
+  'all', 'terbaru', 'kategori', 'penulis', 'layanan', 'kirim-naskah', 'panduan', 'panduan-penulis',
   'proses', 'faq', 'profil', 'visi-misi', 'tim', 'legalitas'
 ]);
 

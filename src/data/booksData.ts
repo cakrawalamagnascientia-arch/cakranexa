@@ -336,6 +336,47 @@ const RAW_BOOKS: Book[] = [
     badge: "Segera Terbit",
     beratGram: 500
   },
+  {
+    id: "book-22",
+    name: "ALKITAB YANG MEMBACA KITA",
+    subtitle: "Menjadi Manusia Penafsir dari Taurat hingga Para Nabi",
+    slug: "alkitab-yang-membaca-kita",
+    author: "Henry Dianto P. Sinaga",
+    category: "Teologia",
+    isbn: "",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 0,
+    sinopsis: "Buku ini mengajak pembaca memasuki sebuah pembalikan penting dalam penafsiran Kitab Suci: kita bukan hanya membaca Alkitab, tetapi juga dibaca olehnya. Dari fondasi hermeneutika, manusia penafsir, wahyu dan teks, Taurat, narasi sejarah, puisi dan hikmat, hingga para nabi, pembaca diajak menyadari bahwa dirinya tidak pernah netral di hadapan firman.\n\nDengan ketelitian akademik dan kepekaan rohani, buku ini menegaskan bahwa iman dan ketelitian bukanlah lawan. Bahasa, sejarah, genre, kanon, dan tradisi perlu dipelajari dengan rendah hati, sambil terus menguji motif, struktur kuasa, dan buah etis dari setiap penafsiran.\n\nMelalui empat gerak—amati, kenali, uji, dan tanggapi—pembaca diarahkan kepada ketaatan yang konkret, korektif, dan bertumbuh di dalam komunitas. Buku ini juga menempatkan pembacaan Alkitab dalam tanggung jawab publik Indonesia: pluralitas, keadilan, martabat sesama, kerentanan, dan pengharapan.\n\nPada akhirnya, tujuan buku ini bukan menghasilkan orang yang paling cepat menjawab, melainkan manusia yang paling dapat dipercaya ketika berbicara tentang Allah: berani karena telah mendengar, lembut karena sadar keterbatasan, kritis karena mencintai, dan berharap karena percaya bahwa Allah belum selesai bekerja.",
+    linkPembelian: '#',
+    bukuTerbaru: true,
+    penerbit: 'PT Cakrawala Magna Scientia',
+    coverBuku: '/images/books/book-22.png',
+    badge: "Teologia",
+    beratGram: 500
+  },
+  {
+    id: "book-23",
+    name: "DIUTUS DALAM KUASA",
+    subtitle: "Mengalir dalam Karunia, Memimpin dengan Integritas, dan Menyalakan Dunia",
+    coverQuote: "Kuasa Roh Kudus tidak diberikan untuk membangun panggung pribadi, tetapi untuk membangun tubuh Kristus dan melayani dunia.",
+    slug: "diutus-dalam-kuasa",
+    author: "Henry Dianto P. Sinaga",
+    category: "Teologia",
+    isbn: "",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 0,
+    sinopsis: "Buku ini mengajak pembaca memahami bahwa kuasa Roh Kudus tidak diberikan untuk membangun panggung pribadi, melainkan untuk membangun tubuh Kristus dan melayani dunia. Karunia-karunia Roh bukan sekadar fenomena rohani yang mengagumkan, tetapi sarana anugerah yang harus dipakai dengan kasih, ketertiban, kerendahan hati, dan tanggung jawab.\n\nDengan bahasa yang jernih dan landasan Alkitab yang kuat, buku ini menolong pembaca memahami, menguji, dan mempraktikkan karunia Roh secara sehat. Pembahasan kemudian dihubungkan secara konkret dengan penginjilan, pelayanan sosial, kepemimpinan, peperangan rohani, serta pembentukan gereja yang berdampak bagi masyarakat.\n\nBuku ini juga menegaskan bahwa integritas adalah wadah bagi kuasa. Karunia tanpa karakter dapat melukai, sedangkan kuasa yang dipimpin oleh kasih, kekudusan, dan kebenaran akan menyalakan dunia dengan kesaksian yang hidup. Karena itu, pembaca diajak bukan hanya untuk menerima kuasa, tetapi juga untuk diproses menjadi pribadi yang dapat dipercaya dalam pelayanan.\n\nSangat cocok bagi pelayan Tuhan, pemimpin gereja, mentor, penginjil, aktivis pelayanan, tim doa, komunitas misi, sekolah pelayanan, dan jemaat yang ingin bertumbuh dalam karunia Roh dengan aman, sehat, dan bertanggung jawab.",
+    linkPembelian: '#',
+    bukuTerbaru: true,
+    penerbit: 'PT Cakrawala Magna Scientia',
+    coverBuku: '/images/books/book-23.png',
+    badge: "Teologia",
+    beratGram: 500
+  },
 ];
 
 export const INITIAL_BOOKS: Book[] = RAW_BOOKS.map((book) => {

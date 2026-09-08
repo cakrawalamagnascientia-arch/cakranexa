@@ -30,6 +30,8 @@ $$ LANGUAGE plpgsql;
 CREATE TABLE books (
     id VARCHAR(50) PRIMARY KEY,
     name TEXT NOT NULL,
+    subtitle TEXT,
+    cover_quote TEXT,
     slug TEXT UNIQUE NOT NULL,
     author TEXT NOT NULL,
     category VARCHAR(100) NOT NULL,
