@@ -45,7 +45,7 @@ export const BookCard: React.FC<BookCardProps> = ({
               year: book?.tahunTerbit
             }, 'book')}
             referrerPolicy="no-referrer"
-            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+            className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300"
             loading="lazy"
           />
         </div>
