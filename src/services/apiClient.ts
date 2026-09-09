@@ -121,7 +121,13 @@ const rowToAuthor = (row: any): Author => normalizeAuthorProfile({
   id: row.id,
   name: row.name,
   academic_titles: row.academic_titles || undefined,
-  photo_url: row.photo_url || undefined,
+  photo_url: row.photo_url || (() => {
+    const name = String(row.name || '').toLowerCase();
+    if (name.includes('henry dianto')) return '/images/authors/henry-dianto-p-sinaga.png';
+    if (name.includes('joko purnomo')) return '/images/authors/joko-purnomo-raharjo.png';
+    if (name.includes('wahyu widodo')) return '/images/authors/wahyu-widodo.png';
+    return undefined;
+  })(),
   scopus_id: row.scopus_id || undefined,
   orcid_id: row.orcid_id || undefined,
   linkedin_url: row.linkedin_url || undefined,

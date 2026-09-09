@@ -152,11 +152,19 @@ async function loadBooks(): Promise<Book[]> {
 // ============================================================================
 // AUTHORS HELPERS (Mapping Snake ↔ Camel + Load from Supabase)
 // ============================================================================
+const authorPhotoFallback = (name?: string): string | undefined => {
+  const normalized = String(name || '').toLowerCase();
+  if (normalized.includes('henry dianto')) return '/images/authors/henry-dianto-p-sinaga.png';
+  if (normalized.includes('joko purnomo')) return '/images/authors/joko-purnomo-raharjo.png';
+  if (normalized.includes('wahyu widodo')) return '/images/authors/wahyu-widodo.png';
+  return undefined;
+};
+
 const rowToAuthor = (row: any): Author => normalizeAuthorProfile({
   id: row.id,
   name: row.name,
   academic_titles: row.academic_titles || undefined,
-  photo_url: row.photo_url || undefined,
+  photo_url: row.photo_url || authorPhotoFallback(row.name),
   scopus_id: row.scopus_id || undefined,
   orcid_id: row.orcid_id || undefined,
   linkedin_url: row.linkedin_url || undefined,

@@ -180,6 +180,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
   const [authorDeleteConfirmId, setAuthorDeleteConfirmId] = useState<string | null>(null);
   const [authorSearchQuery, setAuthorSearchQuery] = useState('');
+  const [isSavingAllAuthors, setIsSavingAllAuthors] = useState(false);
   const [tempAuthorPhotoPreview, setTempAuthorPhotoPreview] = useState<string | null>(null);
   const [selectedAuthorBookIds, setSelectedAuthorBookIds] = useState<Set<string>>(new Set());
   const [authorForm, setAuthorForm] = useState<{
@@ -464,13 +465,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       showNotification('Tidak ada data penulis untuk disimpan.');
       return;
     }
-    try {
-      const savedAuthors = await Promise.all(authors.map((author) => apiClient.saveAuthor(author, 'update')));
-      savedAuthors.forEach((author) => onUpdateAuthor?.(author));
-      showNotification(`${savedAuthors.length} data penulis berhasil disimpan ke server.`);
-    } catch (err) {
-      showNotification(err instanceof Error ? `Gagal menyimpan semua penulis: ${err.message}` : 'Gagal menyimpan semua penulis ke server.');
-    }
+    setIsSavingAllAuthors(true);
+    const results = await Promise.allSettled(authors.map((author) => apiClient.saveAuthor(author, 'update')));
+    const savedAuthors = results
+      .filter((result): result is PromiseFulfilledResult<Author> => result.status === 'fulfilled')
+      .map((result) => result.value);
+    savedAuthors.forEach((author) => onUpdateAuthor?.(author));
+    setIsSavingAllAuthors(false);
+    const failedCount = results.length - savedAuthors.length;
+    showNotification(failedCount === 0
+      ? `${savedAuthors.length} data penulis berhasil disimpan ke server.`
+      : `${savedAuthors.length} tersimpan, ${failedCount} gagal. Periksa login admin/backend.`);
   };
 
   const handleSaveAuthor = async (e: React.FormEvent) => {
@@ -1324,10 +1329,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <button
               type="button"
               onClick={handleSaveAllAuthors}
-              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg bg-slate-900 text-[#DFBF64] text-xs font-bold hover:bg-slate-800 transition-colors cursor-pointer whitespace-nowrap"
+              disabled={isSavingAllAuthors}
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg bg-slate-900 text-[#DFBF64] text-xs font-bold hover:bg-slate-800 transition-colors cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-wait"
             >
-              <Save className="w-3.5 h-3.5" />
-              Simpan Semua Perubahan
+              <Save className={`w-3.5 h-3.5 ${isSavingAllAuthors ? 'animate-pulse' : ''}`} />
+              {isSavingAllAuthors ? 'Menyimpan...' : 'Simpan Semua Perubahan'}
             </button>
           </div>
 
