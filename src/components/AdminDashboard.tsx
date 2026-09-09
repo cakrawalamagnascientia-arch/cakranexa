@@ -466,11 +466,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       return;
     }
     setIsSavingAllAuthors(true);
+    authors.forEach((author) => onUpdateAuthor?.(author));
     const results = await Promise.allSettled(authors.map((author) => apiClient.saveAuthor(author, 'update')));
     const savedAuthors = results
       .filter((result): result is PromiseFulfilledResult<Author> => result.status === 'fulfilled')
       .map((result) => result.value);
-    savedAuthors.forEach((author) => onUpdateAuthor?.(author));
     setIsSavingAllAuthors(false);
     const failedCount = results.length - savedAuthors.length;
     showNotification(failedCount === 0

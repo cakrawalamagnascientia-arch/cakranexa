@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { INITIAL_BOOKS, withLocalBookCover } from './data/booksData';
-import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS } from './data/authorsData';
+import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthors } from './data/authorsData';
 import { Book, CartItem, Order, ActivePage, SubSection, BookCategory, SeoSettings, SiteContentSettings, Author } from './types';
 import { apiClient, ApiError } from './services/apiClient';
 import { parseLocation, pushRoute, RouteState } from './utils/router';
@@ -180,12 +180,12 @@ export default function App() {
       const saved = localStorage.getItem('cakranexa_authors_v1');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) return normalizeAuthors(parsed);
       }
     } catch {
       // fallback to initial
     }
-    return INITIAL_AUTHORS;
+    return normalizeAuthors(INITIAL_AUTHORS);
   });
 
   useEffect(() => {
@@ -200,7 +200,7 @@ export default function App() {
     let isMounted = true;
     apiClient.getAuthors().then((remoteAuthors) => {
       if (isMounted && remoteAuthors && remoteAuthors.length > 0) {
-        setAuthors(remoteAuthors);
+        setAuthors(normalizeAuthors(remoteAuthors));
       }
     }).catch((err) => {
       console.warn('Silent API authors sync fallback:', err);
@@ -712,11 +712,11 @@ export default function App() {
   };
 
   const handleAddAuthor = (newAuthor: Author) => {
-    setAuthors((prev) => [newAuthor, ...prev]);
+    setAuthors((prev) => normalizeAuthors([newAuthor, ...prev]));
   };
 
   const handleUpdateAuthor = (updatedAuthor: Author) => {
-    setAuthors((prev) => prev.map((a) => (a.id === updatedAuthor.id ? updatedAuthor : a)));
+    setAuthors((prev) => normalizeAuthors(prev.map((a) => (a.id === updatedAuthor.id ? updatedAuthor : a))));
     if (selectedAuthor && selectedAuthor.id === updatedAuthor.id) {
       setSelectedAuthor(attachAuthorBooks(updatedAuthor));
     }

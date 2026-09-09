@@ -262,17 +262,55 @@ export const INITIAL_AUTHORS: Author[] = [
   }
 ];
 
+const AUTHOR_PHOTO_BY_NAME: Record<string, string> = {
+  'andi banua adams': '/images/authors/andi-banua-adams.png',
+  'henry dianto p sinaga': '/images/authors/henry-dianto-p-sinaga.png',
+  'joko purnomo raharjo': '/images/authors/joko-purnomo-raharjo.png',
+  'dr wahyu widodo ak ca sh m si': '/images/authors/wahyu-widodo.png'
+};
+
+const authorNameKey = (name: string): string => name
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, ' ')
+  .trim();
+
 /** Hanya mempertahankan nama/gelar/kontak yang sudah diverifikasi dari referensi profil. */
 export const normalizeAuthorProfile = (author: Author): Author => {
   const name = String(author.name || '').trim().toLowerCase();
-  if (name.includes('bonarsius')) return { ...author, name: 'Bonarsius Sipayung', academic_titles: '', email: '' };
-  if (name.includes('edy gunawan')) return { ...author, name: 'Dr. Edy Gunawan', academic_titles: 'S.E., Ak., S.H., M.Ak., M.H., M.Kn., BKP., CLA., Mediator., CertDa., CIISA', email: '' };
-  if (name.includes('henry dianto')) return { ...author, name: 'Henry Dianto P. Sinaga', academic_titles: '' };
-  if (name.includes('joko purnomo')) return { ...author, name: 'Joko Purnomo Raharjo', academic_titles: '', email: 'jokopurnomo.jpr@gmail.com' };
-  if (name.includes('wahyu widodo')) return { ...author, name: 'Dr. Wahyu Widodo, Ak., CA., S.H., M.Si.', academic_titles: '', email: '' };
-  if (name.includes('yudha pramana')) return { ...author, name: 'Yudha Pramana', academic_titles: '', email: '' };
-  if (name.includes('andi banua adams')) return { ...author, name: 'Andi Banua Adams', academic_titles: '', email: '' };
-  return { ...author };
+  let normalized: Author = { ...author };
+  if (name.includes('bonarsius')) normalized = { ...normalized, name: 'Bonarsius Sipayung', academic_titles: '', email: '' };
+  else if (name.includes('edy gunawan')) normalized = { ...normalized, name: 'Dr. Edy Gunawan', academic_titles: 'S.E., Ak., S.H., M.Ak., M.H., M.Kn., BKP., CLA., Mediator., CertDa., CIISA', email: '' };
+  else if (name.includes('henry dianto')) normalized = { ...normalized, name: 'Henry Dianto P. Sinaga', academic_titles: '' };
+  else if (name.includes('joko purnomo')) normalized = { ...normalized, name: 'Joko Purnomo Raharjo', academic_titles: '', email: 'jokopurnomo.jpr@gmail.com' };
+  else if (name.includes('wahyu widodo')) normalized = { ...normalized, name: 'Dr. Wahyu Widodo, Ak., CA., S.H., M.Si.', academic_titles: '', email: '' };
+  else if (name.includes('yudha pramana')) normalized = { ...normalized, name: 'Yudha Pramana', academic_titles: '', email: '' };
+  else if (name.includes('andi banua adams')) normalized = { ...normalized, name: 'Andi Banua Adams', academic_titles: '', email: '' };
+
+  const canonicalPhoto = AUTHOR_PHOTO_BY_NAME[authorNameKey(normalized.name)];
+  return { ...normalized, photo_url: canonicalPhoto || undefined };
+};
+
+/** Normalizes names/photos and collapses duplicate records from cache or API. */
+export const normalizeAuthors = (authors: Author[]): Author[] => {
+  const unique = new Map<string, Author>();
+  authors.forEach((author) => {
+    const normalized = normalizeAuthorProfile(author);
+    const key = authorNameKey(normalized.name);
+    const existing = unique.get(key);
+    if (!existing) {
+      unique.set(key, normalized);
+      return;
+    }
+    unique.set(key, {
+      ...existing,
+      ...normalized,
+      id: existing.id || normalized.id,
+      books: [...(existing.books || []), ...(normalized.books || [])].filter(
+        (book, index, allBooks) => allBooks.findIndex((candidate) => candidate.id === book.id) === index
+      )
+    });
+  });
+  return Array.from(unique.values());
 };
 
 /**

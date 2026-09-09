@@ -11,7 +11,7 @@ export interface AuthorsListingViewProps {
 
 export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors, onSelectAuthor }) => {
   const safeAuthors = Array.isArray(authors) ? authors : [];
-  const sliceAuthors = safeAuthors.slice(0, 6);
+  const sliceAuthors = safeAuthors;
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
