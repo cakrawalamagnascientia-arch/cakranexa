@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-navy-950: #080D1A;
+  --color-navy-900: #0F172A;
+  --color-navy-800: #1E293B;
+  --color-navy-700: #334155;
+  --color-gold-300: #F3E5AB;
+  --color-gold-400: #DFBF64;
+  --color-gold-500: #D4AF37;
+  --color-gold-600: #C5A059;
+  --color-gold-700: #9A7B38;
+  --color-gold-100: #FBF7EE;
+  --color-gold-50: #FDFCF7;
+  --color-slate-cream: #F8FAFC;
+  --color-charcoal: #1E293B;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  *, *::before, *::after {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-style: normal !important;
+  }
+
+  body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    background-color: #F8FAFC;
+    color: #1E293B;
+    font-style: normal !important;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-serif, .font-display {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-style: normal !important;
+  }
+}
+
+/* Luxury Corporate Book Spine & Minimal Presentation */
+.book-shadow {
+  box-shadow: 
+    0 4px 6px -1px rgba(15, 23, 42, 0.08),
+    0 10px 15px -3px rgba(15, 23, 42, 0.12),
+    inset -1px 0 2px rgba(0, 0, 0, 0.12);
+}
+
+.book-spine-effect {
+  position: relative;
+}
+.book-spine-effect::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  background: linear-gradient(to right, 
+    rgba(0, 0, 0, 0.25) 0%, 
+    rgba(255, 255, 255, 0.12) 40%, 
+    transparent 100%);
+  pointer-events: none;
+  z-index: 10;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+/* Subtle clean scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}

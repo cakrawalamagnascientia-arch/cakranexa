@@ -1,0 +1,441 @@
+import { Book } from '../types';
+import { toTitleCase } from '../utils/formatters';
+
+/**
+ * SUMBER TUNGGAL KATALOG — 17 judul sesuai dokumen resmi "Judul_buku_Cakranexa.pdf" (Sept 2026).
+ * Dipakai oleh frontend (fallback), server.ts (in-memory), dan seed schema.sql (digenerate dari file ini).
+ *
+ * Konvensi nilai yang BELUM tersedia dari redaksi (bukan dummy):
+ *  - isbn: ''  -> tampil "Belum tersedia";  'Dalam Pengajuan' -> tampil apa adanya
+ *  - harga: 0  -> tampil "Harga menyusul", tombol beli dinonaktifkan (status Segera Terbit)
+ *  - jumlahHalaman: 0 -> baris jumlah halaman disembunyikan
+ *  - rating / reviewsCount / stock: tidak diisi -> UI tidak menampilkan angka palsu
+ *  - coverBuku: '' -> otomatis /images/books/<id>.jpg (siapkan file), fallback SVG jika belum ada
+ */
+const RAW_BOOKS: Book[] = [
+  {
+    id: "book-1",
+    name: "REFORMULASI SUBJEK PAJAK PERTAMBAHAN NILAI (PPN) DI ERA DIGITALISASI DI INDONESIA",
+    slug: "reformulasi-subjek-pajak-pertambahan-nilai-ppn-di-era-digitalisasi-di-indonesia",
+    author: "Bonarsius Sipayung",
+    category: "Perpajakan",
+    isbn: "Dalam Pengajuan",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 185000,
+    sinopsis: "Buku ini disusun untuk menjawab perubahan mendasar dalam Pajak Pertambahan Nilai (PPN) ketika penyerahan, pembayaran, data pelanggan, dan kendali transaksi tidak lagi berada pada satu pelaku. Ekonomi digital tidak menghapus prinsip PPN sebagai pajak atas konsumsi akhir, tetapi mengubah pihak yang paling mampu mengidentifikasi lokasi konsumsi, memungut pajak, menerbitkan bukti, melakukan koreksi, dan mempertanggungjawabkan transaksi.\n\nPembahasan diarahkan pada reformulasi subjek PPN secara fungsional, sehingga perlu membedakan pemasok material, pemasok yang dianggap, pemungut administratif, perantara pelaporan, pelanggan yang memenuhi kewajiban secara mandiri, pihak yang bertanggung jawab secara renteng, serta konsumen sebagai penanggung ekonomis. Pembedaan tersebut dimaksudkan untuk mencegah kekosongan, duplikasi pemungutan, putusnya hak kredit Pajak Masukan, dan pembebanan kewajiban kepada pihak yang tidak menguasai data atau kendali yang diperlukan.\n\nAnalisis memadukan pendekatan hukum normatif, komparatif, ekonomi, institusional, administrasi pajak, dan teknologi. Pengalaman OECD dan beberapa yurisdiksi lain digunakan sebagai pembanding fungsional, bukan sebagai model yang dipindahkan secara mekanis. Fokus akhirnya tetap pada konteks Indonesia dan prinsip legalitas.",
+    linkPembelian: '#',
+    bukuTerbaru: true,
+    penerbit: 'PT Scientia Integritas Utama',
+    coverBuku: '/images/books/7. reformulasi-subjek-pajak-pertambahan-nilai-ppn-di-era-digitalisasi-di-indonesia.png',
+    badge: "Trilogi PPN Digital",
+    beratGram: 500
+  },
+  {
+    id: "book-2",
+    name: "REFORMULASI OBJEK PAJAK PERTAMBAHAN NILAI (PPN) DI ERA DIGITALISASI DI INDONESIA",
+    slug: "reformulasi-objek-pajak-pertambahan-nilai-ppn-di-era-digitalisasi-di-indonesia",
+    author: "Bonarsius Sipayung",
+    category: "Perpajakan",
+    isbn: "Dalam Pengajuan",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 185000,
+    sinopsis: "Perubahan ekonomi digital telah menggeser cara masyarakat memperoleh, menggunakan, dan membayar manfaat ekonomi. Perangkat lunak tidak lagi selalu dibeli sebagai salinan; konten dikonsumsi melalui langganan; kapasitas komputasi diperoleh sesuai penggunaan; dan platform mempertemukan banyak pihak dalam satu rangkaian transaksi. Perubahan ini menuntut hukum PPN yang tetap berpegang pada legalitas, tetapi mampu membaca substansi konsumsi secara tepat.\n\nBuku ini membahas reformulasi objek PPN di Indonesia melalui perpaduan kajian hukum, ekonomi pajak konsumsi, model bisnis digital, administrasi, dan perbandingan internasional. Tujuannya bukan memperluas pajak tanpa batas, melainkan membangun kriteria yang netral, dapat dibuktikan, dapat dilaksanakan, serta melindungi hak wajib pajak. Pembaca diharapkan memperoleh kerangka untuk menilai manfaat yang dikonsumsi, lokasi konsumsi, pihak yang bertanggung jawab, dan bukti yang diperlukan.",
+    linkPembelian: '#',
+    bukuTerbaru: true,
+    penerbit: 'PT Scientia Integritas Utama',
+    coverBuku: '/images/books/8. reformulasi-objek-pajak-pertambahan-nilai-ppn-di-era-digitalisasi-di-indonesia.png',
+    badge: "Trilogi PPN Digital",
+    beratGram: 500
+  },
+  {
+    id: "book-3",
+    name: "REFORMULASI MEKANISME PAJAK PERTAMBAHAN NILAI (PPN) DALAM PENANGANAN TANTANGAN DIGITALISASI DI INDONESIA",
+    slug: "reformulasi-mekanisme-pajak-pertambahan-nilai-ppn-dalam-penanganan-tantangan-digitalisasi-di-indonesia",
+    author: "Bonarsius Sipayung",
+    category: "Perpajakan",
+    isbn: "Dalam Pengajuan",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 185000,
+    sinopsis: "Di tengah pesatnya transformasi digital yang terjadi di seluruh dunia, Indonesia tidak terkecuali. Ekonomi digital semakin berkembang dengan pesat, mencakup berbagai sektor, dari e-commerce, fintech, hingga ekonomi berbasis platform digital yang sangat luas jangkauannya. Perubahan ini memunculkan kebutuhan mendesak untuk melakukan reformulasi terhadap mekanisme perpajakan, agar sistem yang ada tetap relevan, efektif, dan mampu mengakomodasi transaksi digital yang kian kompleks. Salah satu aspek penting yang harus segera diperhatikan adalah mekanisme PPN, yang merupakan salah satu sumber utama penerimaan negara. PPN yang diterapkan di dunia fisik sudah tentu tidak sepenuhnya bisa dipakai dalam dunia digital tanpa penyesuaian. Oleh karena itu, buku ini mengupas secara rinci mengenai tantangan yang dihadapi sistem PPN dalam dunia digital, serta langkah-langkah reformulasi mekanisme yang diperlukan untuk menjawab tantangan tersebut.\n\nPenulisan buku ini bertujuan untuk memberikan perspektif yang lebih jelas mengenai dinamika PPN dalam era digitalisasi di Indonesia, serta memberikan saran-saran konkret untuk memperbaharui kebijakan dan mekanisme perpajakan yang ada. Harapannya, buku ini dapat memberikan wawasan yang berguna bagi para pemangku kepentingan, baik di kalangan pemerintah, pelaku usaha, akademisi, maupun masyarakat umum, mengenai bagaimana kita dapat beradaptasi dengan perkembangan ekonomi digital tanpa mengorbankan prinsip-prinsip keadilan dan keberlanjutan dalam pengelolaan perpajakan.",
+    linkPembelian: '#',
+    bukuTerbaru: true,
+    penerbit: 'PT Scientia Integritas Utama',
+    coverBuku: '/images/books/9. reformulasi-mekanisme-pajak-pertambahan-nilai-ppn-dalam-penanganan-tantangan-digitalisasi-di-indonesia.png',
+    badge: "Trilogi PPN Digital",
+    beratGram: 500
+  },
+  {
+    id: "book-4",
+    name: "PRINSIP-PRINSIP TRANSFER PRICING: KONSEP DAN APLIKASI DI INDONESIA",
+    slug: "prinsip-prinsip-transfer-pricing-konsep-dan-aplikasi-di-indonesia",
+    author: "Henry Dianto P. Sinaga & Andi Banua Adams",
+    category: "Perpajakan",
+    isbn: "Dalam Pengajuan",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 175000,
+    sinopsis: "Buku ini disusun dengan tujuan memberikan pemahaman yang menyeluruh, mulai dari konsep dasar, kerangka regulasi dan praktik yang relevan di Indonesia, hingga aplikasi dan langkah-langkah analisis yang sering ditemui dalam penyusunan kebijakan harga transfer dan dokumentasi transfer pricing. Kami berupaya menyajikan materi secara sistematis, dengan penekanan pada keterkaitan antara teori dan praktik. Pembaca akan diajak memahami analisis fungsional (fungsi–aset–risiko), pilihan metode transfer pricing, analisis kesebandingan, pemilihan pembanding, serta isu-isu yang kerap muncul pada transaksi tertentu, seperti jasa intragrup, barang berwujud, pembiayaan, dan pemanfaatan aset tak berwujud.\n\nTransfer pricing kerap menjadi area yang menantang bagi banyak pihak, baik perusahaan, konsultan, akademisi, maupun aparat pajak, karena memadukan aspek ekonomi, akuntansi, dan hukum. Karena itu, buku ini kami rancang untuk dapat digunakan oleh beragam pembaca: mahasiswa yang memerlukan pengantar konseptual, praktisi yang membutuhkan panduan aplikasi, serta peneliti yang memerlukan kerangka berpikir dan rujukan untuk memperdalam kajian. Harapan kami, buku ini dapat membantu pembaca membangun “cara berpikir transfer pricing” yang runtut: memahami transaksi, menilai peran masing-masing pihak, memilih metode yang tepat, dan mendokumentasikan prosesnya secara memadai.",
+    linkPembelian: '#',
+    bukuTerbaru: true,
+    penerbit: 'PT Scientia Integritas Utama',
+    coverBuku: '/images/books/10. prinsip-prinsip-transfer-pricing-konsep-dan-aplikasi-di-indonesia.png',
+    badge: "Pajak Internasional",
+    beratGram: 500
+  },
+  {
+    id: "book-5",
+    name: "PRINSIP DAN KONSEP AUDIT DALAM AKUNTANSI DAN PELAKSANAAN KEWAJIBAN PERPAJAKAN DI INDONESIA",
+    slug: "prinsip-dan-konsep-audit-dalam-akuntansi-dan-pelaksanaan-kewajiban-perpajakan-di-indonesia",
+    author: "Yudha Pramana & Joko Purnomo Raharjo",
+    category: "Akuntansi",
+    isbn: "978-634-04-8341-3",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 150000,
+    sinopsis: "Buku ini berangkat dari satu premis yang sederhana namun menentukan, yaitu integritas angka adalah bahasa kepercayaan. Dalam bahasa itulah audit dan perpajakan berdiri bukan sekadar berdampingan, melainkan saling menopang. Audit memberi keyakinan atas kewajaran laporan keuangan, sedangkan perpajakan, melalui rezim self-assessment, menuntut kedisiplinan untuk menghitung, melaporkan, dan membayar pajak secara baik, benar, lengkap, dan jelas. Di titik temu keduanya, akurasi angka bukan tujuan antara, melainkan prasyarat bagi tata kelola yang sehat, kepastian hukum, dan keputusan ekonomi yang bernilai.\n\nBenang merah buku ini menegaskan hubungan dua arah yang kuat: keandalan laporan keuangan adalah fondasi akurasi SPT, sementara kesiapan perpajakan menjadi kaca pembesar bagi kualitas proses akuntansi dan pengendalian internal. Temuan audit dapat memicu penyesuaian fiskal. Hasil pemeriksaan pajak dapat mengubah cara entitas melakukan pengukuran, pengakuan, dan pengungkapan.\n\nBuku ini juga menempatkan praktik modern sebagai realitas yang tak terpisahkan: e-Faktur, e-Bupot, e-Filing, e-Meterai, integrasi NIK-NPWP, hingga modernisasi Sistem Inti Administrasi Perpajakan membentuk lingkungan kepatuhan yang menuntut kualitas data dan jejak audit yang utuh. Dari perencanaan audit yang tajam, pemahaman entitas dan teknologi, penilaian risiko dan pengendalian, hingga dokumentasi yang inspection-ready, pembaca diajak melihat bagaimana audit yang baik selaras dengan realitas fiskal, agar SPT mencerminkan substansi ekonomi, bukan sekadar bentuk transaksi.\n\nDitujukan bagi mahasiswa, calon auditor, akuntan, praktisi pajak, manajemen, hingga aparat pemeriksa, buku ini membantu pembaca melompati jurang antara prinsip dan implementasi, dengan peta regulasi, kerangka berpikir berbasis risiko, serta agenda praktis membangun tax control framework yang hidup, strategi insentif yang disiplin dokumen, dan pengelolaan sengketa yang sadar nilai. Pada akhirnya, pesan buku ini tegas, yakni bangun sistem, bukan momen, karena audit yang bernilai dan kepatuhan pajak yang tangguh lahir dari desain, disiplin, dan dokumentasi yang siap dipertanggungjawabkan.",
+    linkPembelian: '#',
+    bukuTerbaru: false,
+    penerbit: 'PT Scientia Integritas Utama',
+    coverBuku: '/images/books/17. prinsip-dan-konsep-audit-dalam-akuntansi-dan-pelaksanaan-kewajiban-perpajakan-di-indonesia.png',
+    badge: "Audit & Perpajakan",
+    beratGram: 500
+  },
+  {
+    id: "book-10",
+    name: "PERANAN HUKUM DALAM PENANGANAN TANTANGAN PAJAK E-COMMERCE DI INDONESIA",
+    slug: "peranan-hukum-dalam-penanganan-tantangan-pajak-e-commerce-di-indonesia",
+    author: "Henry Dianto P. Sinaga",
+    category: "Hukum",
+    isbn: "978-623-10-4266-8",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 219000,
+    sinopsis: "Dalam menjawab tantangan pajak e-commerce tersebut, buku ini membahas dan menganalisis permasalahan yang ada berdasarkan telaah filosofis, yuridis, dan paradigmatik, sehingga dapat menghasilkan konsepsi hukum yang ideal di Indonesia. Hal ini didasarkan pada konstruksi paham neo-kantianisme, empat maksim pajak, dan model bekerjanya hukum dalam masyarakat, sebagaimana gagasannya telah menjangkau pada komponen-komponen pembentuk nilai hukum yang ideal, yakni keadilan, kepastian hukum, dan kemanfaatan publik. Hasil telaah filosofis, yuridis, dan paradigmatik menunjukkan masih terdapat ketentuan-ketentuan tertentu yang belum selaras dengan komponen-komponen pembentuk nilai hukum berupa keadilan, kepastian hukum, dan kemanfaatan publik. Konsep-konsep hukum dan pajak tersebut menghasilkan komponen-komponen yang berperan dalam penanganan tantangan pajak e-commerce di Indonesia, yakni: a) fairness, netralitas dan equity sebagai komponen pembentuk keadilan, b) kenyamanan atau kemudahan, efisiensi, dan fleksibilitas sebagai komponen pembentuk kemanfaatan publik, serta c) equality before the law, kepastian dan kesederhanaan, dan due process of law sebagai komponen pembentuk kepastian hukum.",
+    linkPembelian: '#',
+    bukuTerbaru: false,
+    penerbit: 'PT Scientia Integritas Utama',
+    coverBuku: '/images/books/14. peranan-hukum-dalam-penanganan-tantangan-pajak-e-commerce-di-indonesia.png',
+    badge: "Hukum Pajak Digital",
+    beratGram: 500
+  },
+  {
+    id: "book-11",
+    name: "HUKUM PIDANA DI BIDANG PERPAJAKAN DI INDONESIA",
+    slug: "hukum-pidana-di-bidang-perpajakan-di-indonesia",
+    author: "Bonarsius Sipayung, Henry Dianto P. Sinaga, & Anton Hartanto",
+    category: "Hukum",
+    isbn: "978-623-10-6631-2",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 179000,
+    sinopsis: "Tindak pidana di bidang perpajakan yang terjadi di Indonesia harus ditangani dengan baik dan secara patut, agar tidak menimbulkan multi efek yang merugikan terhadap masyarakat, para pemangku kepentingan yang terkait, pemerintah dan negara. Memang, praktik tindak pidana di bidang perpajakan, yang pada dasarnya kompleks dan kasuistik, dapat berpotensi menyulitkan beberapa hal, antara lain tidak selalu tercapainya pemidanaan yang konsisten dan atau belum tercapai konsistensi pendekatan terhadap pemidanaan di bidang perpajakan, sebagaimana bukti-bukti empiris dan putusan-putusan pengadilan yang ada menunjukkan faktanya. Namun, kompleksitas dan permasalahan yang terdapat dalam tax evasion atau tax fraud tidak dapat menjadi justifikasi untuk mengabaikan nilai-nilai hukum yang ada dalam menangani kasus atau perkara pidana di bidang perpajakan di Indonesia, mengingat tujuan hukum pidana pada akhirnya adalah untuk memenuhi rasa keadilan.",
+    linkPembelian: '#',
+    bukuTerbaru: false,
+    penerbit: 'PT Scientia Integritas Utama',
+    coverBuku: '/images/books/13. hukum-pidana-di-bidang-perpajakan-di-indonesia.png',
+    badge: "Hukum Pidana Pajak",
+    beratGram: 500
+  },
+  {
+    id: "book-12",
+    name: "PIDANA BADAN DAN PERTANGGUNGJAWABANNYA DI BIDANG PERPAJAKAN DI INDONESIA",
+    slug: "pidana-badan-dan-pertanggungjawabannya-di-bidang-perpajakan-di-indonesia",
+    author: "Henry Dianto P. Sinaga & Edy Edwin P. Ginting",
+    category: "Hukum",
+    isbn: "978-623-10-4267-5",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 199000,
+    sinopsis: "Sifat hukum pajak dan hukum korporasi yang rumit dan kompleks, teknologi yang canggih, strategi pajak yang beragam dan moderat, dan telah umumnya transaksi lintas batas di era digital saat ini menjadi beberapa tantangan penting dalam penegakan hukum pidana di bidang perpajakan dalam lingkup Badan. Meskipun menghadapi rintangan yang signifikan, tetapi penerapan hukum pidana Badan dalam perpajakan sangat penting untuk mendorong kepatuhan dan keadilan. Kendala dan tantangan yang ada tidak boleh menjadi pembenaran atas terhambatnya penegakan hukum di bidang perpajakan terhadap Badan yang melakukan tax evasion, tax fraud, dan/atau pelanggaran delik pidana perpajakan lainnya.",
+    linkPembelian: '#',
+    bukuTerbaru: false,
+    penerbit: 'PT Scientia Integritas Utama',
+    coverBuku: '/images/books/12. pidana-badan-dan-pertanggungjawabannya-di-bidang-perpajakan-di-indonesia.png',
+    badge: "Hukum Pidana Korporasi",
+    beratGram: 500
+  },
+  {
+    id: "book-13",
+    name: "ALTERNATIVE DISPUTE RESOLUTION DALAM PIDANA PAJAK DI INDONESIA",
+    slug: "alternative-dispute-resolution-dalam-pidana-pajak-di-indonesia",
+    author: "Wahyu Widodo",
+    category: "Hukum",
+    isbn: "978-6340-41-191-1",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 95000,
+    sinopsis: "Buku ini menyuguhkan telaah komprehensif terhadap tantangan penegakan hukum dalam bidang perpajakan Indonesia, khususnya dalam menangani tindak pidana pajak yang merugikan pendapatan negara. Di tengah kompleksitas sistem self-assessment dan keterbatasan pendekatan litigasi konvensional, penulis mengusulkan penerapan Alternative Dispute Resolution (ADR) sebagai pendekatan strategis berbasis restorative justice yang lebih efisien, adil, dan fungsional.\n\nMelalui kerangka teoritis yang kuat dan studi komparatif terhadap yurisdiksi seperti Amerika Serikat, Inggris, dan Australia, buku ini membuktikan bahwa ADR, meliputi mediasi, negosiasi, konsiliasi, dan arbitrase, dapat menjadi alat penyelesaian sengketa yang tidak hanya berorientasi pada pemulihan kerugian negara, tetapi juga membangun budaya kepatuhan sukarela. Penulis juga menyoroti urgensi penguatan regulasi, reformasi kelembagaan, pelatihan mediator bersertifikat, serta sosialisasi kepada wajib pajak dan aparat penegak hukum sebagai fondasi implementasi ADR yang berkelanjutan.\n\nDitujukan bagi akademisi, praktisi hukum, pembuat kebijakan, serta otoritas perpajakan, buku ini bukan hanya menawarkan gagasan konseptual, tetapi juga membangun peta jalan (roadmap) konkret menuju sistem keadilan pajak yang lebih restoratif, adaptif, dan manusiawi. Dalam konteks hukum pidana perpajakan, ADR tidak lagi dipandang sebagai alternatif sekunder, melainkan sebagai paradigma baru penegakan hukum fiskal yang mengutamakan pemulihan atas hukuman, dialog atas konfrontasi, dan partisipasi atas dominasi.",
+    linkPembelian: '#',
+    bukuTerbaru: false,
+    penerbit: 'PT Scientia Integritas Utama',
+    coverBuku: '/images/books/11. alternative-dispute-resolution-dalam-pidana-pajak-di-indonesia.png',
+    badge: "Restorative Justice",
+    beratGram: 500
+  },
+  {
+    id: "book-14",
+    name: "AKUNTANSI PAJAK: TEORI DAN PRAKTIK DI INDONESIA",
+    slug: "akuntansi-pajak-teori-dan-praktik-di-indonesia",
+    author: "Yudha Pramana",
+    category: "Akuntansi",
+    isbn: "978-634-05-3785-7",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 185000,
+    sinopsis: "Buku ini mengajak pembaca melihat akuntansi pajak bukan sebagai pekerjaan “mengisi SPT”, melainkan sebagai sistem end-to-end yang menautkan transaksi harian, pencatatan, rekonsiliasi, hingga pelaporan fiskal dan penyajian pajak dalam laporan keuangan. Titik berangkatnya sederhana namun krusial: angka akuntansi komersial dan angka fiskal kerap berbeda bukan karena “rekayasa”, melainkan karena dua rezim memiliki tujuan yang berbeda, SAK/IFRS mengejar penyajian wajar, sementara hukum pajak mengejar pemajakan, kepastian hukum, dan administrasi penerimaan. Dari sinilah akuntansi pajak berperan sebagai jembatan: menerjemahkan laba akuntansi menjadi laba kena pajak melalui rekonsiliasi fiskal, sekaligus memastikan pajak kini dan pajak tangguhan disajikan memadai (PSAK 46/IAS 12), termasuk saat muncul ketidakpastian perlakuan pajak (ISAK 34/IFRIC 23).\n\nDengan konteks Indonesia yang menganut self-assessment dan bergerak menuju kepatuhan yang makin data-driven, buku ini menekankan bahwa kualitas proses, klasifikasi, dokumentasi, keterlacakan, dan control, sama pentingnya dengan hasil angka. Pembaca diajak membangun fondasi praktis, berupa COA yang “berbicara pajak”, tax tagging per transaksi, register pajak (PPN, bukti potong, penyusutan fiskal, nominatif), rekonsiliasi bulanan, hingga kontrol kunci agar sistem menjadi preventif, bukan reaktif. Pembahasan meluas dari PPh badan dan deferred tax sampai PPN, withholding taxes, kepabeanan/cukai/meterai, serta PPh Pasal 21 ditutup dengan perspektif internasional tentang treaty, BEPS/CbCR, dan dinamika global yang menuntut data semakin granular. Hasil akhirnya bukan hanya kepatuhan, melainkan angka pajak yang defensible, yang dapat dijelaskan sebagai cerita bisnis yang wajar, dapat ditelusuri sampai bukti, dan bermakna bagi manajemen, auditor, investor, dan publik.",
+    linkPembelian: '#',
+    bukuTerbaru: false,
+    penerbit: 'PT Scientia Integritas Utama',
+    coverBuku: '/images/books/16. akuntansi-pajak-teori-dan-praktik-di-indonesia.png',
+    badge: "Buku Teks",
+    beratGram: 500
+  },
+  {
+    id: "book-15",
+    name: "PAJAK MERGER DAN AKUISISI (M&A) DI INDONESIA: PRINSIP DAN KONSEP",
+    slug: "pajak-merger-dan-akuisisi-m-dan-a-di-indonesia-prinsip-dan-konsep",
+    author: "Andi Banua Adams & Joko Purnomo Raharjo",
+    category: "Perpajakan",
+    isbn: "978-634-05-3605-8",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 145000,
+    sinopsis: "Merger & Acquisition (M&A) merupakan fenomena multidimensi yang berdiri di persimpangan hukum korporasi, akuntansi, keuangan, dan terutama perpajakan. Jika secara bisnis M&A dijual sebagai mesin pencipta nilai dan sinergi, maka dari sudut fiskal M&A hampir selalu dibaca sebagai peristiwa pengalihan harta dan perubahan pengendalian yang berpotensi memunculkan pajak. Ketegangan inilah yang membuat satu transaksi bisa melibatkan banyak pemangku kepentingan dengan agenda yang tidak selalu sejalan.\n\nBuku ini menuntun pembaca memahami bentuk-bentuk M&A, pilihan struktur transaksi (share deal vs asset deal), hingga isu lintas negara seperti tax treaty dan beneficial ownership. Dalam hal ini, pajak tidak lagi tampil sebagai “biaya tambahan”, melainkan variabel desain yang bisa mengarahkan struktur pembiayaan, pemanfaatan rugi fiskal, akses fasilitas nilai buku, hingga manajemen risiko pajak historis target. Buku ini menyederhanakan labirin aturan menjadi peta jalan yang logis, yakni bagaimana satu transaksi bisa sekaligus menyentuh PPh, PPN, BPHTB, aturan administrasi/penegakan, hingga rezim perjanjian pajak internasional, lalu bagaimana membaca hierarki norma (UUD, UU, PP, PMK, PER) saat aturan tampak bertabrakan. Buku ini menanamkan fondasi penting, bahwa prinsip legalitas, fungsi budgetair-regulerend, serta asas domisili-sumber pada restrukturisasi adalah fasilitas bersyarat yang harus diupayakan. Pembaca juga diperkenalkan pada spektrum konsep kunci, berupa tax neutrality, tax efficiency, dan tax arbitrage, lengkap dengan “radar” pengujian substansi seperti substance over form dan business purpose test, serta pagar anti-penghindaran (SAAR/GAAR) yang makin menentukan struktur M&A modern. Buku ini juga membedah dilema klasik asset deal vs share deal, antara fleksibilitas dan step-up basis versus beban pajak di muka dan kompleksitas administratif, serta memperluas cakupan ke joint venture (JV), termasuk memilih bungkus hukum (PT/PMA vs KSO), mengelola kontrol dan hubungan istimewa, hingga memahami kapan setoran aset, share swap, atau pengalihan fungsi-risiko memicu pajak dan koreksi.\n\nSemoga buku ini dapat menjadi panduan bagi praktisi, akademisi, dan eksekutif yang ingin merancang restrukturisasi yang masuk akal secara bisnis, aman secara hukum, dan efisien secara pajak, tanpa terjebak pada skema artifisial. Buku ini menunjukkan bahwa pajak bukan untuk “mematikan” M&A, melainkan untuk memastikan transaksi benar-benar menghasilkan nilai ekonomi riil, bukan sekadar permainan struktur untuk mengecilkan setoran ke kas negara.",
+    linkPembelian: '#',
+    bukuTerbaru: false,
+    penerbit: 'PT Scientia Integritas Utama',
+    coverBuku: '/images/books/15. pajak-merger-dan-akuisisi-m-dan-a-di-indonesia-prinsip-dan-konsep.png',
+    badge: "Pajak Korporasi",
+    beratGram: 500
+  },
+  {
+    id: "book-16",
+    name: "Pajak Pertambangan di Indonesia: Dari Rente Mineral ke Kesejahteraan Publik",
+    slug: "pajak-pertambangan-di-indonesia-dari-rente-mineral-ke-kesejahteraan-publik",
+    author: "Henry Dianto P. Sinaga; Yuli Teguh Hidayat",
+    category: "Perpajakan",
+    isbn: "",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 0,
+    sinopsis: "Mineral dan batubara bukan sekadar komoditas ekonomi, melainkan kekayaan publik yang tidak terbarukan. Buku ini membahas bagaimana pajak pertambangan dapat berfungsi sebagai instrumen untuk menyeimbangkan kedaulatan negara, keadilan fiskal, kepastian investasi, pembangunan daerah, dan keberlanjutan lingkungan. Pembaca diajak menelaah royalti, PPh Badan, pajak rente sumber daya, windfall tax, BEPS, transfer pricing, dana reklamasi, desentralisasi fiskal, transparansi, pajak minimum global, serta tekanan dekarbonisasi. Pendekatan tersebut menempatkan pertanyaan distribusi di pusat analisis: siapa memperoleh manfaat, siapa menanggung risiko, dan bagaimana nilai mineral dikembalikan kepada masyarakat. Buku ini relevan bagi pembuat kebijakan, aparatur pajak, pelaku industri, akademisi, mahasiswa, konsultan, dan pembaca yang ingin memahami masa depan tata kelola fiskal pertambangan Indonesia.",
+    linkPembelian: '#',
+    bukuTerbaru: true,
+    penerbit: 'PT Cakrawala Magna Scientia',
+    coverBuku: '/images/books/1. pajak-pertambangan-di-indonesia-dari-rente-mineral-ke-kesejahteraan publik.png',
+    badge: "Segera Terbit",
+    beratGram: 500
+  },
+  {
+    id: "book-17",
+    name: "Jejak Audit Pajak Pertambahan Nilai (PPN): Teknologi, Invoicing, dan Pencegahan Fraud di Indonesia",
+    slug: "jejak-audit-pajak-pertambahan-nilai-ppn-teknologi-invoicing-dan-pencegahan-fraud-di-indonesia",
+    author: "Liza Khoironi; Sigit Haryoko",
+    category: "Perpajakan",
+    isbn: "",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 0,
+    sinopsis: "PPN modern tidak lagi hanya berbicara tentang tarif, faktur, atau pelaporan pada akhir masa pajak. Tantangan utamanya adalah menjaga kesinambungan informasi di sepanjang rantai transaksi agar data dapat diverifikasi dan risiko fraud dapat dideteksi lebih dini. Buku ini menjelaskan bagaimana jejak audit PPN menjadi tulang punggung pengawasan; bagaimana perubahan dari faktur kertas menuju e-invoicing mengubah faktur menjadi objek data; serta bagaimana integrasi sistem, prepopulated return, analitik risiko, dan audit berbasis data dapat memperkuat kepatuhan. Pembahasan juga menyoroti faktur fiktif, klaim pajak masukan yang tidak sah, restitusi palsu, kualitas data, dasar hukum, perlindungan wajib pajak, dan kapasitas institusi. Buku ini ditujukan bagi aparatur pajak, akademisi, konsultan, pelaku usaha, auditor, mahasiswa, dan pembaca yang ingin memahami arah transformasi PPN di era digital.",
+    linkPembelian: '#',
+    bukuTerbaru: true,
+    penerbit: 'PT Cakrawala Magna Scientia',
+    coverBuku: '/images/books/2. jejak-audit-pajak-pertambahan-nilai-ppn-teknologi-invoicing-dan-pencegahan-fraud-di-indonesia.png',
+    badge: "Segera Terbit",
+    beratGram: 500
+  },
+  {
+    id: "book-18",
+    name: "Treaty Shopping dan Anti-Abuse: Hukum, Kebijakan, dan Penegakan Hukum",
+    slug: "treaty-shopping-dan-anti-abuse-hukum-kebijakan-dan-penegakan-hukum",
+    author: "Sigit Haryoko; Naufal Akbarsyah Gunawan",
+    category: "Hukum",
+    isbn: "",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 0,
+    sinopsis: "Tax treaty dirancang untuk mengurangi pajak berganda dan mendukung kegiatan ekonomi lintas negara, tetapi struktur yang direkayasa dapat menggeser manfaat treaty kepada pihak yang tidak semestinya. Buku ini menjelaskan treaty shopping sekaligus evolusi pendekatan anti-abuse dari formalisme menuju perhatian yang lebih besar pada substansi ekonomi, tujuan transaksi, dan legitimasi manfaat treaty. Pembaca diperkenalkan pada berbagai instrumen seperti BEPS, Multilateral Instrument, Principal Purpose Test, Limitation on Benefits, beneficial ownership, serta relasi antarinstrumen dalam penegakan. Perspektif Indonesia diperkaya dengan pengalaman Jepang, Amerika Serikat, India, dan yurisdiksi lain untuk menunjukkan bahwa tidak ada satu solusi tunggal terhadap penyalahgunaan treaty. Buku ini menekankan keseimbangan: basis pajak perlu dilindungi secara tegas, tetapi kepastian hukum, due process, dan iklim investasi tetap harus dijaga.",
+    linkPembelian: '#',
+    bukuTerbaru: true,
+    penerbit: 'PT Cakrawala Magna Scientia',
+    coverBuku: '/images/books/3. treaty-shopping-dan-anti-abuse-hukum-kebijakan-dan-penegakan-hukum.png',
+    badge: "Segera Terbit",
+    beratGram: 500
+  },
+  {
+    id: "book-19",
+    name: "Actus Reus dalam Tindak Pidana Perpajakan: Teori Delik, Unsur Objektif, dan Perbandingan Internasional",
+    slug: "actus-reus-dalam-tindak-pidana-perpajakan-teori-delik-unsur-objektif-dan-perbandingan-internasional",
+    author: "Wahyu Widodo",
+    category: "Hukum",
+    isbn: "",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 0,
+    sinopsis: "Penegakan pidana pajak membutuhkan kejelasan mengenai apa sebenarnya perbuatan terlarang yang harus dibuktikan sebelum menilai kesalahan batin pelaku. Buku ini menempatkan actus reus sebagai pintu masuk untuk memetakan unsur objektif tindak pidana perpajakan: subjek, tindakan atau kelalaian, dokumen dan transaksi, akibat fiskal, hubungan kausal, serta konteks administratif yang melatarinya. Pembahasan menghubungkan teori delik dengan realitas administrasi pajak, bukti, proses pemeriksaan, dan pertanggungjawaban, sekaligus memperkaya analisis melalui perspektif perbandingan internasional. Pendekatan ini membantu membedakan kekeliruan administratif, sengketa interpretasi, dan perbuatan yang benar-benar memenuhi unsur pidana. Buku ini relevan bagi penyidik, jaksa, hakim, konsultan, advokat, akademisi, mahasiswa, aparatur pajak, dan pelaku usaha yang membutuhkan kerangka objektif dan terukur dalam membaca tindak pidana perpajakan.",
+    linkPembelian: '#',
+    bukuTerbaru: true,
+    penerbit: 'PT Cakrawala Magna Scientia',
+    coverBuku: '/images/books/4. actus-reus-dalam-tindak-pidana-perpajakan-teori-delik-unsur-objektif-dan-perbandingan-internasional.png',
+    badge: "Segera Terbit",
+    beratGram: 500
+  },
+  {
+    id: "book-20",
+    name: "Rekayasa Keuangan untuk Siklus Publik yang Volatil di Indonesia",
+    slug: "rekayasa-keuangan-untuk-siklus-publik-yang-volatil-di-indonesia",
+    author: "Yuli Teguh Hidayat; Henry Dianto P. Sinaga",
+    category: "Akuntansi",
+    isbn: "",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 0,
+    sinopsis: "Volatilitas membuat pengelolaan keuangan publik tidak cukup hanya mengandalkan proyeksi tunggal. Buku ini menawarkan cara berpikir rekayasa keuangan untuk membaca ketidakpastian, membangun ketahanan fiskal, dan menyusun pilihan pembiayaan yang lebih adaptif bagi Indonesia. Pembahasan diarahkan pada hubungan antara siklus ekonomi, risiko pasar, penerimaan dan belanja, kebutuhan likuiditas, struktur pembiayaan, serta konsekuensi keputusan fiskal lintas waktu. Alih-alih menjanjikan prediksi sempurna, buku ini menekankan desain portofolio kebijakan, skenario, buffer, disiplin pengukuran risiko, dan tata kelola keputusan sehingga guncangan tidak otomatis berubah menjadi krisis. Ditulis untuk pembuat kebijakan, pengelola keuangan publik, akademisi, mahasiswa, analis ekonomi, dan praktisi keuangan, buku ini membantu pembaca melihat keuangan negara sebagai sistem dinamis yang perlu diuji terhadap berbagai kondisi, bukan sekadar angka dalam satu tahun anggaran.",
+    linkPembelian: '#',
+    bukuTerbaru: true,
+    penerbit: 'PT Cakrawala Magna Scientia',
+    coverBuku: '/images/books/5. rekayasa-keuangan-untuk-siklus-publik-yang-volatil-di-indonesia.png',
+    badge: "Segera Terbit",
+    beratGram: 500
+  },
+  {
+    id: "book-21",
+    name: "Bukti dan Pembuktian dalam Administrasi Perpajakan di Indonesia",
+    slug: "bukti-dan-pembuktian-dalam-administrasi-perpajakan-di-indonesia",
+    author: "Sigit Haryoko; Liza Khoironi",
+    category: "Hukum",
+    isbn: "",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 0,
+    sinopsis: "Bagaimana sebuah fakta pajak berubah menjadi bukti yang dapat dipercaya? Buku ini memetakan hukum pembuktian dalam administrasi perpajakan Indonesia sejak pemeriksaan, keberatan, banding di Pengadilan Pajak, hingga penagihan dan pelaksanaan putusan. Pembaca diajak memahami hubungan antara dasar konstitusional, UU KUP, UU Pengadilan Pajak, aturan informasi elektronik, administrasi pemerintahan, dan regulasi teknis dalam proses pembuktian. Uraiannya membahas siapa yang memikul beban pembuktian, bagaimana kualitas dan relevansi bukti dinilai, serta bagaimana dokumen, keterangan, saksi, ahli, dan bukti digital digunakan secara proporsional. Perspektif Indonesia diperkaya dengan perbandingan Belanda dan Amerika Serikat. Buku ini relevan bagi aparatur pajak, hakim, konsultan, advokat, akademisi, mahasiswa, dan wajib pajak yang membutuhkan kerangka berpikir sistematis mengenai pembuktian yang adil dalam sistem self-assessment.",
+    linkPembelian: '#',
+    bukuTerbaru: true,
+    penerbit: 'PT Cakrawala Magna Scientia',
+    coverBuku: '/images/books/6. bukti-dan-pembuktian-dalam-administrasi-perpajakan-di-indonesia.png',
+    badge: "Segera Terbit",
+    beratGram: 500
+  },
+  {
+    id: "book-22",
+    name: "ALKITAB YANG MEMBACA KITA",
+    subtitle: "Menjadi Manusia Penafsir dari Taurat hingga Para Nabi",
+    slug: "alkitab-yang-membaca-kita",
+    author: "Henry Dianto P. Sinaga",
+    category: "Teologia",
+    isbn: "",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 0,
+    sinopsis: "Buku ini mengajak pembaca memasuki sebuah pembalikan penting dalam penafsiran Kitab Suci: kita bukan hanya membaca Alkitab, tetapi juga dibaca olehnya. Dari fondasi hermeneutika, manusia penafsir, wahyu dan teks, Taurat, narasi sejarah, puisi dan hikmat, hingga para nabi, pembaca diajak menyadari bahwa dirinya tidak pernah netral di hadapan firman.\n\nDengan ketelitian akademik dan kepekaan rohani, buku ini menegaskan bahwa iman dan ketelitian bukanlah lawan. Bahasa, sejarah, genre, kanon, dan tradisi perlu dipelajari dengan rendah hati, sambil terus menguji motif, struktur kuasa, dan buah etis dari setiap penafsiran.\n\nMelalui empat gerak—amati, kenali, uji, dan tanggapi—pembaca diarahkan kepada ketaatan yang konkret, korektif, dan bertumbuh di dalam komunitas. Buku ini juga menempatkan pembacaan Alkitab dalam tanggung jawab publik Indonesia: pluralitas, keadilan, martabat sesama, kerentanan, dan pengharapan.\n\nPada akhirnya, tujuan buku ini bukan menghasilkan orang yang paling cepat menjawab, melainkan manusia yang paling dapat dipercaya ketika berbicara tentang Allah: berani karena telah mendengar, lembut karena sadar keterbatasan, kritis karena mencintai, dan berharap karena percaya bahwa Allah belum selesai bekerja.",
+    linkPembelian: '#',
+    bukuTerbaru: true,
+    penerbit: 'PT Cakrawala Magna Scientia',
+    coverBuku: '/images/books/book-22.png',
+    badge: "Teologia",
+    beratGram: 500
+  },
+  {
+    id: "book-23",
+    name: "DIUTUS DALAM KUASA",
+    subtitle: "Mengalir dalam Karunia, Memimpin dengan Integritas, dan Menyalakan Dunia",
+    coverQuote: "Kuasa Roh Kudus tidak diberikan untuk membangun panggung pribadi, tetapi untuk membangun tubuh Kristus dan melayani dunia.",
+    slug: "diutus-dalam-kuasa",
+    author: "Henry Dianto P. Sinaga",
+    category: "Teologia",
+    isbn: "",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 0,
+    sinopsis: "Buku ini mengajak pembaca memahami bahwa kuasa Roh Kudus tidak diberikan untuk membangun panggung pribadi, melainkan untuk membangun tubuh Kristus dan melayani dunia. Karunia-karunia Roh bukan sekadar fenomena rohani yang mengagumkan, tetapi sarana anugerah yang harus dipakai dengan kasih, ketertiban, kerendahan hati, dan tanggung jawab.\n\nDengan bahasa yang jernih dan landasan Alkitab yang kuat, buku ini menolong pembaca memahami, menguji, dan mempraktikkan karunia Roh secara sehat. Pembahasan kemudian dihubungkan secara konkret dengan penginjilan, pelayanan sosial, kepemimpinan, peperangan rohani, serta pembentukan gereja yang berdampak bagi masyarakat.\n\nBuku ini juga menegaskan bahwa integritas adalah wadah bagi kuasa. Karunia tanpa karakter dapat melukai, sedangkan kuasa yang dipimpin oleh kasih, kekudusan, dan kebenaran akan menyalakan dunia dengan kesaksian yang hidup. Karena itu, pembaca diajak bukan hanya untuk menerima kuasa, tetapi juga untuk diproses menjadi pribadi yang dapat dipercaya dalam pelayanan.\n\nSangat cocok bagi pelayan Tuhan, pemimpin gereja, mentor, penginjil, aktivis pelayanan, tim doa, komunitas misi, sekolah pelayanan, dan jemaat yang ingin bertumbuh dalam karunia Roh dengan aman, sehat, dan bertanggung jawab.",
+    linkPembelian: '#',
+    bukuTerbaru: true,
+    penerbit: 'PT Cakrawala Magna Scientia',
+    coverBuku: '/images/books/book-23.png',
+    badge: "Teologia",
+    beratGram: 500
+  },
+];
+
+export const INITIAL_BOOKS: Book[] = RAW_BOOKS.map((book) => {
+  const normalizedTitle = toTitleCase(book.name);
+  return {
+    ...book,
+    name: normalizedTitle,
+    title: normalizedTitle,
+    coverBuku: book.coverBuku || `/images/books/${book.id}.jpg`
+  };
+});
+
+const PDF_AUTHOR_BY_SLUG: Record<string, string> = {
+  'pajak-pertambangan-di-indonesia-dari-rente-mineral-ke-kesejahteraan-publik': 'Henry Dianto P. Sinaga; Yuli Teguh Hidayat',
+  'jejak-audit-pajak-pertambahan-nilai-ppn-teknologi-invoicing-dan-pencegahan-fraud-di-indonesia': 'Liza Khoironi; Sigit Haryoko',
+  'treaty-shopping-dan-anti-abuse-hukum-kebijakan-dan-penegakan-hukum': 'Sigit Haryoko; Naufal Akbarsyah Gunawan',
+  'actus-reus-dalam-tindak-pidana-perpajakan-teori-delik-unsur-objektif-dan-perbandingan-internasional': 'Wahyu Widodo',
+  'rekayasa-keuangan-untuk-siklus-publik-yang-volatil-di-indonesia': 'Yuli Teguh Hidayat; Henry Dianto P. Sinaga',
+  'bukti-dan-pembuktian-dalam-administrasi-perpajakan-di-indonesia': 'Sigit Haryoko; Liza Khoironi',
+  'reformulasi-subjek-pajak-pertambahan-nilai-ppn-di-era-digitalisasi-di-indonesia': 'Bonarsius Sipayung',
+  'reformulasi-objek-pajak-pertambahan-nilai-ppn-di-era-digitalisasi-di-indonesia': 'Bonarsius Sipayung',
+  'reformulasi-mekanisme-pajak-pertambahan-nilai-ppn-dalam-penanganan-tantangan-digitalisasi-di-indonesia': 'Bonarsius Sipayung',
+  'prinsip-prinsip-transfer-pricing-konsep-dan-aplikasi-di-indonesia': 'Henry Dianto P. Sinaga & Andi Banua Adams',
+  'alternative-dispute-resolution-dalam-pidana-pajak-di-indonesia': 'Wahyu Widodo',
+  'pidana-badan-dan-pertanggungjawabannya-di-bidang-perpajakan-di-indonesia': 'Henry Dianto P. Sinaga & Edy Edwin P. Ginting',
+  'hukum-pidana-di-bidang-perpajakan-di-indonesia': 'Bonarsius Sipayung, Henry Dianto P. Sinaga, & Anton Hartanto',
+  'peranan-hukum-dalam-penanganan-tantangan-pajak-e-commerce-di-indonesia': 'Henry Dianto P. Sinaga',
+  'pajak-merger-dan-akuisisi-m-dan-a-di-indonesia-prinsip-dan-konsep': 'ANDI BANUA ADAMS & JOKO PURNOMO RAHARJO',
+  'akuntansi-pajak-teori-dan-praktik-di-indonesia': 'Yudha Pramana',
+  'prinsip-dan-konsep-audit-dalam-akuntansi-dan-pelaksanaan-kewajiban-perpajakan-di-indonesia': 'Yudha Pramana & Joko Purnomo Raharjo'
+};
+
+/** Menyamakan atribusi card buku dengan kolom Author pada PDF katalog resmi. */
+export const normalizeBookAuthors = (book: Book): Book => ({
+  ...book,
+  author: PDF_AUTHOR_BY_SLUG[book.slug] || book.author
+});
+
+export const withLocalBookCover = (book: Book): Book => {
+  const localBook = INITIAL_BOOKS.find((candidate) => candidate.id === book.id);
+  const coverPath = localBook?.coverBuku || book.coverBuku || '';
+  const isScientiaIntegritasTitle = /\/images\/books\/(?:7|8|9|10|11|12|13|14|15|16|17)\./i.test(coverPath);
+  return {
+    ...normalizeBookAuthors(book),
+    ...(localBook ? { coverBuku: localBook.coverBuku } : {}),
+    ...(isScientiaIntegritasTitle ? { penerbit: 'PT Scientia Integritas Utama' } : {})
+  };
+};
+
+/** Buku yang sudah bisa dipesan (harga tersedia) */
+export const isBookPurchasable = (book: Pick<Book, 'harga'>): boolean => Number(book.harga) > 0;
+
+const countBy = (cat: Book['category']) => INITIAL_BOOKS.filter((b) => b.category === cat).length;
+
+export const CATEGORIES: { name: Book['category']; count: number; description: string }[] = [
+  { name: 'Perpajakan', count: countBy('Perpajakan'), description: 'Monografi dan analisis regulasi perpajakan domestik maupun internasional: PPN digital, transfer pricing, M&A, pertambangan.' },
+  { name: 'Akuntansi', count: countBy('Akuntansi'), description: 'Akuntansi pajak, audit dan kepatuhan perpajakan, serta rekayasa keuangan sektor publik.' },
+  { name: 'Hukum', count: countBy('Hukum'), description: 'Hukum pidana pajak, pertanggungjawaban korporasi, ADR, pembuktian, treaty shopping, dan pajak e-commerce.' },
+  { name: 'Ekonomi & Bisnis', count: countBy('Ekonomi & Bisnis'), description: 'Kajian ekonomi makro, pembiayaan korporat, dan strategi transformasi bisnis.' },
+  { name: 'Filsafat', count: countBy('Filsafat'), description: 'Epistemologi keilmuan, etika profesi, dan metodologi filsafat ilmu terapan.' },
+  { name: 'Teologia', count: countBy('Teologia'), description: 'Diskursus etika moral, pemikiran teologis kontekstual, dan studi teks ilmiah.' }
+];
