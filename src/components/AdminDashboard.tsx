@@ -506,14 +506,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         organization_seminar: parseBio(authorForm.organization_seminar) as any,
         publications: parseBio(authorForm.publications) as any
       };
+      onUpdateAuthor?.(updated);
       let savedAuthor = updated;
       try {
         savedAuthor = await apiClient.saveAuthor(updated, 'update');
       } catch (err) {
-        showNotification(err instanceof Error ? `Gagal menyimpan foto/data penulis: ${err.message}` : 'Gagal menyimpan foto/data penulis ke server.');
+        showNotification(err instanceof Error
+          ? `Data penulis tersimpan lokal. Sinkron server gagal: ${err.message}`
+          : 'Data penulis tersimpan lokal. Sinkron server gagal.');
+        setShowAuthorModal(false);
+        setEditingAuthor(null);
+        setTempAuthorPhotoPreview(null);
         return;
       }
-      if (onUpdateAuthor) onUpdateAuthor(savedAuthor);
+      onUpdateAuthor?.(savedAuthor);
       if (apiClient?.setAuthorBooks) {
         try { await apiClient.setAuthorBooks(savedAuthor.id, bookIdsArr); } catch (_e) { /* ignore offline */ }
       }
@@ -535,14 +541,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         publications: parseBio(authorForm.publications) as any,
         created_at: timestamp
       };
+      onAddAuthor?.(created);
       let savedAuthor = created;
       try {
         savedAuthor = await apiClient.saveAuthor(created, 'create');
       } catch (err) {
-        showNotification(err instanceof Error ? `Gagal menyimpan foto/data penulis: ${err.message}` : 'Gagal menyimpan foto/data penulis ke server.');
+        showNotification(err instanceof Error
+          ? `Penulis tersimpan lokal. Sinkron server gagal: ${err.message}`
+          : 'Penulis tersimpan lokal. Sinkron server gagal.');
+        setShowAuthorModal(false);
+        setEditingAuthor(null);
+        setTempAuthorPhotoPreview(null);
         return;
       }
-      if (onAddAuthor) onAddAuthor(savedAuthor);
+      onUpdateAuthor?.(savedAuthor);
       if (apiClient?.setAuthorBooks) {
         try { await apiClient.setAuthorBooks(savedAuthor.id, bookIdsArr); } catch (_e) { /* ignore offline */ }
       }
