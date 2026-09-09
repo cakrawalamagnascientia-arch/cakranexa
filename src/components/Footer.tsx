@@ -116,7 +116,7 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
             </div>
             <div className="flex items-center gap-2.5">
               <Mail className="w-4 h-4 text-[#D4AF37] flex-shrink-0" />
-              <span className="font-mono">{footerData.email || contactData.email || 'redaksi@cakranexa.com'}</span>
+              <span className="font-mono">{footerData.email || contactData.email || 'info@cakranexa.com'}</span>
             </div>
             {contactData.workingHours && (
               <div className="flex items-center gap-2.5 text-[11px] text-slate-400">

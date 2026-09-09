@@ -844,7 +844,7 @@ export const CmsDashboardManager: React.FC<CmsDashboardManagerProps> = ({
                       email: e.target.value
                     });
                   }}
-                  placeholder="redaksi@cakranexa.com"
+                  placeholder="info@cakranexa.com"
                   className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-[#D4AF37]"
                 />
               </div>

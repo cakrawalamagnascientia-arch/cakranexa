@@ -240,7 +240,7 @@ export const DEFAULT_SITE_CONTENT: SiteContentSettings = {
     address: 'Gedung Graha Scientia Lt. 4, Jl. Salemba Raya No. 18, Jakarta Pusat 10430',
     phone: '+62 852 8614 6806',
     whatsapp: '+62 852 8614 6806',
-    email: 'redaksi@cakranexa.com',
+    email: 'info@cakranexa.com',
     workingHours: 'Senin - Jumat: 08:30 - 17:30 WIB | Sabtu & Minggu: Tutup',
     mapsEmbedUrl: 'https://maps.google.com/?q=Jakarta',
     copyrightText: 'Hak Cipta Dilindungi Undang-Undang. Seluruh monografi dan buku teks terdaftar ISBN resmi Perpustakaan Nasional RI.',
@@ -916,6 +916,9 @@ export function getStoredSiteContent(): SiteContentSettings {
         value && !oldContactNumbers.some((oldNumber) => value.includes(oldNumber))
           ? value
           : '+62 852 8614 6806';
+      const normalizedFooterEmail = storedFooter.email && storedFooter.email !== 'redaksi@cakranexa.com' && storedFooter.email !== 'pemasaran@cakranexa.com'
+        ? storedFooter.email
+        : 'info@cakranexa.com';
 
       // Merge with default to guarantee all keys exist
       return {
@@ -928,6 +931,7 @@ export function getStoredSiteContent(): SiteContentSettings {
           ...(parsed.footer || {}),
           phone: normalizeContactNumber(storedFooter.phone),
           whatsapp: normalizeContactNumber(storedFooter.whatsapp),
+          email: normalizedFooterEmail,
           description: (!parsed.footer?.description || parsed.footer?.description.includes('Penerbit monografi ilmiah, buku teks akademik'))
             ? DEFAULT_SITE_CONTENT.footer.description
             : parsed.footer.description,

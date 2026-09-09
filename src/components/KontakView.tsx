@@ -78,8 +78,7 @@ export const KontakView: React.FC = () => {
                 <Mail className="w-4 h-4 text-[#C5A059] flex-shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-slate-900 block">Surat Elektronik (Email)</strong>
-                  <span className="text-slate-600 font-mono block mt-0.5">redaksi@cakranexa.com</span>
-                  <span className="text-slate-600 font-mono block">pemasaran@cakranexa.com</span>
+                  <span className="text-slate-600 font-mono block mt-0.5">info@cakranexa.com</span>
                 </div>
               </div>
 
