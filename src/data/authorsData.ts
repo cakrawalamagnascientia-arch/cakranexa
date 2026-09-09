@@ -259,6 +259,22 @@ export const INITIAL_AUTHORS: Author[] = [
     ],
     created_at: '2026-09-09T00:00:00.000Z',
     updated_at: '2026-09-09T00:00:00.000Z'
+  },
+  {
+    id: 'author-8',
+    name: 'Edy Edwin P. Ginting',
+    academic_titles: '',
+    photo_url: '',
+    scopus_id: '',
+    orcid_id: '',
+    linkedin_url: '',
+    email: '',
+    profile_education: '',
+    work_experience: '',
+    organization_seminar: '',
+    publications: '',
+    created_at: '2026-09-10T00:00:00.000Z',
+    updated_at: '2026-09-10T00:00:00.000Z'
   }
 ];
 
@@ -285,6 +301,7 @@ export const normalizeAuthorProfile = (author: Author): Author => {
   else if (name.includes('wahyu widodo')) normalized = { ...normalized, name: 'Dr. Wahyu Widodo, Ak., CA., S.H., M.Si.', academic_titles: '', email: '' };
   else if (name.includes('yudha pramana')) normalized = { ...normalized, name: 'Yudha Pramana', academic_titles: '', email: '' };
   else if (name.includes('andi banua adams')) normalized = { ...normalized, name: 'Andi Banua Adams', academic_titles: '', email: '' };
+  else if (name.includes('edy edwin') || name.includes('edy ewin')) normalized = { ...normalized, name: 'Edy Edwin P. Ginting', academic_titles: '', email: '' };
 
   const canonicalPhoto = AUTHOR_PHOTO_BY_NAME[authorNameKey(normalized.name)];
   return { ...normalized, photo_url: canonicalPhoto || undefined };
@@ -340,4 +357,14 @@ export const INITIAL_BOOK_AUTHORS: BookAuthorRelation[] = [
   { book_id: 'book-16', author_id: 'author-3', author_order: 0 },
   { book_id: 'book-19', author_id: 'author-5', author_order: 0 },
   { book_id: 'book-20', author_id: 'author-3', author_order: 0 }
+  ,{ book_id: 'book-12', author_id: 'author-8', author_order: 1 }
+  ,{ book_id: 'book-24', author_id: 'author-3', author_order: 0 }
+  ,{ book_id: 'book-24', author_id: 'author-6', author_order: 1 }
+  ,{ book_id: 'book-25', author_id: 'author-5', author_order: 0 }
+  ,{ book_id: 'book-25', author_id: 'author-2', author_order: 1 }
+  ,{ book_id: 'book-26', author_id: 'author-8', author_order: 0 }
+  ,{ book_id: 'book-26', author_id: 'author-4', author_order: 1 }
+  ,{ book_id: 'book-27', author_id: 'author-7', author_order: 0 }
+  ,{ book_id: 'book-27', author_id: 'author-3', author_order: 1 }
+  ,{ book_id: 'book-28', author_id: 'author-7', author_order: 0 }
 ];

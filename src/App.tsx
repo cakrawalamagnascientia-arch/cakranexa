@@ -78,6 +78,14 @@ function mapServerOrder(r: any, books: Book[]): Order {
 }
 
 export default function App() {
+  const mergeInitialBooks = (existingBooks: Book[]): Book[] => {
+    const existingIds = new Set(existingBooks.map((book) => book.id));
+    return [
+      ...existingBooks,
+      ...INITIAL_BOOKS.filter((book) => !existingIds.has(book.id))
+    ];
+  };
+
   // 1. Persistent Book Inventory State
   const [books, setBooks] = useState<Book[]>(() => {
     try {
@@ -85,7 +93,7 @@ export default function App() {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map((b: any) => ({
+          return mergeInitialBooks(parsed).map((b: any) => ({
             ...withLocalBookCover(b),
             name: toTitleCase(b.name || ''),
             title: toTitleCase(b.title || b.name || '')
@@ -160,7 +168,7 @@ export default function App() {
     apiClient.getBooks().then((remoteBooks) => {
       if (isMounted && remoteBooks && remoteBooks.length > 0) {
         // Backend/Supabase adalah sumber kebenaran katalog; cache lokal hanya untuk first paint.
-        setBooks(remoteBooks.map((b) => ({
+        setBooks(mergeInitialBooks(remoteBooks).map((b) => ({
           ...withLocalBookCover(b),
           name: toTitleCase(b.name || ''),
           title: toTitleCase(b.title || b.name || '')
@@ -180,7 +188,7 @@ export default function App() {
       const saved = localStorage.getItem('cakranexa_authors_v1');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return normalizeAuthors(parsed);
+        if (Array.isArray(parsed) && parsed.length > 0) return normalizeAuthors([...INITIAL_AUTHORS, ...parsed]);
       }
     } catch {
       // fallback to initial
@@ -200,7 +208,7 @@ export default function App() {
     let isMounted = true;
     apiClient.getAuthors().then((remoteAuthors) => {
       if (isMounted && remoteAuthors && remoteAuthors.length > 0) {
-        setAuthors(normalizeAuthors(remoteAuthors));
+        setAuthors(normalizeAuthors([...INITIAL_AUTHORS, ...remoteAuthors]));
       }
     }).catch((err) => {
       console.warn('Silent API authors sync fallback:', err);
