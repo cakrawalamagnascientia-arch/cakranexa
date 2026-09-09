@@ -230,6 +230,35 @@ export const INITIAL_AUTHORS: Author[] = [
     ],
     created_at: '2026-01-10T08:25:00.000Z',
     updated_at: '2026-01-10T08:25:00.000Z'
+  },
+  {
+    id: 'author-7',
+    name: 'Andi Banua Adams',
+    academic_titles: '',
+    photo_url: '/images/authors/andi-banua-adams.png',
+    scopus_id: '',
+    orcid_id: '',
+    linkedin_url: '',
+    email: '',
+    profile_education: [
+      'Lahir di Surabaya pada 6 Agustus 1968.',
+      'Menyelesaikan pendidikan dari SD hingga S2 di Jakarta.'
+    ],
+    work_experience: [
+      'Masih aktif sebagai Aparatur Sipil Negara.',
+      'Memiliki ketertarikan pada perpajakan internasional dan bidang transfer pricing.'
+    ],
+    organization_seminar: [
+      'Di luar pekerjaan, memiliki ketertarikan pada penulisan kreatif.',
+      'Senang berolahraga seperti sepak bola dan volley.',
+      'Sering melakukan aktivitas outdoor seperti hiking dan tracking ke tempat-tempat tertentu dengan pemandangan alam yang indah dan sejuk.'
+    ],
+    publications: [
+      'Tertarik menulis berbagai jenis buku tentang biografi dan autobiografi.',
+      'Memiliki cita-cita menjadi manusia yang berguna bagi keluarga dan khalayak umum dalam jalan kebaikan untuk dunia dan akhirat kelak.'
+    ],
+    created_at: '2026-09-09T00:00:00.000Z',
+    updated_at: '2026-09-09T00:00:00.000Z'
   }
 ];
 
@@ -242,6 +271,7 @@ export const normalizeAuthorProfile = (author: Author): Author => {
   if (name.includes('joko purnomo')) return { ...author, name: 'Joko Purnomo Raharjo', academic_titles: '', photo_url: '', email: 'jokopurnomo.jpr@gmail.com' };
   if (name.includes('wahyu widodo')) return { ...author, name: 'Dr. Wahyu Widodo, Ak., CA., S.H., M.Si.', academic_titles: '', photo_url: '', email: '' };
   if (name.includes('yudha pramana')) return { ...author, name: 'Yudha Pramana', academic_titles: '', photo_url: '', email: '' };
+  if (name.includes('andi banua adams')) return { ...author, name: 'Andi Banua Adams', academic_titles: '', photo_url: '/images/authors/andi-banua-adams.png', email: '' };
   return { ...author, photo_url: '' };
 };
 

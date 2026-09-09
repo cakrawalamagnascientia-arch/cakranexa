@@ -157,6 +157,7 @@ const authorPhotoFallback = (name?: string): string | undefined => {
   if (normalized.includes('henry dianto')) return '/images/authors/henry-dianto-p-sinaga.png';
   if (normalized.includes('joko purnomo')) return '/images/authors/joko-purnomo-raharjo.png';
   if (normalized.includes('wahyu widodo')) return '/images/authors/wahyu-widodo.png';
+  if (normalized.includes('andi banua adams')) return '/images/authors/andi-banua-adams.png';
   return undefined;
 };
 

@@ -126,6 +126,7 @@ const rowToAuthor = (row: any): Author => normalizeAuthorProfile({
     if (name.includes('henry dianto')) return '/images/authors/henry-dianto-p-sinaga.png';
     if (name.includes('joko purnomo')) return '/images/authors/joko-purnomo-raharjo.png';
     if (name.includes('wahyu widodo')) return '/images/authors/wahyu-widodo.png';
+    if (name.includes('andi banua adams')) return '/images/authors/andi-banua-adams.png';
     return undefined;
   })(),
   scopus_id: row.scopus_id || undefined,
