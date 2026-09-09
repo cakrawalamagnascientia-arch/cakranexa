@@ -237,7 +237,7 @@ export const DEFAULT_SITE_CONTENT: SiteContentSettings = {
     companyName: 'PT CAKRAWALA MAGNA SCIENTIA',
     brandTagline: 'PT CAKRAWALA MAGNA SCIENTIA',
     description: 'PT CAKRAWALA MAGNA SCIENTIA - PT Cakrawala Magna Scientia adalah perusahaan pengetahuan yang membangun ekosistem untuk menerbitkan, memperbarui, mengembangkan, mengajarkan, melindungi, melisensikan, dan mewariskan pengetahuan kepada generasi mendatang.\n\nMelalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, institusi, perpustakaan, dan mitra dalam sebuah ekosistem pengetahuan yang dirancang untuk bertumbuh melampaui satu buku, satu format, satu platform, dan satu generasi.',
-    address: 'Gedung Graha Scientia Lt. 4, Jl. Salemba Raya No. 18, Jakarta Pusat 10430',
+    address: '',
     phone: '+62 852 8614 6806',
     whatsapp: '+62 852 8614 6806',
     email: 'info@cakranexa.com',
@@ -906,6 +906,7 @@ export function getStoredSiteContent(): SiteContentSettings {
       }));
 
       const storedFooter = parsed.footer || {};
+      const legacyAddress = 'Gedung Graha Scientia Lt. 4, Jl. Salemba Raya No. 18, Jakarta Pusat 10430';
       const oldContactNumbers = [
         '+62 21 3912 8841',
         '+62 812 8899 2341',
@@ -929,6 +930,7 @@ export function getStoredSiteContent(): SiteContentSettings {
         footer: { 
           ...DEFAULT_SITE_CONTENT.footer, 
           ...(parsed.footer || {}),
+          address: storedFooter.address === legacyAddress ? '' : (storedFooter.address || ''),
           phone: normalizeContactNumber(storedFooter.phone),
           whatsapp: normalizeContactNumber(storedFooter.whatsapp),
           email: normalizedFooterEmail,
@@ -1005,13 +1007,6 @@ export function saveStoredSiteContent(settings: SiteContentSettings): void {
       window.dispatchEvent(new CustomEvent('cakranexa_site_content_updated', { detail: dataToSave }));
     }
 
-    // Also sync to backend server asynchronously
-    fetch('/api/site-content', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dataToSave)
-    }).catch(err => console.warn('Silent API sync warning:', err));
-
   } catch (e) {
     console.error('Error saving site content to localStorage:', e);
   }
@@ -1020,7 +1015,16 @@ export function saveStoredSiteContent(settings: SiteContentSettings): void {
 export async function fetchSiteContentApi(): Promise<SiteContentSettings | null> {
   const data = await apiClient.getSiteContent();
   if (data && typeof data === 'object' && Array.isArray((data as any).navigation)) {
-    const merged = { ...getStoredSiteContent(), ...data } as SiteContentSettings;
+    const legacyAddress = 'Gedung Graha Scientia Lt. 4, Jl. Salemba Raya No. 18, Jakarta Pusat 10430';
+    const merged = {
+      ...getStoredSiteContent(),
+      ...data,
+      footer: {
+        ...getStoredSiteContent().footer,
+        ...(data.footer || {}),
+        address: data.footer?.address === legacyAddress ? '' : (data.footer?.address ?? '')
+      }
+    } as SiteContentSettings;
     try {
       localStorage.setItem(SITE_CONTENT_STORAGE_KEY, JSON.stringify(merged));
     } catch {

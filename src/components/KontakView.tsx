@@ -1,8 +1,19 @@
 import React, { useState } from 'react';
+import { ContactSettings, SiteContentSettings } from '../types';
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, MessageSquare, Building2 } from 'lucide-react';
 
-export const KontakView: React.FC = () => {
+interface KontakViewProps {
+  siteContent?: SiteContentSettings;
+}
+
+export const KontakView: React.FC<KontakViewProps> = ({ siteContent }) => {
   const [submitted, setSubmitted] = useState(false);
+  const contact: ContactSettings = siteContent?.contact || {};
+  const footer = siteContent?.footer;
+  const address = footer?.address || contact.address || '';
+  const phone = footer?.phone || contact.phone || '';
+  const email = footer?.email || contact.email || '';
+  const workingHours = footer?.workingHours || contact.workingHours || '';
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -53,43 +64,40 @@ export const KontakView: React.FC = () => {
             </h3>
 
             <div className="space-y-4 text-xs">
-              <div className="flex items-start gap-3">
-                <MapPin className="w-4 h-4 text-[#C5A059] flex-shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-slate-900 block font-serif">PT CAKRAWALA MAGNA SCIENTIA</strong>
-                  <span className="text-slate-600 block mt-0.5">
-                    Gedung Graha Scientia, Lantai 4<br />
-                    Jl. Salemba Raya No. 18, Senen, Jakarta Pusat 10430<br />
-                    DKI Jakarta, Indonesia
-                  </span>
+              {address && (
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-4 h-4 text-[#C5A059] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="text-slate-900 block font-serif">PT CAKRAWALA MAGNA SCIENTIA</strong>
+                    <span className="text-slate-600 block mt-0.5 whitespace-pre-line">{address}</span>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div className="flex items-start gap-3">
+              {phone && <div className="flex items-start gap-3">
                 <Phone className="w-4 h-4 text-[#C5A059] flex-shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-slate-900 block">Layanan WhatsApp & Telepon</strong>
-                  <span className="text-slate-600 font-mono block mt-0.5">+62 852 8614 6806</span>
-                  <span className="text-slate-600 font-mono block">+62 852 8614 6806 (WhatsApp Redaksi)</span>
+                  <span className="text-slate-600 font-mono block mt-0.5">{phone}</span>
+                  <span className="text-slate-600 font-mono block">{phone} (WhatsApp Redaksi)</span>
                 </div>
-              </div>
+              </div>}
 
-              <div className="flex items-start gap-3">
+              {email && <div className="flex items-start gap-3">
                 <Mail className="w-4 h-4 text-[#C5A059] flex-shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-slate-900 block">Surat Elektronik (Email)</strong>
-                  <span className="text-slate-600 font-mono block mt-0.5">info@cakranexa.com</span>
+                  <span className="text-slate-600 font-mono block mt-0.5">{email}</span>
                 </div>
-              </div>
+              </div>}
 
-              <div className="flex items-start gap-3">
+              {workingHours && <div className="flex items-start gap-3">
                 <Clock className="w-4 h-4 text-[#C5A059] flex-shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-slate-900 block">Jam Operasional Layanan</strong>
-                  <span className="text-slate-600 block mt-0.5">Senin - Jumat: 08.30 - 17.00 WIB</span>
-                  <span className="text-slate-500 block">Sabtu, Minggu & Hari Libur Nasional Tutup</span>
+                  <span className="text-slate-600 block mt-0.5 whitespace-pre-line">{workingHours}</span>
                 </div>
-              </div>
+              </div>}
             </div>
           </div>
         </div>

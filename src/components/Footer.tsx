@@ -106,10 +106,12 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
           </div>
 
           <div className="pt-2 text-xs space-y-2 text-slate-400">
-            <div className="flex items-start gap-2.5">
-              <MapPin className="w-4 h-4 text-[#D4AF37] flex-shrink-0 mt-0.5" />
-              <span>{footerData.address || contactData.address || 'Gedung Graha Scientia Lt. 4, Jl. Salemba Raya No. 18, Jakarta Pusat 10430'}</span>
-            </div>
+            {(footerData.address || contactData.address) && (
+              <div className="flex items-start gap-2.5">
+                <MapPin className="w-4 h-4 text-[#D4AF37] flex-shrink-0 mt-0.5" />
+                <span>{footerData.address || contactData.address}</span>
+              </div>
+            )}
             <div className="flex items-center gap-2.5">
               <Phone className="w-4 h-4 text-[#D4AF37] flex-shrink-0" />
               <span className="font-mono">{footerData.phone || contactData.phone || '+62 852 8614 6806'}</span>

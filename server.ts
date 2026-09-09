@@ -27,14 +27,14 @@ const MIDTRANS_SNAP_URL = MIDTRANS_IS_PRODUCTION
   : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
 const MIDTRANS_ENABLED = Boolean(MIDTRANS_SERVER_KEY && !MIDTRANS_SERVER_KEY.includes('xxxx'));
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
-const ORDER_NOTIFICATION_EMAILS = (process.env.ORDER_NOTIFICATION_EMAILS || [
+const ORDER_NOTIFICATION_EMAILS = Array.from(new Set((process.env.ORDER_NOTIFICATION_EMAILS || [
   'joko.qut@gmail.com',
   'shenrydp@gmail.com',
   'wahyugalih@gmail.com',
   'edy.gunawan@ofisiprima.com',
   'cakrawalamagnascientia@gmail.com',
   'info@cakranexa.com'
-].join(',')).split(',').map((email) => email.trim()).filter(Boolean);
+].join(',')).split(',').map((email) => email.trim().toLowerCase()).filter((email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))));
 const EMAIL_FROM = process.env.EMAIL_FROM || 'CakraNexa <info@cakranexa.com>';
 
 if (IS_PRODUCTION && !ADMIN_PASSWORD) {
@@ -363,8 +363,8 @@ const escapeHtml = (value: unknown): string => String(value ?? '')
   .replace(/'/g, '&#39;');
 
 async function sendOrderNotificationEmail(order: any): Promise<void> {
-  if (!RESEND_API_KEY) {
-    console.warn('Order email skipped: RESEND_API_KEY belum dikonfigurasi.');
+  if (!RESEND_API_KEY || ORDER_NOTIFICATION_EMAILS.length === 0) {
+    console.warn(`Order email skipped: ${!RESEND_API_KEY ? 'RESEND_API_KEY belum dikonfigurasi' : 'tidak ada penerima email yang valid'}.`);
     return;
   }
   const itemRows = order.items.map((item: any) => `<li>${escapeHtml(item.book.name)} x ${item.quantity}</li>`).join('');
