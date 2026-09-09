@@ -26,6 +26,16 @@ const MIDTRANS_SNAP_URL = MIDTRANS_IS_PRODUCTION
   ? 'https://app.midtrans.com/snap/v1/transactions'
   : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
 const MIDTRANS_ENABLED = Boolean(MIDTRANS_SERVER_KEY && !MIDTRANS_SERVER_KEY.includes('xxxx'));
+const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
+const ORDER_NOTIFICATION_EMAILS = (process.env.ORDER_NOTIFICATION_EMAILS || [
+  'joko.qut@gmail.com',
+  'shenrydp@gmail.com',
+  'wahyugalih@gmail.com',
+  'edy.gunawan@ofisiprima.com',
+  'cakrawalamagnascientia@gmail.com',
+  'info@cakranexa.com'
+].join(',')).split(',').map((email) => email.trim()).filter(Boolean);
+const EMAIL_FROM = process.env.EMAIL_FROM || 'CakraNexa <info@cakranexa.com>';
 
 if (IS_PRODUCTION && !ADMIN_PASSWORD) {
   console.warn('⚠️  ADMIN_PASSWORD belum di-set. Login Admin akan selalu ditolak di production.');
@@ -336,6 +346,49 @@ async function createSnapTransaction(order: any): Promise<string | null> {
   }
 }
 
+const escapeHtml = (value: unknown): string => String(value ?? '')
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
+async function sendOrderNotificationEmail(order: any): Promise<void> {
+  if (!RESEND_API_KEY) {
+    console.warn('Order email skipped: RESEND_API_KEY belum dikonfigurasi.');
+    return;
+  }
+  const itemRows = order.items.map((item: any) => `<li>${escapeHtml(item.book.name)} x ${item.quantity}</li>`).join('');
+  const html = `
+    <h2>Pesanan Baru CakraNexa</h2>
+    <p><strong>Order:</strong> ${escapeHtml(order.orderNumber)}</p>
+    <p><strong>Pelanggan:</strong> ${escapeHtml(order.customer.name)}</p>
+    <p><strong>Email:</strong> ${escapeHtml(order.customer.email)}</p>
+    <p><strong>WhatsApp:</strong> ${escapeHtml(order.customer.phone)}</p>
+    <p><strong>Metode pembayaran:</strong> ${escapeHtml(order.paymentMethod)}</p>
+    <p><strong>Status:</strong> ${escapeHtml(order.paymentStatus)}</p>
+    <p><strong>Total:</strong> Rp ${Number(order.total).toLocaleString('id-ID')}</p>
+    <ul>${itemRows}</ul>
+    <p>Notifikasi ini dikirim otomatis oleh CakraNexa.</p>
+  `;
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: EMAIL_FROM,
+      to: ORDER_NOTIFICATION_EMAILS,
+      subject: `[Pesanan Baru] ${order.orderNumber} - ${order.customer.name}`,
+      html
+    })
+  });
+  if (!response.ok) {
+    throw new Error(`Resend email failed (${response.status}): ${await response.text()}`);
+  }
+}
+
 async function updateOrderStatus(orderId: string, paymentStatus?: string, trackingNumber?: string) {
   const idx = inMemoryOrders.findIndex((o) => o.orderNumber === orderId || o.id === orderId);
   if (idx >= 0) {
@@ -603,6 +656,12 @@ async function startServer() {
 
       // Midtrans Snap token hanya boleh dibuat dari backend yang memiliki Server Key.
       const snapToken = normalized.paymentMethod === 'manual_mandiri' ? null : await createSnapTransaction(normalized);
+
+      try {
+        await sendOrderNotificationEmail(normalized);
+      } catch (emailError) {
+        console.error('Order email notification failed:', emailError);
+      }
 
       return res.status(201).json({
         success: true,

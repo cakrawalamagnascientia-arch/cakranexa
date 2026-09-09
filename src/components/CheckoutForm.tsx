@@ -177,7 +177,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
     // 2) Transfer manual -> langsung selesai (menunggu verifikasi admin)
     if (paymentMethod === 'manual_mandiri') {
       await notificationService.dispatchWhatsAppToAdmin(newOrder);
-      await notificationService.dispatchEmailReceipt(newOrder);
       setIsSubmitting(false);
       setCheckoutStep('success');
       onOrderCompleted({ ...newOrder, whatsappDispatched: true, emailDispatched: true });
@@ -207,7 +206,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
   const finalizeOrder = async (order: Order, status: 'paid' | 'pending') => {
     const finalizedOrder: Order = { ...order, paymentStatus: status };
     await notificationService.dispatchWhatsAppToAdmin(finalizedOrder);
-    await notificationService.dispatchEmailReceipt(finalizedOrder);
     if (status === 'paid') trackPurchase(finalizedOrder);
     setCreatedOrder(finalizedOrder);
     setIsSubmitting(false);
