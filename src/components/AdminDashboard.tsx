@@ -41,6 +41,7 @@ import {
   Copy,
   CheckCircle,
   RefreshCw,
+  Save,
   Users,
   UserPlus,
   GraduationCap,
@@ -431,8 +432,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const handleAuthorPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (!['image/png', 'image/jpeg'].includes(file.type)) {
+        alert('Foto penulis harus berformat JPG/JPEG atau PNG.');
+        e.target.value = '';
+        return;
+      }
       if (file.size > 2 * 1024 * 1024) {
         alert('Ukuran file foto penulis maksimal 2MB.');
+        e.target.value = '';
         return;
       }
       const reader = new FileReader();
@@ -450,6 +457,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     if (next.has(bookId)) next.delete(bookId);
     else next.add(bookId);
     setSelectedAuthorBookIds(next);
+  };
+
+  const handleSaveAllAuthors = async () => {
+    if (!authors.length) {
+      showNotification('Tidak ada data penulis untuk disimpan.');
+      return;
+    }
+    try {
+      const savedAuthors = await Promise.all(authors.map((author) => apiClient.saveAuthor(author, 'update')));
+      savedAuthors.forEach((author) => onUpdateAuthor?.(author));
+      showNotification(`${savedAuthors.length} data penulis berhasil disimpan ke server.`);
+    } catch (err) {
+      showNotification(err instanceof Error ? `Gagal menyimpan semua penulis: ${err.message}` : 'Gagal menyimpan semua penulis ke server.');
+    }
   };
 
   const handleSaveAuthor = async (e: React.FormEvent) => {
@@ -480,11 +501,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         organization_seminar: parseBio(authorForm.organization_seminar) as any,
         publications: parseBio(authorForm.publications) as any
       };
-      if (onUpdateAuthor) onUpdateAuthor(updated);
-      if (apiClient?.setAuthorBooks) {
-        try { await apiClient.setAuthorBooks(updated.id, bookIdsArr); } catch (_e) { /* ignore offline */ }
+      let savedAuthor = updated;
+      try {
+        savedAuthor = await apiClient.saveAuthor(updated, 'update');
+      } catch (err) {
+        showNotification(err instanceof Error ? `Gagal menyimpan foto/data penulis: ${err.message}` : 'Gagal menyimpan foto/data penulis ke server.');
+        return;
       }
-      showNotification(`Data penulis ${updated.name} berhasil diperbarui.`);
+      if (onUpdateAuthor) onUpdateAuthor(savedAuthor);
+      if (apiClient?.setAuthorBooks) {
+        try { await apiClient.setAuthorBooks(savedAuthor.id, bookIdsArr); } catch (_e) { /* ignore offline */ }
+      }
+      showNotification(`Data penulis ${savedAuthor.name} berhasil diperbarui.`);
     } else {
       const newId = crypto?.randomUUID ? crypto.randomUUID() : `auth-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
       const created: Author = {
@@ -502,11 +530,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         publications: parseBio(authorForm.publications) as any,
         created_at: timestamp
       };
-      if (onAddAuthor) onAddAuthor(created);
-      if (apiClient?.setAuthorBooks) {
-        try { await apiClient.setAuthorBooks(created.id, bookIdsArr); } catch (_e) { /* ignore offline */ }
+      let savedAuthor = created;
+      try {
+        savedAuthor = await apiClient.saveAuthor(created, 'create');
+      } catch (err) {
+        showNotification(err instanceof Error ? `Gagal menyimpan foto/data penulis: ${err.message}` : 'Gagal menyimpan foto/data penulis ke server.');
+        return;
       }
-      showNotification(`Penulis baru ${created.name} berhasil ditambahkan.`);
+      if (onAddAuthor) onAddAuthor(savedAuthor);
+      if (apiClient?.setAuthorBooks) {
+        try { await apiClient.setAuthorBooks(savedAuthor.id, bookIdsArr); } catch (_e) { /* ignore offline */ }
+      }
+      showNotification(`Penulis baru ${savedAuthor.name} berhasil ditambahkan.`);
     }
     setShowAuthorModal(false);
     setEditingAuthor(null);
@@ -1286,6 +1321,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="text-xs text-slate-500 font-medium">
               Menampilkan {(authors || []).length} penulis &amp; kontributor
             </div>
+            <button
+              type="button"
+              onClick={handleSaveAllAuthors}
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg bg-slate-900 text-[#DFBF64] text-xs font-bold hover:bg-slate-800 transition-colors cursor-pointer whitespace-nowrap"
+            >
+              <Save className="w-3.5 h-3.5" />
+              Simpan Semua Perubahan
+            </button>
           </div>
 
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -2340,13 +2383,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <span>Upload Foto (Max 2MB)</span>
                         <input
                           type="file"
-                          accept="image/*"
+                          accept="image/png,image/jpeg"
                           onChange={handleAuthorPhotoUpload}
                           className="hidden"
                         />
                       </label>
                       <p className="text-[10px] text-slate-400 mt-1.5 text-center">
-                        Format: JPG, PNG, WebP • Rasio 3:4 portrait direkomendasikan
+                        Format: JPG/JPEG atau PNG • Maksimal 2MB • Rasio 3:4 portrait direkomendasikan
                       </p>
                     </div>
                   </div>

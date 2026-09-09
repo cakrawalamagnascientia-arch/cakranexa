@@ -12,6 +12,7 @@ import {
   User
 } from 'lucide-react';
 import { toTitleCase } from '../utils/formatters';
+import { resolveImageUrl } from '../utils/imageUtils';
 
 export interface AuthorDetailViewProps {
   author: Author;
@@ -142,7 +143,11 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
                 <div className="p-5 sm:p-6 pb-0">
                   <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-inner aspect-square">
                     <div className="w-full h-full flex items-center justify-center">
-                      <User className="w-24 h-24 text-slate-300" aria-label="Foto belum diunggah" />
+                      {author.photo_url ? (
+                        <img src={resolveImageUrl(author.photo_url)} alt={`Foto ${author.name}`} className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-24 h-24 text-slate-300" aria-label="Foto belum diunggah" />
+                      )}
                     </div>
                   </div>
                 </div>

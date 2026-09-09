@@ -713,7 +713,6 @@ export default function App() {
 
   const handleAddAuthor = (newAuthor: Author) => {
     setAuthors((prev) => [newAuthor, ...prev]);
-    syncAuthorToServer(newAuthor, 'menambah', 'create');
   };
 
   const handleUpdateAuthor = (updatedAuthor: Author) => {
@@ -721,7 +720,6 @@ export default function App() {
     if (selectedAuthor && selectedAuthor.id === updatedAuthor.id) {
       setSelectedAuthor(attachAuthorBooks(updatedAuthor));
     }
-    syncAuthorToServer(updatedAuthor, 'memperbarui', 'update');
   };
 
   const handleDeleteAuthor = (id: string) => {

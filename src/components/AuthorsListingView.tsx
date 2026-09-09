@@ -2,6 +2,7 @@ import React from 'react';
 import { Author } from '../types';
 import { ExternalLink, GraduationCap, User } from 'lucide-react';
 import { toTitleCase } from '../utils/formatters';
+import { resolveImageUrl } from '../utils/imageUtils';
 
 export interface AuthorsListingViewProps {
   authors: Author[];
@@ -89,7 +90,11 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
                          style={{ backgroundImage: 'radial-gradient(circle at 30% 30%, #D4AF37 1px, transparent 1px), radial-gradient(circle at 70% 80%, #DFBF64 1px, transparent 1px)', backgroundSize: '18px 18px' }} />
                     <div className="absolute left-1/2 top-[62%] -translate-x-1/2 -translate-y-1/2">
                       <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl border-2 border-[#D4AF37]/60 shadow-xl overflow-hidden bg-slate-100 ring-4 ring-white/20 group-hover:ring-[#D4AF37]/30 transition flex items-center justify-center">
-                        <User className="w-16 h-16 text-slate-300" aria-label="Foto belum diunggah" />
+                        {author.photo_url ? (
+                          <img src={resolveImageUrl(author.photo_url)} alt={`Foto ${author.name}`} className="w-full h-full object-cover" />
+                        ) : (
+                          <User className="w-16 h-16 text-slate-300" aria-label="Foto belum diunggah" />
+                        )}
                       </div>
                     </div>
                   </div>
