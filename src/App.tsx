@@ -278,7 +278,7 @@ export default function App() {
   // 4. Navigation & View Routing State
   const initialRoute = React.useMemo<RouteState>(() => (typeof window !== 'undefined' ? parseLocation() : { page: 'beranda' }), []);
   const [activePage, setActivePage] = useState<ActivePage>(initialRoute.page);
-  const [activeSubSection, setActiveSubSection] = useState<SubSection>(initialRoute.subSection);
+  const [activeSubSection, setActiveSubSection] = useState<SubSection>(initialRoute.subSection ?? null);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   // Slug buku dari URL (/katalog/<slug>) yang belum bisa di-resolve sebelum katalog termuat
   const [pendingBookSlug, setPendingBookSlug] = useState<string | null>(initialRoute.bookSlug || null);
@@ -336,7 +336,7 @@ export default function App() {
     const onPopState = () => {
       const route = parseLocation();
       setActivePage(route.page);
-      setActiveSubSection(route.subSection);
+      setActiveSubSection(route.subSection ?? null);
       setCatalogCategory(route.category || 'all');
       setCatalogSearch(route.search || '');
       if (route.selectedAuthorId) {
@@ -372,7 +372,7 @@ export default function App() {
       const prev = navHistory[navHistory.length - 1];
       setNavHistory((prevHistory) => prevHistory.slice(0, -1));
       setActivePage(prev.page);
-      setActiveSubSection(prev.subSection);
+      setActiveSubSection(prev.subSection ?? null);
       if (prev.selectedAuthorId) {
         const foundA = authors.find((a) => a.id === prev.selectedAuthorId);
         setSelectedAuthor(foundA || null);
@@ -402,7 +402,7 @@ export default function App() {
         setActivePage('katalog');
       } else if (activePage !== 'beranda' && activePage !== 'home') {
         setActivePage('beranda');
-        setActiveSubSection(undefined);
+        setActiveSubSection(null);
         setSelectedBook(null);
         setSelectedAuthor(null);
       } else {
@@ -511,7 +511,7 @@ export default function App() {
       ]);
     }
     setActivePage(page);
-    setActiveSubSection(subSection);
+    setActiveSubSection(subSection ?? null);
     if (page !== 'katalog') {
       setSelectedBook(null);
       setSelectedAuthor(null);
