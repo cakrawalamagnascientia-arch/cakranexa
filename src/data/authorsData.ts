@@ -12,7 +12,7 @@ export const INITIAL_AUTHORS: Author[] = [
     id: 'author-1',
     name: 'Bonarsius Sipayung',
     academic_titles: '',
-    photo_url: '/images/authors/henry-dianto-p-sinaga.png',
+    photo_url: '',
     scopus_id: '',
     orcid_id: '',
     linkedin_url: '',
@@ -46,7 +46,7 @@ export const INITIAL_AUTHORS: Author[] = [
     id: 'author-2',
     name: 'Dr. Edy Gunawan',
     academic_titles: 'S.E., Ak., S.H., M.Ak., M.H., M.Kn., BKP., CLA., Mediator., CertDa., CIISA',
-    photo_url: '/images/authors/joko-purnomo-raharjo.png',
+    photo_url: '',
     scopus_id: '',
     orcid_id: '',
     linkedin_url: '',
@@ -94,7 +94,7 @@ export const INITIAL_AUTHORS: Author[] = [
     id: 'author-3',
     name: 'Henry Dianto P. Sinaga',
     academic_titles: '',
-    photo_url: '/images/authors/wahyu-widodo.png',
+    photo_url: '/images/authors/henry-dianto-p-sinaga.png',
     scopus_id: '57213170349',
     orcid_id: '0000-0002-4533-6283',
     linkedin_url: '',
@@ -265,14 +265,14 @@ export const INITIAL_AUTHORS: Author[] = [
 /** Hanya mempertahankan nama/gelar/kontak yang sudah diverifikasi dari referensi profil. */
 export const normalizeAuthorProfile = (author: Author): Author => {
   const name = String(author.name || '').trim().toLowerCase();
-  if (name.includes('bonarsius')) return { ...author, name: 'Bonarsius Sipayung', academic_titles: '', photo_url: '', email: '' };
-  if (name.includes('edy gunawan')) return { ...author, name: 'Dr. Edy Gunawan', academic_titles: 'S.E., Ak., S.H., M.Ak., M.H., M.Kn., BKP., CLA., Mediator., CertDa., CIISA', photo_url: '', email: '' };
-  if (name.includes('henry dianto')) return { ...author, name: 'Henry Dianto P. Sinaga', academic_titles: '', photo_url: '', email: '' };
-  if (name.includes('joko purnomo')) return { ...author, name: 'Joko Purnomo Raharjo', academic_titles: '', photo_url: '', email: 'jokopurnomo.jpr@gmail.com' };
-  if (name.includes('wahyu widodo')) return { ...author, name: 'Dr. Wahyu Widodo, Ak., CA., S.H., M.Si.', academic_titles: '', photo_url: '', email: '' };
-  if (name.includes('yudha pramana')) return { ...author, name: 'Yudha Pramana', academic_titles: '', photo_url: '', email: '' };
-  if (name.includes('andi banua adams')) return { ...author, name: 'Andi Banua Adams', academic_titles: '', photo_url: '/images/authors/andi-banua-adams.png', email: '' };
-  return { ...author, photo_url: '' };
+  if (name.includes('bonarsius')) return { ...author, name: 'Bonarsius Sipayung', academic_titles: '', email: '' };
+  if (name.includes('edy gunawan')) return { ...author, name: 'Dr. Edy Gunawan', academic_titles: 'S.E., Ak., S.H., M.Ak., M.H., M.Kn., BKP., CLA., Mediator., CertDa., CIISA', email: '' };
+  if (name.includes('henry dianto')) return { ...author, name: 'Henry Dianto P. Sinaga', academic_titles: '' };
+  if (name.includes('joko purnomo')) return { ...author, name: 'Joko Purnomo Raharjo', academic_titles: '', email: 'jokopurnomo.jpr@gmail.com' };
+  if (name.includes('wahyu widodo')) return { ...author, name: 'Dr. Wahyu Widodo, Ak., CA., S.H., M.Si.', academic_titles: '', email: '' };
+  if (name.includes('yudha pramana')) return { ...author, name: 'Yudha Pramana', academic_titles: '', email: '' };
+  if (name.includes('andi banua adams')) return { ...author, name: 'Andi Banua Adams', academic_titles: '', email: '' };
+  return { ...author };
 };
 
 /**
