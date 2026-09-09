@@ -75,6 +75,9 @@ export const buildPath = (state: RouteState): string => {
     if (subSection === 'penulis' && selectedAuthorId) {
       return `${base}/penulis/${encodeURIComponent(selectedAuthorId)}`;
     }
+    if (subSection === 'penulis' || subSection === 'terbaru' || subSection === 'kategori') {
+      return `${base}/${subSection}`;
+    }
     const params = new URLSearchParams();
     if (category && category !== 'all') params.set('kategori', category);
     if (search) params.set('q', search);
