@@ -376,6 +376,7 @@ export const INITIAL_BOOK_AUTHORS: BookAuthorRelation[] = [
   { book_id: 'book-2', author_id: 'author-1', author_order: 0 },
   { book_id: 'book-3', author_id: 'author-1', author_order: 0 },
   { book_id: 'book-4', author_id: 'author-3', author_order: 0 },
+  { book_id: 'book-4', author_id: 'author-7', author_order: 1 },
   { book_id: 'book-5', author_id: 'author-6', author_order: 0 },
   { book_id: 'book-5', author_id: 'author-4', author_order: 1 },
   { book_id: 'book-10', author_id: 'author-3', author_order: 0 },
@@ -384,7 +385,8 @@ export const INITIAL_BOOK_AUTHORS: BookAuthorRelation[] = [
   { book_id: 'book-12', author_id: 'author-3', author_order: 0 },
   { book_id: 'book-13', author_id: 'author-5', author_order: 0 },
   { book_id: 'book-14', author_id: 'author-6', author_order: 0 },
-  { book_id: 'book-15', author_id: 'author-4', author_order: 0 },
+  { book_id: 'book-15', author_id: 'author-7', author_order: 0 },
+  { book_id: 'book-15', author_id: 'author-4', author_order: 1 },
   { book_id: 'book-16', author_id: 'author-3', author_order: 0 },
   { book_id: 'book-19', author_id: 'author-5', author_order: 0 },
   { book_id: 'book-20', author_id: 'author-3', author_order: 0 }
