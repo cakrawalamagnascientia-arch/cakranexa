@@ -79,9 +79,20 @@ function mapServerOrder(r: any, books: Book[]): Order {
 
 export default function App() {
   const mergeInitialBooks = (existingBooks: Book[]): Book[] => {
+    const initialById = new Map(INITIAL_BOOKS.map((book) => [book.id, book]));
+    const mergedExisting = existingBooks.map((book) => {
+      const initial = initialById.get(book.id);
+      if (!initial) return book;
+      return {
+        ...initial,
+        ...book,
+        harga: book.harga || initial.harga,
+        sinopsis: book.sinopsis || initial.sinopsis
+      };
+    });
     const existingIds = new Set(existingBooks.map((book) => book.id));
     return [
-      ...existingBooks,
+      ...mergedExisting,
       ...INITIAL_BOOKS.filter((book) => !existingIds.has(book.id))
     ];
   };
