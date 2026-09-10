@@ -275,6 +275,36 @@ export const INITIAL_AUTHORS: Author[] = [
     publications: '',
     created_at: '2026-09-10T00:00:00.000Z',
     updated_at: '2026-09-10T00:00:00.000Z'
+  },
+  {
+    id: 'author-9',
+    name: 'Dr. Yuli Teguh Hidayat, SST., MM.',
+    academic_titles: '',
+    photo_url: '',
+    scopus_id: '',
+    orcid_id: '',
+    linkedin_url: '',
+    email: '',
+    profile_education: [
+      'Lahir di Semarang pada tahun 1979.',
+      'Menyelesaikan pendidikan doctoral dalam bidang Manajemen Bisnis (Keuangan) di Universitas Padjadjaran Bandung tahun 2016.'
+    ],
+    work_experience: [
+      'Praktisi pemerintahan di bidang Keuangan dan Perpajakan.',
+      'Aktif sebagai Praktisi Pemerintahan, berbisnis, berorganisasi dan melakukan kegiatan sosial.',
+      'Sebagai Tenaga Ahli (Expert), Penasehat, Dewan Pembina di sejumlah organisasi bisnis dan sosial.',
+      'Aktif sebagai pembicara, penulis buku, jurnal dan kajian ilmiah.'
+    ],
+    organization_seminar: [
+      'Pemilik Hak Atas Kekayaan Intelektual (HAKI) model bisnis “FM Model For Banking Sector”.',
+      'Pada tahun 2019 mendirikan Forum Doktor Multidisiplin Indonesia (FDMI) yang beranggotakan akademisi dan praktisi dari berbagai disiplin ilmu, dalam dan luar negeri yang sudah memperoleh gelar Doktor/PhD.',
+      'Forum ini melakukan berbagai macam kegiatan dan kajian ilmiah dalam rangka mencari solusi praktis berbagai permasalahan bisnis, sosial ekonomi, kebijakan public, permasalahan kehidupan bermasyarakat, berbangsa dan bernegara lainnya dengan model pendekatan Kolaborasi Pentahelix (Academician, Business, Government, Community and Media).'
+    ],
+    publications: [
+      'Berkomitmen untuk terus belajar, berkarya dan memperbaiki diri agar menjadi Pribadi yang Sholeh Wal Muslikh (Sholeh buat diri sendiri dan lingkungannya).'
+    ],
+    created_at: '2026-09-10T00:00:00.000Z',
+    updated_at: '2026-09-10T00:00:00.000Z'
   }
 ];
 
@@ -302,6 +332,7 @@ export const normalizeAuthorProfile = (author: Author): Author => {
   else if (name.includes('yudha pramana')) normalized = { ...normalized, name: 'Yudha Pramana', academic_titles: '', email: '' };
   else if (name.includes('andi banua adams')) normalized = { ...normalized, name: 'Andi Banua Adams', academic_titles: '', email: '' };
   else if (name.includes('edy edwin') || name.includes('edy ewin')) normalized = { ...normalized, name: 'Edy Edwin P. Ginting', academic_titles: '', email: '' };
+  else if (name.includes('yuli teguh')) normalized = { ...normalized, name: 'Dr. Yuli Teguh Hidayat, SST., MM.', academic_titles: '', email: '' };
 
   const canonicalPhoto = AUTHOR_PHOTO_BY_NAME[authorNameKey(normalized.name)];
   return { ...normalized, photo_url: canonicalPhoto || undefined };
@@ -358,8 +389,8 @@ export const INITIAL_BOOK_AUTHORS: BookAuthorRelation[] = [
   { book_id: 'book-19', author_id: 'author-5', author_order: 0 },
   { book_id: 'book-20', author_id: 'author-3', author_order: 0 }
   ,{ book_id: 'book-12', author_id: 'author-8', author_order: 1 }
-  ,{ book_id: 'book-24', author_id: 'author-3', author_order: 0 }
-  ,{ book_id: 'book-24', author_id: 'author-6', author_order: 1 }
+  ,{ book_id: 'book-24', author_id: 'author-6', author_order: 0 }
+  ,{ book_id: 'book-24', author_id: 'author-7', author_order: 1 }
   ,{ book_id: 'book-25', author_id: 'author-5', author_order: 0 }
   ,{ book_id: 'book-25', author_id: 'author-2', author_order: 1 }
   ,{ book_id: 'book-26', author_id: 'author-8', author_order: 0 }
@@ -367,4 +398,6 @@ export const INITIAL_BOOK_AUTHORS: BookAuthorRelation[] = [
   ,{ book_id: 'book-27', author_id: 'author-7', author_order: 0 }
   ,{ book_id: 'book-27', author_id: 'author-3', author_order: 1 }
   ,{ book_id: 'book-28', author_id: 'author-7', author_order: 0 }
+  ,{ book_id: 'book-16', author_id: 'author-9', author_order: 1 }
+  ,{ book_id: 'book-20', author_id: 'author-9', author_order: 0 }
 ];

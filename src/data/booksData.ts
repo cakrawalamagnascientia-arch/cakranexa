@@ -340,7 +340,7 @@ const RAW_BOOKS: Book[] = [
     id: "book-24",
     name: "AUDIT INVESTIGATIF KONTEMPORER: KONSEP DAN TEKNIK",
     slug: "audit-investigatif-kontemporer-konsep-dan-teknik",
-    author: "Henry Dianto P. Sinaga & Yudha Pramana",
+    author: "Yudha Pramana & Andi Banua Adams",
     category: "Akuntansi",
     isbn: "",
     tahunTerbit: 2026,
@@ -502,6 +502,7 @@ const PDF_AUTHOR_BY_SLUG: Record<string, string> = {
   'pajak-merger-dan-akuisisi-m-dan-a-di-indonesia-prinsip-dan-konsep': 'ANDI BANUA ADAMS & JOKO PURNOMO RAHARJO',
   'akuntansi-pajak-teori-dan-praktik-di-indonesia': 'Yudha Pramana',
   'prinsip-dan-konsep-audit-dalam-akuntansi-dan-pelaksanaan-kewajiban-perpajakan-di-indonesia': 'Yudha Pramana & Joko Purnomo Raharjo'
+  ,'audit-investigatif-kontemporer-konsep-dan-teknik': 'Yudha Pramana & Andi Banua Adams'
 };
 
 /** Menyamakan atribusi card buku dengan kolom Author pada PDF katalog resmi. */
