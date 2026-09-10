@@ -312,7 +312,8 @@ const AUTHOR_PHOTO_BY_NAME: Record<string, string> = {
   'andi banua adams': '/images/authors/andi-banua-adams.png',
   'henry dianto p sinaga': '/images/authors/henry-dianto-p-sinaga.png',
   'joko purnomo raharjo': '/images/authors/joko-purnomo-raharjo.png',
-  'dr wahyu widodo ak ca s h m si': '/images/authors/wahyu-widodo.png'
+  'dr wahyu widodo ak ca s h m si': '/images/authors/wahyu-widodo.png',
+  'dr yuli teguh hidayat sst mm': '/images/authors/yuli-teguh-hidayat.png'
 };
 
 const authorNameKey = (name: string): string => name
