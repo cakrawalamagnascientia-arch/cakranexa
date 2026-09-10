@@ -102,7 +102,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Desktop Nav Items with Artistic Flair */}
-          <nav className="hidden lg:flex items-center space-x-4 xl:space-x-5 text-[11px] uppercase tracking-widest font-semibold">
+          <nav className="hidden lg:flex flex-1 min-w-0 items-center justify-center gap-3 xl:gap-4 text-[10px] xl:text-[11px] uppercase tracking-wider font-semibold px-3">
             
             {/* 1. Home */}
             <button
@@ -114,7 +114,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'text-white opacity-60 hover:opacity-100'
               }`}
             >
-              <span>{t('home')}</span>
+              <span className="whitespace-nowrap">{t('home')}</span>
               {activePage === 'home' && (
                 <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
               )}
@@ -135,7 +135,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     : 'text-white opacity-60 hover:opacity-100'
                 }`}
               >
-                <span>{t('catalog')}</span>
+                <span className="whitespace-nowrap">{t('catalog')}</span>
                 <ChevronDown className="w-3 h-3 text-[#D4AF37]" />
                 {activePage === 'katalog' && (
                   <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
@@ -224,7 +224,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     : 'text-white opacity-60 hover:opacity-100'
                 }`}
               >
-                <span>{t('publishing')}</span>
+                <span className="whitespace-nowrap">{t('publishing')}</span>
                 <ChevronDown className="w-3 h-3 text-[#D4AF37]" />
                 {activePage === 'penerbitan' && (
                   <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
@@ -304,7 +304,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'text-white opacity-60 hover:opacity-100'
               }`}
             >
-              <span>{t('training')}</span>
+              <span className="whitespace-nowrap">{t('training')}</span>
               {activePage === 'pelatihan' && (
                 <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
               )}
@@ -320,7 +320,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'text-white opacity-60 hover:opacity-100'
               }`}
             >
-              <span>{t('journal')}</span>
+              <span className="whitespace-nowrap">{t('journal')}</span>
               {activePage === 'jurnal' && (
                 <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
               )}
@@ -341,7 +341,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     : 'text-white opacity-60 hover:opacity-100'
                 }`}
               >
-                <span>{t('about')}</span>
+                <span className="whitespace-nowrap">{t('about')}</span>
                 <ChevronDown className="w-3 h-3 text-[#D4AF37]" />
                 {activePage === 'tentang-kami' && (
                   <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
@@ -405,7 +405,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'text-white opacity-60 hover:opacity-100'
               }`}
             >
-              <span>Blog</span>
+              <span className="whitespace-nowrap">{t('blog')}</span>
               {activePage === 'blog' && (
                 <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
               )}
@@ -421,7 +421,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'text-white opacity-60 hover:opacity-100'
               }`}
             >
-              <span>Career</span>
+              <span className="whitespace-nowrap">{t('career')}</span>
               {activePage === 'career' && (
                 <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
               )}
@@ -437,7 +437,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'text-white opacity-60 hover:opacity-100'
               }`}
             >
-              <span>{t('contact')}</span>
+              <span className="whitespace-nowrap">{t('contact')}</span>
               {activePage === 'kontak' && (
                 <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
               )}
@@ -445,13 +445,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Action Buttons: Search and Artistic Gold Cart */}
-          <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="flex shrink-0 items-center space-x-2 sm:space-x-3">
             <label className="sr-only" htmlFor="language-selector">{t('language')}</label>
             <select
               id="language-selector"
               value={language}
               onChange={(event) => setLanguage(event.target.value as Language)}
-              className="bg-transparent text-[10px] font-bold uppercase tracking-wider text-slate-300 border border-slate-700 rounded px-1.5 py-1 focus:outline-none focus:border-[#D4AF37]"
+              className="w-[52px] bg-[#0F172A] text-[10px] font-bold uppercase tracking-wider text-slate-300 border border-slate-700 rounded px-1.5 py-1 focus:outline-none focus:border-[#D4AF37]"
               title={t('language')}
             >
               <option value="id">ID</option>
@@ -504,7 +504,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 activePage === 'home' ? 'bg-[#DFBF64]/15 text-[#DFBF64]' : 'text-slate-200'
               }`}
             >
-              Home
+              {t('home')}
             </button>
 
             {/* Katalog Section Mobile */}
@@ -516,7 +516,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className="w-full text-left px-3 py-1.5 text-sm font-semibold text-[#DFBF64] flex items-center justify-between"
               >
-                <span>Katalog Buku (23 Buku)</span>
+                <span>{t('catalog')} ({t('allBooks')})</span>
               </button>
               <div className="pl-4 space-y-1 mt-1">
                 <button
@@ -526,7 +526,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   }}
                   className="block w-full text-left py-1 text-xs text-slate-300 hover:text-white"
                 >
-                  • Buku Terbaru
+                  • {t('latest')}
                 </button>
                 {categories.map(cat => (
                   <button
@@ -545,7 +545,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Penerbitan Section Mobile */}
             <div className="border-t border-white/10 pt-2">
-              <div className="px-3 py-1 text-xs font-semibold text-[#DFBF64]">Penerbitan</div>
+              <div className="px-3 py-1 text-xs font-semibold text-[#DFBF64]">{t('publishing')}</div>
               <div className="pl-4 space-y-1 mt-1">
                 <button
                   onClick={() => {
@@ -603,7 +603,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className="text-left px-3 py-1.5 text-sm text-slate-200"
               >
-                Pelatihan & Workshop
+                {t('training')}
               </button>
               <button
                 onClick={() => {
@@ -612,7 +612,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className="text-left px-3 py-1.5 text-sm text-slate-200"
               >
-                Jurnal Ilmiah
+                {t('journal')}
               </button>
               <button
                 onClick={() => {
@@ -621,7 +621,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className="text-left px-3 py-1.5 text-sm text-slate-200"
               >
-                Tentang Kami (Profil, Visi, Tim, Legalitas)
+                {t('about')}
               </button>
               <button
                 onClick={() => {
@@ -630,7 +630,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className="text-left px-3 py-1.5 text-sm text-slate-200"
               >
-                Blog & Artikel
+                {t('blog')}
               </button>
               <button
                 onClick={() => {
@@ -639,7 +639,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className="text-left px-3 py-1.5 text-sm text-slate-200"
               >
-                Karir & Lowongan
+                {t('career')}
               </button>
               <button
                 onClick={() => {
@@ -648,7 +648,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className="text-left px-3 py-1.5 text-sm text-slate-200"
               >
-                Kontak Kami
+                {t('contact')}
               </button>
             </div>
 

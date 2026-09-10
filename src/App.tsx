@@ -651,6 +651,10 @@ export default function App() {
 
   const sanitizeBook = (book: Book): Book => ({
     ...book,
+    ...(book.id === 'book-25' ? {
+      harga: book.harga || INITIAL_BOOKS.find((item) => item.id === 'book-25')?.harga || 0,
+      sinopsis: book.sinopsis || INITIAL_BOOKS.find((item) => item.id === 'book-25')?.sinopsis || ''
+    } : {}),
     name: toTitleCase(book.name || ''),
     title: toTitleCase(book.title || book.name || ''),
     tahunTerbit: Number(book.tahunTerbit) || new Date().getFullYear()

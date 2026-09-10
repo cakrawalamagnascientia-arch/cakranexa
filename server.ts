@@ -143,7 +143,13 @@ async function loadBooks(): Promise<Book[]> {
   if (supabaseAdmin) {
     const { data, error } = await supabaseAdmin.from('books').select('*').order('created_at', { ascending: true });
     if (!error && data && data.length > 0) {
-      inMemoryBooks = data.map(rowToBook);
+      inMemoryBooks = data.map((row) => {
+        const remote = rowToBook(row);
+        const seed = INITIAL_BOOKS.find((book) => book.id === remote.id);
+        return remote.id === 'book-25' && seed
+          ? { ...remote, harga: remote.harga || seed.harga, sinopsis: remote.sinopsis || seed.sinopsis }
+          : remote;
+      });
     }
   }
   return inMemoryBooks;

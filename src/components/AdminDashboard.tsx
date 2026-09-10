@@ -66,6 +66,7 @@ import { CmsDashboardManager } from './CmsDashboardManager';
 import { ShippingLabelModal } from './ShippingLabelModal';
 import { getStoredSeoSettings, saveStoredSeoSettings, DEFAULT_SEO_SETTINGS } from '../services/seoService';
 import { getStoredSiteContent, saveStoredSiteContent, resetSiteContentToDefault } from '../services/siteContentService';
+import { INITIAL_BOOKS } from '../data/booksData';
 
 interface AdminDashboardProps {
   books: BookType[];
@@ -599,6 +600,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
     const sanitizedTitle = toTitleCase(formData.name.trim());
     const slug = formData.slug || sanitizedTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const seedBook = editingBook?.id === 'book-25' ? INITIAL_BOOKS.find((book) => book.id === 'book-25') : undefined;
 
     if (editingBook) {
       const updated: BookType = {
@@ -613,12 +615,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         tahunTerbit: Number(formData.tahunTerbit) || 2026,
         jumlahHalaman: Number(formData.jumlahHalaman) || 300,
         ukuranBuku: formData.ukuranBuku || '15.5 x 23 cm',
-        harga: Number(formData.harga) || 200000,
+        harga: Number(formData.harga) || seedBook?.harga || 200000,
         originalHarga: formData.originalHarga ? Number(formData.originalHarga) : undefined,
         discountPercentage: formData.discountPercentage ? Number(formData.discountPercentage) : undefined,
         releaseDate: formData.releaseDate || undefined,
         scheduledUpload: formData.scheduledUpload || undefined,
-        sinopsis: formData.sinopsis || '',
+        sinopsis: formData.sinopsis || seedBook?.sinopsis || '',
         linkPembelian: formData.linkPembelian || '#',
         bukuTerbaru: Boolean(formData.bukuTerbaru),
         penerbit: formData.penerbit || 'PT Scientia Integritas Utama',
