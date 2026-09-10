@@ -612,19 +612,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         author: formData.author || 'Scientia Integritas Utama',
         category: (formData.category as BookCategory) || 'Perpajakan',
         isbn: formData.isbn || '978-623-8120-00-0',
-        tahunTerbit: Number(formData.tahunTerbit) || 2026,
-        jumlahHalaman: Number(formData.jumlahHalaman) || 300,
-        ukuranBuku: formData.ukuranBuku || '15.5 x 23 cm',
-        harga: Number(formData.harga) || seedBook?.harga || 200000,
+        tahunTerbit: Number(formData.tahunTerbit) || editingBook.tahunTerbit || 2026,
+        jumlahHalaman: Number(formData.jumlahHalaman) || editingBook.jumlahHalaman || 300,
+        ukuranBuku: formData.ukuranBuku || editingBook.ukuranBuku || '15.5 x 23 cm',
+        harga: Number(formData.harga) || editingBook.harga || seedBook?.harga || 200000,
         originalHarga: formData.originalHarga ? Number(formData.originalHarga) : undefined,
         discountPercentage: formData.discountPercentage ? Number(formData.discountPercentage) : undefined,
         releaseDate: formData.releaseDate || undefined,
         scheduledUpload: formData.scheduledUpload || undefined,
         sinopsis: formData.sinopsis || seedBook?.sinopsis || '',
-        linkPembelian: formData.linkPembelian || '#',
+        linkPembelian: formData.linkPembelian || editingBook.linkPembelian || '#',
         bukuTerbaru: Boolean(formData.bukuTerbaru),
         penerbit: formData.penerbit || 'PT Scientia Integritas Utama',
-        coverBuku: formData.coverBuku || ''
+        coverBuku: formData.coverBuku || editingBook.coverBuku || ''
       };
       onUpdateBook(updated);
       showNotification(`Buku "${updated?.name || ''}" berhasil diperbarui.`);
