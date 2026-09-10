@@ -447,7 +447,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   </div>
                   <div>
                     <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                      {t('publisher')} &amp; {t('cart')}
+                      {t('paymentMethod')}
                     </h2>
                     <p className="text-xs text-slate-500">
                       Mendukung Virtual Account, QRIS, e-Wallets, serta Transfer Bank Mandiri PT Cakrawala Magna Scientia
