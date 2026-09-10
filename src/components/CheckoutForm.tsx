@@ -15,6 +15,7 @@ import { apiClient, ApiError } from '../services/apiClient';
 import { openSnapPayment } from '../services/midtransSnap';
 import { getStoredPaymentSettings } from '../services/paymentService';
 import { generateOrderNumber, generateOrderId, nowIso } from '../utils/orderUtils';
+import { useLanguage } from '../i18n';
 import { 
   ArrowLeft, 
   ShieldCheck, 
@@ -43,6 +44,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
   onOrderCompleted,
   onCancel
 }) => {
+  const { t } = useLanguage();
   // Step state: 'form' | 'midtrans_simulation' | 'success'
   const [checkoutStep, setCheckoutStep] = useState<'form' | 'midtrans_simulation' | 'success'>('form');
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
@@ -231,7 +233,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
             className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-[#0F172A] transition-colors"
           >
             <ArrowLeft className="w-4 h-4 text-[#D4AF37]" />
-            <span>Kembali ke Keranjang Belanja</span>
+            <span>{t('back')} - {t('cart')}</span>
           </button>
           
           <div className="flex items-center gap-2">
@@ -445,7 +447,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   </div>
                   <div>
                     <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                      Metode Pembayaran Resmi
+                      {t('publisher')} &amp; {t('cart')}
                     </h2>
                     <p className="text-xs text-slate-500">
                       Mendukung Virtual Account, QRIS, e-Wallets, serta Transfer Bank Mandiri PT Cakrawala Magna Scientia
@@ -726,7 +728,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
               onClick={onCancel}
               className="text-xs font-semibold text-slate-500 hover:text-slate-800"
             >
-              Kembali ke Beranda & Katalog
+              {t('back')} - {t('home')} &amp; {t('catalog')}
             </button>
           </div>
         )}

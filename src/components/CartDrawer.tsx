@@ -3,6 +3,7 @@ import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck } from 'lu
 import { CartItem } from '../types';
 import { resolveImageUrl, handleImageError } from '../utils/imageUtils';
 import { toTitleCase } from '../utils/formatters';
+import { useLanguage } from '../i18n';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onRemoveItem,
   onProceedCheckout
 }) => {
+  const { t } = useLanguage();
   if (!isOpen) return null;
 
   const subtotal = items.reduce((sum, item) => sum + item.book.harga * item.quantity, 0);
@@ -41,7 +43,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             <div className="flex items-center gap-2.5">
               <ShoppingBag className="w-5 h-5 text-[#DFBF64]" />
               <div>
-                <h3 className="font-serif font-bold text-base text-white">Keranjang Belanja</h3>
+                <h3 className="font-serif font-bold text-base text-white">{t('cart')}</h3>
                 <p className="text-[11px] text-slate-400">
                   {items.length} ragam publikasi buku
                 </p>
@@ -62,7 +64,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <div className="w-16 h-16 rounded-full bg-slate-100 mx-auto flex items-center justify-center text-slate-400">
                   <ShoppingBag className="w-8 h-8 stroke-1" />
                 </div>
-                <h4 className="font-serif font-bold text-slate-800 text-base">Keranjang Anda Masih Kosong</h4>
+                <h4 className="font-serif font-bold text-slate-800 text-base">{t('cart')} - {t('noData')}</h4>
                 <p className="text-xs text-slate-500 max-w-xs mx-auto">
                   Jelajahi koleksi buku referensi akademik kami dan tambahkan naskah yang Anda butuhkan.
                 </p>
@@ -70,7 +72,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   onClick={onClose}
                   className="px-4 py-2 text-xs font-semibold rounded bg-[#0F172A] text-[#DFBF64] hover:bg-[#1E293B]"
                 >
-                  Mulai Belanja Buku
+                  {t('allBooks')}
                 </button>
               </div>
             ) : (
@@ -162,7 +164,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </span>
                 </div>
                 <div className="flex justify-between text-sm font-bold text-slate-900 pt-2 border-t border-slate-100">
-                  <span>Total Pembayaran</span>
+                  <span>{t('cart')}</span>
                   <span className="font-mono text-[#9A7B38] text-base">
                     Rp {subtotal.toLocaleString('id-ID')}
                   </span>
@@ -174,7 +176,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 onClick={onProceedCheckout}
                 className="w-full py-3.5 px-4 rounded-xl bg-[#D4AF37] hover:bg-[#c5a059] text-[#0F172A] font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>Lanjut ke Pembayaran</span>
+                <span>{t('viewDetails')}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 

@@ -15,6 +15,7 @@ import {
 import { ActivePage, ContactSettings, FooterSettings, SubSection, SiteContentSettings } from '../types';
 import { CakraNexaLogo } from './CakraNexaLogo';
 import { getStoredSiteContent } from '../services/siteContentService';
+import { useLanguage } from '../i18n';
 
 interface FooterProps {
   onNavigate: (page: ActivePage, subSection?: SubSection) => void;
@@ -22,6 +23,7 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate, siteContent }) => {
+  const { t } = useLanguage();
   const content = siteContent || getStoredSiteContent();
   const footerData: Partial<FooterSettings> = content?.footer || {};
   const contactData: ContactSettings = content?.contact || {};
@@ -132,7 +134,7 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
         {/* Column 2: Katalog Buku */}
         <div className="space-y-3 text-xs">
           <h4 className="font-serif font-bold text-sm text-white uppercase tracking-wider">
-            Katalog Buku
+            {t('catalog')}
           </h4>
           <ul className="space-y-2">
             <li>
@@ -140,7 +142,7 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
                 onClick={() => onNavigate('katalog', 'all')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
-                Semua Koleksi Buku
+                {t('allBooks')}
               </button>
             </li>
             <li>
@@ -180,7 +182,7 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
                 onClick={() => onNavigate('katalog', 'all')}
                 className="text-[#DFBF64] font-semibold hover:underline flex items-center gap-1 mt-1"
               >
-                <span>Buku Terbaru</span>
+                <span>{t('latest')}</span>
               </button>
             </li>
           </ul>
@@ -294,7 +296,7 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
                 onClick={() => onNavigate('kontak')}
                 className="hover:text-[#D4AF37] transition-colors cursor-pointer"
               >
-                Hubungi Kami
+                {t('contact')}
               </button>
             </li>
           </ul>

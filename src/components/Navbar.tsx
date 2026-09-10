@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { ActivePage, SubSection, BookCategory } from '../types';
 import { CakraNexaLogo } from './CakraNexaLogo';
+import { useLanguage, Language } from '../i18n';
 
 interface NavbarProps {
   activePage: ActivePage;
@@ -34,6 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCart,
   onOpenSearch
 }) => {
+  const { language, setLanguage, t } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -112,7 +114,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'text-white opacity-60 hover:opacity-100'
               }`}
             >
-              <span>Home</span>
+              <span>{t('home')}</span>
               {activePage === 'home' && (
                 <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
               )}
@@ -133,7 +135,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     : 'text-white opacity-60 hover:opacity-100'
                 }`}
               >
-                <span>Katalog</span>
+                <span>{t('catalog')}</span>
                 <ChevronDown className="w-3 h-3 text-[#D4AF37]" />
                 {activePage === 'katalog' && (
                   <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
@@ -155,7 +157,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       }}
                       className="w-full text-left px-3 py-2 rounded-lg text-xs text-white hover:bg-slate-800 hover:text-[#D4AF37] transition-colors flex items-center justify-between"
                     >
-                      <span className="font-semibold tracking-wider">SEMUA BUKU</span>
+                      <span className="font-semibold tracking-wider">{t('allBooks')}</span>
                       <span className="text-[10px] text-[#D4AF37] bg-white/10 px-1.5 py-0.5 rounded font-mono">23 Buku</span>
                     </button>
 
@@ -167,7 +169,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       }}
                       className="w-full text-left px-3 py-2 rounded-lg text-xs text-white hover:bg-slate-800 hover:text-[#D4AF37] transition-colors flex items-center justify-between"
                     >
-                      <span className="font-semibold tracking-wider">BUKU TERBARU</span>
+                      <span className="font-semibold tracking-wider">{t('latest')} {t('allBooks')}</span>
                     </button>
 
                     <div className="my-1 border-t border-white/10"></div>
@@ -200,7 +202,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       }}
                       className="w-full text-left px-3 py-2 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-[#D4AF37] transition-colors"
                     >
-                      PENULIS & KONTRIBUTOR
+                      {t('authors')}
                     </button>
                   </div>
                 </div>
@@ -222,7 +224,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     : 'text-white opacity-60 hover:opacity-100'
                 }`}
               >
-                <span>Penerbitan</span>
+                <span>{t('publishing')}</span>
                 <ChevronDown className="w-3 h-3 text-[#D4AF37]" />
                 {activePage === 'penerbitan' && (
                   <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
@@ -302,7 +304,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'text-white opacity-60 hover:opacity-100'
               }`}
             >
-              <span>Pelatihan</span>
+              <span>{t('training')}</span>
               {activePage === 'pelatihan' && (
                 <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
               )}
@@ -318,7 +320,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'text-white opacity-60 hover:opacity-100'
               }`}
             >
-              <span>Jurnal</span>
+              <span>{t('journal')}</span>
               {activePage === 'jurnal' && (
                 <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
               )}
@@ -339,7 +341,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     : 'text-white opacity-60 hover:opacity-100'
                 }`}
               >
-                <span>Tentang Kami</span>
+                <span>{t('about')}</span>
                 <ChevronDown className="w-3 h-3 text-[#D4AF37]" />
                 {activePage === 'tentang-kami' && (
                   <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
@@ -435,7 +437,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'text-white opacity-60 hover:opacity-100'
               }`}
             >
-              <span>Kontak</span>
+              <span>{t('contact')}</span>
               {activePage === 'kontak' && (
                 <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
               )}
@@ -444,6 +446,18 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Action Buttons: Search and Artistic Gold Cart */}
           <div className="flex items-center space-x-2 sm:space-x-3">
+            <label className="sr-only" htmlFor="language-selector">{t('language')}</label>
+            <select
+              id="language-selector"
+              value={language}
+              onChange={(event) => setLanguage(event.target.value as Language)}
+              className="bg-transparent text-[10px] font-bold uppercase tracking-wider text-slate-300 border border-slate-700 rounded px-1.5 py-1 focus:outline-none focus:border-[#D4AF37]"
+              title={t('language')}
+            >
+              <option value="id">ID</option>
+              <option value="en">EN</option>
+              <option value="zh">中文</option>
+            </select>
             {/* Quick Search */}
             <button
               id="btn-search-trigger"
@@ -462,7 +476,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               title="Keranjang Belanja"
             >
               <ShoppingBag className="w-3.5 h-3.5" />
-              <span>Cart ({cartCount})</span>
+              <span>{t('cart')} ({cartCount})</span>
             </button>
 
             {/* Mobile Hamburger Toggle */}

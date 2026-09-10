@@ -16,6 +16,7 @@ import { Book } from '../types';
 import { trackViewContent } from '../services/trackingService';
 import { resolveImageUrl, handleImageError } from '../utils/imageUtils';
 import { toTitleCase } from '../utils/formatters';
+import { useLanguage } from '../i18n';
 
 interface BookDetailViewProps {
   book: Book;
@@ -36,6 +37,7 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
   relatedBooks = [],
   onSelectRelatedBook
 }) => {
+  const { t } = useLanguage();
   const isPurchasable = Number(book?.harga) > 0;
   const hasReviews = Boolean(book?.rating && book?.reviewsCount);
   const [activeTab, setActiveTab] = useState<'sinopsis' | 'penulis' | 'daftar-isi' | 'review'>('sinopsis');
@@ -103,7 +105,7 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
           >
             <Share2 className="w-3.5 h-3.5" />
-            <span>{copied ? 'Tautan Disalin!' : 'Bagikan Buku'}</span>
+            <span>{copied ? t('save') : t('viewDetails')}</span>
           </button>
         </div>
       </div>
@@ -168,7 +170,7 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
             <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-start gap-2.5">
               <Building className="w-4 h-4 text-slate-700 mt-0.5 flex-shrink-0" />
               <div>
-                <div className="text-xs font-bold text-slate-800">Penjual Resmi</div>
+                <div className="text-xs font-bold text-slate-800">{t('officialSeller')}</div>
                 <div className="text-[11px] text-slate-500 truncate">PT CAKRAWALA MAGNA SCIENTIA</div>
               </div>
             </div>
@@ -206,11 +208,11 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
             <div className="mt-3 flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-600">
               <div className="flex items-center gap-1.5">
                 <User className="w-4 h-4 text-slate-400" />
-                <span className="font-medium">Author: <strong className="text-slate-900 font-semibold">{book?.author}</strong></span>
+                <span className="font-medium">{t('authors')}: <strong className="text-slate-900 font-semibold">{book?.author}</strong></span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Building className="w-4 h-4 text-slate-400" />
-                <span className="font-medium">Penerbit Utama: <strong className="text-slate-900 font-semibold">{book?.penerbit}</strong></span>
+                <span className="font-medium">{t('publisher')}: <strong className="text-slate-900 font-semibold">{book?.penerbit}</strong></span>
               </div>
               {hasReviews && (
                 <div className="flex items-center gap-1 text-[#DFBF64]">
@@ -240,7 +242,7 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
                   ) : null}
                 </div>
                 <div className="text-2xl sm:text-3xl font-bold text-[#DFBF64] tracking-tight mt-0.5">
-                  {isPurchasable ? `Rp ${book.harga.toLocaleString('id-ID')}` : 'Harga menyusul'}
+                  {isPurchasable ? `Rp ${book.harga.toLocaleString('id-ID')}` : t('priceComingSoon')}
                 </div>
               </div>
               <div className="flex items-center gap-2">

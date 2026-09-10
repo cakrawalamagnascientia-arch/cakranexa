@@ -3,6 +3,7 @@ import { Author } from '../types';
 import { ExternalLink, GraduationCap, User } from 'lucide-react';
 import { toTitleCase } from '../utils/formatters';
 import { resolveImageUrl } from '../utils/imageUtils';
+import { useLanguage } from '../i18n';
 
 export interface AuthorsListingViewProps {
   authors: Author[];
@@ -10,6 +11,7 @@ export interface AuthorsListingViewProps {
 }
 
 export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors, onSelectAuthor }) => {
+  const { t } = useLanguage();
   const safeAuthors = Array.isArray(authors) ? authors : [];
   const sliceAuthors = safeAuthors;
 
@@ -35,7 +37,7 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
             </div>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight max-w-4xl">
-            Para <span className="text-[#DFBF64]">Penulis &amp; Kontributor</span>
+            <span className="text-[#DFBF64]">{t('authors')}</span>
             <br className="hidden sm:block" /> Monografi Ilmiah CakraNexa
           </h1>
           <p className="mt-5 text-sm sm:text-base lg:text-lg text-slate-200/85 max-w-3xl leading-relaxed">
@@ -44,11 +46,11 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
           </p>
           <div className="mt-8 flex flex-wrap gap-3 text-xs sm:text-sm">
             <div className="px-4 py-2 rounded-full bg-white/8 border border-white/15 text-white/90 backdrop-blur-sm">
-              <span className="font-bold text-[#DFBF64]">{sliceAuthors.length}+</span> Penulis Terdaftar
+              <span className="font-bold text-[#DFBF64]">{sliceAuthors.length}+</span> {t('authors')}
             </div>
             <div className="px-4 py-2 rounded-full bg-white/5 border border-[#D4AF37]/30 text-white/85 backdrop-blur-sm">
               <User className="inline w-4 h-4 mr-1.5 -mt-0.5 text-[#D4AF37]" />
-              Dosen &amp; Peneliti Indonesia
+              {t('authors')}
             </div>
           </div>
         </div>
@@ -59,13 +61,13 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
         <div className="flex items-end justify-between flex-wrap gap-4 mb-8 sm:mb-10">
           <div>
             <div className="text-xs font-bold tracking-[0.2em] text-[#9A7B00] uppercase mb-2">
-              Daftar Kontributor
+              {t('authors')}
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A]">
-              Profil Penulis CakraNexa
+              {t('authors')}
             </h2>
             <p className="mt-2 text-sm text-slate-600 max-w-xl">
-              Jelajahi profil lengkap, pendidikan, pengalaman, serta karya ilmiah para penulis.
+              {t('viewProfile')}
             </p>
           </div>
         </div>
@@ -73,7 +75,7 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
         {sliceAuthors.length === 0 ? (
           <div className="py-20 text-center border border-dashed border-slate-300 rounded-2xl bg-white">
             <User className="w-14 h-14 mx-auto text-slate-300 mb-3" />
-            <div className="text-slate-500 text-sm">Data penulis belum tersedia.</div>
+            <div className="text-slate-500 text-sm">{t('noData')}</div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 lg:gap-8">
@@ -111,7 +113,7 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
                       )}
                       {gelar && <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0F172A]/5 border border-[#0F172A]/10 text-[11px] sm:text-xs font-semibold text-[#0F172A]/80">
                         <GraduationCap className="w-3.5 h-3.5 text-[#A9850C]" />
-                        <span>Gelar/Profesi</span>
+                        <span>{t('viewProfile')}</span>
                       </div>}
                     </div>
 
@@ -142,7 +144,7 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
                         onClick={() => onSelectAuthor(author)}
                         className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm bg-[#0F172A] text-[#DFBF64] hover:bg-[#0B1120] hover:text-[#F4E4A0] active:scale-[0.98] transition shadow-sm border border-[#D4AF37]/25"
                       >
-                        Lihat Profil &amp; Karya
+                        {t('viewProfile')}
                         <ExternalLink className="w-4 h-4 -mr-0.5" />
                       </button>
                     </div>

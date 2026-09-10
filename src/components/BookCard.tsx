@@ -3,6 +3,7 @@ import { ShoppingCart, Star, ArrowRight } from 'lucide-react';
 import { Book } from '../types';
 import { resolveImageUrl, handleImageError } from '../utils/imageUtils';
 import { toTitleCase } from '../utils/formatters';
+import { useLanguage } from '../i18n';
 
 interface BookCardProps {
   book: Book;
@@ -19,6 +20,7 @@ export const BookCard: React.FC<BookCardProps> = ({
   onQuickBuy,
   className = ''
 }) => {
+  const { t } = useLanguage();
   const isPurchasable = Number(book?.harga) > 0;
   if (!book) return null;
 
@@ -57,7 +59,7 @@ export const BookCard: React.FC<BookCardProps> = ({
           </span>
           {book?.bukuTerbaru && (
             <span className="text-[9px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded shrink-0">
-              Terbaru
+              {t('latest')}
             </span>
           )}
         </div>
@@ -114,7 +116,7 @@ export const BookCard: React.FC<BookCardProps> = ({
               </span>
             ) : (
               <span className="font-semibold text-amber-700 text-xs leading-tight block whitespace-nowrap">
-                Harga menyusul
+                {t('priceComingSoon')}
               </span>
             )}
           </div>
@@ -130,9 +132,9 @@ export const BookCard: React.FC<BookCardProps> = ({
             id={`btn-preorder-${book?.id}`}
             onClick={() => onSelectBook(book)}
             className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 h-8.5 px-3 text-xs font-semibold transition-colors rounded-lg cursor-pointer border border-slate-200 flex items-center justify-center gap-1.5"
-            title="Segera terbit — lihat detail"
+            title={t('viewDetails')}
           >
-            <span>Segera Terbit • Lihat Detail</span>
+            <span>{t('viewDetails')}</span>
             <ArrowRight className="w-3 h-3" />
           </button>
         ) : (

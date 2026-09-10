@@ -38,6 +38,7 @@ import { AuthorDetailView } from './components/AuthorDetailView';
 import { ScrollReveal } from './components/ScrollReveal';
 import { ScrollProgress } from './components/ScrollProgress';
 import { isAdminAuthenticated } from './services/adminAuth';
+import { useLanguage } from './i18n';
 
 /** Mengubah baris Supabase (snake_case + order_items) atau objek in-memory server menjadi Order frontend */
 function mapServerOrder(r: any, books: Book[]): Order {
@@ -78,6 +79,7 @@ function mapServerOrder(r: any, books: Book[]): Order {
 }
 
 export default function App() {
+  const { t } = useLanguage();
   const mergeInitialBooks = (existingBooks: Book[]): Book[] => {
     const initialById = new Map(INITIAL_BOOKS.map((book) => [book.id, book]));
     const mergedExisting = existingBooks.map((book) => {
@@ -817,7 +819,7 @@ export default function App() {
             </button>
 
             <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-              <span className="hidden sm:inline">Lokasi Halaman:</span>
+              <span className="hidden sm:inline">{t('catalog')}:</span>
               <span className="font-semibold text-slate-800 uppercase tracking-wide bg-slate-100 px-2.5 py-0.5 rounded text-[11px] font-mono border border-slate-200">
                 {selectedAuthor ? 'Detail Penulis' : selectedBook ? 'Detail Buku' : activeSubSection === 'penulis' ? 'Penulis Kontributor' : activePage.replace('-', ' ')}
               </span>
