@@ -321,22 +321,16 @@ export const authorNameKey = (name: string): string => name
   .replace(/[^a-z0-9]+/g, ' ')
   .trim();
 
-/** Hanya mempertahankan nama/gelar/kontak yang sudah diverifikasi dari referensi profil. */
+/**
+ * Melengkapi foto penulis dari aset lokal bila belum ada. Nama/gelar/kontak terverifikasi sudah
+ * tercantum di INITIAL_AUTHORS, jadi isian admin tidak ditimpa. Foto stok Unsplash lama diabaikan.
+ */
 export const normalizeAuthorProfile = (author: Author): Author => {
-  const name = String(author.name || '').trim().toLowerCase();
-  let normalized: Author = { ...author };
-  if (name.includes('bonarsius')) normalized = { ...normalized, name: 'Bonarsius Sipayung', academic_titles: '', email: '' };
-  else if (name.includes('edy gunawan')) normalized = { ...normalized, name: 'Dr. Edy Gunawan', academic_titles: 'S.E., Ak., S.H., M.Ak., M.H., M.Kn., BKP., CLA., Mediator., CertDa., CIISA', email: '' };
-  else if (name.includes('henry dianto')) normalized = { ...normalized, name: 'Henry Dianto P. Sinaga', academic_titles: '' };
-  else if (name.includes('joko purnomo')) normalized = { ...normalized, name: 'Joko Purnomo Raharjo', academic_titles: '', email: 'jokopurnomo.jpr@gmail.com' };
-  else if (name.includes('wahyu widodo')) normalized = { ...normalized, name: 'Dr. Wahyu Widodo, Ak., CA., S.H., M.Si.', academic_titles: '', email: '' };
-  else if (name.includes('yudha pramana')) normalized = { ...normalized, name: 'Yudha Pramana', academic_titles: '', email: '' };
-  else if (name.includes('andi banua adams')) normalized = { ...normalized, name: 'Andi Banua Adams', academic_titles: '', email: '' };
-  else if (name.includes('edy edwin') || name.includes('edy ewin')) normalized = { ...normalized, name: 'Edy Edwin P. Ginting', academic_titles: '', email: '' };
-  else if (name.includes('yuli teguh')) normalized = { ...normalized, name: 'Dr. Yuli Teguh Hidayat, SST., MM.', academic_titles: '', email: '' };
-
-  const canonicalPhoto = AUTHOR_PHOTO_BY_NAME[authorNameKey(normalized.name)];
-  return { ...normalized, photo_url: canonicalPhoto || undefined };
+  const ownPhoto = author.photo_url && !/unsplash\.com/i.test(author.photo_url) ? author.photo_url : '';
+  return {
+    ...author,
+    photo_url: ownPhoto || AUTHOR_PHOTO_BY_NAME[authorNameKey(String(author.name || ''))] || undefined
+  };
 };
 
 /** Normalizes names/photos and collapses duplicate records from cache or API. */

@@ -30,6 +30,8 @@ const adminHeaders = (): Record<string, string> => {
 
 /** Batas waktu penyimpanan admin: server Render free tier butuh ±30-60 detik untuk bangun dari tidur. */
 const ADMIN_WRITE_TIMEOUT_MS = 60000;
+/** Sinkron katalog di latar belakang ikut menunggu server bangun; tampilan awal memakai cache. */
+const CATALOG_SYNC_TIMEOUT_MS = 60000;
 
 /** fetch dengan timeout agar UI tidak menggantung saat backend tidur (Render free tier) */
 export const fetchWithTimeout = async (input: string, init: RequestInit = {}, timeoutMs = 12000): Promise<Response> => {
@@ -203,7 +205,7 @@ export const apiClient = {
    */
   async getBooks(): Promise<Book[] | null> {
     try {
-      const res = await fetchWithTimeout(apiUrl('/api/books'), { headers: jsonHeaders() });
+      const res = await fetchWithTimeout(apiUrl('/api/books'), { headers: jsonHeaders() }, CATALOG_SYNC_TIMEOUT_MS);
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data)) return data as Book[];
@@ -258,7 +260,7 @@ export const apiClient = {
   /** Sama seperti getBooks: null bila server & Supabase tidak terjangkau. */
   async getAuthors(): Promise<Author[] | null> {
     try {
-      const res = await fetchWithTimeout(apiUrl('/api/authors'), { headers: jsonHeaders() }, 10000);
+      const res = await fetchWithTimeout(apiUrl('/api/authors'), { headers: jsonHeaders() }, CATALOG_SYNC_TIMEOUT_MS);
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data)) return data.map((r: any) => rowToAuthor(r));

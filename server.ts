@@ -170,9 +170,10 @@ const bookToRow = (b: Book) => ({
   penerbit: b.penerbit,
   cover_buku: b.coverBuku,
   badge: b.badge || undefined,
-  rating: b.rating ?? 4.9,
-  reviews_count: b.reviewsCount ?? 0,
-  stock: b.stock ?? 0,
+  // null = tidak dikelola; jangan isi rating palsu atau stok 0 yang memblokir pesanan.
+  rating: b.rating ?? null,
+  reviews_count: b.reviewsCount ?? null,
+  stock: b.stock ?? null,
   berat_gram: b.beratGram ?? 500,
   original_harga: b.originalHarga ?? null,
   discount_percentage: b.discountPercentage ?? null,
@@ -189,13 +190,7 @@ async function loadBooks(): Promise<Book[]> {
     const { data, error } = await supabaseAdmin.from('books').select('*').order('created_at', { ascending: true });
     if (!error && data) {
       await loadSiteContent();
-      const remoteBooks = data.map((row) => {
-        const remote = rowToBook(row);
-        const seed = INITIAL_BOOKS.find((book) => book.id === remote.id);
-        return remote.id === 'book-25' && seed
-          ? { ...remote, harga: remote.harga || seed.harga, sinopsis: remote.sinopsis || seed.sinopsis }
-          : remote;
-      });
+      const remoteBooks = data.map(rowToBook);
       const remoteIds = new Set(remoteBooks.map((book) => book.id));
       const deletedIds = new Set(deletedRecords.books);
       // Buku bawaan yang belum pernah disimpan ke Supabase tetap tampil, kecuali sudah dihapus admin.
@@ -606,7 +601,8 @@ async function startServer() {
         return res.status(400).json({ error: 'Field wajib: id, name, slug, harga (number).' });
       }
       const index = inMemoryBooks.findIndex((b) => b.id === bookData.id);
-      if (index >= 0) inMemoryBooks[index] = { ...inMemoryBooks[index], ...bookData };
+      // Ganti utuh (bukan digabung) agar field yang dikosongkan admin ikut terhapus.
+      if (index >= 0) inMemoryBooks[index] = bookData;
       else inMemoryBooks.unshift(bookData);
 
       if (supabaseAdmin) {
@@ -744,6 +740,7 @@ async function startServer() {
           );
           // Kurangi stok via RPC (lihat schema.sql: decrement_book_stock)
           for (const { book, quantity } of items) {
+            if (typeof book.stock !== 'number') continue; // stok tidak dikelola untuk buku ini
             await supabaseAdmin.rpc('decrement_book_stock', { p_book_id: book.id, p_qty: quantity });
           }
         }

@@ -83,15 +83,15 @@ const serverErrorMessage = (err: unknown): string =>
 
 export default function App() {
   const { t } = useLanguage();
-  // Harga/sinopsis bawaan mengisi data yang masih kosong.
+  // Field bawaan hanya mengisi yang belum ada; harga 0 / sinopsis kosong dari admin tetap dihormati.
   const withSeedDefaults = (book: Book): Book => {
     const initial = INITIAL_BOOKS.find((item) => item.id === book.id);
     if (!initial) return book;
     return {
       ...initial,
       ...book,
-      harga: book.harga || initial.harga,
-      sinopsis: book.sinopsis || initial.sinopsis
+      harga: book.harga ?? initial.harga,
+      sinopsis: book.sinopsis ?? initial.sinopsis
     };
   };
 
@@ -671,41 +671,38 @@ export default function App() {
 
   const sanitizeBook = (book: Book): Book => ({
     ...book,
-    ...(book.id === 'book-25' ? {
-      harga: book.harga || INITIAL_BOOKS.find((item) => item.id === 'book-25')?.harga || 0,
-      sinopsis: book.sinopsis || INITIAL_BOOKS.find((item) => item.id === 'book-25')?.sinopsis || ''
-    } : {}),
     name: toTitleCase(book.name || ''),
     title: toTitleCase(book.title || book.name || ''),
     tahunTerbit: Number(book.tahunTerbit) || new Date().getFullYear()
   });
 
-  const handleAddBook = (newBook: Book): Promise<string | null> => {
+  // Perubahan diterapkan setelah server menyimpannya, agar tampilan tidak menunjukkan data yang gagal tersimpan
+  // (mis. sesi admin habis: dashboard berganti ke layar login sebelum pesan gagal terlihat).
+  const handleAddBook = async (newBook: Book): Promise<string | null> => {
     const sanitized = sanitizeBook(newBook);
-    setBooks((prev) => [sanitized, ...prev]);
-    return syncBookToServer(sanitized);
+    const error = await syncBookToServer(sanitized);
+    if (!error) setBooks((prev) => [sanitized, ...prev]);
+    return error;
   };
 
-  const handleUpdateBook = (updatedBook: Book): Promise<string | null> => {
+  const handleUpdateBook = async (updatedBook: Book): Promise<string | null> => {
     const sanitized = sanitizeBook(updatedBook);
+    const error = await syncBookToServer(sanitized);
+    if (error) return error;
     setBooks((prev) => prev.map((b) => (b.id === sanitized.id ? sanitized : b)));
-    if (selectedBook && selectedBook.id === sanitized.id) {
-      setSelectedBook(sanitized);
-    }
-    return syncBookToServer(sanitized);
+    setSelectedBook((current) => (current && current.id === sanitized.id ? sanitized : current));
+    return null;
   };
 
   const handleDeleteBook = async (id: string): Promise<string | null> => {
-    setBooks((prev) => prev.filter((b) => b.id !== id));
-    if (selectedBook && selectedBook.id === id) {
-      setSelectedBook(null);
-    }
     try {
       await apiClient.deleteBook(id);
-      return null;
     } catch (err) {
       return serverErrorMessage(err);
     }
+    setBooks((prev) => prev.filter((b) => b.id !== id));
+    setSelectedBook((current) => (current && current.id === id ? null : current));
+    return null;
   };
 
   const handleToggleBukuTerbaru = (id: string) => {
@@ -714,7 +711,9 @@ export default function App() {
     const toggled = { ...target, bukuTerbaru: !target.bukuTerbaru };
     setBooks((prev) => prev.map((b) => (b.id === id ? toggled : b)));
     syncBookToServer(toggled).then((error) => {
-      if (error) showNotification(`Gagal memperbarui buku di server: ${error}`);
+      if (!error) return;
+      setBooks((prev) => prev.map((b) => (b.id === id ? target : b))); // batalkan perubahan
+      showNotification(`Gagal memperbarui buku di server: ${error}`);
     });
   };
 
@@ -727,8 +726,10 @@ export default function App() {
 
   const attachAuthorBooks = (author: Author): Author => {
     if (author.books && Array.isArray(author.books) && author.books.length > 0) return author;
+    // Penulis bawaan yang sudah dipindah ke UUID Supabase dicocokkan lewat nama.
+    const seedAuthor = INITIAL_AUTHORS.find((a) => a.id === author.id || authorNameKey(a.name) === authorNameKey(author.name || ''));
     const bookIds = INITIAL_BOOK_AUTHORS
-      .filter((r) => r.author_id === author.id)
+      .filter((r) => r.author_id === seedAuthor?.id)
       .sort((a, b) => a.author_order - b.author_order)
       .map((r) => r.book_id);
     const relatedBooks = books.filter((b) => bookIds.includes(b.id));
@@ -780,16 +781,14 @@ export default function App() {
   };
 
   const handleDeleteAuthor = async (id: string): Promise<string | null> => {
-    setAuthors((prev) => prev.filter((a) => a.id !== id));
-    if (selectedAuthor && selectedAuthor.id === id) {
-      setSelectedAuthor(null);
-    }
     try {
       await apiClient.deleteAuthor(id);
-      return null;
     } catch (err) {
       return serverErrorMessage(err);
     }
+    setAuthors((prev) => prev.filter((a) => a.id !== id));
+    setSelectedAuthor((current) => (current && current.id === id ? null : current));
+    return null;
   };
 
   const handleSelectBook = (book: Book) => {

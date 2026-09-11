@@ -67,6 +67,7 @@ import { ShippingLabelModal } from './ShippingLabelModal';
 import { getStoredSeoSettings, saveStoredSeoSettings, DEFAULT_SEO_SETTINGS } from '../services/seoService';
 import { getStoredSiteContent, saveStoredSiteContent, resetSiteContentToDefault } from '../services/siteContentService';
 import { INITIAL_BOOKS } from '../data/booksData';
+import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, authorNameKey } from '../data/authorsData';
 
 interface AdminDashboardProps {
   books: BookType[];
@@ -191,6 +192,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [isSavingAllAuthors, setIsSavingAllAuthors] = useState(false);
   const [tempAuthorPhotoPreview, setTempAuthorPhotoPreview] = useState<string | null>(null);
   const [selectedAuthorBookIds, setSelectedAuthorBookIds] = useState<Set<string>>(new Set());
+  const [initialAuthorBookIds, setInitialAuthorBookIds] = useState<Set<string>>(new Set());
+  const [isSavingAuthor, setIsSavingAuthor] = useState(false);
   const [authorForm, setAuthorForm] = useState<{
     name: string;
     academic_titles: string;
@@ -373,8 +376,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       author: 'Scientia Integritas Utama',
       category: 'Perpajakan',
       isbn: '',
-      tahunTerbit: 2026,
-      jumlahHalaman: 320,
+      tahunTerbit: new Date().getFullYear(),
+      jumlahHalaman: 0,
       ukuranBuku: '15.5 x 23 cm (UNESCO B5)',
       harga: 210000,
       sinopsis: '',
@@ -412,6 +415,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     });
     setTempAuthorPhotoPreview(null);
     setSelectedAuthorBookIds(new Set());
+    setInitialAuthorBookIds(new Set());
     setShowAuthorModal(true);
   };
 
@@ -434,7 +438,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setTempAuthorPhotoPreview(author.photo_url || null);
     const existingIds = new Set<string>();
     (author.books || []).forEach((b: any) => existingIds.add(typeof b === 'object' ? b.id : b));
+    if (existingIds.size === 0) {
+      // Daftar penulis dari server tidak memuat relasi buku; pakai relasi bawaan agar checklist tidak tampil kosong.
+      const seedAuthor = INITIAL_AUTHORS.find((a) => a.id === author.id || authorNameKey(a.name) === authorNameKey(author.name || ''));
+      INITIAL_BOOK_AUTHORS.filter((r) => r.author_id === seedAuthor?.id).forEach((r) => existingIds.add(r.book_id));
+    }
     setSelectedAuthorBookIds(existingIds);
+    setInitialAuthorBookIds(new Set(existingIds));
     setShowAuthorModal(true);
   };
 
@@ -490,6 +500,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const handleSaveAuthor = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSavingAuthor) return;
     if (!authorForm.name.trim()) {
       alert('Nama penulis wajib diisi.');
       return;
@@ -498,89 +509,57 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       const arr = raw.split('\n').map(l => l.trim()).filter(Boolean);
       return arr.length > 0 ? arr : '';
     };
-    const finalPhoto = tempAuthorPhotoPreview || authorForm.photo_url || '';
-    const bookIdsArr = [...selectedAuthorBookIds];
-    const timestamp = new Date().toISOString();
-    if (editingAuthor) {
-      const updated: Author = {
-        ...editingAuthor,
-        name: authorForm.name.trim(),
-        academic_titles: authorForm.academic_titles.trim(),
-        photo_url: finalPhoto,
-        scopus_id: authorForm.scopus_id.trim() || undefined,
-        orcid_id: authorForm.orcid_id.trim() || undefined,
-        linkedin_url: authorForm.linkedin_url.trim() || undefined,
-        email: authorForm.email.trim() || undefined,
-        profile_education: parseBio(authorForm.profile_education) as any,
-        work_experience: parseBio(authorForm.work_experience) as any,
-        organization_seminar: parseBio(authorForm.organization_seminar) as any,
-        publications: parseBio(authorForm.publications) as any
-      };
-      onUpdateAuthor?.(updated);
-      let savedAuthor = updated;
-      try {
-        savedAuthor = await apiClient.saveAuthor(updated, 'update');
-      } catch (err) {
-        showNotification(err instanceof Error
-          ? `Data penulis tersimpan lokal. Sinkron server gagal: ${err.message}`
-          : 'Data penulis tersimpan lokal. Sinkron server gagal.');
-        setShowAuthorModal(false);
-        setEditingAuthor(null);
-        setTempAuthorPhotoPreview(null);
-        return;
-      }
-      onUpdateAuthor?.(savedAuthor);
-      if (apiClient?.setAuthorBooks) {
-        try { await apiClient.setAuthorBooks(savedAuthor.id, bookIdsArr); } catch (_e) { /* ignore offline */ }
-      }
-      showNotification(`Data penulis ${savedAuthor.name} berhasil diperbarui.`);
-    } else {
-      const newId = crypto?.randomUUID ? crypto.randomUUID() : `auth-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-      const created: Author = {
-        id: newId,
-        name: authorForm.name.trim(),
-        academic_titles: authorForm.academic_titles.trim(),
-        photo_url: finalPhoto,
-        scopus_id: authorForm.scopus_id.trim() || undefined,
-        orcid_id: authorForm.orcid_id.trim() || undefined,
-        linkedin_url: authorForm.linkedin_url.trim() || undefined,
-        email: authorForm.email.trim() || undefined,
-        profile_education: parseBio(authorForm.profile_education) as any,
-        work_experience: parseBio(authorForm.work_experience) as any,
-        organization_seminar: parseBio(authorForm.organization_seminar) as any,
-        publications: parseBio(authorForm.publications) as any,
-        created_at: timestamp
-      };
-      onAddAuthor?.(created);
-      let savedAuthor = created;
-      try {
-        savedAuthor = await apiClient.saveAuthor(created, 'create');
-      } catch (err) {
-        showNotification(err instanceof Error
-          ? `Penulis tersimpan lokal. Sinkron server gagal: ${err.message}`
-          : 'Penulis tersimpan lokal. Sinkron server gagal.');
-        setShowAuthorModal(false);
-        setEditingAuthor(null);
-        setTempAuthorPhotoPreview(null);
-        return;
-      }
-      onUpdateAuthor?.(savedAuthor);
-      if (apiClient?.setAuthorBooks) {
-        try { await apiClient.setAuthorBooks(savedAuthor.id, bookIdsArr); } catch (_e) { /* ignore offline */ }
-      }
-      showNotification(`Penulis baru ${savedAuthor.name} berhasil ditambahkan.`);
+    const profile = {
+      name: authorForm.name.trim(),
+      academic_titles: authorForm.academic_titles.trim(),
+      photo_url: tempAuthorPhotoPreview || authorForm.photo_url || '',
+      scopus_id: authorForm.scopus_id.trim() || undefined,
+      orcid_id: authorForm.orcid_id.trim() || undefined,
+      linkedin_url: authorForm.linkedin_url.trim() || undefined,
+      email: authorForm.email.trim() || undefined,
+      profile_education: parseBio(authorForm.profile_education) as any,
+      work_experience: parseBio(authorForm.work_experience) as any,
+      organization_seminar: parseBio(authorForm.organization_seminar) as any,
+      publications: parseBio(authorForm.publications) as any
+    };
+    const payload: Author = editingAuthor
+      ? { ...editingAuthor, ...profile }
+      : {
+          id: crypto?.randomUUID ? crypto.randomUUID() : `auth-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+          ...profile,
+          created_at: new Date().toISOString()
+        };
+
+    // Daftar penulis baru diperbarui setelah server menyimpan; bila gagal, modal tetap terbuka untuk disimpan ulang.
+    setIsSavingAuthor(true);
+    let savedAuthor: Author;
+    try {
+      savedAuthor = await apiClient.saveAuthor(payload, editingAuthor ? 'update' : 'create');
+    } catch (err) {
+      setIsSavingAuthor(false);
+      showNotification(`Data penulis GAGAL disimpan ke server: ${err instanceof Error ? err.message : 'server tidak dapat dihubungi'}`);
+      return;
     }
+    if (editingAuthor) onUpdateAuthor?.(savedAuthor);
+    else onAddAuthor?.(savedAuthor);
+
+    // Relasi buku hanya dikirim bila checklist diubah, agar relasi yang sudah ada tidak terhapus.
+    const bookIdsArr = [...selectedAuthorBookIds];
+    const booksChanged = bookIdsArr.length !== initialAuthorBookIds.size || bookIdsArr.some((id) => !initialAuthorBookIds.has(id));
+    const relationsSaved = !booksChanged || await apiClient.setAuthorBooks(savedAuthor.id, bookIdsArr);
+    setIsSavingAuthor(false);
+    showNotification(`${editingAuthor ? `Data penulis ${savedAuthor.name} berhasil diperbarui.` : `Penulis baru ${savedAuthor.name} berhasil ditambahkan.`}${relationsSaved ? '' : ' Namun relasi buku gagal disimpan.'}`);
     setShowAuthorModal(false);
     setEditingAuthor(null);
     setTempAuthorPhotoPreview(null);
   };
 
-  const handleDeleteAuthor = async (id: string) => {
+  const handleDeleteAuthor = async (id: string, alreadyConfirmed = false) => {
     const target = (authors || []).find(a => a.id === id);
-    if (window.confirm(`Hapus penulis "${target?.name || id}" dari daftar penulis & kontributor? Aksi ini tidak bisa dibatalkan.`)) {
+    if (alreadyConfirmed || window.confirm(`Hapus penulis "${target?.name || id}" dari daftar penulis & kontributor? Aksi ini tidak bisa dibatalkan.`)) {
       const error = await onDeleteAuthor?.(id);
       showNotification(error
-        ? `Penulis dihapus dari tampilan, tetapi GAGAL dihapus di server: ${error}`
+        ? `Penulis GAGAL dihapus di server: ${error}`
         : `Penulis ${target?.name || ''} berhasil dihapus.`);
     }
     setAuthorDeleteConfirmId(null);
@@ -612,7 +591,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
     const sanitizedTitle = toTitleCase(formData.name.trim());
     const slug = formData.slug || sanitizedTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    const seedBook = editingBook?.id === 'book-25' ? INITIAL_BOOKS.find((book) => book.id === 'book-25') : undefined;
     // ISBN boleh kosong (buku Segera Terbit); harga 0 = "Harga menyusul".
     const isbn = (formData.isbn || '').trim();
     const harga = Math.max(0, Number(formData.harga) || 0);
@@ -627,15 +605,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         author: formData.author || 'Scientia Integritas Utama',
         category: (formData.category as BookCategory) || 'Perpajakan',
         isbn,
-        tahunTerbit: Number(formData.tahunTerbit) || editingBook.tahunTerbit || 2026,
-        jumlahHalaman: Number(formData.jumlahHalaman) || editingBook.jumlahHalaman || 300,
+        tahunTerbit: Number(formData.tahunTerbit) || editingBook.tahunTerbit || new Date().getFullYear(),
+        jumlahHalaman: Math.max(0, Number(formData.jumlahHalaman) || 0), // 0 = baris halaman disembunyikan
         ukuranBuku: formData.ukuranBuku || editingBook.ukuranBuku || '15.5 x 23 cm',
         harga,
         originalHarga: formData.originalHarga ? Number(formData.originalHarga) : undefined,
         discountPercentage: formData.discountPercentage ? Number(formData.discountPercentage) : undefined,
         releaseDate: formData.releaseDate || undefined,
         scheduledUpload: formData.scheduledUpload || undefined,
-        sinopsis: formData.sinopsis || seedBook?.sinopsis || '',
+        sinopsis: formData.sinopsis || '',
         linkPembelian: formData.linkPembelian || editingBook.linkPembelian || '#',
         bukuTerbaru: Boolean(formData.bukuTerbaru),
         penerbit: formData.penerbit || 'PT Scientia Integritas Utama',
@@ -658,8 +636,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         author: formData.author || 'Scientia Integritas Utama',
         category: (formData.category as BookCategory) || 'Perpajakan',
         isbn,
-        tahunTerbit: Number(formData.tahunTerbit) || 2026,
-        jumlahHalaman: Number(formData.jumlahHalaman) || 300,
+        tahunTerbit: Number(formData.tahunTerbit) || new Date().getFullYear(),
+        jumlahHalaman: Math.max(0, Number(formData.jumlahHalaman) || 0),
         ukuranBuku: formData.ukuranBuku || '15.5 x 23 cm',
         harga,
         originalHarga: formData.originalHarga ? Number(formData.originalHarga) : undefined,
@@ -2171,7 +2149,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <label className="font-semibold text-slate-700 block mb-1">Tahun Terbit</label>
                   <input
                     type="number"
-                    value={formData.tahunTerbit || 2026}
+                    value={formData.tahunTerbit ?? ''}
                     onChange={(e) => setFormData({ ...formData, tahunTerbit: Number(e.target.value) })}
                     className="w-full p-2 rounded-lg border border-slate-300 font-mono"
                   />
@@ -2180,7 +2158,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <label className="font-semibold text-slate-700 block mb-1">Jumlah Hlm</label>
                   <input
                     type="number"
-                    value={formData.jumlahHalaman || 350}
+                    min={0}
+                    value={formData.jumlahHalaman ?? ''}
                     onChange={(e) => setFormData({ ...formData, jumlahHalaman: Number(e.target.value) })}
                     className="w-full p-2 rounded-lg border border-slate-300 font-mono"
                   />
@@ -2672,7 +2651,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       onClick={(e) => {
                         e.preventDefault();
                         if (window.confirm(`Hapus penulis "${editingAuthor.name}"? Aksi ini tidak bisa dibatalkan.`)) {
-                          handleDeleteAuthor(editingAuthor.id);
+                          handleDeleteAuthor(editingAuthor.id, true);
                           setShowAuthorModal(false);
                           setEditingAuthor(null);
                         }
@@ -2685,10 +2664,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   )}
                   <button
                     type="submit"
-                    className="px-5 py-2 text-xs font-bold rounded-lg bg-[#0F172A] text-[#DFBF64] hover:bg-slate-800 cursor-pointer transition-colors shadow-sm border border-[#D4AF37]/40 flex items-center justify-center gap-1.5"
+                    disabled={isSavingAuthor}
+                    className="px-5 py-2 text-xs font-bold rounded-lg bg-[#0F172A] text-[#DFBF64] hover:bg-slate-800 cursor-pointer transition-colors shadow-sm border border-[#D4AF37]/40 flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-wait"
                   >
                     <CheckCircle className="w-3.5 h-3.5" />
-                    <span>{editingAuthor ? 'Simpan Perubahan' : 'Simpan Penulis Baru'}</span>
+                    <span>{isSavingAuthor ? 'Menyimpan ke server...' : editingAuthor ? 'Simpan Perubahan' : 'Simpan Penulis Baru'}</span>
                   </button>
                 </div>
               </div>

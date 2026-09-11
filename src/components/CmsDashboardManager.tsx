@@ -79,9 +79,9 @@ export const CmsDashboardManager: React.FC<CmsDashboardManagerProps> = ({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [expandedCareerId, setExpandedCareerId] = useState<string | null>('car-mgr-publishing');
 
-  // Sync state if prop changes
+  // Sync state if prop changes — kecuali admin masih punya perubahan yang belum disimpan.
   React.useEffect(() => {
-    setContent(siteContent);
+    if (!hasUnsavedChanges) setContent(siteContent);
   }, [siteContent]);
 
   const showToast = (msg: string) => {

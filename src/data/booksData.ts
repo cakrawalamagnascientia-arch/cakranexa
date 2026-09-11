@@ -347,7 +347,7 @@ const RAW_BOOKS: Book[] = [
     jumlahHalaman: 0,
     ukuranBuku: '155 x 230 mm (UNESCO B5)',
     harga: 195000,
-    sinopsis: "Buku ini menyajikan analisis mendalam mengenai berbagai tantangan dalam penanganan kejahatan ekonomi di Indonesia, seperti penghindaran pajak, pencucian uang, korupsi, dan penipuan finansial. Kejahatan tersebut tidak hanya menimbulkan kerugian finansial yang signifikan, tetapi juga mengancam stabilitas ekonomi nasional serta mengurangi kepercayaan publik terhadap institusi pemerintah. Salah satu fokus utama yang dibahas adalah kelemahan penerapan sanksi pidana pajak, khususnya terkait struktur pidana denda yang dianggap kurang efektif dalam memulihkan kerugian pada pendapatan Negara. Oleh karena itu, penataan kembali sistem sanksi tersebut dianggap sangat penting untuk menciptakan efek jera yang nyata serta melindungi kepentingan Negara secara optimal.\n\nDari sudut pandang teoretis, buku ini menggunakan economic theory of crime yang menggambarkan kejahatan sebagai keputusan rasional, di mana pelaku mempertimbangkan manfaat ekonomis dibanding risiko hukuman. Perspektif ini memperjelas urgensi adanya penegakan hukum yang kuat, regulasi yang efektif, serta edukasi publik guna menekan peluang kejahatan. Selain itu, analisis dalam buku ini mempertimbangkan aspek sosial-ekonomi dan psikologis yang memengaruhi efektivitas hukuman. Penulis juga memadukan pendekatan economic analysis of law melalui cost-benefit analysis, behavioral theory, dan konsep efisiensi pareto, untuk menghasilkan regulasi pidana pajak yang lebih adil dan efisien. Selain pendekatan formal, buku ini mengangkat alternatif pendekatan keadilan restoratif yang lebih memperhatikan pemulihan korban, rehabilitasi pelaku, serta harmoni komunitas. Prinsip ultimum remedium yang memungkinkan penyelesaian non-yuridis melalui mekanisme administratif juga dibahas sebagai solusi efektif yang telah menunjukkan hasil positif di Indonesia.\n\nAkhirnya, buku ini merekomendasikan revisi regulasi pidana pajak agar lebih tegas, transparan, dan berorientasi pada pemulihan kerugian pada pendapatan Negara, sehingga tercipta keseimbangan antara efek jera, keadilan sosial, dan efisiensi ekonomi.",
+    sinopsis: "Berangkat dari premis bahwa investigasi yang efektif selalu berbasis bukti dan dipicu sinyal khusus, AUDIT INVESTIGATIF KONTEMPORER: KONSEP DAN TEKNIK menyajikan peta jalan praktis untuk menelusuri kecurangan, dari dugaan awal hingga perbaikan berkelanjutan yang dapat dipertanggungjawabkan. Buku ini memosisikan audit investigatif sebagai penugasan trigger-based, fokus, dan mendalam, yang hasilnya harus defensible di forum tata kelola maupun peradilan. Circular flow audit investigatif adalah: Predikasi → Perencanaan → Pengumpulan Bukti → Analisis → Pelaporan → Tindak Lanjut → kembali ke Predikasi. Siklus ini memastikan setiap langkah terhubung ke hipotesis yang jelas, rencana bukti yang proporsional terhadap risiko, serta akuntabilitas yang dapat diaudit.\n\nDi tataran tata kelola, audit investigatif ditempatkan di persilangan standar audit sektor publik/internal dengan hukum acara pidana dan rezim kepatuhan. Keberhasilannya bertumpu pada mandat yang jelas, tone at the top, peran aktif dewan/komite audit, independensi audit internal, serta protokol eskalasi dan komunikasi yang rapi dengan regulator dan aparat penegak hukum (APH). Tanpa fondasi ini, investigasi mudah merosot menjadi ritual tanpa daya probatif, dan dengan fondasi ini, investigasi mampu memulihkan kerugian, memperbaiki proses, dan memperkuat reputasi. Secara praktis, buku ini memperlihatkan sinergi forensik digital + kerangka standar yang ketat + analitik canggih. Kombinasi tersebut memungkinkan organisasi untuk menghasilkan temuan siap litigasi dan berdaya probatif, memulihkan kerugian dan menutup jalur kebocoran aset, memperbaiki kontrol dan budaya sehingga ketahanan meningkat, serta menjaga kepercayaan pasar dan kepentingan publik.\n\nRingkasnya, karya ini adalah panduan lapangan dan sekaligus rujukan tata kelola. Audit investigatif yang berbasis hipotesis, proporsional terhadap risiko, berpusat pada bukti, etis, berbasis standar, dan akuntabel, mengarahkan organisasi dari dugaan menuju kepastian yang dapat dipertanggungjawabkan, dan dari krisis menuju perbaikan berkelanjutan. Cocok bagi auditor internal/eksternal, komite audit, penyidik forensik digital, dan manajer kepatuhan yang membutuhkan kerangka kerja modern untuk menuntaskan kasus dengan rapi, cepat, dan valid di mata regulator maupun pengadilan.",
     linkPembelian: '#',
     bukuTerbaru: true,
     penerbit: 'PT Scientia Integritas Utama',
@@ -365,8 +365,8 @@ const RAW_BOOKS: Book[] = [
     tahunTerbit: 2025,
     jumlahHalaman: 0,
     ukuranBuku: '155 x 230 mm (UNESCO B5)',
-    harga: 0,
-    sinopsis: "",
+    harga: 135000,
+    sinopsis: "Buku ini menyajikan analisis mendalam mengenai berbagai tantangan dalam penanganan kejahatan ekonomi di Indonesia, seperti penghindaran pajak, pencucian uang, korupsi, dan penipuan finansial. Kejahatan tersebut tidak hanya menimbulkan kerugian finansial yang signifikan, tetapi juga mengancam stabilitas ekonomi nasional serta mengurangi kepercayaan publik terhadap institusi pemerintah. Salah satu fokus utama yang dibahas adalah kelemahan penerapan sanksi pidana pajak, khususnya terkait struktur pidana denda yang dianggap kurang efektif dalam memulihkan kerugian pada pendapatan Negara. Oleh karena itu, penataan kembali sistem sanksi tersebut dianggap sangat penting untuk menciptakan efek jera yang nyata serta melindungi kepentingan Negara secara optimal.\n\nDari sudut pandang teoretis, buku ini menggunakan economic theory of crime yang menggambarkan kejahatan sebagai keputusan rasional, di mana pelaku mempertimbangkan manfaat ekonomis dibanding risiko hukuman. Perspektif ini memperjelas urgensi adanya penegakan hukum yang kuat, regulasi yang efektif, serta edukasi publik guna menekan peluang kejahatan. Selain itu, analisis dalam buku ini mempertimbangkan aspek sosial-ekonomi dan psikologis yang memengaruhi efektivitas hukuman. Penulis juga memadukan pendekatan economic analysis of law melalui cost-benefit analysis, behavioral theory, dan konsep efisiensi pareto, untuk menghasilkan regulasi pidana pajak yang lebih adil dan efisien. Selain pendekatan formal, buku ini mengangkat alternatif pendekatan keadilan restoratif yang lebih memperhatikan pemulihan korban, rehabilitasi pelaku, serta harmoni komunitas. Prinsip ultimum remedium yang memungkinkan penyelesaian non-yuridis melalui mekanisme administratif juga dibahas sebagai solusi efektif yang telah menunjukkan hasil positif di Indonesia.\n\nAkhirnya, buku ini merekomendasikan revisi regulasi pidana pajak agar lebih tegas, transparan, dan berorientasi pada pemulihan kerugian pada pendapatan Negara, sehingga tercipta keseimbangan antara efek jera, keadilan sosial, dan efisiensi ekonomi.",
     linkPembelian: '#',
     bukuTerbaru: true,
     penerbit: 'PT Scientia Integritas Utama',
@@ -505,20 +505,29 @@ const PDF_AUTHOR_BY_SLUG: Record<string, string> = {
   ,'audit-investigatif-kontemporer-konsep-dan-teknik': 'Yudha Pramana & Andi Banua Adams'
 };
 
-/** Menyamakan atribusi card buku dengan kolom Author pada PDF katalog resmi. */
-export const normalizeBookAuthors = (book: Book): Book => ({
-  ...book,
-  author: PDF_AUTHOR_BY_SLUG[book.slug] || book.author
-});
+/**
+ * Menyamakan atribusi card buku dengan kolom Author pada PDF katalog resmi, selama penulis belum
+ * diubah admin (masih kosong atau sama dengan data bawaan).
+ */
+export const normalizeBookAuthors = (book: Book): Book => {
+  const pdfAuthor = PDF_AUTHOR_BY_SLUG[book.slug];
+  if (!pdfAuthor) return book;
+  const seedAuthor = INITIAL_BOOKS.find((candidate) => candidate.slug === book.slug)?.author;
+  return !book.author || book.author === seedAuthor ? { ...book, author: pdfAuthor } : book;
+};
 
 export const withLocalBookCover = (book: Book): Book => {
   const localBook = INITIAL_BOOKS.find((candidate) => candidate.id === book.id);
-  const coverPath = localBook?.coverBuku || book.coverBuku || '';
-  const isScientiaIntegritasTitle = /\/images\/books\/(?:7|8|9|10|11|12|13|14|15|16|17)\./i.test(coverPath);
+  // Cover lama (kosong, placeholder <id>.jpg, atau Unsplash) diganti cover lokal; cover yang diunggah admin dipertahankan.
+  const hasOwnCover = Boolean(book.coverBuku)
+    && book.coverBuku !== `/images/books/${book.id}.jpg`
+    && !/unsplash\.com/i.test(book.coverBuku);
+  const coverBuku = hasOwnCover ? book.coverBuku : localBook?.coverBuku || book.coverBuku;
+  const isScientiaIntegritasTitle = /\/images\/books\/(?:7|8|9|10|11|12|13|14|15|16|17)\./i.test(localBook?.coverBuku || coverBuku || '');
   return {
     ...normalizeBookAuthors(book),
-    ...(localBook ? { coverBuku: localBook.coverBuku } : {}),
-    ...(isScientiaIntegritasTitle ? { penerbit: 'PT Scientia Integritas Utama' } : {})
+    coverBuku,
+    ...(isScientiaIntegritasTitle && !book.penerbit ? { penerbit: 'PT Scientia Integritas Utama' } : {})
   };
 };
 
