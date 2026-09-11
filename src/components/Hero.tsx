@@ -77,6 +77,8 @@ const DEFAULT_HERO_SLIDES: HeroSlideType[] = [
   }
 ];
 
+const COMPANY_PILLARS = ['Books', 'Journals', 'Research', 'Education', 'Seminars', 'Digital Knowledge'];
+
 const LOCAL_HERO_BANNERS = [
   '/images/banners/hero-literatur.png',
   '/images/banners/hero-hukum-pajak.png',
@@ -198,7 +200,35 @@ export const Hero: React.FC<HeroProps> = ({
 
       {/* Main Content Container */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
-        
+
+        {/* Company Identity & Ecosystem Tagline */}
+        <div className="flex flex-col items-center">
+          <p className="text-lg sm:text-2xl md:text-3xl font-semibold uppercase tracking-[0.18em] sm:tracking-[0.22em] text-white leading-tight">
+            PT Cakrawala
+          </p>
+          <p className="mt-1 text-xs sm:text-base md:text-lg font-medium uppercase tracking-[0.3em] sm:tracking-[0.38em] text-slate-200">
+            Magna Scientia
+          </p>
+
+          <div className="mt-3 flex items-center gap-3 w-full max-w-xs sm:max-w-sm" aria-hidden="true">
+            <span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#D4AF37]" />
+            <span className="w-1.5 h-1.5 rotate-45 bg-[#D4AF37]" />
+            <span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#D4AF37]" />
+          </div>
+
+          <p className="mt-3 text-sm sm:text-base md:text-lg font-semibold tracking-wide text-[#DFBF64]">
+            Knowledge Ecosystem
+          </p>
+          <ul className="mt-1.5 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-[11px] sm:text-sm text-slate-300 font-medium max-w-2xl">
+            {COMPANY_PILLARS.map((pillar, index) => (
+              <li key={pillar} className="flex items-center gap-2.5">
+                {index > 0 && <span className="w-1 h-1 rounded-full bg-[#D4AF37]" aria-hidden="true" />}
+                <span>{pillar}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
         {/* Tagline Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-700 text-[#DFBF64] text-[10px] sm:text-xs uppercase tracking-wider font-semibold shadow-xs">
           <IconComponent className="w-3.5 h-3.5 text-[#DFBF64] shrink-0" />
