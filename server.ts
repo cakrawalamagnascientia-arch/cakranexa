@@ -5,7 +5,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { INITIAL_BOOKS, normalizeBookAuthors } from './src/data/booksData';
-import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthorProfile } from './src/data/authorsData';
+import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthorProfile, authorNameKey } from './src/data/authorsData';
 import type { Book, Author, Book as BookType } from './src/types';
 
 // Load environment variables
@@ -70,6 +70,51 @@ let inMemoryBookAuthors: Array<{ id?: string; book_id: string; author_id: string
   ...r,
   created_at: new Date().toISOString()
 }));
+
+// Konten CMS (singleton site_content id=1). Field deletedRecords menyimpan buku/penulis bawaan
+// (seed) yang sudah dihapus admin, agar tidak muncul lagi saat katalog Supabase digabung dengan seed.
+type DeletedRecords = { books: string[]; authors: string[] };
+let inMemorySiteContent: any = null;
+let deletedRecords: DeletedRecords = { books: [], authors: [] };
+
+const isUuid = (value: string): boolean => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+
+async function loadSiteContent(): Promise<any | null> {
+  if (supabaseAdmin) {
+    const { data, error } = await supabaseAdmin.from('site_content').select('content_data').eq('id', 1).maybeSingle();
+    if (!error) inMemorySiteContent = data?.content_data ?? null;
+  }
+  const stored = inMemorySiteContent?.deletedRecords;
+  deletedRecords = {
+    books: Array.isArray(stored?.books) ? stored.books : [],
+    authors: Array.isArray(stored?.authors) ? stored.authors : []
+  };
+  return inMemorySiteContent;
+}
+
+/** Simpan konten CMS; mengembalikan pesan error Supabase, atau null jika berhasil. */
+async function saveSiteContent(content: any): Promise<string | null> {
+  inMemorySiteContent = content;
+  if (!supabaseAdmin) return null;
+  const { error } = await supabaseAdmin.from('site_content').upsert({
+    id: 1,
+    content_data: content,
+    updated_at: new Date().toISOString()
+  });
+  return error ? error.message : null;
+}
+
+async function markSeedDeleted(kind: keyof DeletedRecords, key: string, deleted: boolean): Promise<void> {
+  if (!supabaseAdmin || !key) return; // mode in-memory: data yang dihapus sudah hilang dari memori
+  await loadSiteContent();
+  const keys = new Set(deletedRecords[kind]);
+  if (keys.has(key) === deleted) return;
+  if (deleted) keys.add(key);
+  else keys.delete(key);
+  deletedRecords = { ...deletedRecords, [kind]: [...keys] };
+  const error = await saveSiteContent({ ...(inMemorySiteContent || {}), deletedRecords });
+  if (error) console.warn('Supabase deletedRecords save warning:', error);
+}
 
 // ============================================================================
 // HELPERS
@@ -142,14 +187,22 @@ const bookToRow = (b: Book) => ({
 async function loadBooks(): Promise<Book[]> {
   if (supabaseAdmin) {
     const { data, error } = await supabaseAdmin.from('books').select('*').order('created_at', { ascending: true });
-    if (!error && data && data.length > 0) {
-      inMemoryBooks = data.map((row) => {
+    if (!error && data) {
+      await loadSiteContent();
+      const remoteBooks = data.map((row) => {
         const remote = rowToBook(row);
         const seed = INITIAL_BOOKS.find((book) => book.id === remote.id);
         return remote.id === 'book-25' && seed
           ? { ...remote, harga: remote.harga || seed.harga, sinopsis: remote.sinopsis || seed.sinopsis }
           : remote;
       });
+      const remoteIds = new Set(remoteBooks.map((book) => book.id));
+      const deletedIds = new Set(deletedRecords.books);
+      // Buku bawaan yang belum pernah disimpan ke Supabase tetap tampil, kecuali sudah dihapus admin.
+      inMemoryBooks = [
+        ...remoteBooks,
+        ...INITIAL_BOOKS.filter((book) => !remoteIds.has(book.id) && !deletedIds.has(book.id))
+      ];
     }
   }
   return inMemoryBooks;
@@ -204,8 +257,19 @@ async function loadAuthors(): Promise<Author[]> {
   if (supabaseAdmin) {
     try {
       const { data, error } = await supabaseAdmin.from('authors').select('*').order('name', { ascending: true });
-      if (!error && Array.isArray(data) && data.length > 0) {
-        inMemoryAuthors = data.map(rowToAuthor);
+      if (!error && Array.isArray(data)) {
+        await loadSiteContent();
+        const remoteAuthors = data.map(rowToAuthor);
+        const remoteKeys = new Set(remoteAuthors.map((author) => authorNameKey(author.name)));
+        const deletedKeys = new Set(deletedRecords.authors);
+        // Penulis bawaan yang belum ada di Supabase tetap tampil, kecuali sudah dihapus admin.
+        inMemoryAuthors = [
+          ...remoteAuthors,
+          ...INITIAL_AUTHORS.filter((author) => {
+            const key = authorNameKey(author.name);
+            return !remoteKeys.has(key) && !deletedKeys.has(key);
+          })
+        ];
       }
     } catch (err) {
       console.warn('Supabase authors load fallback ke in-memory:', (err as any)?.message);
@@ -234,6 +298,16 @@ async function loadBookAuthors(): Promise<typeof inMemoryBookAuthors> {
   return inMemoryBookAuthors;
 }
 
+/** Cari penulis berdasarkan id; id seed lama ("author-1") dicocokkan lewat nama bila sudah pindah ke UUID. */
+const findAuthorIndex = (id: string): number => {
+  const direct = inMemoryAuthors.findIndex((a) => a.id === id);
+  if (direct >= 0 || isUuid(id)) return direct;
+  const seed = INITIAL_AUTHORS.find((a) => a.id === id);
+  if (!seed) return -1;
+  const key = authorNameKey(seed.name);
+  return inMemoryAuthors.findIndex((a) => authorNameKey(a.name) === key);
+};
+
 const attachAuthorBooks = (author: Author, allBooks: BookType[]): Author => {
   const rels = inMemoryBookAuthors.filter((r) => r.author_id === author.id).sort((a, b) => a.author_order - b.author_order);
   const books = rels
@@ -249,26 +323,30 @@ const safeEqual = (a: string, b: string): boolean => {
   return crypto.timingSafeEqual(ab, bb);
 };
 
-// ---- Admin session store (in-memory, 12 jam) --------------------------------
+// ---- Admin token (ditandatangani HMAC, 12 jam) ------------------------------
+// Token tidak disimpan di memori, sehingga tetap sah setelah server Render tidur/restart
+// dan di setiap instance serverless. Mengganti ADMIN_PASSWORD membatalkan semua token.
 const ADMIN_SESSION_TTL_MS = 12 * 60 * 60 * 1000;
-const adminSessions = new Map<string, number>(); // token -> expiresAt
+const ADMIN_TOKEN_SECRET = crypto.createHash('sha256').update(`cakranexa-admin-token:${ADMIN_PASSWORD}:${ADMIN_API_KEY}`).digest();
+const revokedAdminTokens = new Set<string>(); // logout (best effort, per instance)
 
-const issueAdminToken = (): string => {
-  const token = crypto.randomBytes(32).toString('hex');
-  adminSessions.set(token, Date.now() + ADMIN_SESSION_TTL_MS);
-  return token;
+const signAdminToken = (payload: string): string =>
+  crypto.createHmac('sha256', ADMIN_TOKEN_SECRET).update(payload).digest('hex');
+
+const issueAdminToken = (): { token: string; expiresAt: number } => {
+  const expiresAt = Date.now() + ADMIN_SESSION_TTL_MS;
+  const payload = `${expiresAt}.${crypto.randomBytes(16).toString('hex')}`;
+  return { token: `${payload}.${signAdminToken(payload)}`, expiresAt };
 };
 
 const isValidAdminToken = (token: string | undefined): boolean => {
   if (!token) return false;
   if (ADMIN_API_KEY && safeEqual(token, ADMIN_API_KEY)) return true; // static key untuk integrasi server-to-server
-  const exp = adminSessions.get(token);
-  if (!exp) return false;
-  if (exp < Date.now()) {
-    adminSessions.delete(token);
-    return false;
-  }
-  return true;
+  if (!ADMIN_PASSWORD || revokedAdminTokens.has(token)) return false;
+  const [expiresAt, nonce, signature] = token.split('.');
+  if (!expiresAt || !nonce || !signature) return false;
+  if (!safeEqual(signature, signAdminToken(`${expiresAt}.${nonce}`))) return false;
+  return Number(expiresAt) > Date.now();
 };
 
 /** Middleware: wajib Authorization: Bearer <token> atau header x-admin-key */
@@ -484,15 +562,15 @@ async function startServer() {
     if (!password || !safeEqual(password, ADMIN_PASSWORD)) {
       return res.status(401).json({ error: 'Password admin salah.' });
     }
-    const token = issueAdminToken();
-    return res.json({ token, expiresAt: new Date(Date.now() + ADMIN_SESSION_TTL_MS).toISOString() });
+    const { token, expiresAt } = issueAdminToken();
+    return res.json({ token, expiresAt: new Date(expiresAt).toISOString() });
   });
 
   app.get('/api/admin/me', requireAdmin, (_req, res) => res.json({ ok: true }));
 
   app.post('/api/admin/logout', requireAdmin, (req, res) => {
     const auth = req.headers.authorization || '';
-    if (auth.startsWith('Bearer ')) adminSessions.delete(auth.slice(7).trim());
+    if (auth.startsWith('Bearer ')) revokedAdminTokens.add(auth.slice(7).trim());
     res.json({ ok: true });
   });
 
@@ -534,6 +612,7 @@ async function startServer() {
       if (supabaseAdmin) {
         const { error } = await supabaseAdmin.from('books').upsert(bookToRow(bookData));
         if (error) return res.status(500).json({ error: `Supabase: ${error.message}` });
+        await markSeedDeleted('books', bookData.id, false);
       }
       return res.status(201).json({ success: true, book: bookData });
     } catch (err: any) {
@@ -547,6 +626,7 @@ async function startServer() {
     if (supabaseAdmin) {
       const { error } = await supabaseAdmin.from('books').delete().eq('id', id);
       if (error) return res.status(500).json({ error: `Supabase: ${error.message}` });
+      await markSeedDeleted('books', id, true);
     }
     return res.json({ success: true, message: 'Buku berhasil dihapus' });
   });
@@ -831,7 +911,7 @@ async function startServer() {
         google_ads_conversion_label: s.googleAdsConversionLabel,
         updated_at: s.updatedAt
       });
-      if (error) console.warn('Supabase SEO save warning:', error.message);
+      if (error) return res.status(500).json({ error: `Supabase: ${error.message}` });
     }
     return res.json({ success: true, settings: inMemorySeoSettings });
   });
@@ -839,36 +919,25 @@ async function startServer() {
   // ==========================================================================
   // SITE CONTENT (CMS)
   // ==========================================================================
-  let inMemorySiteContent: any = null;
-
   app.get('/api/site-content', async (_req, res) => {
-    if (supabaseAdmin) {
-      try {
-        const { data, error } = await supabaseAdmin.from('site_content').select('content_data').eq('id', 1).maybeSingle();
-        if (!error && data?.content_data) {
-          inMemorySiteContent = data.content_data;
-          return res.json(inMemorySiteContent);
-        }
-      } catch (err) {
-        console.warn('Supabase site_content fetch fallback:', err);
-      }
+    try {
+      await loadSiteContent();
+    } catch (err) {
+      console.warn('Supabase site_content fetch fallback:', err);
     }
-    if (inMemorySiteContent) return res.json(inMemorySiteContent);
-    return res.status(204).end(); // belum ada konten tersimpan -> client pakai default
+    if (!inMemorySiteContent) return res.status(204).end(); // belum ada konten tersimpan -> client pakai default
+    const publicContent = { ...inMemorySiteContent };
+    delete publicContent.deletedRecords;
+    return res.json(publicContent);
   });
 
   app.post('/api/site-content', requireAdmin, async (req, res) => {
     try {
-      inMemorySiteContent = { ...req.body, updatedAt: new Date().toISOString() };
-      if (supabaseAdmin) {
-        const { error } = await supabaseAdmin.from('site_content').upsert({
-          id: 1,
-          content_data: inMemorySiteContent,
-          updated_at: inMemorySiteContent.updatedAt
-        });
-        if (error) console.warn('Supabase site_content save warning:', error.message);
-      }
-      return res.json({ success: true, content: inMemorySiteContent });
+      await loadSiteContent(); // ambil deletedRecords terbaru agar tidak tertimpa isi CMS dari browser
+      const content = { ...req.body, deletedRecords, updatedAt: new Date().toISOString() };
+      const error = await saveSiteContent(content);
+      if (error) return res.status(500).json({ error: `Supabase: ${error}` });
+      return res.json({ success: true, content });
     } catch (err: any) {
       return res.status(500).json({ error: err.message });
     }
@@ -914,7 +983,8 @@ async function startServer() {
       if (!body.name || !String(body.name).trim()) {
         return res.status(400).json({ error: 'Nama penulis wajib diisi.' });
       }
-      const newId = body.id || `author-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      // Kolom authors.id di Supabase bertipe UUID.
+      const newId = body.id && (!supabaseAdmin || isUuid(String(body.id))) ? String(body.id) : crypto.randomUUID();
       const now = new Date().toISOString();
       const payload: Author = {
         id: newId,
@@ -938,6 +1008,7 @@ async function startServer() {
         if (error) return res.status(500).json({ error: `Supabase: ${error.message}` });
       }
       inMemoryAuthors.push(payload);
+      await markSeedDeleted('authors', authorNameKey(payload.name), false);
       return res.status(201).json(payload);
     } catch (err: any) {
       return res.status(500).json({ error: err?.message || 'Gagal menyimpan penulis baru.' });
@@ -949,7 +1020,7 @@ async function startServer() {
     try {
       const id = String(req.params.id || '').trim();
       await loadAuthors();
-      const idx = inMemoryAuthors.findIndex((a) => a.id === id);
+      const idx = findAuthorIndex(id);
       if (idx < 0) return res.status(404).json({ error: 'Penulis tidak ditemukan.' });
       const body = req.body || {};
       const prev = inMemoryAuthors[idx];
@@ -962,11 +1033,22 @@ async function startServer() {
       };
       if (body.name) updated.name = String(body.name).trim();
       if (supabaseAdmin) {
-        const { error } = await supabaseAdmin
-          .from('authors')
-          .update(authorToRow(updated))
-          .eq('id', id);
+        // Penulis bawaan (id "author-N") belum punya baris di Supabase (kolom id bertipe UUID):
+        // simpan sebagai baris baru ber-UUID, lalu pindahkan relasi bukunya ke id baru.
+        if (!isUuid(prev.id)) updated.id = crypto.randomUUID();
+        const { error } = await supabaseAdmin.from('authors').upsert(authorToRow(updated));
         if (error) return res.status(500).json({ error: `Supabase: ${error.message}` });
+        if (updated.id !== prev.id) {
+          await loadBookAuthors();
+          inMemoryBookAuthors = inMemoryBookAuthors.map((r) => (r.author_id === prev.id ? { ...r, author_id: updated.id } : r));
+          const rows = inMemoryBookAuthors
+            .filter((r) => r.author_id === updated.id)
+            .map((r) => ({ book_id: r.book_id, author_id: updated.id, author_order: r.author_order }));
+          if (rows.length > 0) {
+            const { error: relError } = await supabaseAdmin.from('book_authors').insert(rows);
+            if (relError) console.warn('Supabase book_authors migrate warning:', relError.message);
+          }
+        }
       }
       inMemoryAuthors[idx] = updated;
       return res.json(updated);
@@ -980,19 +1062,23 @@ async function startServer() {
     try {
       const id = String(req.params.id || '').trim();
       await loadAuthors();
-      if (!inMemoryAuthors.some((a) => a.id === id)) {
+      const idx = findAuthorIndex(id);
+      if (idx < 0) {
         return res.status(404).json({ error: 'Penulis tidak ditemukan.' });
       }
+      const target = inMemoryAuthors[idx];
       await loadBookAuthors();
-      inMemoryAuthors = inMemoryAuthors.filter((a) => a.id !== id);
-      inMemoryBookAuthors = inMemoryBookAuthors.filter((r) => r.author_id !== id);
-      if (supabaseAdmin) {
-        const { error: e1 } = await supabaseAdmin.from('book_authors').delete().eq('author_id', id);
+      // Penulis bawaan (id non-UUID) tidak punya baris di Supabase; cukup ditandai terhapus.
+      if (supabaseAdmin && isUuid(target.id)) {
+        const { error: e1 } = await supabaseAdmin.from('book_authors').delete().eq('author_id', target.id);
         if (e1) return res.status(500).json({ error: `Supabase relasi: ${e1.message}` });
-        const { error: e2 } = await supabaseAdmin.from('authors').delete().eq('id', id);
+        const { error: e2 } = await supabaseAdmin.from('authors').delete().eq('id', target.id);
         if (e2) return res.status(500).json({ error: `Supabase author: ${e2.message}` });
       }
-      return res.json({ success: true, deletedId: id });
+      inMemoryAuthors = inMemoryAuthors.filter((a) => a.id !== target.id);
+      inMemoryBookAuthors = inMemoryBookAuthors.filter((r) => r.author_id !== target.id);
+      await markSeedDeleted('authors', authorNameKey(target.name), true);
+      return res.json({ success: true, deletedId: target.id });
     } catch (err: any) {
       return res.status(500).json({ error: err?.message || 'Gagal menghapus penulis.' });
     }
@@ -1001,15 +1087,17 @@ async function startServer() {
   // POST /api/authors/:id/books — (Admin) atur ulang relasi buku
   app.post('/api/authors/:id/books', requireAdmin, async (req, res) => {
     try {
-      const authorId = String(req.params.id || '').trim();
+      const requestedId = String(req.params.id || '').trim();
       const body = req.body || {};
       const bookIds: string[] = Array.isArray(body.book_ids)
         ? body.book_ids.map((s: any) => String(s))
         : [];
       await loadAuthors();
-      if (!inMemoryAuthors.some((a) => a.id === authorId)) {
+      const idx = findAuthorIndex(requestedId);
+      if (idx < 0) {
         return res.status(404).json({ error: 'Penulis tidak ditemukan.' });
       }
+      const authorId = inMemoryAuthors[idx].id;
       await loadBookAuthors();
       // Hapus relasi lama untuk author ini
       inMemoryBookAuthors = inMemoryBookAuthors.filter((r) => r.author_id !== authorId);
@@ -1024,7 +1112,7 @@ async function startServer() {
           created_at: now
         });
       });
-      if (supabaseAdmin) {
+      if (supabaseAdmin && isUuid(authorId)) {
         try {
           const { error: e1 } = await supabaseAdmin.from('book_authors').delete().eq('author_id', authorId);
           if (e1) console.warn('Supabase book_authors reset warning:', e1.message);

@@ -1,6 +1,6 @@
 import { Book, Order, OrderStatus, Author } from '../types';
 import { INITIAL_BOOKS, normalizeBookAuthors } from '../data/booksData';
-import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthorProfile } from '../data/authorsData';
+import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthorProfile, authorNameKey } from '../data/authorsData';
 import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
 import { getAdminToken, clearAdminToken } from './adminAuth';
 
@@ -27,6 +27,9 @@ const adminHeaders = (): Record<string, string> => {
   const token = getAdminToken();
   return token ? { ...jsonHeaders(), Authorization: `Bearer ${token}` } : jsonHeaders();
 };
+
+/** Batas waktu penyimpanan admin: server Render free tier butuh ±30-60 detik untuk bangun dari tidur. */
+const ADMIN_WRITE_TIMEOUT_MS = 60000;
 
 /** fetch dengan timeout agar UI tidak menggantung saat backend tidur (Render free tier) */
 export const fetchWithTimeout = async (input: string, init: RequestInit = {}, timeoutMs = 12000): Promise<Response> => {
@@ -193,16 +196,17 @@ export const apiClient = {
   // BOOKS
   // ==========================================================================
   /**
-   * Urutan sumber: 1) Express API (sumber kebenaran, sudah sinkron dengan Supabase)
+   * Urutan sumber: 1) Express API (sumber kebenaran; sudah menggabungkan buku bawaan & yang dihapus admin)
    *                2) Supabase langsung (anon key, read-only) jika API mati
-   *                3) Seed lokal INITIAL_BOOKS
+   * Mengembalikan null bila keduanya tidak terjangkau, agar pemanggil mempertahankan cache
+   * dan tidak menimpa perubahan admin dengan data bawaan.
    */
-  async getBooks(): Promise<Book[]> {
+  async getBooks(): Promise<Book[] | null> {
     try {
       const res = await fetchWithTimeout(apiUrl('/api/books'), { headers: jsonHeaders() });
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) return data as Book[];
+        if (Array.isArray(data)) return data as Book[];
       }
     } catch (err) {
       console.warn('REST API tidak tersedia, mencoba Supabase langsung:', err);
@@ -213,14 +217,18 @@ export const apiClient = {
         const client = getSupabaseClient();
         if (client) {
           const { data, error } = await client.from('books').select('*').order('created_at', { ascending: true });
-          if (!error && data && data.length > 0) return data.map(rowToBook);
+          if (!error && data) {
+            const remote = data.map(rowToBook);
+            const remoteIds = new Set(remote.map((book) => book.id));
+            return [...remote, ...INITIAL_BOOKS.filter((book) => !remoteIds.has(book.id))];
+          }
         }
       } catch (err) {
-        console.warn('Supabase query gagal, memakai data seed lokal:', err);
+        console.warn('Supabase query gagal:', err);
       }
     }
 
-    return INITIAL_BOOKS;
+    return null;
   },
 
   /** Admin: buat / perbarui buku (server melakukan upsert ke Supabase) */
@@ -229,7 +237,7 @@ export const apiClient = {
       method: 'POST',
       headers: adminHeaders(),
       body: JSON.stringify(book)
-    });
+    }, ADMIN_WRITE_TIMEOUT_MS);
     if (!res.ok) throw await parseError(res);
     const data = await res.json();
     return data.book as Book;
@@ -240,35 +248,40 @@ export const apiClient = {
     const res = await fetchWithTimeout(apiUrl(`/api/books/${encodeURIComponent(id)}`), {
       method: 'DELETE',
       headers: adminHeaders()
-    });
+    }, ADMIN_WRITE_TIMEOUT_MS);
     if (!res.ok) throw await parseError(res);
   },
 
   // ==========================================================================
   // AUTHORS (Penulis & Kontributor)
   // ==========================================================================
-  async getAuthors(): Promise<Author[]> {
+  /** Sama seperti getBooks: null bila server & Supabase tidak terjangkau. */
+  async getAuthors(): Promise<Author[] | null> {
     try {
       const res = await fetchWithTimeout(apiUrl('/api/authors'), { headers: jsonHeaders() }, 10000);
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) return data.map((r: any) => rowToAuthor(r));
+        if (Array.isArray(data)) return data.map((r: any) => rowToAuthor(r));
       }
     } catch (err) {
-      console.warn('REST API authors tidak tersedia, pakai seed lokal:', err);
+      console.warn('REST API authors tidak tersedia:', err);
     }
     if (isSupabaseConfigured()) {
       try {
         const client = getSupabaseClient();
         if (client) {
           const { data, error } = await client.from('authors').select('*').order('name', { ascending: true });
-          if (!error && data && data.length > 0) return data.map(rowToAuthor);
+          if (!error && data) {
+            const remote = data.map(rowToAuthor);
+            const remoteKeys = new Set(remote.map((author) => authorNameKey(author.name)));
+            return [...remote, ...INITIAL_AUTHORS.filter((author) => !remoteKeys.has(authorNameKey(author.name)))];
+          }
         }
       } catch (err) {
-        console.warn('Supabase author query gagal, pakai seed:', err);
+        console.warn('Supabase author query gagal:', err);
       }
     }
-    return INITIAL_AUTHORS.map((a) => ({ ...a }));
+    return null;
   },
 
   async getAuthorDetail(id: string): Promise<Author | null> {
@@ -299,7 +312,7 @@ export const apiClient = {
         headers: adminHeaders(),
         body: JSON.stringify(author)
       },
-      15000
+      ADMIN_WRITE_TIMEOUT_MS
     );
     if (!res.ok) throw await parseError(res);
     return rowToAuthor(await res.json());
@@ -310,7 +323,7 @@ export const apiClient = {
     const res = await fetchWithTimeout(apiUrl(`/api/authors/${encodeURIComponent(id)}`), {
       method: 'DELETE',
       headers: adminHeaders()
-    });
+    }, ADMIN_WRITE_TIMEOUT_MS);
     if (!res.ok) throw await parseError(res);
   },
 
@@ -321,7 +334,7 @@ export const apiClient = {
         method: 'POST',
         headers: adminHeaders(),
         body: JSON.stringify({ book_ids: bookIds })
-      });
+      }, ADMIN_WRITE_TIMEOUT_MS);
       return res.ok;
     } catch (err) {
       console.warn('setAuthorBooks gagal (offline-mode):', err);
@@ -438,7 +451,7 @@ export const apiClient = {
       method: 'POST',
       headers: adminHeaders(),
       body: JSON.stringify(settings)
-    });
+    }, ADMIN_WRITE_TIMEOUT_MS);
     if (!res.ok) throw await parseError(res);
     return true;
   },
@@ -459,7 +472,7 @@ export const apiClient = {
       method: 'POST',
       headers: adminHeaders(),
       body: JSON.stringify(content)
-    });
+    }, ADMIN_WRITE_TIMEOUT_MS);
     if (!res.ok) throw await parseError(res);
     return true;
   }

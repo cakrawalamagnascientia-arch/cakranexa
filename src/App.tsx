@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { INITIAL_BOOKS, withLocalBookCover } from './data/booksData';
-import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthors } from './data/authorsData';
+import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthors, authorNameKey } from './data/authorsData';
 import { Book, CartItem, Order, ActivePage, SubSection, BookCategory, SeoSettings, SiteContentSettings, Author } from './types';
 import { apiClient, ApiError } from './services/apiClient';
 import { parseLocation, pushRoute, RouteState } from './utils/router';
@@ -78,25 +78,35 @@ function mapServerOrder(r: any, books: Book[]): Order {
   };
 }
 
+const serverErrorMessage = (err: unknown): string =>
+  err instanceof ApiError ? err.message : 'Server tidak dapat dihubungi. Coba lagi beberapa saat.';
+
 export default function App() {
   const { t } = useLanguage();
+  // Harga/sinopsis bawaan mengisi data yang masih kosong.
+  const withSeedDefaults = (book: Book): Book => {
+    const initial = INITIAL_BOOKS.find((item) => item.id === book.id);
+    if (!initial) return book;
+    return {
+      ...initial,
+      ...book,
+      harga: book.harga || initial.harga,
+      sinopsis: book.sinopsis || initial.sinopsis
+    };
+  };
+
+  // Cache lokal (first paint) dilengkapi buku bawaan yang belum ada.
   const mergeInitialBooks = (existingBooks: Book[]): Book[] => {
-    const initialById = new Map(INITIAL_BOOKS.map((book) => [book.id, book]));
-    const mergedExisting = existingBooks.map((book) => {
-      const initial = initialById.get(book.id);
-      if (!initial) return book;
-      return {
-        ...initial,
-        ...book,
-        harga: book.harga || initial.harga,
-        sinopsis: book.sinopsis || initial.sinopsis
-      };
-    });
     const existingIds = new Set(existingBooks.map((book) => book.id));
     return [
-      ...mergedExisting,
+      ...existingBooks.map(withSeedDefaults),
       ...INITIAL_BOOKS.filter((book) => !existingIds.has(book.id))
     ];
+  };
+
+  const appendMissingSeedAuthors = (existingAuthors: Author[]): Author[] => {
+    const keys = new Set(existingAuthors.map((author) => authorNameKey(author.name)));
+    return [...existingAuthors, ...INITIAL_AUTHORS.filter((author) => !keys.has(authorNameKey(author.name)))];
   };
 
   // 1. Persistent Book Inventory State
@@ -159,12 +169,16 @@ export default function App() {
     };
   }, []);
 
-  const handleUpdateSiteContent = (newContent: SiteContentSettings) => {
+  /** Mengembalikan pesan error server, atau null bila tersimpan. */
+  const handleUpdateSiteContent = async (newContent: SiteContentSettings): Promise<string | null> => {
     setSiteContent(newContent);
     saveStoredSiteContent(newContent);
-    saveSiteContentApi(newContent).catch((err) => {
-      showNotification(err instanceof ApiError ? `Konten CMS tersimpan lokal, sinkron server gagal: ${err.message}` : 'Konten CMS tersimpan lokal (backend offline).');
-    });
+    try {
+      await saveSiteContentApi(newContent);
+      return null;
+    } catch (err) {
+      return serverErrorMessage(err);
+    }
   };
 
   useEffect(() => {
@@ -179,9 +193,10 @@ export default function App() {
   useEffect(() => {
     let isMounted = true;
     apiClient.getBooks().then((remoteBooks) => {
-      if (isMounted && remoteBooks && remoteBooks.length > 0) {
-        // Backend/Supabase adalah sumber kebenaran katalog; cache lokal hanya untuk first paint.
-        setBooks(mergeInitialBooks(remoteBooks).map((b) => ({
+      // null = server tidak terjangkau: pertahankan cache, jangan ditimpa data bawaan.
+      if (isMounted && remoteBooks) {
+        // Backend adalah sumber kebenaran katalog (sudah termasuk buku bawaan & yang dihapus admin).
+        setBooks(remoteBooks.map(withSeedDefaults).map((b) => ({
           ...withLocalBookCover(b),
           name: toTitleCase(b.name || ''),
           title: toTitleCase(b.title || b.name || '')
@@ -201,7 +216,7 @@ export default function App() {
       const saved = localStorage.getItem('cakranexa_authors_v1');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return normalizeAuthors([...INITIAL_AUTHORS, ...parsed]);
+        if (Array.isArray(parsed) && parsed.length > 0) return normalizeAuthors(appendMissingSeedAuthors(parsed));
       }
     } catch {
       // fallback to initial
@@ -220,8 +235,9 @@ export default function App() {
   useEffect(() => {
     let isMounted = true;
     apiClient.getAuthors().then((remoteAuthors) => {
-      if (isMounted && remoteAuthors && remoteAuthors.length > 0) {
-        setAuthors(normalizeAuthors([...INITIAL_AUTHORS, ...remoteAuthors]));
+      // Server sudah menggabungkan penulis bawaan; null = tidak terjangkau, pertahankan cache.
+      if (isMounted && remoteAuthors) {
+        setAuthors(normalizeAuthors(remoteAuthors));
       }
     }).catch((err) => {
       console.warn('Silent API authors sync fallback:', err);
@@ -642,11 +658,15 @@ export default function App() {
     });
   };
 
-  // Admin CRUD operations — state lokal diperbarui optimistis, lalu disinkronkan ke backend (Supabase)
-  const syncBookToServer = (book: Book, verb: string) => {
-    apiClient.saveBook(book).catch((err) => {
-      showNotification(err instanceof ApiError ? `Gagal ${verb} buku di server: ${err.message}` : `Buku ${verb} lokal saja (backend offline).`);
-    });
+  // Admin CRUD operations — state lokal diperbarui optimistis, lalu disinkronkan ke backend (Supabase).
+  // Handler mengembalikan pesan error (atau null bila tersimpan) agar dashboard admin menampilkan hasil sebenarnya.
+  const syncBookToServer = async (book: Book): Promise<string | null> => {
+    try {
+      await apiClient.saveBook(book);
+      return null;
+    } catch (err) {
+      return serverErrorMessage(err);
+    }
   };
 
   const sanitizeBook = (book: Book): Book => ({
@@ -660,29 +680,32 @@ export default function App() {
     tahunTerbit: Number(book.tahunTerbit) || new Date().getFullYear()
   });
 
-  const handleAddBook = (newBook: Book) => {
+  const handleAddBook = (newBook: Book): Promise<string | null> => {
     const sanitized = sanitizeBook(newBook);
     setBooks((prev) => [sanitized, ...prev]);
-    syncBookToServer(sanitized, 'menambah');
+    return syncBookToServer(sanitized);
   };
 
-  const handleUpdateBook = (updatedBook: Book) => {
+  const handleUpdateBook = (updatedBook: Book): Promise<string | null> => {
     const sanitized = sanitizeBook(updatedBook);
     setBooks((prev) => prev.map((b) => (b.id === sanitized.id ? sanitized : b)));
     if (selectedBook && selectedBook.id === sanitized.id) {
       setSelectedBook(sanitized);
     }
-    syncBookToServer(sanitized, 'memperbarui');
+    return syncBookToServer(sanitized);
   };
 
-  const handleDeleteBook = (id: string) => {
+  const handleDeleteBook = async (id: string): Promise<string | null> => {
     setBooks((prev) => prev.filter((b) => b.id !== id));
     if (selectedBook && selectedBook.id === id) {
       setSelectedBook(null);
     }
-    apiClient.deleteBook(id).catch((err) => {
-      showNotification(err instanceof ApiError ? `Gagal menghapus buku di server: ${err.message}` : 'Buku dihapus lokal saja (backend offline).');
-    });
+    try {
+      await apiClient.deleteBook(id);
+      return null;
+    } catch (err) {
+      return serverErrorMessage(err);
+    }
   };
 
   const handleToggleBukuTerbaru = (id: string) => {
@@ -690,7 +713,9 @@ export default function App() {
     if (!target) return;
     const toggled = { ...target, bukuTerbaru: !target.bukuTerbaru };
     setBooks((prev) => prev.map((b) => (b.id === id ? toggled : b)));
-    syncBookToServer(toggled, 'memperbarui');
+    syncBookToServer(toggled).then((error) => {
+      if (error) showNotification(`Gagal memperbarui buku di server: ${error}`);
+    });
   };
 
   const handleResetSeedData = () => {
@@ -741,20 +766,30 @@ export default function App() {
   };
 
   const handleUpdateAuthor = (updatedAuthor: Author) => {
-    setAuthors((prev) => normalizeAuthors(prev.map((a) => (a.id === updatedAuthor.id ? updatedAuthor : a))));
-    if (selectedAuthor && selectedAuthor.id === updatedAuthor.id) {
+    // Server bisa mengganti id penulis bawaan ("author-1") menjadi UUID Supabase; cocokkan lewat nama bila id berubah.
+    const key = authorNameKey(updatedAuthor.name);
+    setAuthors((prev) => {
+      const next = prev.some((a) => a.id === updatedAuthor.id)
+        ? prev.map((a) => (a.id === updatedAuthor.id ? updatedAuthor : a))
+        : [...prev.filter((a) => authorNameKey(a.name) !== key), updatedAuthor];
+      return normalizeAuthors(next);
+    });
+    if (selectedAuthor && (selectedAuthor.id === updatedAuthor.id || authorNameKey(selectedAuthor.name) === key)) {
       setSelectedAuthor(attachAuthorBooks(updatedAuthor));
     }
   };
 
-  const handleDeleteAuthor = (id: string) => {
+  const handleDeleteAuthor = async (id: string): Promise<string | null> => {
     setAuthors((prev) => prev.filter((a) => a.id !== id));
     if (selectedAuthor && selectedAuthor.id === id) {
       setSelectedAuthor(null);
     }
-    apiClient.deleteAuthor(id).catch((err) => {
-      showNotification(err instanceof ApiError ? `Gagal menghapus penulis di server: ${err.message}` : 'Penulis dihapus lokal saja (backend offline).');
-    });
+    try {
+      await apiClient.deleteAuthor(id);
+      return null;
+    } catch (err) {
+      return serverErrorMessage(err);
+    }
   };
 
   const handleSelectBook = (book: Book) => {

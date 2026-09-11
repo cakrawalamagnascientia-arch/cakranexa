@@ -72,12 +72,13 @@ interface AdminDashboardProps {
   books: BookType[];
   orders: Order[];
   authors?: Author[];
-  onAddBook: (book: BookType) => void;
-  onUpdateBook: (book: BookType) => void;
-  onDeleteBook: (id: string) => void;
+  // Handler penyimpanan mengembalikan pesan error server (atau null bila tersimpan).
+  onAddBook: (book: BookType) => void | Promise<string | null>;
+  onUpdateBook: (book: BookType) => void | Promise<string | null>;
+  onDeleteBook: (id: string) => void | Promise<string | null>;
   onAddAuthor?: (author: Author) => void;
   onUpdateAuthor?: (author: Author) => void;
-  onDeleteAuthor?: (id: string) => void;
+  onDeleteAuthor?: (id: string) => void | Promise<string | null>;
   onToggleBukuTerbaru: (id: string) => void;
   onResetSeedData: () => void;
   onViewBookDetail: (book: BookType) => void;
@@ -85,7 +86,7 @@ interface AdminDashboardProps {
   seoSettings?: SeoSettings;
   onUpdateSeoSettings?: (settings: SeoSettings) => void;
   siteContent?: SiteContentSettings;
-  onUpdateSiteContent?: (content: SiteContentSettings) => void;
+  onUpdateSiteContent?: (content: SiteContentSettings) => void | Promise<string | null>;
   onNavigateHome?: () => void;
   onGoBack?: () => void;
 }
@@ -129,13 +130,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   }, [siteContent]);
 
-  const handleSaveSiteContent = (newContent: SiteContentSettings) => {
+  // Status backend: peringatkan admin bila server berjalan tanpa database (perubahan tidak permanen).
+  const [backendHealth, setBackendHealth] = useState<{ supabaseConnected?: boolean } | null>(null);
+  React.useEffect(() => {
+    apiClient.health().then(setBackendHealth);
+  }, []);
+
+  /** Hasil disampaikan oleh CmsDashboardManager: pesan error server, atau null bila tersimpan. */
+  const handleSaveSiteContent = async (newContent: SiteContentSettings): Promise<string | null> => {
     setCmsContentState(newContent);
     saveStoredSiteContent(newContent);
-    if (onUpdateSiteContent) {
-      onUpdateSiteContent(newContent);
-    }
-    showNotification('Seluruh pengaturan CMS, Section Beranda, & Menu Navigasi berhasil diperbarui.');
+    const error = await onUpdateSiteContent?.(newContent);
+    return typeof error === 'string' ? error : null;
   };
 
   const handleResetSiteContent = () => {
@@ -173,6 +179,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // Modal states
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingBook, setEditingBook] = useState<BookType | null>(null);
+  const [isSavingBook, setIsSavingBook] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
 
@@ -365,7 +372,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       slug: '',
       author: 'Scientia Integritas Utama',
       category: 'Perpajakan',
-      isbn: '978-623-8120-' + Math.floor(10 + Math.random() * 90) + '-' + Math.floor(Math.random() * 9),
+      isbn: '',
       tahunTerbit: 2026,
       jumlahHalaman: 320,
       ukuranBuku: '15.5 x 23 cm (UNESCO B5)',
@@ -472,6 +479,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     const savedAuthors = results
       .filter((result): result is PromiseFulfilledResult<Author> => result.status === 'fulfilled')
       .map((result) => result.value);
+    // Server bisa memberi UUID baru untuk penulis bawaan; terapkan agar penyimpanan berikutnya memakai id itu.
+    savedAuthors.forEach((author) => onUpdateAuthor?.(author));
     setIsSavingAllAuthors(false);
     const failedCount = results.length - savedAuthors.length;
     showNotification(failedCount === 0
@@ -566,11 +575,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setTempAuthorPhotoPreview(null);
   };
 
-  const handleDeleteAuthor = (id: string) => {
+  const handleDeleteAuthor = async (id: string) => {
     const target = (authors || []).find(a => a.id === id);
     if (window.confirm(`Hapus penulis "${target?.name || id}" dari daftar penulis & kontributor? Aksi ini tidak bisa dibatalkan.`)) {
-      if (onDeleteAuthor) onDeleteAuthor(id);
-      showNotification(`Penulis ${target?.name || ''} berhasil dihapus.`);
+      const error = await onDeleteAuthor?.(id);
+      showNotification(error
+        ? `Penulis dihapus dari tampilan, tetapi GAGAL dihapus di server: ${error}`
+        : `Penulis ${target?.name || ''} berhasil dihapus.`);
     }
     setAuthorDeleteConfirmId(null);
   };
@@ -591,8 +602,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   };
 
-  const handleSaveBook = (e: React.FormEvent) => {
+  const handleSaveBook = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSavingBook) return;
     if (!formData.name) {
       alert('Nama buku wajib diisi.');
       return;
@@ -601,6 +613,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     const sanitizedTitle = toTitleCase(formData.name.trim());
     const slug = formData.slug || sanitizedTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const seedBook = editingBook?.id === 'book-25' ? INITIAL_BOOKS.find((book) => book.id === 'book-25') : undefined;
+    // ISBN boleh kosong (buku Segera Terbit); harga 0 = "Harga menyusul".
+    const isbn = (formData.isbn || '').trim();
+    const harga = Math.max(0, Number(formData.harga) || 0);
 
     if (editingBook) {
       const updated: BookType = {
@@ -611,11 +626,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         title: sanitizedTitle,
         author: formData.author || 'Scientia Integritas Utama',
         category: (formData.category as BookCategory) || 'Perpajakan',
-        isbn: formData.isbn || '978-623-8120-00-0',
+        isbn,
         tahunTerbit: Number(formData.tahunTerbit) || editingBook.tahunTerbit || 2026,
         jumlahHalaman: Number(formData.jumlahHalaman) || editingBook.jumlahHalaman || 300,
         ukuranBuku: formData.ukuranBuku || editingBook.ukuranBuku || '15.5 x 23 cm',
-        harga: Number(formData.harga) || editingBook.harga || seedBook?.harga || 200000,
+        harga,
         originalHarga: formData.originalHarga ? Number(formData.originalHarga) : undefined,
         discountPercentage: formData.discountPercentage ? Number(formData.discountPercentage) : undefined,
         releaseDate: formData.releaseDate || undefined,
@@ -626,8 +641,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         penerbit: formData.penerbit || 'PT Scientia Integritas Utama',
         coverBuku: formData.coverBuku || editingBook.coverBuku || ''
       };
-      onUpdateBook(updated);
-      showNotification(`Buku "${updated?.name || ''}" berhasil diperbarui.`);
+      setIsSavingBook(true);
+      const error = await onUpdateBook(updated);
+      setIsSavingBook(false);
+      if (error) {
+        showNotification(`Buku "${updated.name}" GAGAL disimpan ke server: ${error}`);
+        return; // form tetap terbuka agar bisa disimpan ulang
+      }
+      showNotification(`Buku "${updated.name}" berhasil disimpan ke server.`);
     } else {
       const newBook: BookType = {
         id: `book-${Date.now()}`,
@@ -636,11 +657,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         slug,
         author: formData.author || 'Scientia Integritas Utama',
         category: (formData.category as BookCategory) || 'Perpajakan',
-        isbn: formData.isbn || '978-623-8120-00-0',
+        isbn,
         tahunTerbit: Number(formData.tahunTerbit) || 2026,
         jumlahHalaman: Number(formData.jumlahHalaman) || 300,
         ukuranBuku: formData.ukuranBuku || '15.5 x 23 cm',
-        harga: Number(formData.harga) || 200000,
+        harga,
         originalHarga: formData.originalHarga ? Number(formData.originalHarga) : undefined,
         discountPercentage: formData.discountPercentage ? Number(formData.discountPercentage) : undefined,
         releaseDate: formData.releaseDate || '2026-06-01',
@@ -654,16 +675,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         rating: 5.0,
         reviewsCount: 1
       };
-      onAddBook(newBook);
-      showNotification(`Buku baru "${newBook?.name || ''}" berhasil ditambahkan ke katalog.`);
+      setIsSavingBook(true);
+      const error = await onAddBook(newBook);
+      setIsSavingBook(false);
+      if (error) {
+        showNotification(`Buku baru "${newBook.name}" GAGAL disimpan ke server: ${error}`);
+        return;
+      }
+      showNotification(`Buku baru "${newBook.name}" berhasil disimpan ke server.`);
     }
     setIsFormModalOpen(false);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (deleteConfirmId) {
-      onDeleteBook(deleteConfirmId);
-      showNotification('Buku berhasil dihapus dari sistem inventaris.');
+      const error = await onDeleteBook(deleteConfirmId);
+      showNotification(error
+        ? `Buku dihapus dari tampilan, tetapi GAGAL dihapus di server: ${error}`
+        : 'Buku berhasil dihapus dari server.');
       setDeleteConfirmId(null);
     }
   };
@@ -953,6 +982,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <LogOut className="w-4 h-4" />
           </button>
         </div>
+
+        {backendHealth?.supabaseConnected === false && (
+          <div role="alert" className="p-4 rounded-xl border border-rose-300 bg-rose-50 text-rose-800 text-xs leading-relaxed">
+            <p className="font-bold text-sm">Database belum terhubung: perubahan tidak permanen</p>
+            <p className="mt-1">
+              Server berjalan tanpa Supabase, sehingga perubahan buku, penulis, dan konten CMS hanya tersimpan di memori server
+              dan kembali ke data bawaan setiap kali server Render tidur/restart. Isi <strong>SUPABASE_URL</strong> dan{' '}
+              <strong>SUPABASE_SERVICE_ROLE_KEY</strong> di Environment Render, lalu deploy ulang.
+            </p>
+          </div>
+        )}
 
         {/* Global Page Header Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
@@ -2077,13 +2117,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {/* ISBN & Harga */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Nomor ISBN *</label>
+                  <label className="font-semibold text-slate-700 block mb-1">Nomor ISBN</label>
                   <input
                     type="text"
-                    required
                     value={formData.isbn || ''}
                     onChange={(e) => setFormData({ ...formData, isbn: e.target.value })}
-                    placeholder="978-623-8120-XX-X"
+                    placeholder="Kosongkan jika belum terbit, mis. 978-634-05-4139-7"
                     className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-slate-800 font-mono"
                   />
                 </div>
@@ -2092,7 +2131,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <input
                     type="number"
                     required
-                    value={formData.harga || 200000}
+                    min={0}
+                    value={formData.harga ?? 0}
                     onChange={(e) => setFormData({ ...formData, harga: Number(e.target.value) })}
                     className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-slate-800 font-mono"
                   />
@@ -2201,11 +2241,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {/* Sinopsis */}
               <div>
                 <label className="font-semibold text-slate-700 block mb-1">
-                  Sinopsis & Deskripsi Ilmiah Monografi *
+                  Sinopsis & Deskripsi Ilmiah Monografi
                 </label>
                 <textarea
                   rows={4}
-                  required
                   value={formData.sinopsis || ''}
                   onChange={(e) => setFormData({ ...formData, sinopsis: e.target.value })}
                   placeholder="Uraikan intisari naskah, latar belakang hukum, signifikansi riset..."
@@ -2263,9 +2302,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-[#DFBF64] font-bold cursor-pointer transition-colors"
+                  disabled={isSavingBook}
+                  className="px-5 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-[#DFBF64] font-bold cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-wait"
                 >
-                  {editingBook ? 'Simpan Perubahan' : 'Terbitkan Buku'}
+                  {isSavingBook ? 'Menyimpan ke server...' : editingBook ? 'Simpan Perubahan' : 'Terbitkan Buku'}
                 </button>
               </div>
 

@@ -56,7 +56,8 @@ import {
 interface CmsDashboardManagerProps {
   books: Book[];
   siteContent: SiteContentSettings;
-  onSaveContent: (updated: SiteContentSettings) => void;
+  /** Mengembalikan pesan error server, atau null bila tersimpan. */
+  onSaveContent: (updated: SiteContentSettings) => void | Promise<string | null>;
   onResetContent: () => void;
   onUpdateBook?: (book: Book) => void;
   onNavigateHome?: () => void;
@@ -93,10 +94,14 @@ export const CmsDashboardManager: React.FC<CmsDashboardManagerProps> = ({
     setHasUnsavedChanges(true);
   };
 
-  const handleSaveAll = () => {
-    onSaveContent(content);
+  const handleSaveAll = async () => {
+    const error = await onSaveContent(content);
+    if (error) {
+      showToast(`Perubahan tampil di browser ini, tetapi GAGAL disimpan ke server: ${error}`);
+      return; // tetap tandai belum tersimpan agar bisa disimpan ulang
+    }
     setHasUnsavedChanges(false);
-    showToast('Seluruh perubahan CMS & Konten Website berhasil disimpan secara realtime!');
+    showToast('Seluruh perubahan CMS & Konten Website berhasil disimpan ke server!');
   };
 
   const handleReset = () => {

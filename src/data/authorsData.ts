@@ -316,7 +316,7 @@ const AUTHOR_PHOTO_BY_NAME: Record<string, string> = {
   'dr yuli teguh hidayat sst mm': '/images/authors/yuli-teguh-hidayat.png'
 };
 
-const authorNameKey = (name: string): string => name
+export const authorNameKey = (name: string): string => name
   .toLowerCase()
   .replace(/[^a-z0-9]+/g, ' ')
   .trim();
