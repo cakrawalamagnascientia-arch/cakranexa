@@ -203,11 +203,8 @@ export const Hero: React.FC<HeroProps> = ({
 
         {/* Company Identity & Ecosystem Tagline */}
         <div className="flex flex-col items-center">
-          <p className="text-lg sm:text-2xl md:text-3xl font-semibold uppercase tracking-[0.18em] sm:tracking-[0.22em] text-white leading-tight">
-            PT Cakrawala
-          </p>
-          <p className="mt-1 text-xs sm:text-base md:text-lg font-medium uppercase tracking-[0.3em] sm:tracking-[0.38em] text-slate-200">
-            Magna Scientia
+          <p className="text-sm sm:text-2xl md:text-3xl font-semibold uppercase tracking-[0.12em] sm:tracking-[0.18em] text-white leading-tight">
+            PT Cakrawala Magna Scientia
           </p>
 
           <div className="mt-3 flex items-center gap-3 w-full max-w-xs sm:max-w-sm" aria-hidden="true">
