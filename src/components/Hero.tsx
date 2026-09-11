@@ -10,12 +10,14 @@ import {
   GraduationCap, 
   FileText
 } from 'lucide-react';
-import { Book, ActivePage, SubSection, HeroSlide as HeroSlideType } from '../types';
+import { Book, ActivePage, SubSection, HeroSlide as HeroSlideType, HeroBrandingSettings } from '../types';
+import { DEFAULT_SITE_CONTENT } from '../services/siteContentService';
 
 interface HeroProps {
   featuredBook?: Book;
   books?: Book[];
   slides?: HeroSlideType[];
+  branding?: HeroBrandingSettings;
   onNavigate?: (page: ActivePage, subSection?: SubSection) => void;
   onSelectBook?: (book: Book) => void;
   onExploreCatalog?: () => void;
@@ -77,8 +79,6 @@ const DEFAULT_HERO_SLIDES: HeroSlideType[] = [
   }
 ];
 
-const COMPANY_PILLARS = ['Books', 'Journals', 'Research', 'Education', 'Seminars', 'Digital Knowledge'];
-
 const LOCAL_HERO_BANNERS = [
   '/images/banners/hero-literatur.png',
   '/images/banners/hero-hukum-pajak.png',
@@ -86,9 +86,10 @@ const LOCAL_HERO_BANNERS = [
   '/images/banners/hero-peer-review.png'
 ];
 
-export const Hero: React.FC<HeroProps> = ({ 
+export const Hero: React.FC<HeroProps> = ({
   slides,
-  onNavigate, 
+  branding = DEFAULT_SITE_CONTENT.heroBranding,
+  onNavigate,
   onExploreCatalog,
   onPublishBook,
 }) => {
@@ -127,6 +128,13 @@ export const Hero: React.FC<HeroProps> = ({
   }, [isHovered, activeSlides.length]);
 
   const activeSlide = activeSlides[currentSlide] || activeSlides[0];
+
+  const companyName = branding.companyName?.trim() || '';
+  const brandTagline = branding.tagline?.trim() || '';
+  const brandPillars = [...(branding.pillars || [])]
+    .sort((a, b) => a.order - b.order)
+    .filter((pillar) => pillar.label?.trim());
+  const showBranding = branding.isEnabled !== false && Boolean(companyName || brandTagline || brandPillars.length);
 
   const getSlideIcon = (id: string) => {
     switch (id) {
@@ -202,29 +210,39 @@ export const Hero: React.FC<HeroProps> = ({
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
 
         {/* Company Identity & Ecosystem Tagline */}
-        <div className="flex flex-col items-center">
-          <p className="text-sm sm:text-2xl md:text-3xl font-semibold uppercase tracking-[0.12em] sm:tracking-[0.18em] text-white leading-tight">
-            PT Cakrawala Magna Scientia
-          </p>
+        {showBranding && (
+          <div className="flex flex-col items-center">
+            {companyName && (
+              <p className="text-sm sm:text-2xl md:text-3xl font-semibold uppercase tracking-[0.12em] sm:tracking-[0.18em] text-white leading-tight">
+                {companyName}
+              </p>
+            )}
 
-          <div className="mt-3 flex items-center gap-3 w-full max-w-xs sm:max-w-sm" aria-hidden="true">
-            <span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#D4AF37]" />
-            <span className="w-1.5 h-1.5 rotate-45 bg-[#D4AF37]" />
-            <span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#D4AF37]" />
+            {companyName && (brandTagline || brandPillars.length > 0) && (
+              <div className="mt-3 flex items-center gap-3 w-full max-w-xs sm:max-w-sm" aria-hidden="true">
+                <span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#D4AF37]" />
+                <span className="w-1.5 h-1.5 rotate-45 bg-[#D4AF37]" />
+                <span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#D4AF37]" />
+              </div>
+            )}
+
+            {brandTagline && (
+              <p className="mt-3 text-sm sm:text-base md:text-lg font-semibold tracking-wide text-[#DFBF64]">
+                {brandTagline}
+              </p>
+            )}
+            {brandPillars.length > 0 && (
+              <ul className="mt-1.5 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-[11px] sm:text-sm text-slate-300 font-medium max-w-2xl">
+                {brandPillars.map((pillar, index) => (
+                  <li key={pillar.id} className="flex items-center gap-2.5">
+                    {index > 0 && <span className="w-1 h-1 rounded-full bg-[#D4AF37]" aria-hidden="true" />}
+                    <span>{pillar.label}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-
-          <p className="mt-3 text-sm sm:text-base md:text-lg font-semibold tracking-wide text-[#DFBF64]">
-            Knowledge Ecosystem
-          </p>
-          <ul className="mt-1.5 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-[11px] sm:text-sm text-slate-300 font-medium max-w-2xl">
-            {COMPANY_PILLARS.map((pillar, index) => (
-              <li key={pillar} className="flex items-center gap-2.5">
-                {index > 0 && <span className="w-1 h-1 rounded-full bg-[#D4AF37]" aria-hidden="true" />}
-                <span>{pillar}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        )}
 
         {/* Tagline Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-700 text-[#DFBF64] text-[10px] sm:text-xs uppercase tracking-wider font-semibold shadow-xs">

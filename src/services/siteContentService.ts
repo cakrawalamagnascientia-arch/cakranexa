@@ -1,5 +1,5 @@
 import { apiClient } from './apiClient';
-import { SiteContentSettings } from '../types';
+import { HeroBrandingSettings, SiteContentSettings } from '../types';
 
 export const DEFAULT_SITE_CONTENT: SiteContentSettings = {
   brandName: 'CAKRA',
@@ -159,6 +159,21 @@ export const DEFAULT_SITE_CONTENT: SiteContentSettings = {
       order: 3
     }
   ],
+
+  // 2b. Hero Company Identity & Ecosystem Tagline (tampil di atas slide hero)
+  heroBranding: {
+    isEnabled: true,
+    companyName: 'PT CAKRAWALA MAGNA SCIENTIA',
+    tagline: 'Knowledge Ecosystem',
+    pillars: [
+      { id: 'pillar-books', label: 'Books', order: 1 },
+      { id: 'pillar-journals', label: 'Journals', order: 2 },
+      { id: 'pillar-research', label: 'Research', order: 3 },
+      { id: 'pillar-education', label: 'Education', order: 4 },
+      { id: 'pillar-seminars', label: 'Seminars', order: 5 },
+      { id: 'pillar-digital-knowledge', label: 'Digital Knowledge', order: 6 }
+    ]
+  },
 
   // 3. Section 2: Best Seller Smooth Running Listing Ticker
   bestSellerSection: {
@@ -864,6 +879,18 @@ export const DEFAULT_SITE_CONTENT: SiteContentSettings = {
 
 const SITE_CONTENT_STORAGE_KEY = 'cakranexa_dynamic_site_content_v1';
 
+// Konten lama (cache/server) belum punya heroBranding; daftar pilar kosong tetap dihormati.
+function normalizeHeroBranding(raw: any): HeroBrandingSettings {
+  const defaults = DEFAULT_SITE_CONTENT.heroBranding;
+  if (!raw || typeof raw !== 'object') return defaults;
+  return {
+    isEnabled: raw.isEnabled !== false,
+    companyName: typeof raw.companyName === 'string' ? raw.companyName : defaults.companyName,
+    tagline: typeof raw.tagline === 'string' ? raw.tagline : defaults.tagline,
+    pillars: Array.isArray(raw.pillars) ? raw.pillars : defaults.pillars
+  };
+}
+
 export function getStoredSiteContent(): SiteContentSettings {
   try {
     const raw = localStorage.getItem(SITE_CONTENT_STORAGE_KEY);
@@ -960,6 +987,7 @@ export function getStoredSiteContent(): SiteContentSettings {
           }
           return slides;
         })(),
+        heroBranding: normalizeHeroBranding(parsed.heroBranding),
         homeSections: parsed.homeSections || DEFAULT_SITE_CONTENT.homeSections,
         penerbitanPackages: parsed.penerbitanPackages || DEFAULT_SITE_CONTENT.penerbitanPackages,
         academicModules: parsed.academicModules || DEFAULT_SITE_CONTENT.academicModules,
@@ -1016,9 +1044,11 @@ export async function fetchSiteContentApi(): Promise<SiteContentSettings | null>
   const data = await apiClient.getSiteContent();
   if (data && typeof data === 'object' && Array.isArray((data as any).navigation)) {
     const legacyAddress = 'Gedung Graha Scientia Lt. 4, Jl. Salemba Raya No. 18, Jakarta Pusat 10430';
+    const stored = getStoredSiteContent();
     const merged = {
-      ...getStoredSiteContent(),
+      ...stored,
       ...data,
+      heroBranding: normalizeHeroBranding(data.heroBranding ?? stored.heroBranding),
       footer: {
         ...getStoredSiteContent().footer,
         ...(data.footer || {}),

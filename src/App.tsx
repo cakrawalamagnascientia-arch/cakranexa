@@ -843,6 +843,7 @@ export default function App() {
               <ScrollReveal direction="none" duration={0.5}>
                 <Hero
                   slides={siteContent.heroSlides}
+                  branding={siteContent.heroBranding}
                   onExploreCatalog={() => navigateTo('katalog')}
                   onPublishBook={() => navigateTo('penerbitan', 'kirim-naskah')}
                   onNavigate={navigateTo}

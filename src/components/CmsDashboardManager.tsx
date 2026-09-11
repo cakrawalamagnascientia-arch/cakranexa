@@ -4,8 +4,10 @@ import {
   SiteContentSettings, 
   SiteNavigationItem, 
   SiteSubmenuItem, 
-  HeroSlide, 
-  HomeSectionConfig, 
+  HeroSlide,
+  HeroBrandingSettings,
+  HeroBrandingPillar,
+  HomeSectionConfig,
   PenerbitanPackage, 
   WorkshopItem, 
   JournalItem, 
@@ -117,6 +119,30 @@ export const CmsDashboardManager: React.FC<CmsDashboardManagerProps> = ({
       onUpdateBook(updatedBook);
     }
     showToast(`Buku "${book.name.slice(0, 30)}..." ${!isCurrently ? 'dijadikan' : 'dihapus dari'} Best Seller.`);
+  };
+
+  // Hero Company Identity & Tagline Helpers
+  const heroBranding: HeroBrandingSettings = content.heroBranding ?? { isEnabled: true, companyName: '', tagline: '', pillars: [] };
+  const sortedPillars = [...heroBranding.pillars].sort((a, b) => a.order - b.order);
+
+  const updateHeroBranding = (patch: Partial<HeroBrandingSettings>) => {
+    handleFieldChange('heroBranding', { ...heroBranding, ...patch });
+  };
+
+  const setHeroPillars = (pillars: HeroBrandingPillar[]) => {
+    updateHeroBranding({ pillars: pillars.map((pillar, index) => ({ ...pillar, order: index + 1 })) });
+  };
+
+  const handleAddHeroPillar = () => {
+    setHeroPillars([...sortedPillars, { id: `pillar-${Date.now()}`, label: 'Pilar Baru', order: sortedPillars.length + 1 }]);
+  };
+
+  const handleMoveHeroPillar = (index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    if (target < 0 || target >= sortedPillars.length) return;
+    const next = [...sortedPillars];
+    [next[index], next[target]] = [next[target], next[index]];
+    setHeroPillars(next);
   };
 
   return (
@@ -235,7 +261,135 @@ export const CmsDashboardManager: React.FC<CmsDashboardManagerProps> = ({
       {/* ========================================================================= */}
       {subTab === 'bestseller-home' && (
         <div className="space-y-6 animate-in fade-in duration-200">
-          
+
+          {/* Card 0: Hero Company Identity & Ecosystem Tagline */}
+          <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <span className="p-2 rounded-lg bg-amber-50 text-amber-600 border border-amber-200">
+                  <Sparkles className="w-5 h-5" />
+                </span>
+                <div>
+                  <h2 className="text-base font-bold text-slate-900">Hero Beranda: Nama PT & Tagline Ekosistem</h2>
+                  <p className="text-xs text-slate-500">Nama perusahaan, tagline, dan daftar pilar yang tampil di atas slide hero beranda.</p>
+                </div>
+              </div>
+
+              <label className="inline-flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={heroBranding.isEnabled !== false}
+                  onChange={(e) => updateHeroBranding({ isEnabled: e.target.checked })}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#D4AF37]"></div>
+                <span className="text-xs font-bold text-slate-700">
+                  {heroBranding.isEnabled !== false ? 'Tampil di Hero' : 'Disembunyikan'}
+                </span>
+              </label>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Perusahaan (1 baris)</label>
+                <input
+                  type="text"
+                  value={heroBranding.companyName}
+                  onChange={(e) => updateHeroBranding({ companyName: e.target.value })}
+                  placeholder="PT CAKRAWALA MAGNA SCIENTIA"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#D4AF37] focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Tagline</label>
+                <input
+                  type="text"
+                  value={heroBranding.tagline}
+                  onChange={(e) => updateHeroBranding({ tagline: e.target.value })}
+                  placeholder="Knowledge Ecosystem"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#D4AF37] focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Pillars CRUD */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <label className="block text-xs font-semibold text-slate-700">Pilar Ekosistem ({sortedPillars.length})</label>
+                <button
+                  type="button"
+                  onClick={handleAddHeroPillar}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Tambah Pilar</span>
+                </button>
+              </div>
+
+              {sortedPillars.length === 0 && (
+                <p className="text-xs text-slate-400 italic">Belum ada pilar. Baris pilar tidak ditampilkan di hero.</p>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {sortedPillars.map((pillar, index) => (
+                  <div key={pillar.id} className="flex items-center gap-1.5 p-2 rounded-lg border border-slate-200 bg-slate-50">
+                    <span className="w-5 text-center text-[11px] font-bold text-slate-400 shrink-0">{index + 1}</span>
+                    <input
+                      type="text"
+                      value={pillar.label}
+                      onChange={(e) => setHeroPillars(sortedPillars.map((p) => (p.id === pillar.id ? { ...p, label: e.target.value } : p)))}
+                      placeholder="Nama pilar"
+                      className="flex-1 min-w-0 px-2.5 py-1.5 text-xs rounded-md border border-slate-300 bg-white focus:ring-2 focus:ring-[#D4AF37] focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleMoveHeroPillar(index, -1)}
+                      disabled={index === 0}
+                      className="p-1.5 rounded-md text-slate-500 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                      title="Naikkan urutan"
+                    >
+                      <ArrowUp className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleMoveHeroPillar(index, 1)}
+                      disabled={index === sortedPillars.length - 1}
+                      className="p-1.5 rounded-md text-slate-500 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                      title="Turunkan urutan"
+                    >
+                      <ArrowDown className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setHeroPillars(sortedPillars.filter((p) => p.id !== pillar.id))}
+                      className="p-1.5 rounded-md text-rose-500 hover:bg-rose-50 cursor-pointer"
+                      title="Hapus pilar"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Live Preview */}
+            <div className="rounded-lg bg-[#0F172A] px-4 py-5 text-center">
+              <p className="text-[10px] uppercase tracking-wider text-slate-500 mb-3">Pratinjau Hero</p>
+              {heroBranding.isEnabled === false ? (
+                <p className="text-xs text-slate-400">Blok nama PT & tagline disembunyikan dari hero.</p>
+              ) : (
+                <>
+                  <p className="text-sm sm:text-lg font-semibold uppercase tracking-[0.15em] text-white">{heroBranding.companyName}</p>
+                  <p className="mt-2 text-xs sm:text-sm font-semibold text-[#DFBF64]">{heroBranding.tagline}</p>
+                  <p className="mt-1 text-[11px] text-slate-300">
+                    {sortedPillars.map((p) => p.label.trim()).filter(Boolean).join('  •  ')}
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+
           {/* Card A: Section 2 Running Best Seller Listing Configuration */}
           <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">

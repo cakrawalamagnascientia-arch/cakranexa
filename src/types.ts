@@ -295,6 +295,19 @@ export interface HeroSlide {
   order: number;
 }
 
+export interface HeroBrandingPillar {
+  id: string;
+  label: string;
+  order: number;
+}
+
+export interface HeroBrandingSettings {
+  isEnabled: boolean;
+  companyName: string;
+  tagline: string;
+  pillars: HeroBrandingPillar[];
+}
+
 export interface BestSellerSectionSettings {
   isEnabled: boolean;
   badge: string;
@@ -492,6 +505,7 @@ export interface SiteContentSettings {
   companyCredentials: CompanyCredentials;
   navigation: SiteNavigationItem[];
   heroSlides: HeroSlide[];
+  heroBranding: HeroBrandingSettings;
   bestSellerSection: BestSellerSectionSettings;
   homeSections: HomeSectionConfig[];
   footer: FooterSettings;
