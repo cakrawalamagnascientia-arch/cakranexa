@@ -906,7 +906,8 @@ export default function App() {
               title={t('subheader.backTitle')}
             >
               <ArrowLeft className="w-4 h-4 text-[#DFBF64] group-hover:-translate-x-1 transition-transform" />
-              <span>{t('subheader.backLabel')}</span>
+              <span className="hidden sm:inline">{t('subheader.backLabel')}</span>
+              <span className="sm:hidden">{t('common:back')}</span>
             </button>
 
             <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">

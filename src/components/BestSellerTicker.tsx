@@ -210,7 +210,7 @@ export const BestSellerTicker: React.FC<BestSellerTickerProps> = ({
                       {/* Info & Meta */}
                       <div className="flex-1 min-w-0 flex flex-col justify-between text-left">
                         <div>
-                          <h3 className="font-semibold text-xs sm:text-sm text-white line-clamp-2 leading-snug group-hover/card:text-[#DFBF64] transition-colors">
+                          <h3 className="font-semibold text-xs sm:text-sm text-white line-clamp-2 leading-snug group-hover/card:text-[#DFBF64] transition-colors [overflow-wrap:anywhere]">
                             {toTitleCase(bookTitle)}
                           </h3>
                           <p className="text-[11px] text-slate-400 line-clamp-1 mt-1 font-normal">
@@ -255,21 +255,21 @@ export const BestSellerTicker: React.FC<BestSellerTickerProps> = ({
                           e.stopPropagation();
                           onAddToCart(book, e);
                         }}
-                        className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700/80 text-xs font-medium transition-colors cursor-pointer"
+                        className="w-full min-w-0 inline-flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700/80 text-xs font-medium transition-colors cursor-pointer"
                         title={t('common:actions.addToCart')}
                       >
-                        <ShoppingCart className="w-3.5 h-3.5 text-slate-300" />
-                        <span className="text-[11px]">{t('common:cart')}</span>
+                        <ShoppingCart className="w-3.5 h-3.5 shrink-0 text-slate-300" />
+                        <span className="text-[11px] min-w-0 truncate">{t('common:cart')}</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={(e) => handleBuy(book, e)}
-                        className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-lg bg-[#D4AF37] hover:bg-[#c5a059] text-slate-950 text-xs font-semibold transition-colors cursor-pointer"
+                        className="w-full min-w-0 inline-flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg bg-[#D4AF37] hover:bg-[#c5a059] text-slate-950 text-xs font-semibold transition-colors cursor-pointer"
                         title={t('common:actions.buyNow')}
                       >
-                        <span className="text-[11px]">{t('common:actions.buyNow')}</span>
-                        <ArrowRight className="w-3 h-3 text-slate-950" />
+                        <span className="text-[11px] min-w-0 truncate">{t('common:actions.buyNow')}</span>
+                        <ArrowRight className="w-3 h-3 shrink-0 text-slate-950" />
                       </button>
                     </div>
                   </div>

@@ -123,10 +123,12 @@
   },
   "book-28": {
     "en": {
-      "name": "Thin Capitalization in Indonesia: The Intersection of Investment, Compliance, and Tax Justice"
+      "name": "Thin Capitalization in Indonesia: The Intersection of Investment, Compliance, and Tax Justice",
+      "sinopsis": "In practice, a company's capital structure is an entirely reasonable business decision. Debt financing is often chosen for its efficiency, flexibility, and ability to fund expansion. In the tax context, however, a disproportionate share of debt can open the door to base erosion through excessive interest deductions, particularly in affiliated-party transactions. This is where thin capitalization becomes a “sensitive” issue, sitting on the border between legitimate business strategy and schemes that may lead to aggressive tax avoidance. The approach it requires therefore cannot be purely normative; it must be grounded in an understanding of business logic, the arm's length principle, risk management, and the ever-evolving dynamics of tax policy.\n\nThis book aims to provide a comprehensive yet practical overview of thin capitalization in Indonesia. Broadly, the discussion is organized around three main pillars. First, investment: how interest-deduction limitation rules and related regulations can be designed and applied without creating uncertainty that hampers the business climate. Second, compliance: how taxpayers can put in place adequate financing structures, documentation, and supporting evidence, and how tax authorities can assess them proportionately and on a risk basis. Third, tax fairness: how the system ensures that tax contributions reflect economic capacity, creates a level playing field among businesses, and safeguards state revenue without sacrificing the principle of fairness."
     },
     "zh": {
-      "name": "印度尼西亚资本弱化：投资、税收遵从与税收公平的交汇点"
+      "name": "印度尼西亚资本弱化：投资、税收遵从与税收公平的交汇点",
+      "sinopsis": "在实践中，企业的资本结构是一项完全正常的商业决策。企业常因效率、灵活性和扩张需要而选择债务融资。然而，在税收语境下，不成比例的债务可能通过过度确认利息费用而为税基侵蚀打开空间，关联交易中尤为如此。正因如此，资本弱化成为一个“敏感”议题，处于正当商业策略与可能导致激进避税的安排之间的边界。因此，所需的研究路径不能仅停留在规范层面，还必须结合对商业逻辑、独立交易原则、风险管理以及不断演变的税收政策动态的理解。\n\n本书旨在对印度尼西亚的资本弱化问题提供全面而实用的阐述。总体而言，讨论围绕三大主轴展开。第一，投资：如何设计和实施利息扣除限制规则及相关规定，同时避免产生阻碍营商环境的不确定性。第二，遵从：纳税人如何建立充分的融资结构、文档与举证，税务机关又如何以相称且基于风险的方式进行评估。第三，税收公平：税收制度如何确保税收贡献与经济负担能力相符，在经营者之间营造公平竞争环境，并在不牺牲公平原则的前提下维护国家财政收入。"
     }
   }
 }

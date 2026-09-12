@@ -85,7 +85,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center justify-between">
 
           {/* Left Brand Area: Brand Logo & Brand Name */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button
               id="brand-logo-btn"
               onClick={() => {
@@ -95,10 +95,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="flex items-center gap-2.5 sm:gap-3 text-left group transition-transform focus:outline-none cursor-pointer"
               aria-label={t('nav.homeAriaLabel')}
             >
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg bg-slate-900/90 border border-[#D4AF37]/50 p-1 shadow-sm flex items-center justify-center flex-shrink-0 group-hover:border-[#D4AF37] transition-all">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg bg-slate-900/90 border border-[#D4AF37]/50 p-1 shadow-sm flex items-center justify-center flex-shrink-0 group-hover:border-[#D4AF37] transition-all">
                 <CakraNexaLogo className="w-full h-full group-hover:scale-105 transition-transform" />
               </div>
-              <span className="text-xl sm:text-2xl font-bold tracking-tight text-white font-sans flex items-center">
+              <span className="text-lg sm:text-2xl font-bold tracking-tight text-white font-sans flex items-center">
                 CAKRA<span className="text-[#DFBF64]">NEXA</span>
               </span>
             </button>
@@ -448,7 +448,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Action Buttons: Search and Artistic Gold Cart */}
-          <div className="flex shrink-0 items-center space-x-2 sm:space-x-3">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-3">
             {/* Pilihan bahasa (desktop/tablet); di layar kecil tersedia di menu mobile */}
             <LanguageSwitcher className="hidden sm:flex" />
             {/* Quick Search */}
@@ -465,11 +465,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="btn-cart-trigger"
               onClick={onOpenCart}
-              className="bg-[#D4AF37] text-[#0F172A] p-2 px-4 rounded-sm text-[10px] uppercase font-black tracking-wider hover:bg-[#c5a059] transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+              className="bg-[#D4AF37] text-[#0F172A] p-2 px-2.5 sm:px-4 rounded-sm text-[10px] uppercase font-black tracking-wider hover:bg-[#c5a059] transition-all flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap"
               title={t('nav.cartTitle')}
+              aria-label={t('nav.cartButton', { quantity: cartCount })}
             >
               <ShoppingBag className="w-3.5 h-3.5" />
-              <span>{t('nav.cartButton', { quantity: cartCount })}</span>
+              {/* Layar kecil: ikon + jumlah saja agar tombol menu tetap muat */}
+              <span className="hidden sm:inline">{t('nav.cartButton', { quantity: cartCount })}</span>
+              <span className="sm:hidden">{cartCount}</span>
             </button>
 
             {/* Mobile Hamburger Toggle */}

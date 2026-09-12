@@ -73,7 +73,7 @@ export const BookCard: React.FC<BookCardProps> = ({
         {/* Title */}
         <h4
           onClick={() => onSelectBook(book)}
-          className="h-[5.5rem] line-clamp-4 text-xs sm:text-sm font-semibold leading-snug text-slate-900 group-hover:text-[#9A7B38] transition-colors mb-1 cursor-pointer"
+          className="h-[5.5rem] line-clamp-4 text-xs sm:text-sm font-semibold leading-snug text-slate-900 group-hover:text-[#9A7B38] transition-colors mb-1 cursor-pointer [overflow-wrap:anywhere]"
           title={displayTitle}
         >
           {displayTitle || t('card.titleFallback')}
@@ -157,11 +157,12 @@ export const BookCard: React.FC<BookCardProps> = ({
           <button
             id={`btn-buy-now-${book?.id}`}
             onClick={() => onQuickBuy(book)}
-            className="min-w-0 bg-[#D4AF37] hover:bg-[#c5a059] text-slate-950 h-8.5 px-2 sm:px-3 text-xs font-semibold transition-colors rounded-lg cursor-pointer whitespace-nowrap flex items-center justify-center gap-1.5 shadow-xs"
+            className="min-w-0 bg-[#D4AF37] hover:bg-[#c5a059] text-slate-950 h-8.5 px-1.5 sm:px-3 text-[11px] sm:text-xs font-semibold transition-colors rounded-lg cursor-pointer whitespace-nowrap flex items-center justify-center gap-1.5 shadow-xs"
             title={t('common:actions.buyNow')}
           >
-            <span>{t('common:actions.buyNow')}</span>
-            <ArrowRight className="w-3 h-3 text-slate-950" />
+            {/* Kartu sempit (2 kolom di ponsel): teks dipotong rapi, ikon panah disembunyikan */}
+            <span className="min-w-0 truncate">{t('common:actions.buyNow')}</span>
+            <ArrowRight className="hidden sm:block w-3 h-3 shrink-0 text-slate-950" />
           </button>
         </div>
         )}
