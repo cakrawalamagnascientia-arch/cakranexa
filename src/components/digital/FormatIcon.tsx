@@ -17,10 +17,17 @@ interface FormatIconProps {
 
 export const FormatIcon: React.FC<FormatIconProps> = ({ format, className = 'w-3.5 h-3.5', label }) => {
   const Icon = FORMAT_ICONS[format];
+  // Label lewat aria-label (bukan teks sr-only): elemen sr-only berposisi absolute bisa lolos dari
+  // kontainer scroll (mis. carousel buku) dan melebarkan halaman di ponsel.
   return (
-    <span className="inline-flex shrink-0" title={label}>
+    <span
+      className="inline-flex shrink-0"
+      title={label}
+      role={label ? 'img' : undefined}
+      aria-label={label}
+      aria-hidden={label ? undefined : true}
+    >
       <Icon className={className} aria-hidden="true" />
-      {label && <span className="sr-only">{label}</span>}
     </span>
   );
 };
