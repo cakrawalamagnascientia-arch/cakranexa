@@ -170,16 +170,16 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
 
           {/* Quick Assurance Badges */}
           <div className="grid grid-cols-2 gap-3 w-full max-w-sm mt-4 text-left">
-            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-start gap-2.5">
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-start gap-2.5 min-w-0">
               <ShieldCheck className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-              <div>
+              <div className="min-w-0">
                 <div className="text-xs font-bold text-slate-800">{t('assurance.officialIsbn')}</div>
                 <div className="text-[11px] text-slate-500 font-mono">{book?.isbn || t('assurance.isbnPending')}</div>
               </div>
             </div>
-            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-start gap-2.5">
+            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 flex items-start gap-2.5 min-w-0">
               <Building className="w-4 h-4 text-slate-700 mt-0.5 flex-shrink-0" />
-              <div>
+              <div className="min-w-0">
                 <div className="text-xs font-bold text-slate-800">{t('common:officialSeller')}</div>
                 <div className="text-[11px] text-slate-500 truncate">PT CAKRAWALA MAGNA SCIENTIA</div>
               </div>
@@ -211,7 +211,7 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
             )}
             {book?.coverQuote && (
               <blockquote className="mt-4 border-l-2 border-[#D4AF37] pl-4 text-sm text-slate-600 italic">
-                “{book.coverQuote}”
+                “{bookText.coverQuote(book)}”
               </blockquote>
             )}
 

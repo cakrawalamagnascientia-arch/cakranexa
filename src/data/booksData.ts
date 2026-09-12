@@ -1,5 +1,6 @@
 import { Book } from '../types';
 import { toTitleCase } from '../utils/formatters';
+import { BOOK_TRANSLATIONS } from './contentTranslations';
 
 /**
  * SUMBER TUNGGAL KATALOG — 17 judul sesuai dokumen resmi "Judul_buku_Cakranexa.pdf" (Sept 2026).
@@ -480,7 +481,9 @@ export const INITIAL_BOOKS: Book[] = RAW_BOOKS.map((book) => {
     ...book,
     name: normalizedTitle,
     title: normalizedTitle,
-    coverBuku: book.coverBuku || `/images/books/${book.id}.jpg`
+    coverBuku: book.coverBuku || `/images/books/${book.id}.jpg`,
+    // Terjemahan judul/sinopsis (en, zh) dari src/data/translations
+    i18n: BOOK_TRANSLATIONS[book.id]
   };
 });
 

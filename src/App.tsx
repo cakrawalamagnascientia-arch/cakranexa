@@ -113,7 +113,9 @@ export default function App() {
       ...initial,
       ...book,
       harga: book.harga ?? initial.harga,
-      sinopsis: book.sinopsis ?? initial.sinopsis
+      sinopsis: book.sinopsis ?? initial.sinopsis,
+      // Terjemahan bawaan dipakai bila data server belum punya terjemahan (mis. kolom i18n masih {}).
+      i18n: book.i18n && Object.keys(book.i18n).length > 0 ? book.i18n : initial.i18n
     };
   };
 

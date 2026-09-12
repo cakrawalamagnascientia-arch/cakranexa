@@ -1,0 +1,132 @@
+{
+  "book-16": {
+    "en": {
+      "name": "Mining Taxation in Indonesia: From Mineral Rent to Public Welfare",
+      "sinopsis": "Minerals and coal are not merely economic commodities but non-renewable public wealth. This book examines how mining taxation can serve as an instrument for balancing state sovereignty, fiscal justice, investment certainty, regional development, and environmental sustainability. Readers are invited to examine royalties, corporate income tax (PPh Badan), resource rent taxes, windfall taxes, BEPS, transfer pricing, reclamation funds, fiscal decentralization, transparency, the global minimum tax, and the pressures of decarbonization. This approach places questions of distribution at the heart of the analysis: who benefits, who bears the risks, and how the value of minerals is returned to society. The book is relevant to policymakers, tax officials, industry practitioners, academics, students, consultants, and all readers seeking to understand the future of mining fiscal governance in Indonesia."
+    },
+    "zh": {
+      "name": "印度尼西亚矿业税收：从矿产租金到公共福祉",
+      "sinopsis": "矿产与煤炭不仅是经济商品，更是不可再生的公共财富。本书探讨矿业税收如何作为一种政策工具，在国家主权、财政公平、投资确定性、地区发展与环境可持续性之间实现平衡。书中引导读者深入考察特许权使用费、企业所得税（PPh Badan）、资源租金税、暴利税、税基侵蚀与利润转移（BEPS）、转让定价、复垦基金、财政分权、透明度、全球最低税以及脱碳压力等议题。这一研究路径将分配问题置于分析的核心：谁从中获益，谁承担风险，以及矿产价值如何回馈社会。本书适合政策制定者、税务官员、行业从业者、学者、学生、顾问，以及希望了解印度尼西亚矿业财政治理未来走向的读者阅读。"
+    }
+  },
+  "book-17": {
+    "en": {
+      "name": "The Value Added Tax (VAT) Audit Trail: Technology, Invoicing, and Fraud Prevention in Indonesia",
+      "sinopsis": "Modern VAT is no longer merely a matter of rates, invoices, or reporting at the end of the tax period. Its central challenge is to maintain the continuity of information along the entire transaction chain so that data can be verified and fraud risks detected at an earlier stage. This book explains how the VAT audit trail forms the backbone of tax oversight; how the shift from paper invoices to e-invoicing transforms the invoice into a data object; and how system integration, prepopulated returns, risk analytics, and data-driven audits can strengthen compliance. The discussion also highlights fictitious invoices, illegitimate input tax claims, fraudulent refunds, data quality, the legal basis, taxpayer protection, and institutional capacity. The book is intended for tax officials, academics, consultants, business practitioners, auditors, students, and readers who wish to understand the direction of VAT transformation in the digital era."
+    },
+    "zh": {
+      "name": "增值税（PPN）审计轨迹：印度尼西亚的技术、开票与欺诈防范",
+      "sinopsis": "现代增值税（PPN）已不再仅仅关乎税率、发票或纳税期末的申报。其核心挑战在于确保整个交易链条中信息的连续性，使数据得以核验，欺诈风险得以更早发现。本书阐述增值税审计轨迹如何成为税收监管的支柱；从纸质发票向电子发票（e-invoicing）的转变如何使发票成为数据对象；以及系统集成、预填申报表、风险分析和基于数据的审计如何强化税收遵从。书中还重点讨论虚开发票、不当进项税额抵扣、虚假退税、数据质量、法律依据、纳税人权益保护以及机构能力等问题。本书面向税务官员、学者、顾问、企业经营者、审计人员、学生，以及希望了解数字时代增值税改革方向的读者。"
+    }
+  },
+  "book-18": {
+    "en": {
+      "name": "Treaty Shopping and Anti-Abuse: Law, Policy, and Enforcement",
+      "sinopsis": "Tax treaties are designed to reduce double taxation and support cross-border economic activity, yet engineered structures can divert treaty benefits to parties who are not entitled to them. This book explains treaty shopping and traces the evolution of anti-abuse approaches from formalism toward greater attention to economic substance, the purpose of transactions, and the legitimacy of treaty benefits. Readers are introduced to a range of instruments, including BEPS, the Multilateral Instrument, the Principal Purpose Test, Limitation on Benefits, and beneficial ownership, as well as the interplay among these instruments in enforcement. The Indonesian perspective is enriched by the experience of Japan, the United States, India, and other jurisdictions, demonstrating that there is no single solution to treaty abuse. The book emphasizes balance: the tax base must be firmly protected, while legal certainty, due process, and the investment climate must also be safeguarded."
+    },
+    "zh": {
+      "name": "择协避税（Treaty Shopping）与反滥用：法律、政策与执法",
+      "sinopsis": "税收协定旨在消除双重征税、促进跨境经济活动，但人为设计的交易架构可能使协定待遇落入本不应享有的主体手中。本书阐释择协避税现象，并梳理反滥用方法的演进——从形式主义转向更加重视经济实质、交易目的以及协定待遇的正当性。书中向读者介绍税基侵蚀与利润转移（BEPS）、《多边公约》（MLI）、主要目的测试（PPT）、利益限制条款（LOB）、受益所有人等多种工具，以及这些工具在执法中的相互关系。本书以印度尼西亚视角为基础，借鉴日本、美国、印度及其他法域的经验，表明应对协定滥用并不存在单一的解决方案。本书强调平衡：既要坚决保护税基，也须维护法律确定性、正当程序与投资环境。"
+    }
+  },
+  "book-19": {
+    "en": {
+      "name": "Actus Reus in Tax Crimes: Theory of Criminal Offenses, Objective Elements, and International Comparison",
+      "sinopsis": "Criminal tax enforcement requires clarity about precisely which prohibited conduct must be proven before the offender's culpable state of mind is assessed. This book positions actus reus as the entry point for mapping the objective elements of tax crimes: the subject, the act or omission, documents and transactions, fiscal consequences, causation, and the administrative context in which they arise. The discussion links the theory of criminal offenses with the realities of tax administration, evidence, audit procedures, and liability, while enriching the analysis through an international comparative perspective. This approach helps distinguish administrative errors and interpretive disputes from conduct that genuinely satisfies the elements of a criminal offense. The book is relevant to investigators, prosecutors, judges, consultants, advocates, academics, students, tax officials, and business practitioners who need an objective and measurable framework for analyzing tax crimes."
+    },
+    "zh": {
+      "name": "税务犯罪中的犯罪行为（Actus Reus）：犯罪理论、客观要件与国际比较",
+      "sinopsis": "税务刑事执法需要首先厘清究竟哪些被禁止的行为必须得到证明，然后才能评价行为人的主观罪过。本书以犯罪行为（actus reus）为切入点，系统梳理税务犯罪的客观要件：主体、作为或不作为、单据与交易、财政后果、因果关系，以及其背后的行政背景。书中将犯罪理论与税务行政实践、证据、税务检查程序及责任认定相结合，并通过国际比较视角深化分析。这一方法有助于区分行政性差错、法律解释争议与真正符合犯罪构成要件的行为。本书适合侦查人员、检察官、法官、顾问、律师、学者、学生、税务官员以及企业经营者阅读，为其理解税务犯罪提供客观、可衡量的分析框架。"
+    }
+  },
+  "book-20": {
+    "en": {
+      "name": "Financial Engineering for Volatile Public Cycles in Indonesia",
+      "sinopsis": "Volatility means that public financial management can no longer rely on a single projection. This book offers a financial engineering mindset for interpreting uncertainty, building fiscal resilience, and designing more adaptive financing options for Indonesia. The discussion focuses on the relationships among economic cycles, market risk, revenue and expenditure, liquidity needs, financing structures, and the intertemporal consequences of fiscal decisions. Rather than promising perfect predictions, the book emphasizes the design of policy portfolios, scenarios, buffers, disciplined risk measurement, and decision governance so that shocks do not automatically turn into crises. Written for policymakers, public finance managers, academics, students, economic analysts, and finance practitioners, it helps readers view state finances as a dynamic system that must be tested against a range of conditions, rather than merely as figures within a single budget year."
+    },
+    "zh": {
+      "name": "面向印度尼西亚波动性公共周期的金融工程",
+      "sinopsis": "在波动日益加剧的背景下，公共财政管理已不能仅依赖单一预测。本书提出以金融工程的思维方式解读不确定性、构建财政韧性，并为印度尼西亚设计更具适应性的融资方案。书中重点探讨经济周期、市场风险、财政收支、流动性需求、融资结构之间的关系，以及财政决策的跨期影响。本书并不承诺完美的预测，而是强调政策组合设计、情景分析、缓冲机制、严谨的风险计量以及决策治理，使冲击不致自动演变为危机。本书面向政策制定者、公共财政管理者、学者、学生、经济分析师及金融从业者，帮助读者将国家财政视为一个需要在多种情境下接受检验的动态系统，而非仅仅是某一预算年度中的数字。"
+    }
+  },
+  "book-21": {
+    "en": {
+      "name": "Evidence and Proof in Indonesian Tax Administration",
+      "sinopsis": "How does a tax fact become credible evidence? This book maps the law of evidence in Indonesian tax administration, from tax audits, objections, and appeals before the Tax Court to tax collection and the enforcement of judgments. Readers are guided through the relationship between the constitutional foundations, the General Provisions and Tax Procedures Law (UU KUP), the Tax Court Law, the rules on electronic information, government administration law, and technical regulations in the evidentiary process. The discussion addresses who bears the burden of proof, how the quality and relevance of evidence are assessed, and how documents, statements, witnesses, experts, and digital evidence are used proportionately. The Indonesian perspective is enriched by comparisons with the Netherlands and the United States. The book is relevant to tax officials, judges, consultants, advocates, academics, students, and taxpayers who need a systematic framework for thinking about fair proof within a self-assessment system."
+    },
+    "zh": {
+      "name": "印度尼西亚税收征管中的证据与证明",
+      "sinopsis": "一项税务事实如何成为可信的证据？本书系统梳理印度尼西亚税收征管中的证据法，涵盖税务检查、异议、向税务法院提起上诉，直至税款征收与判决执行的全过程。书中引导读者理解宪法基础、《税收一般规定与程序法》（UU KUP）、《税务法院法》、电子信息相关规定、政府行政管理法以及技术性法规在证明过程中的相互关系。书中探讨由谁承担举证责任、如何评估证据的质量与关联性，以及如何合比例地运用书证、陈述、证人、专家意见和电子证据等问题。本书以印度尼西亚视角为基础，辅以荷兰与美国的比较研究。本书适合税务官员、法官、顾问、律师、学者、学生以及纳税人阅读，为其在自行申报纳税（self-assessment）制度下思考公正的证明提供系统框架。"
+    }
+  },
+  "book-22": {
+    "en": {
+      "name": "The Bible That Reads Us",
+      "subtitle": "Becoming Human Interpreters from the Torah to the Prophets",
+      "sinopsis": "This book invites readers into a crucial reversal in the interpretation of Scripture: we do not merely read the Bible; we are also read by it. Moving from the foundations of hermeneutics, the human interpreter, revelation and text, the Torah, historical narrative, poetry and wisdom, to the Prophets, readers are led to recognize that they are never neutral before the Word.\n\nWith academic rigor and spiritual sensitivity, the book affirms that faith and rigor are not opposites. Language, history, genre, canon, and tradition must be studied with humility, while the motives, power structures, and ethical fruit of every interpretation are continually tested.\n\nThrough four movements—observe, recognize, test, and respond—readers are directed toward an obedience that is concrete, corrective, and growing within community. The book also situates the reading of the Bible within Indonesia's public responsibilities: plurality, justice, the dignity of one's neighbor, vulnerability, and hope.\n\nUltimately, the aim of this book is not to produce those who are quickest to answer, but people who are most trustworthy when they speak about God: bold because they have listened, gentle because they are aware of their limitations, critical because they love, and hopeful because they believe that God has not finished His work."
+    },
+    "zh": {
+      "name": "圣经在阅读我们",
+      "subtitle": "从律法书到先知书，成为释经之人",
+      "sinopsis": "本书邀请读者进入圣经诠释中的一个重要反转：我们不仅在阅读圣经，也在被圣经阅读。从诠释学的基础、作为释经者的人、启示与文本、律法书、历史叙事、诗歌与智慧文学，一直到先知书，读者将逐步意识到，自己在神的话语面前从来不是中立的。\n\n本书兼具学术上的严谨与属灵上的敏锐，强调信仰与严谨并非对立。语言、历史、文体、正典与传统都需要以谦卑的态度加以研习，同时不断检视每一种诠释背后的动机、权力结构及其伦理果效。\n\n借助四个步骤——观察、辨识、检验与回应——本书引导读者走向具体的、能自我纠正并在群体中不断成长的顺服。本书还将圣经阅读置于印度尼西亚的公共责任之中：多元性、公义、邻舍的尊严、脆弱性与盼望。\n\n归根结底，本书的目的不是培养回答最快的人，而是造就在谈论神时最值得信赖的人：因曾聆听而勇敢，因自知有限而温柔，因心怀爱而具批判精神，因相信神的工作尚未完成而满怀盼望。"
+    }
+  },
+  "book-23": {
+    "en": {
+      "name": "Sent in Power",
+      "subtitle": "Flowing in the Gifts, Leading with Integrity, and Setting the World Ablaze",
+      "coverQuote": "The power of the Holy Spirit is not given to build a personal stage, but to build up the body of Christ and to serve the world.",
+      "sinopsis": "This book invites readers to understand that the power of the Holy Spirit is not given to build a personal stage, but to build up the body of Christ and to serve the world. The gifts of the Spirit are not merely awe-inspiring spiritual phenomena, but means of grace that must be exercised with love, order, humility, and responsibility.\n\nWritten in clear language and firmly grounded in Scripture, the book helps readers understand, test, and practice the gifts of the Spirit in a healthy way. The discussion then connects these gifts concretely with evangelism, social ministry, leadership, spiritual warfare, and the formation of a church that makes an impact on society.\n\nThe book also affirms that integrity is the vessel for power. Gifts without character can wound, whereas power guided by love, holiness, and truth will set the world ablaze with a living witness. Readers are therefore invited not only to receive power, but also to be shaped into people who can be trusted in ministry.\n\nIt is ideally suited to those who serve the Lord, church leaders, mentors, evangelists, ministry workers, prayer teams, mission communities, ministry training schools, and congregations who wish to grow in the gifts of the Spirit in a safe, healthy, and responsible manner."
+    },
+    "zh": {
+      "name": "在能力中蒙差遣",
+      "subtitle": "在恩赐中涌流，以正直带领，点燃世界",
+      "coverQuote": "圣灵的能力并非赐下来搭建个人的舞台，而是为了建造基督的身体，并服事这个世界。",
+      "sinopsis": "本书帮助读者认识到：圣灵的能力并非赐下来搭建个人的舞台，而是为了建造基督的身体，并服事这个世界。圣灵的恩赐不只是令人惊叹的属灵现象，更是恩典的管道，必须以爱心、秩序、谦卑与责任感来运用。\n\n本书语言清晰，圣经根基扎实，帮助读者以健全的方式理解、察验和操练圣灵的恩赐。书中进而将相关讨论具体联系到传福音、社会关怀事工、领导力、属灵争战，以及建立对社会产生影响力的教会。\n\n本书同时强调，正直的品格是承载能力的器皿。缺乏品格的恩赐可能伤人，而由爱、圣洁与真理所引导的能力，将以鲜活的见证点燃世界。因此，读者不仅被邀请去领受能力，更被邀请接受塑造，成为在事奉中值得信赖的人。\n\n本书非常适合传道人、教会领袖、属灵导师、布道者、事工同工、祷告团队、宣教群体、事工培训学校，以及渴望在圣灵恩赐中安全、健康、负责任地成长的会众阅读。"
+    }
+  },
+  "book-24": {
+    "en": {
+      "name": "Contemporary Investigative Auditing: Concepts and Techniques",
+      "sinopsis": "Proceeding from the premise that effective investigation is always evidence-based and triggered by specific signals, Contemporary Investigative Auditing: Concepts and Techniques presents a practical roadmap for tracing fraud, from initial suspicion to sustained and accountable remediation. The book positions investigative auditing as a trigger-based, focused, and in-depth engagement whose results must be defensible in both governance forums and the courts. The circular flow of investigative auditing is: Predication → Planning → Evidence Gathering → Analysis → Reporting → Follow-up → back to Predication. This cycle ensures that every step is linked to a clear hypothesis, an evidence plan proportionate to risk, and auditable accountability.\n\nAt the governance level, investigative auditing sits at the intersection of public-sector and internal audit standards, criminal procedure law, and compliance regimes. Its success rests on a clear mandate, tone at the top, the active role of the board and audit committee, the independence of internal audit, and well-ordered protocols for escalation and communication with regulators and law enforcement authorities (APH). Without this foundation, an investigation easily degenerates into a ritual lacking probative force; with it, an investigation can recover losses, improve processes, and strengthen reputation. In practical terms, the book demonstrates the synergy of digital forensics + a rigorous standards framework + advanced analytics. This combination enables organizations to produce litigation-ready findings with probative value, recover losses and close off channels of asset leakage, improve controls and culture to enhance resilience, and preserve market confidence and the public interest.\n\nIn short, this work is both a field guide and a governance reference. Investigative auditing that is hypothesis-driven, risk-proportionate, evidence-centered, ethical, standards-based, and accountable guides organizations from suspicion to defensible certainty, and from crisis to continuous improvement. It is well suited to internal and external auditors, audit committees, digital forensic investigators, and compliance managers who need a modern framework for resolving cases thoroughly, swiftly, and validly in the eyes of both regulators and the courts."
+    },
+    "zh": {
+      "name": "当代调查性审计：概念与技术",
+      "sinopsis": "有效的调查始终以证据为基础，并由特定信号触发。立足于这一前提，《当代调查性审计：概念与技术》为追查舞弊提供了一份实用路线图，涵盖从初步怀疑到可问责的持续改进的全过程。本书将调查性审计定位为一种由触发事件启动（trigger-based）、目标聚焦且深入细致的专项任务，其结果必须在治理层面和司法程序中均经得起检验。调查性审计的循环流程为：调查依据（Predication）→ 计划 → 取证 → 分析 → 报告 → 后续跟进 → 回到调查依据。这一循环确保每一步骤都与明确的假设、与风险相称的取证计划以及可审计的问责机制相衔接。\n\n在治理层面，调查性审计处于公共部门审计与内部审计准则、刑事诉讼法以及合规制度的交汇点。其成功取决于明确的授权、高层基调（tone at the top）、董事会/审计委员会的积极作用、内部审计的独立性，以及与监管机构和执法机关（APH）之间规范有序的上报与沟通机制。缺乏这一基础，调查极易沦为缺乏证明力的形式化程序；具备这一基础，调查便能挽回损失、改进流程并提升声誉。在实务层面，本书展示了数字取证 + 严格的准则框架 + 先进分析技术之间的协同作用。这一组合使组织能够形成可用于诉讼且具有证明力的调查结论，挽回损失并堵塞资产流失渠道，完善内部控制与组织文化以增强韧性，同时维护市场信心与公共利益。\n\n简言之，本书既是一部实务指南，也是一部治理参考书。以假设为导向、与风险相称、以证据为中心、合乎伦理、遵循准则且可问责的调查性审计，能够引导组织从怀疑走向经得起检验的确定结论，从危机走向持续改进。本书适合内部与外部审计师、审计委员会、数字取证调查人员以及合规经理阅读，为其提供现代化的工作框架，使案件能够规范、迅速且有效地办结，并在监管机构和法院面前站得住脚。"
+    }
+  },
+  "book-25": {
+    "en": {
+      "name": "A Critical Review of Criminal Punishment for Tax Offenses in the Enforcement of National Economic Criminal Law",
+      "sinopsis": "This book offers an in-depth analysis of the many challenges in addressing economic crime in Indonesia, such as tax evasion, money laundering, corruption, and financial fraud. These crimes not only cause significant financial losses but also threaten national economic stability and erode public trust in government institutions. One of the principal issues examined is the weakness in the application of criminal tax sanctions, particularly the structure of criminal fines, which is considered insufficiently effective in recovering losses to State revenue. Restructuring this sanctions system is therefore regarded as essential to create a genuine deterrent effect and to protect the interests of the State optimally.\n\nFrom a theoretical standpoint, the book draws on the economic theory of crime, which portrays crime as a rational decision in which offenders weigh economic benefits against the risk of punishment. This perspective underscores the urgency of robust law enforcement, effective regulation, and public education to reduce opportunities for crime. The analysis also takes into account the socio-economic and psychological factors that influence the effectiveness of punishment. The authors further integrate the economic analysis of law through cost-benefit analysis, behavioral theory, and the concept of Pareto efficiency in order to develop tax criminal regulations that are fairer and more efficient. Beyond formal approaches, the book presents restorative justice as an alternative that pays greater attention to the restoration of victims, the rehabilitation of offenders, and community harmony. The principle of ultimum remedium, which allows for non-judicial resolution through administrative mechanisms, is also discussed as an effective solution that has shown positive results in Indonesia.\n\nFinally, the book recommends revising tax criminal regulations to make them firmer, more transparent, and oriented toward recovering losses to State revenue, thereby striking a balance among deterrence, social justice, and economic efficiency."
+    },
+    "zh": {
+      "name": "国家经济刑法执法中税务刑罚的批判性研究",
+      "sinopsis": "本书深入分析了印度尼西亚在应对经济犯罪方面面临的诸多挑战，包括逃税、洗钱、腐败和金融诈骗等。这些犯罪不仅造成重大经济损失，还威胁国家经济稳定，并削弱公众对政府机构的信任。本书的核心议题之一是税务刑事制裁在适用上的薄弱之处，尤其是罚金刑的结构被认为难以有效弥补国家财政收入所遭受的损失。因此，重构这一制裁体系被视为至关重要，以形成切实的威慑效果，并最大限度地保护国家利益。\n\n在理论层面，本书运用犯罪经济学理论（economic theory of crime），将犯罪视为一种理性决策，即行为人会权衡经济收益与受罚风险。这一视角凸显了强有力的执法、有效的监管以及公众教育对于减少犯罪机会的紧迫性。此外，本书的分析还考量了影响刑罚效果的社会经济因素与心理因素。作者进一步结合法经济学（economic analysis of law）方法，借助成本收益分析、行为理论和帕累托效率概念，以期构建更加公平、高效的税务刑事法规。除正式的法律路径外，本书还提出以恢复性司法作为替代路径，更加注重被害人损失的弥补、犯罪人的矫正以及社区的和谐。本书亦探讨了最后手段原则（ultimum remedium），该原则允许通过行政机制实现非司法解决，并已在印度尼西亚取得积极成效，被视为一种有效的解决方案。\n\n最后，本书建议修订税务刑事法规，使其更加严格、透明，并以弥补国家财政收入损失为导向，从而在威慑效果、社会公正与经济效率之间实现平衡。"
+    }
+  },
+  "book-26": {
+    "en": {
+      "name": "Taxation of the Construction Sector in Indonesia: Theory and Practice"
+    },
+    "zh": {
+      "name": "印度尼西亚建筑业税收：理论与实务"
+    }
+  },
+  "book-27": {
+    "en": {
+      "name": "Controlled Foreign Company (CFC) Rules in Indonesia: Principles and Concepts"
+    },
+    "zh": {
+      "name": "印度尼西亚受控外国公司（CFC）规则：原则与概念"
+    }
+  },
+  "book-28": {
+    "en": {
+      "name": "Thin Capitalization in Indonesia: The Intersection of Investment, Compliance, and Tax Justice"
+    },
+    "zh": {
+      "name": "印度尼西亚资本弱化：投资、税收遵从与税收公平的交汇点"
+    }
+  }
+}

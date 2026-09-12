@@ -93,5 +93,19 @@
     "heading": "Related Books in the {{category}} Category",
     "curated": "Curated Recommendations",
     "view": "View →"
+  },
+  "badges": {
+    "forthcoming": "Forthcoming",
+    "vatTrilogy": "Digital VAT Trilogy",
+    "internationalTax": "International Tax",
+    "auditTaxation": "Audit & Taxation",
+    "digitalTaxLaw": "Digital Tax Law",
+    "taxCriminalLaw": "Tax Criminal Law",
+    "corporateCriminalLaw": "Corporate Criminal Law",
+    "restorativeJustice": "Restorative Justice",
+    "textbook": "Textbook",
+    "corporateTax": "Corporate Tax",
+    "theology": "Theology",
+    "scholarlyWork": "Scholarly Work"
   }
 }

@@ -89,5 +89,19 @@
     "heading": "{{category}}类相关图书",
     "curated": "精选推荐",
     "view": "查看 →"
+  },
+  "badges": {
+    "forthcoming": "即将出版",
+    "vatTrilogy": "数字增值税三部曲",
+    "internationalTax": "国际税收",
+    "auditTaxation": "审计与税务",
+    "digitalTaxLaw": "数字税法",
+    "taxCriminalLaw": "税务刑法",
+    "corporateCriminalLaw": "企业刑法",
+    "restorativeJustice": "恢复性司法",
+    "textbook": "教科书",
+    "corporateTax": "企业税",
+    "theology": "神学",
+    "scholarlyWork": "学术著作"
   }
 }

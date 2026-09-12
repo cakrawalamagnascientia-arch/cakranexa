@@ -89,5 +89,19 @@
     "heading": "Buku Terkait dalam Kategori {{category}}",
     "curated": "Rekomendasi Terpilih",
     "view": "Lihat →"
+  },
+  "badges": {
+    "forthcoming": "Segera Terbit",
+    "vatTrilogy": "Trilogi PPN Digital",
+    "internationalTax": "Pajak Internasional",
+    "auditTaxation": "Audit & Perpajakan",
+    "digitalTaxLaw": "Hukum Pajak Digital",
+    "taxCriminalLaw": "Hukum Pidana Pajak",
+    "corporateCriminalLaw": "Hukum Pidana Korporasi",
+    "restorativeJustice": "Restorative Justice",
+    "textbook": "Buku Teks",
+    "corporateTax": "Pajak Korporasi",
+    "theology": "Teologia",
+    "scholarlyWork": "Karya Ilmiah"
   }
 }

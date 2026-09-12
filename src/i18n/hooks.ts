@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { Book } from '../types';
 import { DEFAULT_LANGUAGE, isAppLanguage, type AppLanguage } from './index';
 import { formatCurrency, formatDate, formatNumber } from './format';
-import { categoryKey } from './labels';
+import { badgeKey, categoryKey } from './labels';
 import { localizeCmsDefault } from './cms';
 import { getLocalized, type ContentTranslations } from './localized';
 
@@ -53,12 +53,19 @@ export const useLocalized = () => {
  */
 export const useBookText = () => {
   const lang = useAppLanguage();
+  const { t } = useTranslation('book');
   return useMemo(() => ({
     title: (book: Book): string => {
       const localizedName = getLocalized(book, 'name', lang);
       return localizedName !== book.name ? localizedName : book.title || book.name;
     },
     subtitle: (book: Book): string | undefined => getLocalized(book, 'subtitle', lang),
-    sinopsis: (book: Book): string => getLocalized(book, 'sinopsis', lang)
-  }), [lang]);
+    sinopsis: (book: Book): string => getLocalized(book, 'sinopsis', lang),
+    coverQuote: (book: Book): string | undefined => getLocalized(book, 'coverQuote', lang),
+    /** Badge bawaan diterjemahkan (book:badges.*); badge buatan admin tampil apa adanya. */
+    badge: (book: Book): string | undefined => {
+      const key = badgeKey(book.badge);
+      return key ? t(`badges.${key}`) : book.badge;
+    }
+  }), [lang, t]);
 };

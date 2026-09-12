@@ -192,7 +192,13 @@ async function loadBooks(): Promise<Book[]> {
     const { data, error } = await supabaseAdmin.from('books').select('*').order('created_at', { ascending: true });
     if (!error && data) {
       await loadSiteContent();
-      const remoteBooks = data.map(rowToBook);
+      // Terjemahan bawaan (src/data/translations) dipakai bila baris database belum punya terjemahan.
+      const remoteBooks = data.map((row) => {
+        const remote = rowToBook(row);
+        if (remote.i18n && Object.keys(remote.i18n).length > 0) return remote;
+        const seed = INITIAL_BOOKS.find((book) => book.id === remote.id);
+        return seed?.i18n ? { ...remote, i18n: seed.i18n } : remote;
+      });
       const remoteIds = new Set(remoteBooks.map((book) => book.id));
       const deletedIds = new Set(deletedRecords.books);
       // Buku bawaan yang belum pernah disimpan ke Supabase tetap tampil, kecuali sudah dihapus admin.
@@ -258,7 +264,13 @@ async function loadAuthors(): Promise<Author[]> {
       const { data, error } = await supabaseAdmin.from('authors').select('*').order('name', { ascending: true });
       if (!error && Array.isArray(data)) {
         await loadSiteContent();
-        const remoteAuthors = data.map(rowToAuthor);
+        // Terjemahan bio bawaan dipakai bila baris database belum punya terjemahan (dicocokkan lewat nama).
+        const remoteAuthors = data.map((row) => {
+          const remote = rowToAuthor(row);
+          if (remote.i18n && Object.keys(remote.i18n).length > 0) return remote;
+          const seed = INITIAL_AUTHORS.find((author) => authorNameKey(author.name) === authorNameKey(remote.name));
+          return seed?.i18n ? { ...remote, i18n: seed.i18n } : remote;
+        });
         const remoteKeys = new Set(remoteAuthors.map((author) => authorNameKey(author.name)));
         const deletedKeys = new Set(deletedRecords.authors);
         // Penulis bawaan yang belum ada di Supabase tetap tampil, kecuali sudah dihapus admin.

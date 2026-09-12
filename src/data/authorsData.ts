@@ -1,4 +1,5 @@
 import { Author } from '../types';
+import { AUTHOR_TRANSLATIONS } from './contentTranslations';
 
 /**
  * authorsData.ts — Seed Data Awal untuk 6 Penulis & Kontributor CakraNexa
@@ -7,7 +8,7 @@ import { Author } from '../types';
  * Perhatian: Jika nanti Supabase Authors terisi, INITIAL_AUTHORS hanya menjadi
  * fallback Offline.
  */
-export const INITIAL_AUTHORS: Author[] = [
+const RAW_AUTHORS: Author[] = [
   {
     id: 'author-1',
     name: 'Bonarsius Sipayung',
@@ -307,6 +308,12 @@ export const INITIAL_AUTHORS: Author[] = [
     updated_at: '2026-09-10T00:00:00.000Z'
   }
 ];
+
+/** Penulis bawaan beserta terjemahan bio (en, zh) dari src/data/translations/authors.json. */
+export const INITIAL_AUTHORS: Author[] = RAW_AUTHORS.map((author) => ({
+  ...author,
+  i18n: AUTHOR_TRANSLATIONS[author.id]
+}));
 
 const AUTHOR_PHOTO_BY_NAME: Record<string, string> = {
   'andi banua adams': '/images/authors/andi-banua-adams.png',

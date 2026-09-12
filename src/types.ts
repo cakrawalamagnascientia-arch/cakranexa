@@ -42,8 +42,8 @@ export interface Book {
   featured?: boolean;
   isBestSeller?: boolean;
   bestSellerRank?: number;
-  /** Terjemahan judul/subjudul/sinopsis (en, zh); kosong = pakai Bahasa Indonesia. */
-  i18n?: ContentTranslations<'name' | 'subtitle' | 'sinopsis'>;
+  /** Terjemahan judul/subjudul/sinopsis/kutipan sampul (en, zh); kosong = pakai Bahasa Indonesia. */
+  i18n?: ContentTranslations<'name' | 'subtitle' | 'sinopsis' | 'coverQuote'>;
 }
 
 export interface CartItem {
