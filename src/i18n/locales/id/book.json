@@ -1,0 +1,93 @@
+{
+  "loading": {
+    "title": "Memuat Informasi Buku...",
+    "hint": "Silakan kembali ke katalog apabila buku tidak muncul otomatis."
+  },
+  "nav": {
+    "backToPrevious": "Kembali ke Halaman Sebelumnya",
+    "backTitle": "Kembali 1 langkah ke halaman sebelumnya"
+  },
+  "cover": {
+    "alt": "Cover Buku",
+    "officialEdition": "OFFICIAL EDITION"
+  },
+  "assurance": {
+    "officialIsbn": "ISBN Resmi",
+    "isbnPending": "ISBN menyusul"
+  },
+  "meta": {
+    "academicMonograph": "Monografi Akademik",
+    "newRelease": "Terbitan Baru",
+    "labeledValue": "{{label}}: <strong>{{value}}</strong>",
+    "verifiedReviews_other": "({{count}} ulasan terverifikasi)"
+  },
+  "pricing": {
+    "officialPrintPrice": "Harga Resmi Buku Cetak",
+    "save": "Hemat {{percent}}%",
+    "inStock_other": "Stok Tersedia ({{count}} Eksemplar)",
+    "availableOnDemand": "Tersedia — Pre-order / Cetak Sesuai Pesanan",
+    "forthcoming": "Segera Terbit — harga & ISBN akan diumumkan",
+    "paymentNote": "Metode Pembayaran Resmi & Aman: Transfer Virtual Account, QRIS & Kartu Kredit."
+  },
+  "actions": {
+    "buyNow": "Beli Sekarang",
+    "addToCart": "Tambah ke Keranjang",
+    "notifyOnRelease": "Beri Tahu Saya Saat Terbit (WhatsApp)"
+  },
+  "whatsapp": {
+    "notifyMessage": "Halo Redaksi CakraNexa, saya ingin mendapat informasi terbit & harga buku \"{{title}}\"."
+  },
+  "specs": {
+    "title": "Rincian Spesifikasi Teknis Publikasi",
+    "isbn": "Nomor ISBN",
+    "isbnUnavailable": "Belum tersedia",
+    "publicationYear": "Tahun Terbit",
+    "pageCount": "Jumlah Halaman",
+    "pages_other": "{{count}} Halaman",
+    "pagesPending": "Menyusul",
+    "dimensions": "Dimensi Buku",
+    "category": "Kategori / Disiplin",
+    "estimatedWeight": "Estimasi Berat",
+    "weight": "{{weight}} Gram",
+    "language": "Bahasa",
+    "languageValue": "Bahasa Indonesia",
+    "physicalCondition": "Kondisi Fisik",
+    "conditionValue": "Baru / Segel Plastik"
+  },
+  "tabs": {
+    "synopsis": "Sinopsis Monografi",
+    "aboutAuthor": "Tentang Penulis",
+    "contents": "Daftar Isi & Struktur Bab",
+    "reviews": "Review & Penilaian",
+    "reviewsWithTotal": "Review & Penilaian ({{total}})"
+  },
+  "synopsis": {
+    "heading": "Ikhtisar Ilmiah & Relevansi Praktis",
+    "audienceTitle": "Sasaran Pembaca",
+    "audienceText": "Akademisi, Dosen, Mahasiswa S1/S2/S3 Fakultas Ekonomi & Hukum, Konsultan Pajak, Auditor Keuangan Publik, serta Pengambil Kebijakan Fiskal.",
+    "valueTitle": "Nilai Tambah Ilmiah",
+    "valueText": "Memadukan asas kepastian hukum (legal certainty), doktrin ilmu perpajakan kontemporer, dan studi kasus riil peradilan pajak di Indonesia."
+  },
+  "aboutAuthor": {
+    "byline": "Penulis — diterbitkan oleh PT Cakrawala Magna Scientia",
+    "fallbackBio": "Profil lengkap penulis akan segera ditambahkan oleh redaksi. Untuk korespondensi akademik atau permintaan wawancara, hubungi redaksi@cakranexa.com.",
+    "affiliationLabel": "Afiliasi Riset:",
+    "affiliationValue": "PT Cakrawala Magna Scientia • Divisi Penerbitan Ilmiah & Studi Kebijakan Fiskal Indonesia"
+  },
+  "contents": {
+    "heading": "Struktur Bab dan Silabus Monografi",
+    "verifiedChapter": "Bab Terverifikasi",
+    "empty": "Daftar isi lengkap akan segera ditambahkan oleh redaksi. Silakan baca sinopsis pada tab <strong>Ringkasan</strong>."
+  },
+  "reviews": {
+    "outOf": "dari 5.0 bintang",
+    "basedOn_other": "Berdasarkan {{count}} ulasan pembaca terverifikasi",
+    "emptyTitle": "Belum ada ulasan untuk buku ini.",
+    "emptyText": "Ulasan hanya ditampilkan dari pembelian terverifikasi. Sudah membaca buku ini? Kirim ulasan Anda ke redaksi@cakranexa.com."
+  },
+  "related": {
+    "heading": "Buku Terkait dalam Kategori {{category}}",
+    "curated": "Rekomendasi Terpilih",
+    "view": "Lihat →"
+  }
+}

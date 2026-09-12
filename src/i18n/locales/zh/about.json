@@ -1,0 +1,331 @@
+{
+  "hero": {
+    "badge": "关于 PT CAKRAWALA MAGNA SCIENTIA",
+    "title": "出版知识，<break/><highlight>构筑学术传承。</highlight>",
+    "description": "PT Cakrawala Magna Scientia 是一家印度尼西亚知识型企业（<em>knowledge enterprise</em>），通过 <strong>CakraNexa</strong> 构建以技术为驱动的出版、作品管理、学习及知识资产开发生态系统。",
+    "subdescription": "我们致力于构建可持续的知识生命周期——从创意获取、出版、著作权保护，到跨代际的改编与传承。"
+  },
+  "metrics": {
+    "portfolio": {
+      "label": "图书作品",
+      "value": "21+ 部专著",
+      "note": "国家图书馆官方 ISBN"
+    },
+    "status": {
+      "label": "出版商资质",
+      "member": "IKAPI 会员",
+      "official": "正式出版商"
+    },
+    "ethics": {
+      "label": "伦理标准",
+      "value": "COPE 标准",
+      "note": "权威同行评审"
+    },
+    "ecosystem": {
+      "label": "生态模式",
+      "value": "知识产权生态",
+      "note": "多格式与数字化"
+    }
+  },
+  "tabs": {
+    "profile": "公司简介与生态系统",
+    "vision": "愿景与使命",
+    "team": "组织架构",
+    "legal": "法律资质与官方文件"
+  },
+  "differentiator": {
+    "eyebrow": "愿景概述与差异化优势",
+    "title": "将作品作为长期资产组合进行管理",
+    "description": "我们相信，知识只要以诚信、技术和良好治理加以管理，其价值便会持续增长。",
+    "highlight": "通过 <strong>CakraNexa</strong>，一部作品不止于纸质图书——而是持续发展为<strong>电子书、有声书、培训模块、工具包、机构授权乃至集成数据库</strong>。"
+  },
+  "scope": {
+    "eyebrow": "核心能力组合",
+    "title": "业务范围",
+    "description": "CakraNexa 支持学术与专业知识成果传播和变现的六大业务支柱。",
+    "items": {
+      "publishing": {
+        "title": "出版与数字出版",
+        "description": "书稿获取、编辑、设计、书目元数据、印刷出版、电子书及目录管理。"
+      },
+      "academy": {
+        "title": "教育与培训（Academy）",
+        "description": "基于从业者和学者的专业知识，开发课程、工作坊、培训及学习项目。"
+      },
+      "rights": {
+        "title": "版权与知识产权授权",
+        "description": "管理翻译、音频、改编权及图书馆授权，确保作品合法使用。"
+      },
+      "institutional": {
+        "title": "机构解决方案",
+        "description": "与教育机构、专业协会、企业及图书馆建立战略合作。"
+      },
+      "technology": {
+        "title": "知识技术",
+        "description": "负责任地应用结构化数据、可发现性、数据分析及人工智能（AI）。"
+      },
+      "authorDevelopment": {
+        "title": "作者发展",
+        "description": "与作者开展长期培养与协作，助力其学术职业发展。"
+      }
+    }
+  },
+  "lifecycle": {
+    "eyebrow": "循环出版流程",
+    "title": "作品生命周期",
+    "description": "可衡量的循环流程，确保每部作品不会止步于印刷，而是持续得到维护并不断拓展其价值。",
+    "continued": "循环继续",
+    "summary": "<strong>CakraNexa</strong> 通过更新元数据、推出修订版、签订新授权以及跨代际扩大读者群，持续维护已出版的作品。",
+    "steps": {
+      "idea": { "name": "创意", "description": "获取创意与研究提案" },
+      "selection": { "name": "遴选", "description": "专家委员会评审" },
+      "editorial": { "name": "编辑", "description": "校对与引文审核" },
+      "production": { "name": "制作", "description": "B5 排版与官方 ISBN" },
+      "publication": { "name": "出版", "description": "正式发布与出版物呈缴" },
+      "distribution": { "name": "发行", "description": "电商、高校与图书馆" },
+      "licensing": { "name": "授权", "description": "音频、文字稿与机构授权" },
+      "renewal": { "name": "更新", "description": "修订版与研究更新" }
+    }
+  },
+  "governance": {
+    "eyebrow": "治理与伦理",
+    "title": "著作权保护与出版诚信",
+    "items": {
+      "copyright": {
+        "title": "尊重著作权（知识产权）",
+        "description": "作品用于翻译、数字化或 AI 技术的一切用途，均依据合法有效的协议透明进行。"
+      },
+      "editorial": {
+        "title": "编辑诚信",
+        "description": "我们注重作品原创性、写作伦理及参考文献核实，以维护学术与专业出版标准。"
+      },
+      "continuity": {
+        "title": "机构延续性",
+        "description": "文档、源文件、元数据及合同作为机构资产集中管理，确保作品长期可用。"
+      }
+    }
+  },
+  "entity": {
+    "legalName": {
+      "label": "正式实体名称",
+      "note": "有限责任公司法人"
+    },
+    "brand": {
+      "label": "出版品牌与平台",
+      "note": "知识型企业生态系统"
+    },
+    "location": {
+      "label": "运营所在地",
+      "value": "印度尼西亚 雅加达首都特区",
+      "note": "中雅加达 Salemba Raya"
+    }
+  },
+  "vision": {
+    "header": {
+      "eyebrow": "学术方向与基础",
+      "title": "出版知识，构筑传承",
+      "description": "PT Cakrawala Magna Scientia 构建的知识生态系统并不止于出版。我们在知识的整个生命周期中对其进行管理——从创意、出版、学习、更新、权利保护、跨格式开发，直至传承给后代。"
+    },
+    "statement": {
+      "eyebrow": "未来展望",
+      "title": "我们的愿景",
+      "text": "成为世界一流的印度尼西亚知识型企业，构筑跨代际的知识传承，使每一部作品都成为可被发现、可信赖、可学习、可更新、受保护、可开发、可授权并可持续传承的知识资产。"
+    },
+    "missions": {
+      "eyebrow": "八项战略承诺",
+      "title": "使命",
+      "description": "为实现 CakraNexa 学术愿景而持续推进的行动举措。",
+      "items": [
+        {
+          "title": "高质量出版",
+          "description": "通过专业、负责的遴选、编辑、制作、出版及质量保证流程，出版优质、可信、切题且具影响力的作品。"
+        },
+        {
+          "title": "让知识保持活力",
+          "description": "持续更新作品的内容、数据、参考文献、元数据、设计与格式，使知识始终契合时代发展和下一代读者的需要。"
+        },
+        {
+          "title": "多格式开发",
+          "description": "将每部作品发展为多格式知识资产组合，涵盖纸质书、电子书、有声书、课程、工具包、数据库、译本、改编作品以及机构与技术授权。"
+        },
+        {
+          "title": "可获取性与可发现性",
+          "description": "借助高质量元数据、结构化数据、检索系统、分类、丛书、编辑内容、语义检索及推荐技术，提升作品和作者的可见度与覆盖面。"
+        },
+        {
+          "title": "作者、读者与机构生态",
+          "description": "与作者、读者、专业人士、学者、图书馆、教育机构、企业、经销商及战略伙伴建立长期关系。"
+        },
+        {
+          "title": "知识资产保护",
+          "description": "负责任地保护和管理著作权、出版权、翻译权、音频权、改编权、数字授权、AI 授权、合同、来源记录、元数据、源文件及其他知识资产。"
+        },
+        {
+          "title": "技术与数据",
+          "description": "负责任地运用技术、数据、分析、自动化与人工智能，提升质量、效率、可获取性、决策水平及企业可持续发展能力。"
+        },
+        {
+          "title": "治理与传承",
+          "description": "建立治理体系、文档、系统、领导层接续和人才培养机制，使企业能够跨代发展，而不依赖于任何单一个人、供应商、平台或技术。"
+        }
+      ]
+    },
+    "values": {
+      "eyebrow": "核心价值观",
+      "title": "指引我们的价值观",
+      "description": "CakraNexa 每一项决策、作品、合作与创新所依循的原则。",
+      "items": [
+        {
+          "name": "学术诚信",
+          "description": "坚持准确性、学术诚实、来源透明、尊重著作权，并对读者负责。"
+        },
+        {
+          "name": "追求卓越",
+          "description": "在编辑、设计、制作、技术、营销、作者服务及读者体验方面坚持高标准。"
+        },
+        {
+          "name": "知识可持续性",
+          "description": "将每部作品视为可持续更新、开发、授权和传承的知识资产。"
+        },
+        {
+          "name": "可获取性与可见性",
+          "description": "让优质知识更易于被发现、获取、理解和利用。"
+        },
+        {
+          "name": "协作共赢",
+          "description": "与知识生态系统中的所有利益相关方建立公平、高效的长期关系。"
+        },
+        {
+          "name": "负责任的创新",
+          "description": "运用技术、数据、自动化和 AI 提升质量与可获取性，同时不损害作品的完整性。"
+        },
+        {
+          "name": "治理与问责",
+          "description": "确保关键流程有据可查、可衡量、可审计，并在明确的权责基础上执行。"
+        },
+        {
+          "name": "代际传承",
+          "description": "确保企业的知识、能力、领导力和系统能够传承给下一代。"
+        }
+      ]
+    },
+    "pillars": {
+      "eyebrow": "战略支柱",
+      "title": "CakraNexa 战略支柱",
+      "description": "支撑生态系统可持续发展与卓越表现的六大业务支柱。",
+      "items": {
+        "publishing": {
+          "title": "卓越出版",
+          "description": "建立专业的出版流程，涵盖书稿获取、编辑、设计、制作、发行，直至每种图书的绩效评估。"
+        },
+        "lifecycle": {
+          "title": "知识生命周期",
+          "description": "在作品的整个生命周期中进行管理：出版、营销、更新、转换格式、翻译、教学和授权。"
+        },
+        "discoverability": {
+          "title": "可发现性与商业化",
+          "description": "通过元数据、检索、结构化数据、分类、丛书、编辑内容及一体化销售渠道，确保作品能被发现和获取。"
+        },
+        "community": {
+          "title": "社群与学习",
+          "description": "通过社群与学习活动，与读者、作者、专业人士、学者、机构及图书馆建立持久关系。"
+        },
+        "rights": {
+          "title": "权利与知识资产",
+          "description": "将权利、合同、来源记录、再版书目、元数据、源文件、译本、音频、改编及授权作为长期资产进行管理。"
+        },
+        "continuity": {
+          "title": "机构延续",
+          "description": "建立系统、文档、人才梯队、数据、治理、安全及多元化收入，使企业能够跨代发展。"
+        }
+      }
+    },
+    "manifesto": {
+      "eyebrow": "知识型企业宣言",
+      "title": "知识不只是产品",
+      "text": "PT Cakrawala Magna Scientia 不将每部作品视为一次性销售的产品，而是视为长期的知识资产。一本书可以不断发展为新版本、电子书、有声书、课程、工具包、数据库、译本、机构授权、改编作品以及其他形式的知识应用。因此，我们构建的系统不仅保护已出版的作品，也保护与之相关的元数据、合同、来源记录、源文件、知识产权、作者关系以及机构知识。"
+    },
+    "collaboration": {
+      "eyebrow": "协作与协同",
+      "title": "携手构筑知识传承",
+      "text": "PT Cakrawala Magna Scientia 欢迎与作者、学者、专业人士、机构、图书馆及志同道合的合作伙伴开展合作，共同创造并传承有意义的知识。",
+      "badge": "CakraNexa 长期合作伙伴关系"
+    }
+  },
+  "organization": {
+    "title": "组织架构",
+    "caption": "PT Cakrawala Magna Scientia 官方管理架构与管理条线图",
+    "roles": {
+      "commissioner": "监事",
+      "director": "董事",
+      "expertBoard": "专家顾问委员会",
+      "generalHr": "综合事务与人力资源经理",
+      "finance": "财务经理",
+      "it": "信息技术经理",
+      "publishing": "出版经理",
+      "printing": "印刷经理"
+    },
+    "duties": {
+      "eyebrow": "组织职能与职责",
+      "title": "管理层职责说明",
+      "items": {
+        "commissioner": {
+          "scope": "监督与治理",
+          "description": "履行一般监督职能，审查预算执行合规情况，确保公司始终贯彻良好公司治理（Good Corporate Governance）原则。"
+        },
+        "director": {
+          "scope": "执行与运营",
+          "description": "领导愿景实施，确定运营和商业方向，并协调 CakraNexa 出版生态系统中的各管理条线。"
+        },
+        "expertBoard": {
+          "scope": "学术咨询",
+          "description": "独立顾问机构，就学术内容、出版伦理、研究方法的合理性以及专著出版质量的提升提供意见。"
+        },
+        "generalHr": {
+          "scope": "人力资源与行政",
+          "description": "负责人才发展、公司法律事务、对外机构关系以及办公设施管理。"
+        },
+        "finance": {
+          "scope": "财务与税务",
+          "description": "负责预算规划、现金流、作者版税透明化、税务合规以及公司财务报告的问责。"
+        },
+        "it": {
+          "scope": "技术与数据系统",
+          "description": "开发 CakraNexa 数字平台基础设施、语义检索架构、结构化元数据管理以及公司数据安全。"
+        },
+        "publishing": {
+          "scope": "编辑与知识产权",
+          "description": "统筹书稿出版周期、编辑流程、实质性同行评审、学术质量保证、国家图书馆 ISBN 管理及著作权治理。"
+        },
+        "printing": {
+          "scope": "实物制作与供应链",
+          "description": "负责印前作业、实物印刷、装订与纸张质量保证，以及图书仓储物流与配送的有序管理。"
+        }
+      }
+    }
+  },
+  "legal": {
+    "title": "法律文件与正式法人资质",
+    "description": "PT Cakrawala Magna Scientia 依据印度尼西亚共和国法律合法经营。",
+    "kemenkumham": {
+      "label": "法律与人权部核准",
+      "defaultNote": "公证契据及法律与人权部部长核准决定书",
+      "fallbackNote": "有限责任公司设立公证契据"
+    },
+    "nib": {
+      "label": "企业识别号（NIB）",
+      "defaultNote": "KBLI 58111（图书出版）及 KBLI 58130",
+      "fallbackNote": "KBLI 58111（图书出版）及 KBLI 58130"
+    },
+    "npwp": {
+      "label": "公司纳税人识别号（NPWP）",
+      "defaultNote": "中雅加达基层税务局（KPP Pratama）• 已登记增值税应税企业（PKP）",
+      "fallbackNote": "中雅加达基层税务局（KPP Pratama）• 已登记增值税应税企业（PKP）"
+    },
+    "membership": {
+      "label": "正式出版商会员资格",
+      "defaultNote": "印度尼西亚出版商协会（IKAPI）会员及印度尼西亚国家图书馆合作单位",
+      "fallbackNote": "印度尼西亚出版商协会会员及印度尼西亚国家图书馆合作单位"
+    }
+  }
+}

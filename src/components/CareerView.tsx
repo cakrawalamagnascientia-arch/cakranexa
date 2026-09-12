@@ -20,7 +20,10 @@ import {
   Users,
   ShieldCheck
 } from 'lucide-react';
+import { Trans, useTranslation } from 'react-i18next';
 import { CareerItem, SiteContentSettings } from '../types';
+import { DEFAULT_SITE_CONTENT } from '../services/siteContentService';
+import { useCmsText } from '../i18n/hooks';
 
 interface CareerViewProps {
   siteContent?: SiteContentSettings;
@@ -196,7 +199,20 @@ const DEFAULT_TOP_CAREERS: CareerItem[] = [
   }
 ];
 
+// Field lowongan yang ditampilkan dan punya terjemahan (career.json: jobs.<id> dan cmsJobs.<id>).
+type JobTextField = 'title' | 'badge' | 'department' | 'type' | 'location' | 'deadline' | 'tagline' | 'quote' | 'description' | 'emailSubject';
+type JobListField = 'responsibilities' | 'requirements' | 'benefits';
+type JobCopy = Partial<Pick<CareerItem, JobTextField | JobListField>>;
+type JobCopyMap = Record<string, JobCopy | undefined>;
+
+const JOB_TEXT_FIELDS: JobTextField[] = ['title', 'badge', 'department', 'type', 'location', 'deadline', 'tagline', 'quote', 'description', 'emailSubject'];
+const JOB_LIST_FIELDS: JobListField[] = ['responsibilities', 'requirements', 'benefits'];
+
+const sameList = (a: string[], b: string[]) => a.length === b.length && a.every((value, i) => value === b[i]);
+
 export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialContent }) => {
+  const { t } = useTranslation('career');
+  const cmsText = useCmsText();
   const [currentContent, setCurrentContent] = useState<SiteContentSettings | undefined>(initialContent);
 
   React.useEffect(() => {
@@ -276,6 +292,36 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
     return true;
   });
 
+  // Filter & pencarian di atas tetap memakai data asli (Bahasa Indonesia). Untuk tampilan: teks yang masih sama
+  // dengan bawaan (DEFAULT_TOP_CAREERS / DEFAULT_SITE_CONTENT) diambil dari file terjemahan; teks ubahan admin apa adanya.
+  const jobCopy = t('jobs', { returnObjects: true }) as JobCopyMap;
+  const cmsJobCopy = t('cmsJobs', { returnObjects: true }) as JobCopyMap;
+
+  const localizeJob = (job: CareerItem): CareerItem => {
+    const variants: Array<[CareerItem | undefined, JobCopy | undefined]> = [
+      [DEFAULT_TOP_CAREERS.find((d) => d.id === job.id), jobCopy?.[job.id]],
+      [DEFAULT_SITE_CONTENT.careers.find((d) => d.id === job.id), cmsJobCopy?.[job.id]]
+    ];
+    const localized: CareerItem = { ...job };
+    for (const field of JOB_TEXT_FIELDS) {
+      const value = job[field];
+      if (!value) continue;
+      const match = variants.find(([source, copy]) => source?.[field] === value && typeof copy?.[field] === 'string');
+      if (match) localized[field] = cmsText(value, value, match[1]![field]!);
+    }
+    for (const field of JOB_LIST_FIELDS) {
+      const value = job[field];
+      if (!Array.isArray(value) || value.length === 0) continue;
+      const match = variants.find(([source, copy]) => {
+        const defaults = source?.[field];
+        const translated = copy?.[field];
+        return !!defaults && Array.isArray(translated) && sameList(value, defaults) && translated.length === value.length;
+      });
+      if (match) localized[field] = value.map((entry, i) => cmsText(entry, entry, match[1]![field]![i]));
+    }
+    return localized;
+  };
+
   return (
     <div id="career-view" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 text-left space-y-12">
       {/* 1. Header Banner */}
@@ -287,17 +333,15 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
         <div className="relative z-10 max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#DFBF64]/20 border border-[#DFBF64]/40 text-[#DFBF64] text-xs font-semibold tracking-wider uppercase">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>WE ARE HIRING • KARIER & KEPEMIMPINAN</span>
+            <span>{t('hero.eyebrow')}</span>
           </div>
 
           <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-tight text-slate-100">
-            Membangun Pengetahuan, <span className="text-[#DFBF64]">Mewariskan Peradaban</span>
+            <Trans t={t} i18nKey="hero.title" components={{ accent: <span className="text-[#DFBF64]" /> }} />
           </h1>
 
           <p className="text-slate-300 text-sm sm:text-base font-light leading-relaxed">
-            PT Cakrawala Magna Scientia sedang membangun perusahaan pengetahuan yang mampu menerbitkan, memperbarui,
-            melisensikan, mengajarkan, melindungi, dan mewariskan pengetahuan selama beberapa generasi. Kami membuka
-            kesempatan bagi para pemimpin dan profesional berdedikasi tinggi untuk bergabung.
+            {t('hero.description')}
           </p>
 
           <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-slate-300">
@@ -307,7 +351,7 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
             </span>
             <span className="flex items-center gap-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
               <Calendar className="w-3.5 h-3.5 text-amber-400" />
-              <span>Batas Akhir: 1 September 2026</span>
+              <span>{t('hero.deadline')}</span>
             </span>
             <span className="flex items-center gap-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
               <Mail className="w-3.5 h-3.5 text-emerald-400" />
@@ -325,13 +369,13 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
           </div>
           <div>
             <h2 className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
-              <span>3 Posisi Kepemimpinan Manajerial Utama Tersedia</span>
+              <span>{t('highlight.title')}</span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#DFBF64] text-slate-950 uppercase">
-                Prioritas
+                {t('highlight.priority')}
               </span>
             </h2>
             <p className="text-xs text-slate-600 mt-0.5">
-              1. <strong>Manager Publishing</strong> &bull; 2. <strong>Manajer Marketing</strong> &bull; 3. <strong>Manajer Percetakan</strong>. Lamaran dibuka hingga <strong>1 September 2026</strong>.
+              <Trans t={t} i18nKey="highlight.positions" components={{ strong: <strong /> }} />
             </p>
           </div>
         </div>
@@ -339,7 +383,7 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
           href="#job-car-mgr-publishing"
           className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0F172A] hover:bg-slate-800 text-[#DFBF64] text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer"
         >
-          <span>Lihat 3 Posisi Teratas</span>
+          <span>{t('highlight.cta')}</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </a>
       </div>
@@ -355,7 +399,7 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            Semua Lowongan ({jobs.length})
+            {t('filters.all', { total: jobs.length })}
           </button>
           <button
             onClick={() => setActiveFilter('managerial')}
@@ -366,7 +410,7 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
             }`}
           >
             <Sparkles className="w-3 h-3 text-[#DFBF64]" />
-            <span>Level Manajerial (3)</span>
+            <span>{t('filters.managerial')}</span>
           </button>
           <button
             onClick={() => setActiveFilter('editorial')}
@@ -376,7 +420,7 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            Penerbitan & Editorial
+            {t('filters.editorial')}
           </button>
           <button
             onClick={() => setActiveFilter('marketing')}
@@ -386,7 +430,7 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            Pemasaran & Sales
+            {t('filters.marketing')}
           </button>
           <button
             onClick={() => setActiveFilter('percetakan')}
@@ -396,7 +440,7 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            Percetakan & Produksi
+            {t('filters.printing')}
           </button>
         </div>
 
@@ -404,7 +448,7 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Cari lowongan / keahlian..."
+            placeholder={t('filters.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-hidden focus:border-[#0F172A]"
@@ -414,11 +458,12 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
 
       {/* 4. Job Listings Stack */}
       <div className="space-y-6">
-        {filteredJobs.map((job, idx) => {
+        {filteredJobs.map((rawJob, idx) => {
+          const job = localizeJob(rawJob);
           const isTop3 = idx < 3 && (job.id.startsWith('car-mgr') || job.id === 'car-mgr-publishing' || job.id === 'car-mgr-marketing' || job.id === 'car-mgr-percetakan');
           const isExpanded = expandedId === job.id;
           const emailTarget = job.email || 'hrd@cakranexa.com';
-          const emailSubject = job.emailSubject || `Lamaran Posisi ${job.title} - [Nama Anda]`;
+          const emailSubject = job.emailSubject || t('apply.defaultSubject', { title: job.title });
           const mailtoLink = `mailto:${emailTarget}?subject=${encodeURIComponent(emailSubject)}`;
 
           return (
@@ -439,13 +484,13 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
                       {idx + 1}
                     </span>
                     <span className="text-xs font-bold uppercase tracking-wider">
-                      {job.badge || 'LOWONGAN STRATEGIS TERBARU'}
+                      {job.badge || t('job.fallbackBadge')}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 text-[11px]">
                     <span className="flex items-center gap-1 text-slate-300">
                       <Calendar className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Batas Akhir: <strong className="text-[#DFBF64]">{job.deadline}</strong></span>
+                      <span><Trans t={t} i18nKey="job.deadlineHighlighted" values={{ date: job.deadline }} components={{ strong: <strong className="text-[#DFBF64]" /> }} /></span>
                     </span>
                   </div>
                 </div>
@@ -485,7 +530,7 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
                       {!isTop3 && (
                         <span className="flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                          <span>Batas Akhir: {job.deadline}</span>
+                          <span>{t('job.deadline', { date: job.deadline })}</span>
                         </span>
                       )}
                     </div>
@@ -497,7 +542,7 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
                       href={mailtoLink}
                       className="px-5 py-2.5 rounded-xl bg-[#0F172A] hover:bg-slate-800 text-[#DFBF64] font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer group"
                     >
-                      <span>Lamar Posisi Ini</span>
+                      <span>{t('job.apply')}</span>
                       <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                     </a>
                     <button
@@ -505,7 +550,7 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
                       onClick={() => setExpandedId(isExpanded ? null : job.id)}
                       className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                     >
-                      <span>{isExpanded ? 'Tutup Rincian' : 'Lihat Rincian Lengkap'}</span>
+                      <span>{isExpanded ? t('job.hideDetails') : t('job.showDetails')}</span>
                       {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                     </button>
                   </div>
@@ -522,7 +567,7 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
                 {job.description && (
                   <div className="space-y-1">
                     <span className="text-[11px] font-bold text-slate-900 uppercase tracking-wider block">
-                      Tentang Posisi:
+                      {t('job.about')}
                     </span>
                     <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                       {job.description}
@@ -540,7 +585,7 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
                           <div className="p-1.5 bg-[#0F172A] text-[#DFBF64] rounded-md">
                             <Briefcase className="w-4 h-4" />
                           </div>
-                          <h3 className="font-serif font-bold text-sm">Tanggung Jawab Utama</h3>
+                          <h3 className="font-serif font-bold text-sm">{t('job.responsibilities')}</h3>
                         </div>
                         <ul className="space-y-2 text-xs text-slate-700">
                           {job.responsibilities.map((resp, rIdx) => (
@@ -559,7 +604,7 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
                         <div className="p-1.5 bg-[#0F172A] text-[#DFBF64] rounded-md">
                           <CheckCircle2 className="w-4 h-4" />
                         </div>
-                        <h3 className="font-serif font-bold text-sm">Persyaratan Umum</h3>
+                        <h3 className="font-serif font-bold text-sm">{t('job.requirements')}</h3>
                       </div>
                       <ul className="space-y-2 text-xs text-slate-700">
                         {(job.requirements || []).map((req, rIdx) => (
@@ -578,7 +623,7 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
                       <div className="flex items-center gap-2 text-slate-900">
                         <Award className="w-4 h-4 text-[#B89230]" />
                         <h4 className="font-serif font-bold text-xs sm:text-sm uppercase tracking-wider text-slate-900">
-                          Kami Menawarkan
+                          {t('job.benefits')}
                         </h4>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700">
@@ -598,11 +643,11 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4 text-[#DFBF64]" />
                         <span className="text-xs font-bold tracking-wider uppercase text-[#DFBF64]">
-                          Cara Melamar Resmi
+                          {t('apply.title')}
                         </span>
                       </div>
                       <p className="text-xs text-slate-300">
-                        Kirimkan surat lamaran, CV terbaru & portofolio Anda ke email:
+                        {t('apply.instructions')}
                       </p>
                       <div className="flex flex-wrap items-center gap-3 pt-1">
                         <span className="text-sm font-mono font-bold text-white bg-slate-800/90 px-3 py-1 rounded-md border border-slate-700">
@@ -616,18 +661,18 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
                           {copiedId === job.id ? (
                             <>
                               <Check className="w-3.5 h-3.5 text-emerald-400" />
-                              <span className="text-emerald-400 font-bold">Email Tersalin!</span>
+                              <span className="text-emerald-400 font-bold">{t('apply.copied')}</span>
                             </>
                           ) : (
                             <>
                               <Copy className="w-3.5 h-3.5 text-slate-400" />
-                              <span>Salin Email</span>
+                              <span>{t('apply.copy')}</span>
                             </>
                           )}
                         </button>
                       </div>
                       <p className="text-[11px] text-slate-400">
-                        Subjek Email yang disarankan: <strong className="text-slate-200 font-mono">{emailSubject}</strong>
+                        <Trans t={t} i18nKey="apply.suggestedSubject" values={{ subject: emailSubject }} components={{ strong: <strong className="text-slate-200 font-mono" /> }} />
                       </p>
                     </div>
 
@@ -637,13 +682,13 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
                         className="px-5 py-2.5 rounded-xl bg-[#DFBF64] hover:bg-[#C5A059] text-slate-950 font-bold text-xs transition-all text-center flex items-center justify-center gap-2 shadow-md cursor-pointer"
                       >
                         <Mail className="w-3.5 h-3.5" />
-                        <span>Kirim via Email Aplikasi</span>
+                        <span>{t('apply.sendEmail')}</span>
                       </a>
                     </div>
                   </div>
 
                   <div className="text-[11px] text-slate-500 italic text-center sm:text-left">
-                    * Catatan: Hanya kandidat yang memenuhi kualifikasi yang akan dihubungi. Lamaran diterima paling lambat <strong>{job.deadline}</strong>.
+                    <Trans t={t} i18nKey="apply.note" values={{ date: job.deadline }} components={{ strong: <strong /> }} />
                   </div>
                 </div>
               </div>
@@ -655,14 +700,14 @@ export const CareerView: React.FC<CareerViewProps> = ({ siteContent: initialCont
       {/* 5. General Candidate Contact & Submission Note */}
       <div className="bg-slate-100 rounded-2xl p-6 sm:p-8 border border-slate-300/80 text-center space-y-3">
         <h3 className="font-serif font-bold text-base sm:text-lg text-slate-900">
-          Tidak Menemukan Posisi yang Sesuai dengan Keahlian Anda?
+          {t('footer.title')}
         </h3>
         <p className="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed">
-          PT Cakrawala Magna Scientia selalu terbuka bagi talenta akademik luar biasa, editor naskah bersertifikasi,
-          reviewer jurnal, dan desainer grafis penerbitan. Kirimkan surat ketertarikan dan portofolio ke{' '}
-          <a href="mailto:hrd@cakranexa.com" className="text-[#0F172A] font-bold underline hover:text-[#B89230]">
-            hrd@cakranexa.com
-          </a>.
+          <Trans
+            t={t}
+            i18nKey="footer.body"
+            components={{ email: <a href="mailto:hrd@cakranexa.com" className="text-[#0F172A] font-bold underline hover:text-[#B89230]" /> }}
+          />
         </p>
       </div>
     </div>

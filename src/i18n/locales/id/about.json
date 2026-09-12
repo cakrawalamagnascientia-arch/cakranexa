@@ -1,0 +1,331 @@
+{
+  "hero": {
+    "badge": "TENTANG PT CAKRAWALA MAGNA SCIENTIA",
+    "title": "Menerbitkan Pengetahuan, <break/><highlight>Membangun Warisan Keilmuan.</highlight>",
+    "description": "PT Cakrawala Magna Scientia adalah perusahaan pengetahuan (<em>knowledge enterprise</em>) Indonesia yang mengembangkan ekosistem penerbitan, pengelolaan karya, pembelajaran, dan pengembangan aset intelektual berbasis teknologi melalui <strong>CakraNexa</strong>.",
+    "subdescription": "Kami hadir untuk membangun siklus hidup pengetahuan yang berkelanjutan—mulai dari akuisisi gagasan, penerbitan, perlindungan hak cipta, hingga adaptasi lintas generasi."
+  },
+  "metrics": {
+    "portfolio": {
+      "label": "Portofolio Buku",
+      "value": "21+ Monografi",
+      "note": "ISBN Resmi Perpusnas RI"
+    },
+    "status": {
+      "label": "Status Penerbit",
+      "member": "Anggota IKAPI",
+      "official": "Penerbit Resmi"
+    },
+    "ethics": {
+      "label": "Standar Etika",
+      "value": "COPE Standard",
+      "note": "Peer-Review Otoritatif"
+    },
+    "ecosystem": {
+      "label": "Model Ekosistem",
+      "value": "IP Ecosystem",
+      "note": "Multi-Format & Digital"
+    }
+  },
+  "tabs": {
+    "profile": "Profil Perusahaan & Ekosistem",
+    "vision": "Visi & Misi",
+    "team": "Struktur Organisasi",
+    "legal": "Legalitas & Dokumen Resmi"
+  },
+  "differentiator": {
+    "eyebrow": "VISI ELEVATOR & DIFFERENTIATOR",
+    "title": "Mengelola Karya sebagai Portofolio Jangka Panjang",
+    "description": "Kami percaya bahwa nilai sebuah pengetahuan akan terus bertumbuh apabila dikelola dengan integritas, teknologi, dan tata kelola yang tepat.",
+    "highlight": "Melalui <strong>CakraNexa</strong>, satu buah karya tidak berhenti pada bentuk buku fisik—tetapi terus berkembang menjadi <strong>e-book, audiobook, modul pelatihan, toolkit, lisensi institusional, hingga database terintegrasi</strong>."
+  },
+  "scope": {
+    "eyebrow": "PORTFOLIO OF CAPABILITIES",
+    "title": "Ruang Lingkup Kegiatan",
+    "description": "Enam pilar operasional CakraNexa dalam menyokong diseminasi dan monetisasi karya intelektual akademik maupun profesional.",
+    "items": {
+      "publishing": {
+        "title": "Penerbitan & Publikasi Digital",
+        "description": "Akuisisi naskah, editorial, desain, metadata bibliografis, publikasi cetak, e-book, dan pengelolaan katalog."
+      },
+      "academy": {
+        "title": "Pendidikan & Pelatihan (Academy)",
+        "description": "Pengembangan course, workshop, training, dan pembelajaran berbasis keahlian praktisi serta akademisi."
+      },
+      "rights": {
+        "title": "Rights & IP Licensing",
+        "description": "Pengelolaan hak terjemahan, audio, adaptasi, lisensi perpustakaan, dan pemanfaatan karya secara sah."
+      },
+      "institutional": {
+        "title": "Institutional Solutions",
+        "description": "Kemitraan strategis dengan institusi pendidikan, organisasi profesi, perusahaan, dan perpustakaan."
+      },
+      "technology": {
+        "title": "Knowledge Technology",
+        "description": "Penerapan structured data, keterlacakan (discoverability), analitik, dan kecerdasan buatan (AI) yang bertanggung jawab."
+      },
+      "authorDevelopment": {
+        "title": "Author Development",
+        "description": "Pembinaan dan koordinasi jangka panjang bersama penulis untuk pengembangan karier ilmiah."
+      }
+    }
+  },
+  "lifecycle": {
+    "eyebrow": "CYCLICAL PUBLISHING PROCESS",
+    "title": "Siklus Hidup Karya (Lifecycle)",
+    "description": "Alur sirkular terukur yang memastikan setiap karya tidak hanya berhenti setelah cetak, namun terus dirawat dan diperluas nilainya.",
+    "continued": "Alur Siklus Lanjutan",
+    "summary": "<strong>CakraNexa</strong> merawat karya yang telah diterbitkan melalui pembaruan metadata, edisi revisi, lisensi baru, dan perluasan jangkauan pembaca lintas generasi.",
+    "steps": {
+      "idea": { "name": "Gagasan", "description": "Akuisisi ide & proposal riset" },
+      "selection": { "name": "Seleksi", "description": "Penelaahan dewan pakar" },
+      "editorial": { "name": "Editorial", "description": "Proofreading & telaah sitasi" },
+      "production": { "name": "Produksi", "description": "Tata letak B5 & ISBN resmi" },
+      "publication": { "name": "Publikasi", "description": "Rilis resmi & serah simpan" },
+      "distribution": { "name": "Distribusi", "description": "E-Commerce, kampus & perpustakaan" },
+      "licensing": { "name": "Lisensi", "description": "Audio, transkrip & institusi" },
+      "renewal": { "name": "Pembaruan", "description": "Edisi revisi & update riset" }
+    }
+  },
+  "governance": {
+    "eyebrow": "GOVERNANCE & ETHICS",
+    "title": "Perlindungan Hak Cipta & Integritas Penerbitan",
+    "items": {
+      "copyright": {
+        "title": "Penghormatan Hak Cipta (HAKI)",
+        "description": "Seluruh pemanfaatan karya untuk terjemahan, digitalisasi, maupun teknologi AI dilakukan secara transparan berdasarkan perjanjian legal yang sah."
+      },
+      "editorial": {
+        "title": "Integritas Editorial",
+        "description": "Kami menyoroti orisinalitas karya, etika penulisan, dan verifikasi rujukan untuk menjaga standar publikasi akademik & profesional."
+      },
+      "continuity": {
+        "title": "Keberlanjutan Institusional",
+        "description": "Dokumentasi, file sumber, metadata, dan kontrak dikelola secara terpusat sebagai aset institusional agar karya terjamin ketersediaannya secara berkelanjutan."
+      }
+    }
+  },
+  "entity": {
+    "legalName": {
+      "label": "Nama Entitas Resmi",
+      "note": "Badan Hukum Perseroan Terbatas"
+    },
+    "brand": {
+      "label": "Brand Penerbitan & Platform",
+      "note": "Knowledge Enterprise Ecosystem"
+    },
+    "location": {
+      "label": "Kedudukan Operasional",
+      "value": "DKI Jakarta, Indonesia",
+      "note": "Salemba Raya, Jakarta Pusat"
+    }
+  },
+  "vision": {
+    "header": {
+      "eyebrow": "ARAH & FUNDAMEN KEILMUAN",
+      "title": "Menerbitkan Pengetahuan, Membangun Warisan",
+      "description": "PT Cakrawala Magna Scientia membangun ekosistem pengetahuan yang tidak berhenti pada penerbitan. Kami mengelola pengetahuan sepanjang siklus hidupnya—dari gagasan, penerbitan, pembelajaran, pembaruan, perlindungan hak, pengembangan lintas format, hingga pewarisannya kepada generasi mendatang."
+    },
+    "statement": {
+      "eyebrow": "PANDANGAN MASA DEPAN",
+      "title": "Visi Kami",
+      "text": "Menjadi perusahaan pengetahuan Indonesia berkelas dunia yang membangun warisan intelektual lintas generasi dengan menjadikan setiap karya sebagai aset pengetahuan yang dapat ditemukan, dipercaya, dipelajari, diperbarui, dilindungi, dikembangkan, dilisensikan, dan diwariskan secara berkelanjutan."
+    },
+    "missions": {
+      "eyebrow": "DELAPAN KOMITMEN STRATEGIS",
+      "title": "Misi",
+      "description": "Langkah-langkah operasional yang konsisten dijalankan untuk mengaktualisasikan visi keilmuan CakraNexa.",
+      "items": [
+        {
+          "title": "Penerbitan Berkualitas",
+          "description": "Menerbitkan karya yang bermutu, kredibel, relevan, dan berdampak melalui proses seleksi, penyuntingan, produksi, publikasi, dan penjaminan mutu yang profesional dan dapat dipertanggungjawabkan."
+        },
+        {
+          "title": "Pengetahuan yang Terus Hidup",
+          "description": "Memperbarui substansi, data, referensi, metadata, desain, dan format karya agar pengetahuan tetap relevan bagi perkembangan zaman dan generasi pembaca berikutnya."
+        },
+        {
+          "title": "Pengembangan Multiformat",
+          "description": "Mengembangkan setiap karya menjadi portofolio pengetahuan multiformat yang dapat mencakup buku cetak, e-book, audiobook, course, toolkit, database, terjemahan, adaptasi, serta lisensi institusional dan teknologi."
+        },
+        {
+          "title": "Akses dan Discoverability",
+          "description": "Memperluas keterlihatan serta keterjangkauan karya dan penulis melalui metadata berkualitas, structured data, sistem pencarian, kategori, seri, editorial content, semantic search, dan teknologi rekomendasi."
+        },
+        {
+          "title": "Ekosistem Penulis, Pembaca, dan Institusi",
+          "description": "Membangun hubungan jangka panjang dengan penulis, pembaca, profesional, akademisi, perpustakaan, lembaga pendidikan, korporasi, reseller, dan mitra strategis."
+        },
+        {
+          "title": "Perlindungan Aset Intelektual",
+          "description": "Melindungi dan mengelola hak cipta, hak penerbitan, hak terjemahan, audio, adaptasi, lisensi digital, lisensi AI, kontrak, provenance, metadata, file sumber, dan aset intelektual lainnya secara bertanggung jawab."
+        },
+        {
+          "title": "Teknologi dan Data",
+          "description": "Memanfaatkan teknologi, data, analitik, otomatisasi, dan kecerdasan buatan secara bertanggung jawab untuk meningkatkan kualitas, efisiensi, akses, pengambilan keputusan, dan keberlanjutan perusahaan."
+        },
+        {
+          "title": "Tata Kelola dan Regenerasi",
+          "description": "Membangun tata kelola, dokumentasi, sistem, regenerasi kepemimpinan, dan pengembangan talenta agar perusahaan dapat berkembang lintas generasi tanpa ketergantungan pada satu individu, vendor, platform, atau teknologi."
+        }
+      ]
+    },
+    "values": {
+      "eyebrow": "CORE VALUES",
+      "title": "Nilai yang Menuntun Kami",
+      "description": "Prinsip yang menjadi dasar setiap keputusan, karya, kemitraan, dan inovasi CakraNexa.",
+      "items": [
+        {
+          "name": "Integritas Intelektual",
+          "description": "Menjunjung akurasi, kejujuran akademik, transparansi sumber, penghormatan terhadap hak cipta, dan tanggung jawab kepada pembaca."
+        },
+        {
+          "name": "Keunggulan",
+          "description": "Menetapkan standar tinggi dalam editorial, desain, produksi, teknologi, pemasaran, layanan penulis, dan pengalaman pembaca."
+        },
+        {
+          "name": "Keberlanjutan Pengetahuan",
+          "description": "Memperlakukan setiap karya sebagai aset intelektual yang dapat terus diperbarui, dikembangkan, dilisensikan, dan diwariskan."
+        },
+        {
+          "name": "Keterjangkauan & Keterlihatan",
+          "description": "Membuat pengetahuan yang bermutu semakin mudah ditemukan, diakses, dipahami, dan dimanfaatkan."
+        },
+        {
+          "name": "Kolaborasi",
+          "description": "Membangun hubungan jangka panjang yang adil dan produktif dengan seluruh pemangku kepentingan dalam ekosistem pengetahuan."
+        },
+        {
+          "name": "Inovasi Bertanggung Jawab",
+          "description": "Menggunakan teknologi, data, otomatisasi, dan AI untuk memperkuat kualitas dan akses tanpa mengurangi integritas karya."
+        },
+        {
+          "name": "Tata Kelola & Akuntabilitas",
+          "description": "Menjadikan proses penting terdokumentasi, terukur, dapat diaudit, serta dilaksanakan berdasarkan kewenangan dan tanggung jawab yang jelas."
+        },
+        {
+          "name": "Regenerasi",
+          "description": "Memastikan pengetahuan, kompetensi, kepemimpinan, dan sistem perusahaan dapat diteruskan kepada generasi berikutnya."
+        }
+      ]
+    },
+    "pillars": {
+      "eyebrow": "STRATEGIC PILLARS",
+      "title": "Pilar Strategis CakraNexa",
+      "description": "Enam pilar operasional penopang keberlanjutan dan keunggulan ekosistem.",
+      "items": {
+        "publishing": {
+          "title": "Publishing Excellence",
+          "description": "Membangun proses penerbitan profesional dari akuisisi naskah, editorial, desain, produksi, distribusi hingga evaluasi kinerja setiap judul."
+        },
+        "lifecycle": {
+          "title": "Knowledge Lifecycle",
+          "description": "Mengelola karya sepanjang siklus hidupnya: diterbitkan, dipasarkan, diperbarui, dialihformatkan, diterjemahkan, diajarkan, dan dilisensikan."
+        },
+        "discoverability": {
+          "title": "Discoverability & Commerce",
+          "description": "Memastikan karya dapat ditemukan dan diperoleh melalui metadata, search, structured data, kategori, seri, editorial content, serta kanal penjualan terintegrasi."
+        },
+        "community": {
+          "title": "Community & Learning",
+          "description": "Membangun hubungan berkelanjutan dengan pembaca, penulis, profesional, akademisi, institusi, dan perpustakaan melalui komunitas dan pembelajaran."
+        },
+        "rights": {
+          "title": "Rights & Intellectual Assets",
+          "description": "Mengelola hak, kontrak, provenance, backlist, metadata, file sumber, terjemahan, audio, adaptasi, dan lisensi sebagai aset jangka panjang."
+        },
+        "continuity": {
+          "title": "Institutional Continuity",
+          "description": "Membangun sistem, dokumentasi, kaderisasi, data, tata kelola, keamanan, dan diversifikasi pendapatan agar perusahaan dapat berkembang lintas generasi."
+        }
+      }
+    },
+    "manifesto": {
+      "eyebrow": "MANIFESTO KNOWLEDGE ENTERPRISE",
+      "title": "Pengetahuan Bukan Sekadar Produk",
+      "text": "PT Cakrawala Magna Scientia memandang setiap karya bukan sebagai produk sekali jual, melainkan sebagai aset pengetahuan jangka panjang. Sebuah buku dapat terus bertumbuh menjadi edisi baru, e-book, audiobook, course, toolkit, database, terjemahan, lisensi institusional, adaptasi, dan bentuk pemanfaatan pengetahuan lainnya. Karena itu, kami membangun sistem yang menjaga tidak hanya karya yang diterbitkan, tetapi juga metadata, kontrak, provenance, file sumber, hak kekayaan intelektual, hubungan dengan penulis, dan pengetahuan institusional yang menyertainya."
+    },
+    "collaboration": {
+      "eyebrow": "KOLABORASI & SINERGI",
+      "title": "Bersama Membangun Warisan Pengetahuan",
+      "text": "PT Cakrawala Magna Scientia membuka ruang kolaborasi bagi penulis, akademisi, profesional, institusi, perpustakaan, dan mitra yang memiliki komitmen yang sama untuk menghasilkan dan mewariskan pengetahuan yang bermakna.",
+      "badge": "Kemitraan Jangka Panjang CakraNexa"
+    }
+  },
+  "organization": {
+    "title": "Struktur Organisasi",
+    "caption": "Bagan Kepengurusan dan Lini Manajerial Resmi PT Cakrawala Magna Scientia",
+    "roles": {
+      "commissioner": "Komisaris",
+      "director": "Direktur",
+      "expertBoard": "Dewan Pakar",
+      "generalHr": "Manajer Umum dan SDM",
+      "finance": "Manajer Keuangan",
+      "it": "Manajer IT",
+      "publishing": "Manajer Publishing",
+      "printing": "Manajer Percetakan"
+    },
+    "duties": {
+      "eyebrow": "FUNGSI & TANGGUNG JAWAB ORGANISASI",
+      "title": "Deskripsi Tugas Kepengurusan",
+      "items": {
+        "commissioner": {
+          "scope": "Pengawasan & Tata Kelola",
+          "description": "Menjalankan fungsi pengawasan umum, meninjau kepatuhan anggaran, serta memastikan perseroan konsisten menerapkan prinsip tata kelola yang baik (Good Corporate Governance)."
+        },
+        "director": {
+          "scope": "Eksekutif & Operasional",
+          "description": "Memimpin implementasi visi, menetapkan arah operasional dan komersial, serta mengkoordinasikan seluruh lini manajerial dalam ekosistem penerbitan CakraNexa."
+        },
+        "expertBoard": {
+          "scope": "Pertimbangan Keilmuan",
+          "description": "Badan penasihat independen yang memberikan pertimbangan substansi ilmiah, etika publikasi, kelayakan metodologi riset, dan penguatan mutu terbitan monografi."
+        },
+        "generalHr": {
+          "scope": "SDM & Administrasi",
+          "description": "Mengelola pengembangan talenta, administrasi hukum korporasi, hubungan kelembagaan eksternal, dan pengelolaan sarana prasarana operasional kantor."
+        },
+        "finance": {
+          "scope": "Keuangan & Fiskal",
+          "description": "Mengelola perencanaan anggaran, arus kas, transparansi royalti penulis, kepatuhan perpajakan, serta akuntabilitas pelaporan keuangan perseroan."
+        },
+        "it": {
+          "scope": "Teknologi & Sistem Data",
+          "description": "Mengembangkan infrastruktur platform digital CakraNexa, arsitektur pencarian semantik, manajemen metadata terstruktur, dan keamanan data perseroan."
+        },
+        "publishing": {
+          "scope": "Editorial & Hak Kekayaan Intelektual",
+          "description": "Mengawal siklus penerbitan naskah, proses editorial, penelaahan substansi (peer-review), penjaminan mutu ilmiah, administrasi ISBN Perpusnas, dan tata kelola hak cipta."
+        },
+        "printing": {
+          "scope": "Produksi Fisik & Rantai Pasok",
+          "description": "Mengatur operasional pra-cetak, pencetakan fisik, penjaminan kualitas jilid dan kertas, serta logistik pergudangan dan pengiriman buku secara terukur."
+        }
+      }
+    }
+  },
+  "legal": {
+    "title": "Dokumen Legalitas & Status Badan Hukum Resmi",
+    "description": "PT Cakrawala Magna Scientia beroperasi secara sah berdasarkan hukum Republik Indonesia.",
+    "kemenkumham": {
+      "label": "Pengesahan Kemenkumham RI",
+      "defaultNote": "Akta Notaris & SK Pengesahan Menkumham RI",
+      "fallbackNote": "Akta Notaris Pendirian Perseroan Terbatas"
+    },
+    "nib": {
+      "label": "Nomor Induk Berusaha (NIB)",
+      "defaultNote": "KBLI 58111 (Penerbitan Buku) & KBLI 58130",
+      "fallbackNote": "KBLI 58111 (Penerbitan Buku) & KBLI 58130"
+    },
+    "npwp": {
+      "label": "NPWP Perusahaan",
+      "defaultNote": "KPP Pratama Jakarta Pusat • PKP Terdaftar",
+      "fallbackNote": "KPP Pratama Jakarta Pusat • PKP Terdaftar"
+    },
+    "membership": {
+      "label": "Keanggotaan Penerbit Resmi",
+      "defaultNote": "Ikatan Penerbit Indonesia (IKAPI) & Afiliasi Perpusnas RI",
+      "fallbackNote": "Ikatan Penerbit Indonesia & Afiliasi Perpusnas RI"
+    }
+  }
+}

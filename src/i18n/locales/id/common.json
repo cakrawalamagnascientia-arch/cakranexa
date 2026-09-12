@@ -1,0 +1,153 @@
+{
+  "language": "Bahasa",
+  "indonesia": "Indonesia",
+  "english": "Inggris",
+  "chinese": "China",
+  "home": "Home",
+  "catalog": "Katalog",
+  "publishing": "Penerbitan",
+  "training": "Pelatihan",
+  "journal": "Jurnal",
+  "about": "Tentang Kami",
+  "blog": "Blog",
+  "career": "Karier",
+  "contact": "Kontak",
+  "authors": "Penulis & Kontributor",
+  "cart": "Keranjang",
+  "search": "Cari",
+  "paymentMethod": "Metode Pembayaran",
+  "allBooks": "Semua Buku",
+  "viewDetails": "Lihat Detail",
+  "viewProfile": "Lihat Profil & Karya",
+  "officialSeller": "Penjual Resmi",
+  "publisher": "Penerbit Utama",
+  "priceComingSoon": "Harga menyusul",
+  "latest": "Terbaru",
+  "back": "Kembali",
+  "save": "Simpan Perubahan",
+  "cancel": "Batal",
+  "loading": "Memuat...",
+  "noData": "Data belum tersedia.",
+  "nav": {
+    "homeAriaLabel": "CakraNexa Beranda",
+    "searchTitle": "Cari Judul / ISBN / Penulis",
+    "cartTitle": "Keranjang Belanja",
+    "cartButton": "Keranjang ({{quantity}})",
+    "catalogMenu": {
+      "bookCount_other": "{{count}} Buku",
+      "latestBooks": "Terbaru Semua Buku",
+      "categoriesHeading": "KATEGORI BUKU"
+    },
+    "publishingMenu": {
+      "services": "LAYANAN PENERBITAN",
+      "submitManuscript": "KIRIM NASKAH",
+      "openBadge": "Open",
+      "authorGuide": "PANDUAN PENULIS",
+      "process": "PROSES PENERBITAN",
+      "faq": "FAQ PENERBITAN"
+    },
+    "aboutMenu": {
+      "profile": "PROFIL PERUSAHAAN",
+      "visionMission": "VISI & MISI",
+      "editorialTeam": "DEWAN REDAKSI & TIM",
+      "legality": "LEGALITAS"
+    },
+    "mobile": {
+      "catalogAll": "Katalog (Semua Buku)",
+      "publishingServices": "Layanan Penerbitan",
+      "submitManuscript": "Kirim Naskah Buku",
+      "authorGuide": "Panduan Penulis",
+      "process": "Proses Penerbitan",
+      "faq": "FAQ Penerbitan"
+    }
+  },
+  "subheader": {
+    "backTitle": "Kembali ke halaman sebelumnya",
+    "backLabel": "Kembali ke Halaman Sebelumnya",
+    "sectionLabel": "Katalog:",
+    "authorDetail": "Detail Penulis",
+    "bookDetail": "Detail Buku",
+    "contributingAuthors": "Penulis Kontributor",
+    "pages": {
+      "katalog": "katalog",
+      "katalogDetail": "katalog detail",
+      "penerbitan": "penerbitan",
+      "pelatihan": "pelatihan",
+      "jurnal": "jurnal",
+      "tentangKami": "tentang kami",
+      "blog": "blog",
+      "career": "career",
+      "karir": "karir",
+      "checkout": "checkout",
+      "kontak": "kontak"
+    }
+  },
+  "toast": {
+    "forthcomingNoPrice": "\"{{title}}\" segera terbit — harga belum ditetapkan.",
+    "addedToCart": "\"{{title}}\" ditambahkan ke keranjang belanja.",
+    "removedFromCart": "Item dihapus dari keranjang.",
+    "orderRecorded": "Pesanan #{{orderNumber}} berhasil dicatat. Terima kasih!",
+    "orderSyncFailed": "Pesanan tersimpan lokal, namun gagal tersinkron ke server: {{reason}}",
+    "orderUpdateFailed": "Gagal update pesanan di server: {{message}}",
+    "orderUpdateOffline": "Update pesanan tersimpan lokal (backend offline).",
+    "bookUpdateFailed": "Gagal memperbarui buku di server: {{message}}",
+    "authorSync": {
+      "createFailed": "Gagal menambahkan penulis di server: {{message}}",
+      "createOffline": "Penulis ditambahkan lokal saja (backend offline).",
+      "updateFailed": "Gagal memperbarui penulis di server: {{message}}",
+      "updateOffline": "Penulis diperbarui lokal saja (backend offline)."
+    }
+  },
+  "actions": {
+    "addToCart": "Tambah ke Keranjang",
+    "addToCartShort": "+ Keranjang",
+    "buyNow": "Beli Sekarang",
+    "detail": "Detail",
+    "backToTop": "Kembali ke atas"
+  },
+  "image": {
+    "defaultAlt": "Image"
+  },
+  "footer": {
+    "about": "PT CAKRAWALA MAGNA SCIENTIA - PT Cakrawala Magna Scientia adalah perusahaan pengetahuan yang membangun ekosistem untuk menerbitkan, memperbarui, mengembangkan, mengajarkan, melindungi, melisensikan, dan mewariskan pengetahuan kepada generasi mendatang.\n\nMelalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, institusi, perpustakaan, dan mitra dalam sebuah ekosistem pengetahuan yang dirancang untuk bertumbuh melampaui satu buku, satu format, satu platform, dan satu generasi.",
+    "trust": {
+      "ikapiMember": "Penerbit Anggota IKAPI",
+      "isbnPerpusnas": "ISBN Resmi Perpusnas RI",
+      "nationalCatalog": "Terindeks Katalog Nasional",
+      "paymentGateway": "Payment Gateway Resmi",
+      "sslEncryption": "Enkripsi 256-Bit SSL Terverifikasi",
+      "legalEntity": "Badan Hukum PT Resmi"
+    },
+    "catalogLinks": {
+      "taxation": "Buku Perpajakan & Fiskal",
+      "accounting": "Buku Akuntansi & Audit Forensik",
+      "law": "Buku Hukum Acara & Pidana",
+      "economics": "Ekonomi & Manajemen Korporasi"
+    },
+    "servicesHeading": "Layanan & Riset",
+    "servicesLinks": {
+      "publishing": "Layanan Penerbitan Buku",
+      "submit": "Kirim Naskah / Proposal Buku",
+      "guidelines": "Panduan Penulisan & Format",
+      "taxWorkshop": "Executive Workshop Pajak",
+      "journal": "Jurnal Ilmiah Peer-Reviewed",
+      "isbnFaq": "FAQ Penerbitan ISBN"
+    },
+    "companyHeading": "Perusahaan",
+    "companyLinks": {
+      "profile": "Profil PT Cakrawala Magna",
+      "visionMission": "Visi, Misi & Komitmen",
+      "legality": "Legalitas & Akta Kemenkumham",
+      "blog": "Law & Tax Commentary (Blog)",
+      "careers": "Karir & Kemitraan"
+    },
+    "legal": {
+      "privacy": "Kebijakan Privasi",
+      "terms": "Syarat & Ketentuan",
+      "isbnVerification": "Verifikasi ISBN",
+      "editorialBoard": "Dewan Editorial"
+    },
+    "copyright": "Hak Cipta Dilindungi Undang-Undang. Seluruh monografi dan buku teks terdaftar ISBN resmi Perpustakaan Nasional RI.",
+    "copyrightFallback": "© {{year}} PT CAKRAWALA MAGNA SCIENTIA (CakraNexa). Hak Cipta Dilindungi Undang-Undang."
+  }
+}

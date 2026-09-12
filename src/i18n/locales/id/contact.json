@@ -1,0 +1,49 @@
+{
+  "header": {
+    "eyebrow": "HUBUNGI KAMI • PT CAKRAWALA MAGNA SCIENTIA",
+    "title": "Konsultasi Penerbitan, Pengadaan Buku & Kerjasama Akademik",
+    "subtitle": "Tim redaksi dan pemasaran perseroan siap melayani kebutuhan penerbitan naskah, pesanan buku skala institusi/perpustakaan, maupun kemitraan riset."
+  },
+  "office": {
+    "title": "Kantor Pusat Penerbitan",
+    "phoneLabel": "Layanan WhatsApp & Telepon",
+    "whatsappEditorial": "{{phone}} (WhatsApp Redaksi)",
+    "emailLabel": "Surat Elektronik (Email)",
+    "hoursLabel": "Jam Operasional Layanan",
+    "workingHoursDefault": "Senin - Jumat: 08:30 - 17:30 WIB | Sabtu & Minggu: Tutup"
+  },
+  "success": {
+    "title": "Pesan Anda Telah Kami Terima",
+    "text": "Tim representatif PT Cakrawala Magna Scientia akan merespons permintaan Anda melalui email atau WhatsApp dalam 1x24 jam kerja."
+  },
+  "form": {
+    "title": "Kirimkan Pesan atau Permohonan Kerjasama",
+    "subtitle": "Silakan isi rincian kontak Anda dan hal yang ingin dikonsultasikan.",
+    "name": {
+      "label": "Nama Lengkap & Gelar *",
+      "placeholder": "Nama Lengkap Anda"
+    },
+    "email": {
+      "label": "Alamat Email *",
+      "placeholder": "email@institusi.ac.id"
+    },
+    "phone": {
+      "label": "Nomor WhatsApp / Telepon *"
+    },
+    "subject": {
+      "label": "Topik Keperluan *",
+      "options": {
+        "libraryProcurement": "Pengadaan Buku Perpustakaan / Kampus",
+        "publishingConsultation": "Konsultasi Penerbitan Naskah Buku",
+        "workshopRegistration": "Pendaftaran Workshop / Pelatihan",
+        "journalPartnership": "Kemitraan Jurnal Ilmiah",
+        "distributionPartnership": "Kerjasama Distribusi / Toko Buku"
+      }
+    },
+    "message": {
+      "label": "Pesan / Rincian Kebutuhan *",
+      "placeholder": "Uraikan permohonan kerjasama, estimasi eksemplar buku yang dipesan, atau kebutuhan naskah..."
+    },
+    "submit": "Kirim Pesan Resmi ke CakraNexa"
+  }
+}

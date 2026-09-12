@@ -1,0 +1,82 @@
+{
+  "categories": {
+    "taxation": "税务",
+    "accounting": "会计",
+    "law": "法律",
+    "economicsBusiness": "经济与商业",
+    "philosophy": "哲学",
+    "theology": "神学"
+  },
+  "grid": {
+    "heading": "<highlight>{{category}}</highlight>目录",
+    "defaultHeading": "学术文献",
+    "description": "展示经核实、已获正式ISBN的学术专著与参考书。",
+    "showingOf_other": "显示 {{shown}} / {{count}} 种图书",
+    "searchPlaceholder": "按书名、增值税/审计主题、ISBN或作者搜索...",
+    "clearSearch": "清除",
+    "resultCount_other": "<strong>{{count}}</strong> 本",
+    "sort": {
+      "newest": "最新图书",
+      "recommended": "重点推荐",
+      "priceLow": "价格：从低到高",
+      "priceHigh": "价格：从高到低",
+      "title": "书名（A - Z）"
+    },
+    "view": {
+      "grid": "网格视图",
+      "list": "列表视图"
+    },
+    "empty": {
+      "title": "没有符合搜索条件的图书",
+      "description": "请尝试调整搜索关键词、更改分类筛选或重置价格上限，以查看我们的全部馆藏。",
+      "reset": "重置所有筛选"
+    },
+    "listMeta": "作者：<strong>{{author}}</strong> • {{pages}} 页 • {{year}}",
+    "officialPrice": "官方定价"
+  },
+  "card": {
+    "coverAlt": "图书封面",
+    "categoryFallback": "专著",
+    "titleFallback": "书名",
+    "pages": "{{pages}} 页"
+  },
+  "isbn": {
+    "label": "ISBN：{{isbn}}",
+    "labelWithAuthor": "ISBN：{{isbn}} • {{author}}",
+    "pending": "待定",
+    "short": "ISBN …{{suffix}}",
+    "inSubmission": "ISBN申请中",
+    "toFollow": "ISBN待定"
+  },
+  "filter": {
+    "heading": "筛选文献",
+    "reset": "重置",
+    "categoriesHeading": "图书分类",
+    "allCategories": "全部分类",
+    "onlyNew": "仅显示最新图书",
+    "yearHeading": "出版年份",
+    "allYears": "全部",
+    "priceHeading": "价格上限",
+    "priceUpTo": "最高 {{price}}",
+    "authorServices": {
+      "title": "作者服务",
+      "description": "立即投稿，成为国家文化素养建设的一分子。",
+      "cta": "开始出版"
+    }
+  },
+  "quickSearch": {
+    "placeholder": "输入书名、ISBN（例如：978-623）、作者姓名或分类...",
+    "clear": "清除",
+    "results": "搜索结果（{{total}}）",
+    "recommended": "精选出版物",
+    "escHint": "按 ESC 退出",
+    "noResults": "未找到与“{{query}}”相关的图书。",
+    "footer_other": "CakraNexa 出版的 {{count}} 本专著与参考书"
+  },
+  "cover": {
+    "defaultTitle": "学术专著",
+    "defaultCategory": "税务与法律",
+    "authorLabel": "作者 / 编写团队",
+    "edition": "{{year}} 年版"
+  }
+}

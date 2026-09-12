@@ -119,7 +119,8 @@ const rowToBook = (row: any): Book => normalizeBookAuthors({
   daftarIsi: Array.isArray(row.daftar_isi) ? row.daftar_isi : undefined,
   tentangPenulis: row.tentang_penulis || undefined,
   isBestSeller: Boolean(row.is_best_seller),
-  featured: Boolean(row.featured)
+  featured: Boolean(row.featured),
+  i18n: row.i18n && typeof row.i18n === 'object' ? row.i18n : undefined
 });
 
 const rowToAuthor = (row: any): Author => normalizeAuthorProfile({
@@ -144,6 +145,7 @@ const rowToAuthor = (row: any): Author => normalizeAuthorProfile({
   publications: row.publications ?? undefined,
   created_at: row.created_at,
   updated_at: row.updated_at,
+  i18n: row.i18n && typeof row.i18n === 'object' ? row.i18n : undefined,
   books: Array.isArray(row.books) ? row.books.map((b: any) => (typeof b === 'object' && 'id' in b ? rowToBook(b) : b)) : undefined
 });
 

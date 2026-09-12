@@ -1,0 +1,147 @@
+{
+  "hero": {
+    "ariaLabel": "Carousel Banner Beranda CakraNexa",
+    "prevSlide": "Slide sebelumnya",
+    "nextSlide": "Slide berikutnya",
+    "goToSlide": "Pindah ke banner {{number}}",
+    "fallback": {
+      "badge": "PENERBIT RESMI IKAPI",
+      "primaryCta": "Jelajahi Katalog Buku",
+      "secondaryCta": "Kirim Naskah"
+    },
+    "branding": {
+      "tagline": "Knowledge Ecosystem",
+      "pillars": {
+        "books": "Books",
+        "journals": "Journals",
+        "research": "Research",
+        "education": "Education",
+        "seminars": "Seminars",
+        "digitalKnowledge": "Digital Knowledge"
+      }
+    },
+    "slides": {
+      "literature": {
+        "badge": "PENERBIT LITERATUR AKADEMIK & PROFESIONAL",
+        "title": "Menerbitkan Pengetahuan, Membangun Warisan Keilmuan.",
+        "subtitle": "Melalui ekosistem CakraNexa, kami menghubungkan penulis, akademisi, dan profesional dalam platform pengetahuan berkelanjutan—dirancang untuk berkembang melampaui satu buku, satu format, dan satu generasi.",
+        "primaryCtaText": "Jelajahi Katalog Buku",
+        "secondaryCtaText": "Kirim Naskah"
+      },
+      "vatTrilogy": {
+        "badge": "Trilogi Reformulasi PPN Digital Indonesia",
+        "title": "Koleksi Monografi Hukum Pajak Terlengkap & Terkini",
+        "subtitle": "Analisis mendalam restrukturisasi subjek, objek, dan kepatuhan administrasi sistem pajak digital era Core Tax Administration System.",
+        "primaryCtaText": "Lihat Trilogi PPN",
+        "secondaryCtaText": "Beli Paket Monografi"
+      },
+      "isbnService": {
+        "badge": "Layanan Penerbitan Buku Ber-ISBN Cepat & Profesional",
+        "title": "Wujudkan Naskah Disertasi, Tesis, & Diktat Ajar Anda Menjadi Buku Referensi Nasional",
+        "subtitle": "Fasilitas peer-review mitra bestari, tata letak standar internasional, pengurusan ISBN Perpusnas, hingga hak cipta HKI.",
+        "primaryCtaText": "Konsultasi Penerbitan",
+        "secondaryCtaText": "Panduan Penulisan"
+      },
+      "taxLegal": {
+        "badge": "LITERATUR HUKUM & PERPAJAKAN STRATEGIS",
+        "title": "Kepastian Hukum & Diskursus Regulasi Perpajakan Terapan",
+        "subtitle": "Rujukan otoritatif bagi praktisi, akademisi, dan hakim pengadilan pajak karya Dr. Prianto Budi Saptono, Ak., CA, M.B.A. dan dewan pakar nasional.",
+        "primaryCtaText": "LIHAT BUKU PERPAJAKAN",
+        "secondaryCtaText": "KONSULTASI REDAKSI"
+      },
+      "textbooks": {
+        "badge": "BUKU TEKS & MONOGRAFI PERGURUAN TINGGI",
+        "title": "Kurikulum Vokasi & Sarjana Berbasis Riset Kontekstual",
+        "subtitle": "Buku teks terstruktur dengan studi kasus komprehensif, ditelaah oleh mitra bestari independen dan terdaftar resmi di Perpustakaan Nasional RI.",
+        "primaryCtaText": "EKSPLORASI BUKU TEKS",
+        "secondaryCtaText": "PANDUAN PENULIS"
+      },
+      "peerReview": {
+        "badge": "LAYANAN PENERBITAN & PEER-REVIEW BERKUALITAS",
+        "title": "Fasilitasi Publikasi Cepat & Berstandar Global",
+        "subtitle": "Pendampingan komprehensif dari konversi disertasi/tesis, layouting tipografi ilmiah, pengurusan ISBN, hingga distribusi nasional.",
+        "primaryCtaText": "KIRIM NASKAH BUKU",
+        "secondaryCtaText": "LAYANAN PENERBITAN"
+      }
+    },
+    "stats": {
+      "references": "Buku Referensi Utama",
+      "isbn": "Ber-ISBN Resmi Perpusnas",
+      "ikapi": "Penerbit Anggota Resmi"
+    }
+  },
+  "bestSeller": {
+    "badge": "MONOGRAFI BEST SELLER AKADEMIK",
+    "title": "Koleksi Buku Terlaris Rujukan Pakar, Dosen, & Praktisi",
+    "subtitle": "Deretan monografi ilmiah ber-ISBN dengan tingkat adopsi kurikulum dan sitasi tertinggi."
+  },
+  "ticker": {
+    "speedLabel": "Kecepatan:",
+    "speed": {
+      "slow": "Lambat",
+      "normal": "Normal",
+      "fast": "Cepat"
+    },
+    "speedTitle": {
+      "slow": "Kecepatan Lambat",
+      "normal": "Kecepatan Normal",
+      "fast": "Kecepatan Cepat"
+    }
+  },
+  "showcase": {
+    "badge": "Layanan Penerbitan Mandiri & Institusi",
+    "heading": "Be Your Own Publisher. <br/><muted>Penerbitan Profesional Berstandar Nasional.</muted>",
+    "intro": "PT Cakrawala Magna Scientia mendampingi para akademisi, dosen, praktisi hukum, akuntan, dan peneliti untuk menerbitkan naskah ilmiah bermutu tinggi dengan alur cepat, transparan, dan terindeks resmi.",
+    "features": {
+      "editorial": {
+        "title": "Editorial & Penelaahan Ilmiah Presisi",
+        "description": "Penyelarasan sitasi akademik, proofreading tata bahasa baku, serta verifikasi substansi oleh dewan redaksi hukum dan perpajakan terapan."
+      },
+      "isbn": {
+        "title": "ISBN & Barcode Resmi Perpusnas RI",
+        "description": "Pengurusan International Standard Book Number resmi, kewajiban serah simpan karya cetak ke Perpustakaan Nasional RI, dan pendaftaran HAKI."
+      },
+      "printing": {
+        "title": "Percetakan Eksklusif & E-Commerce Terintegrasi",
+        "description": "Format ukuran UNESCO B5, kertas bookpaper premium, serta katalog online terintegrasi langsung dengan payment gateway dan sistem ekspedisi."
+      }
+    },
+    "submitManuscript": "Kirim Naskah",
+    "authorGuide": "Panduan Penulis",
+    "verifiedPublisher": "Penerbit Terdaftar Resmi",
+    "stack": {
+      "alt": "Monografi {{number}}",
+      "fallbackTitle": "Monografi Ilmiah {{number}}",
+      "mainAlt": "Monografi Utama CakraNexa"
+    }
+  },
+  "sections": {
+    "categories": {
+      "badge": "Preview Kategori",
+      "title": "Kategori Monografi Akademik",
+      "subtitle": "Eksplorasi literatur hukum, perpajakan, dan akuntansi berdasarkan disiplin ilmu"
+    },
+    "latest": {
+      "badge": "Rilis Terkini",
+      "title": "Preview Buku Terbaru",
+      "subtitle": "Monografi akademik dan buku teks terbaru dengan telaah riset terkini"
+    },
+    "all": {
+      "badge": "Katalog Lengkap",
+      "title": "Preview Semua Buku Terbitan",
+      "subtitle_other": "Seluruh {{count}} monografi akademik dan buku teks ber-ISBN resmi Perpustakaan Nasional"
+    }
+  },
+  "carousel": {
+    "viewAllBooks": "Lihat Semua Buku",
+    "all": "Semua",
+    "scrollLeft": "Geser Kiri",
+    "scrollRight": "Geser Kanan",
+    "scrollLeftHover": "Geser ke kiri",
+    "scrollRightHover": "Geser ke kanan",
+    "viewCategory": "Lihat Kategori {{category}} di Katalog",
+    "viewAllCategories": "Lihat Semua Kategori di Katalog",
+    "viewLatest": "Lihat Koleksi Buku Terbaru",
+    "exploreAll_other": "Jelajahi Semua {{count}} Buku di Katalog"
+  }
+}

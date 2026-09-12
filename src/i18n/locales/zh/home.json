@@ -1,0 +1,147 @@
+{
+  "hero": {
+    "ariaLabel": "CakraNexa 首页横幅轮播",
+    "prevSlide": "上一张",
+    "nextSlide": "下一张",
+    "goToSlide": "切换到第 {{number}} 张横幅",
+    "fallback": {
+      "badge": "印度尼西亚出版商协会（IKAPI）正式会员出版社",
+      "primaryCta": "浏览图书目录",
+      "secondaryCta": "投稿"
+    },
+    "branding": {
+      "tagline": "知识生态系统",
+      "pillars": {
+        "books": "图书",
+        "journals": "期刊",
+        "research": "研究",
+        "education": "教育",
+        "seminars": "研讨会",
+        "digitalKnowledge": "数字知识"
+      }
+    },
+    "slides": {
+      "literature": {
+        "badge": "学术与专业文献出版社",
+        "title": "出版知识，构建学术传承。",
+        "subtitle": "通过 CakraNexa 生态系统，我们将作者、学者与专业人士连接在一个可持续的知识平台上——其设计旨在超越单一图书、单一形式和单一世代而持续发展。",
+        "primaryCtaText": "浏览图书目录",
+        "secondaryCtaText": "投稿"
+      },
+      "vatTrilogy": {
+        "badge": "印度尼西亚数字增值税（PPN）重构三部曲",
+        "title": "最全面、最新的税法专著系列",
+        "subtitle": "深入分析核心税务管理系统（Core Tax Administration System）时代数字税制中纳税主体、课税对象及行政合规的重构。",
+        "primaryCtaText": "查看增值税三部曲",
+        "secondaryCtaText": "购买专著套装"
+      },
+      "isbnService": {
+        "badge": "快速、专业的ISBN图书出版服务",
+        "title": "将您的博士论文、硕士论文和讲义出版为国家级参考书",
+        "subtitle": "提供同行评审专家评审、国际标准排版、印度尼西亚国家图书馆ISBN申请以及著作权登记等服务。",
+        "primaryCtaText": "出版咨询",
+        "secondaryCtaText": "写作指南"
+      },
+      "taxLegal": {
+        "badge": "战略性法律与税务文献",
+        "title": "法律确定性与应用税务法规论述",
+        "subtitle": "由 Dr. Prianto Budi Saptono, Ak., CA, M.B.A. 及国家专家委员会撰写，是执业人士、学者和税务法院法官的权威参考。",
+        "primaryCtaText": "查看税务图书",
+        "secondaryCtaText": "编辑咨询"
+      },
+      "textbooks": {
+        "badge": "高校教科书与专著",
+        "title": "基于情境研究的职业教育与本科课程",
+        "subtitle": "结构严谨的教科书，配有全面的案例研究，经独立同行评审专家审阅，并在印度尼西亚国家图书馆正式登记。",
+        "primaryCtaText": "浏览教科书",
+        "secondaryCtaText": "作者指南"
+      },
+      "peerReview": {
+        "badge": "高质量出版与同行评审服务",
+        "title": "快速且符合国际标准的出版支持",
+        "subtitle": "从博士/硕士论文转化、学术排版、ISBN申请到全国发行的全方位支持。",
+        "primaryCtaText": "提交书稿",
+        "secondaryCtaText": "出版服务"
+      }
+    },
+    "stats": {
+      "references": "核心参考书",
+      "isbn": "已获印度尼西亚国家图书馆ISBN",
+      "ikapi": "正式会员出版社"
+    }
+  },
+  "bestSeller": {
+    "badge": "学术畅销专著",
+    "title": "专家、讲师与从业者首选的畅销图书",
+    "subtitle": "课程采用率和引用率最高的已获ISBN学术专著。"
+  },
+  "ticker": {
+    "speedLabel": "速度：",
+    "speed": {
+      "slow": "慢",
+      "normal": "正常",
+      "fast": "快"
+    },
+    "speedTitle": {
+      "slow": "慢速",
+      "normal": "正常速度",
+      "fast": "快速"
+    }
+  },
+  "showcase": {
+    "badge": "个人与机构出版服务",
+    "heading": "做自己的出版人。<br/><muted>符合国家标准的专业出版服务。</muted>",
+    "intro": "PT Cakrawala Magna Scientia 协助学者、讲师、法律从业者、会计师和研究人员，以快速、透明且正式收录的流程出版高质量学术书稿。",
+    "features": {
+      "editorial": {
+        "title": "精准的编辑与学术审阅",
+        "description": "统一学术引文格式、按规范语法校对，并由法律与应用税务编辑委员会进行内容核验。"
+      },
+      "isbn": {
+        "title": "印度尼西亚国家图书馆官方ISBN与条形码",
+        "description": "办理国际标准书号（ISBN）、向印度尼西亚国家图书馆履行出版物呈缴义务，以及知识产权登记。"
+      },
+      "printing": {
+        "title": "专属印刷与一体化电子商务",
+        "description": "UNESCO B5 开本、优质图书纸，以及与支付网关和物流系统直接集成的在线目录。"
+      }
+    },
+    "submitManuscript": "投稿",
+    "authorGuide": "作者指南",
+    "verifiedPublisher": "正式注册出版社",
+    "stack": {
+      "alt": "专著 {{number}}",
+      "fallbackTitle": "学术专著 {{number}}",
+      "mainAlt": "CakraNexa 精选专著"
+    }
+  },
+  "sections": {
+    "categories": {
+      "badge": "分类预览",
+      "title": "学术专著分类",
+      "subtitle": "按学科浏览法律、税务和会计文献"
+    },
+    "latest": {
+      "badge": "最新发布",
+      "title": "新书预览",
+      "subtitle": "融汇最新研究成果的学术专著与教科书"
+    },
+    "all": {
+      "badge": "完整目录",
+      "title": "全部出版图书预览",
+      "subtitle_other": "全部 {{count}} 种学术专著与教科书，均已在印度尼西亚国家图书馆正式登记ISBN"
+    }
+  },
+  "carousel": {
+    "viewAllBooks": "查看全部书籍",
+    "all": "全部",
+    "scrollLeft": "向左滑动",
+    "scrollRight": "向右滑动",
+    "scrollLeftHover": "向左滑动",
+    "scrollRightHover": "向右滑动",
+    "viewCategory": "在目录中查看{{category}}类图书",
+    "viewAllCategories": "在目录中查看全部分类",
+    "viewLatest": "查看最新图书",
+    "exploreAll_other": "在目录中浏览全部 {{count}} 本书"
+  }
+}

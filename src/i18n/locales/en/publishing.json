@@ -1,0 +1,357 @@
+{
+  "hero": {
+    "badge": "OFFICIAL PUBLISHING DIVISION OF PT CAKRAWALA MAGNA SCIENTIA",
+    "title": "Publish Your Scholarly Work to the Highest Standards of Academic Authority",
+    "description": "From academic manuscript to a nationally distributed, ISBN-registered book. We offer comprehensive editorial services, academic peer review, UNESCO-standard layout, and premium hardcover printing on fine book paper."
+  },
+  "tabs": {
+    "services": "Publishing Services",
+    "submit": "Submit Manuscript",
+    "guidelines": "Author Guidelines",
+    "process": "Publishing Process",
+    "faq": "Publishing FAQ"
+  },
+  "services": {
+    "categoryLabel": "Category {{number}}",
+    "priceFrom": "From {{price}}",
+    "priceFromPerChapter": "From {{price}} / chapter",
+    "main": {
+      "title": "Core Publishing Packages",
+      "description": "Integrated publishing solutions for reference books, monographs, and periodicals.",
+      "monograph": {
+        "badge": "DIKTI Standard",
+        "title": "Monograph",
+        "description": "Designed for academics and lecturers publishing single-study research that earns academic credit points (KUM).",
+        "features": [
+          "ISBN & Barcode Registration with Perpusnas",
+          "Review by Our Board of Peer Reviewers",
+          "UNESCO B5 Standard Layout & 3D Cover",
+          "CIP Data Registration in the National Catalogue"
+        ],
+        "cta": "Choose Monograph Package"
+      },
+      "journal": {
+        "badge": "OJS 3 & DOI",
+        "title": "Academic Journal",
+        "description": "Management and publication of accredited scholarly periodicals built on the Open Journal Systems standard.",
+        "features": [
+          "Institutional OJS 3 Setup & Configuration",
+          "Official Crossref DOI Integration",
+          "Structured Peer-Review Workflow",
+          "Indexing Support for Garuda & SINTA"
+        ],
+        "cta": "Choose Journal Package"
+      },
+      "ebook": {
+        "badge": "Digital & DRM",
+        "title": "E-Book",
+        "description": "Digital publishing in ePub3 and encrypted PDF formats with integrated DRM copyright protection.",
+        "features": [
+          "ePub3 & Interactive PDF Conversion",
+          "Digital Rights Management (DRM) Protection",
+          "Distribution via Google Play Books & CakraNexa",
+          "Real-Time Reader Analytics Dashboard"
+        ],
+        "cta": "Choose E-Book Package"
+      },
+      "periodical": {
+        "badge": "Corporate / Institutional",
+        "title": "Periodicals",
+        "description": "Publication of annual research bulletins, national and international seminar proceedings, and corporate magazines.",
+        "features": [
+          "Print & Digital Periodical Publishing",
+          "Official ISSN Registration with Perpusnas",
+          "Premium Scholarly Magazine Editorial Design",
+          "Distribution to Stakeholders & Libraries"
+        ],
+        "cta": "Choose Periodicals Package"
+      }
+    },
+    "editorial": {
+      "title": "Editorial & Production",
+      "description": "Refinement of scholarly manuscripts, artistic cover design, and teaching modules.",
+      "editing": {
+        "title": "Editing / Proofreading",
+        "description": "Review of standard Indonesian grammar (PUEBI/EYD), legal and tax terminology, consistency of terms, and the flow of argument—without altering the scholarly substance.",
+        "note": "Estimated: 3–5 Business Days"
+      },
+      "cover": {
+        "title": "Cover Design",
+        "description": "Editorial 3D visual design of high aesthetic value, authoritative monograph typography, high-resolution mockups, and offset-ready files (CMYK, 300 DPI).",
+        "note": "Includes 3 Rounds of Revisions"
+      },
+      "ghostwriting": {
+        "title": "Ghostwriting",
+        "description": "Intensive support for busy experts and practitioners: in-depth interviews and the shaping of practical insights into systematically structured scholarly chapters.",
+        "note": "Guided by a Senior Editor"
+      },
+      "teachingModule": {
+        "title": "Teaching Modules",
+        "description": "Development of university course books aligned with the semester learning plan (RPS), with integrated case exercises and student assessment rubrics.",
+        "note": "Meets OBE & DIKTI BKD Standards"
+      }
+    },
+    "licensing": {
+      "title": "Licensing & Intellectual Property",
+      "description": "Copyright protection, sound royalty arrangements, and monetization of intellectual works.",
+      "workLicensing": {
+        "title": "Work Licensing",
+        "description": "Management of institutional licensing contracts, university curriculum adoption, partner reprint rights, and transparent royalty sharing.",
+        "note": "Formal Deed of Agreement"
+      },
+      "certification": {
+        "title": "Work Certification (IP)",
+        "description": "Official filing for a Copyright Registration Certificate with the Directorate General of Intellectual Property (DJKI), Ministry of Law and Human Rights, through to issuance of the e-Hak Cipta certificate.",
+        "note": "Official DJKI Certificate"
+      },
+      "revisedEdition": {
+        "title": "Revised Edition",
+        "description": "Updates for new laws and regulations, refreshed statistical data, new chapters on the latest developments, and registration of a new ISBN for the revised edition.",
+        "note": "Extends the Book's Life Cycle"
+      },
+      "formatAdaptation": {
+        "title": "Format Adaptation",
+        "description": "Transforming manuscripts into executive summaries (white papers), audiobooks, digital microlearning modules, or institutional research databases.",
+        "note": "Multi-Platform Ready"
+      }
+    },
+    "distribution": {
+      "title": "Distribution & Marketing",
+      "description": "Nationwide readership through physical bookstores, online marketplaces, and book discussion events.",
+      "bookstore": {
+        "badge": "National Network",
+        "title": "Bookstore Distribution",
+        "description": "Placement across our network of partner bookstores, scheduled consignment, an official storefront on the CakraNexa Store e-commerce platform, and official Tokopedia and Shopee marketplace stores.",
+        "features": [
+          "Integrated CakraNexa Warehousing & Logistics",
+          "Regular, Transparent Sales Reporting"
+        ],
+        "note": "Coverage Across 38 Provinces"
+      },
+      "promotion": {
+        "badge": "Publicity & Media",
+        "title": "Promotion Strategy",
+        "description": "Scholarly book-discussion webinars with expert speakers, press releases through trusted national media, academic citation campaigns, and cataloguing in university libraries.",
+        "features": [
+          "National Media Press Release Distribution",
+          "Catalogue Circulation to University Research Institutes (LPPM) & Libraries"
+        ],
+        "note": "Author Branding Campaign"
+      }
+    }
+  },
+  "form": {
+    "eyebrow": "Official Submission Form",
+    "title": "Submit an Academic Book Manuscript",
+    "description": "Complete your author details and upload your draft manuscript for evaluation by the Editorial Board of PT Cakrawala Magna Scientia.",
+    "sections": {
+      "author": "1. Author Details",
+      "manuscript": "2. Manuscript Information",
+      "documents": "3. Upload Supporting Documents (PDF / DOCX)"
+    },
+    "fields": {
+      "fullName": {
+        "label": "Full Name & Academic Titles",
+        "placeholder": "Prof. Dr. Author Name, Ph.D."
+      },
+      "institution": {
+        "label": "NIDN / NIP / Institution",
+        "placeholder": "e.g. NIDN 0312048501 / Universitas Indonesia"
+      },
+      "email": {
+        "label": "Official / Academic Email",
+        "placeholder": "author@university.ac.id"
+      },
+      "phone": {
+        "label": "Active WhatsApp Number"
+      },
+      "bookTitle": {
+        "label": "Proposed Book / Monograph Title",
+        "placeholder": "Full title, including subtitle if any..."
+      },
+      "category": {
+        "label": "Target Category"
+      },
+      "synopsis": {
+        "label": "Brief Synopsis & Scholarly Novelty",
+        "placeholder": "Briefly describe the research background, the novelty of your findings, the estimated page count, and the intended readership..."
+      },
+      "synopsisFile": {
+        "label": "Synopsis & Manuscript Proposal File"
+      },
+      "manuscriptFile": {
+        "label": "Full Draft Manuscript File"
+      }
+    },
+    "categoryOptions": {
+      "monograph": "Monograph",
+      "textbook": "Textbook / Course Book",
+      "journal": "Academic Journal",
+      "taxation": "Taxation",
+      "law": "Law & Policy",
+      "economics": "Economics & Business",
+      "accounting": "Accounting & Audit"
+    },
+    "categoryValues": {
+      "monograph": "Monograph",
+      "textbook": "Textbook",
+      "journal": "Journal",
+      "taxation": "Taxation",
+      "law": "Law",
+      "economics": "Economics",
+      "accounting": "Accounting"
+    },
+    "upload": {
+      "synopsisPrompt": "Drag a file here or click to upload",
+      "synopsisHint": "PDF or DOCX (max. 10 MB)",
+      "manuscriptPrompt": "Drag your draft manuscript here or click",
+      "manuscriptHint": "PDF or DOCX (max. 50 MB)"
+    },
+    "terms": "I solemnly declare that the submitted manuscript is my original work, free from plagiarism (Turnitin similarity index < 20%), has not been published by any other publisher, and is ready to undergo peer review by the CakraNexa Editorial Board.",
+    "submit": "Submit Manuscript to the CakraNexa Editorial Board",
+    "submitting": "Submitting manuscript to the Editorial Board...",
+    "errors": {
+      "invalidFileType": "Please upload a document in PDF or DOCX format.",
+      "termsRequired": "You must agree to the manuscript originality statement."
+    },
+    "success": {
+      "trackingCode": "TRACKING CODE: {{ticket}}",
+      "title": "Manuscript Successfully Submitted to the Editorial Board",
+      "description": "Thank you for entrusting your work to PT Cakrawala Magna Scientia. Your manuscript is now in the queue for administrative screening and academic peer review.",
+      "recap": {
+        "bookTitle": "Manuscript Title:",
+        "author": "Author Name:",
+        "category": "Category:",
+        "manuscriptFile": "Manuscript File:",
+        "submittedAt": "Submitted On:"
+      },
+      "synopsisInline": "Summary Entered in the Form",
+      "manuscriptViaForm": "Submitted via Digital Form",
+      "nextStepsTitle": "Next Steps:",
+      "nextStepsDescription": "Our Scholarly Editorial Team will send an initial evaluation sheet and Peer-Review Matrix to your WhatsApp/email within 3–5 business days.",
+      "whatsappCta": "Confirm via Editorial WhatsApp",
+      "whatsappMessage": "Hello CakraNexa Editorial Board, I have submitted a manuscript with Tracking Code {{ticket}}. Could you please let me know the next steps?",
+      "submitAnother": "Submit Another Manuscript"
+    }
+  },
+  "guidelines": {
+    "eyebrow": "Official House Style",
+    "title": "Manuscript Writing Guidelines & Format",
+    "description": "Guidelines on typesetting, chapter structure, citation style, and scholarly integrity standards for monograph and textbook submissions.",
+    "downloadTemplate": "Download Manuscript Template (.DOCX)",
+    "layout": {
+      "title": "1. Paper Size, Font & Spacing",
+      "items": [
+        { "label": "Paper Size:", "value": "UNESCO B5 (15.5 x 23 cm) or standard A4." },
+        { "label": "Margins:", "value": "Left 3.0 cm, Right 2.5 cm, Top 2.5 cm, Bottom 2.5 cm." },
+        { "label": "Typeface:", "value": "Times New Roman or Palatino Linotype, 12 pt." },
+        { "label": "Spacing & Indent:", "value": "1.5 line spacing, first-line indent of 1.27 cm." },
+        { "label": "Length:", "value": "At least 150 pages for a scholarly monograph." }
+      ]
+    },
+    "citation": {
+      "title": "2. Citation Style & Reference Manager",
+      "items": [
+        { "label": "Citation Style:", "value": "APA Style, 7th Edition (Economics & Business, Accounting)." },
+        { "label": "Law:", "value": "Chicago Manual of Style (footnotes)." },
+        { "label": "Required Software:", "value": "Mendeley, Zotero, or EndNote for consistent metadata." },
+        { "label": "References:", "value": "At least 80% of references drawn from reputable journals published in the last 10 years." }
+      ]
+    },
+    "structure": {
+      "title": "3. Complete Book Anatomy",
+      "items": [
+        { "label": "Front Matter:", "value": "Inner Title Page, Copyright Page, Preface, Table of Contents, List of Tables & Figures." },
+        { "label": "Body:", "value": "Chapter I (Introduction & Research Context), Theoretical Review, Discussion & Critical Analysis, Conclusions & Policy Directions." },
+        { "label": "Back Matter:", "value": "Glossary of Key Terms, Complete Bibliography, Subject/Name Index, Brief Author Biography." }
+      ]
+    },
+    "plagiarism": {
+      "title": "4. Anti-Plagiarism Policy & Turnitin",
+      "thresholdTitle": "Turnitin Threshold < 20%",
+      "thresholdDescription": "Manuscripts must have a similarity index of no more than 20% using the official Turnitin filters: <em>Exclude Bibliography On</em> and <em>Exclude Matches &lt; 3 Words</em>.",
+      "note": "Manuscripts must be free from fabricated research data, falsified findings, and self-plagiarism without proper citation of prior works."
+    },
+    "cta": {
+      "title": "Does Your Manuscript Meet the Guidelines?",
+      "description": "Submit it now through our online portal for direct evaluation by the Editorial Board.",
+      "button": "Submit Your Manuscript Now"
+    }
+  },
+  "process": {
+    "eyebrow": "Standard Workflow",
+    "title": "The 5-Stage Publishing Process",
+    "description": "Transparent, measurable, held to high academic standards, and supported by a professional editorial team.",
+    "outputLabel": "Stage Deliverables:",
+    "cta": "Start Stage 1: Submit Your Manuscript",
+    "steps": [
+      {
+        "title": "Submission & Peer Review",
+        "badge": "7–14 Business Days",
+        "description": "Authors submit the full draft and synopsis through our official portal. Our in-house team carries out administrative verification and a Turnitin plagiarism check, followed by a substantive review by our Peer Reviewers to ensure scholarly rigor.",
+        "deliverables": ["Manuscript Evaluation Sheet", "Peer-Review Matrix", "Substantive Revision Notes"]
+      },
+      {
+        "title": "Contract & Intellectual Property",
+        "badge": "2–3 Business Days",
+        "description": "Signing of the official Book Publishing Agreement between the author and PT Cakrawala Magna Scientia. Selection of a royalty scheme (10–15%) or institutional grant, and filing for a Copyright Registration Certificate through e-Hak Cipta at DJKI, Ministry of Law and Human Rights.",
+        "deliverables": ["Formal Publishing Agreement", "DJKI e-Hak Cipta Registration", "Protection of the Author's Moral Rights"]
+      },
+      {
+        "title": "Editorial & Layout",
+        "badge": "5–7 Business Days",
+        "description": "Expert editors copyedit to standard Indonesian (PUEBI), verify legal and tax terminology, and typeset the book to the UNESCO B5 standard. Our design team creates an authoritative 3D editorial cover.",
+        "deliverables": ["Final Layout Draft (B5)", "3D Hardcover/Softcover Design", "Author Proofing Approval"]
+      },
+      {
+        "title": "ISBN & Metadata Registration",
+        "badge": "3–7 Business Days",
+        "description": "Application for an official ISBN and EAN barcode from the National Library of Indonesia (Perpusnas), together with registration of CIP Data and national metadata as proof of the work's standing as legitimate, accredited scholarship.",
+        "deliverables": ["Official ISBN & Barcode", "CIP Data", "Certificate of Publication"]
+      },
+      {
+        "title": "Printing & Digital Distribution",
+        "badge": "4–7 Business Days",
+        "description": "Physical production on premium 72 gsm book paper with deluxe matte hardcover/softcover binding. Two legal deposit copies are submitted to Perpusnas in accordance with Law No. 13 of 2018, followed by the national distribution launch.",
+        "deliverables": ["High-Quality Printed Books", "DRM-Protected Digital E-Book Edition", "Distribution via CakraNexa Store & Bookstores"]
+      }
+    ]
+  },
+  "faq": {
+    "eyebrow": "Q&A",
+    "title": "Frequently Asked Questions",
+    "description": "Common questions about ISBNs, royalties, publishing timelines, and copyright for scholarly works.",
+    "items": [
+      {
+        "question": "Do all books published by CakraNexa receive an official ISBN from the National Library of Indonesia (Perpusnas)?",
+        "answer": "Yes. As an official publisher, a member of the Indonesian Publishers Association (IKAPI), and registered with the National Library of the Republic of Indonesia, every title that passes our editorial feasibility review is published with an official ISBN and EAN barcode. Each book's bibliographic data is also registered as CIP Data with Perpusnas."
+      },
+      {
+        "question": "How long does it take from manuscript submission to publication?",
+        "answer": "Standard publication takes 14 to 30 business days once the manuscript has been declared complete and approved. This covers substantive peer review (7–14 days), copyediting and B5 layout (5–7 days), official ISBN registration with Perpusnas (3–7 business days), followed by print production and digital cataloguing."
+      },
+      {
+        "question": "How do royalties and copyright work for authors?",
+        "answer": "Copyright and moral rights in the scholarly work remain entirely with the author. Royalties of 10% to 15% of the net sale price are paid transparently, with reports every semester. For institutions and corporations, an outright purchase publishing scheme is also available under a written agreement."
+      },
+      {
+        "question": "Does CakraNexa publish books adapted from master's theses or doctoral dissertations?",
+        "answer": "Yes. We guide the conversion of dissertations and theses into monographs that earn DIKTI credit points (KUM BKD). Our \"Book Doctors\" team and specialist editors help restructure rigid report-style writing into a flowing, engaging scholarly monograph of high academic merit."
+      },
+      {
+        "question": "What is the minimum print run I can order?",
+        "answer": "We use modern Print-on-Demand (POD) technology, so authors can print as few as 10 copies for limited needs (such as professorial inaugurations, doctoral promotions, or study program accreditation). We also handle large print runs of thousands of copies on professional offset presses."
+      },
+      {
+        "question": "How are published books distributed and marketed?",
+        "answer": "Books are distributed through the official CakraNexa Store portal, official online marketplace stores, university library catalogues, and our network of partner bookstores throughout Indonesia. We also distribute DRM-protected digital e-book editions to readers worldwide."
+      }
+    ],
+    "help": {
+      "title": "Have Another Specific Question?",
+      "description": "Discuss your manuscript or institutional needs directly with our Scholarly Editorial Team.",
+      "whatsappCta": "Chat with the Editors on WhatsApp",
+      "whatsappMessage": "Hello CakraNexa Editorial Team, I would like to consult about your book publishing services."
+    }
+  }
+}

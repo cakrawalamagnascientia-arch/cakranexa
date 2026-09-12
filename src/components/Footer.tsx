@@ -1,11 +1,12 @@
 import React from 'react';
-import { 
-  Building2, 
-  ShieldCheck, 
-  BookOpen, 
-  Mail, 
-  Phone, 
-  MapPin, 
+import { useTranslation } from 'react-i18next';
+import {
+  Building2,
+  ShieldCheck,
+  BookOpen,
+  Mail,
+  Phone,
+  MapPin,
   ExternalLink,
   Award,
   CheckCircle2,
@@ -14,8 +15,8 @@ import {
 } from 'lucide-react';
 import { ActivePage, ContactSettings, FooterSettings, SubSection, SiteContentSettings } from '../types';
 import { CakraNexaLogo } from './CakraNexaLogo';
-import { getStoredSiteContent } from '../services/siteContentService';
-import { useLanguage } from '../i18n';
+import { DEFAULT_SITE_CONTENT, getStoredSiteContent } from '../services/siteContentService';
+import { useCmsText } from '../i18n/hooks';
 
 interface FooterProps {
   onNavigate: (page: ActivePage, subSection?: SubSection) => void;
@@ -23,18 +24,17 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate, siteContent }) => {
-  const { t } = useLanguage();
+  const { t } = useTranslation('common');
+  const cmsText = useCmsText();
   const content = siteContent || getStoredSiteContent();
   const footerData: Partial<FooterSettings> = content?.footer || {};
   const contactData: ContactSettings = content?.contact || {};
 
-  const defaultAboutCompany = `PT CAKRAWALA MAGNA SCIENTIA - PT Cakrawala Magna Scientia adalah perusahaan pengetahuan yang membangun ekosistem untuk menerbitkan, memperbarui, mengembangkan, mengajarkan, melindungi, melisensikan, dan mewariskan pengetahuan kepada generasi mendatang.
-
-Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, institusi, perpustakaan, dan mitra dalam sebuah ekosistem pengetahuan yang dirancang untuk bertumbuh melampaui satu buku, satu format, satu platform, dan satu generasi.`;
-
-  const aboutCompanyText = (!footerData.description || footerData.description.includes('Penerbit monografi ilmiah, buku teks akademik'))
-    ? defaultAboutCompany
-    : footerData.description;
+  // Deskripsi kosong / versi lama memakai teks bawaan (terjemahan footer.about).
+  const isDefaultDescription = !footerData.description || footerData.description.includes('Penerbit monografi ilmiah, buku teks akademik');
+  const aboutCompanyText = isDefaultDescription
+    ? t('footer.about')
+    : cmsText(footerData.description, DEFAULT_SITE_CONTENT.footer.description, t('footer.about'));
 
   return (
     <footer className="bg-[#0B1120] text-slate-400 border-t border-slate-800 text-left">
@@ -46,7 +46,7 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
               <Award className="w-5 h-5" />
             </div>
             <div>
-              <strong className="text-slate-200 block text-xs">Penerbit Anggota IKAPI</strong>
+              <strong className="text-slate-200 block text-xs">{t('footer.trust.ikapiMember')}</strong>
               <span className="text-[11px] text-slate-400">
                 {siteContent?.companyCredentials?.keanggotaanPenerbit || footerData.trustBadges?.[0]?.subtitle || '-'}
               </span>
@@ -58,8 +58,8 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
               <BookOpen className="w-5 h-5" />
             </div>
             <div>
-              <strong className="text-slate-200 block text-xs">ISBN Resmi Perpusnas RI</strong>
-              <span className="text-[11px] text-slate-400">Terindeks Katalog Nasional</span>
+              <strong className="text-slate-200 block text-xs">{t('footer.trust.isbnPerpusnas')}</strong>
+              <span className="text-[11px] text-slate-400">{t('footer.trust.nationalCatalog')}</span>
             </div>
           </div>
 
@@ -68,8 +68,8 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
               <Lock className="w-5 h-5" />
             </div>
             <div>
-              <strong className="text-slate-200 block text-xs">Payment Gateway Resmi</strong>
-              <span className="text-[11px] text-slate-400">Enkripsi 256-Bit SSL Terverifikasi</span>
+              <strong className="text-slate-200 block text-xs">{t('footer.trust.paymentGateway')}</strong>
+              <span className="text-[11px] text-slate-400">{t('footer.trust.sslEncryption')}</span>
             </div>
           </div>
 
@@ -78,7 +78,7 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <strong className="text-slate-200 block text-xs">Badan Hukum PT Resmi</strong>
+              <strong className="text-slate-200 block text-xs">{t('footer.trust.legalEntity')}</strong>
               <span className="text-[11px] text-slate-400">
                 {siteContent?.companyCredentials?.kemenkumham || footerData.trustBadges?.[3]?.subtitle || '-'}
               </span>
@@ -89,7 +89,7 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
 
       {/* Main Footer Links */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
-        
+
         {/* Brand Column */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center gap-3">
@@ -138,7 +138,7 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
           </h4>
           <ul className="space-y-2">
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('katalog', 'all')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
@@ -146,39 +146,39 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('katalog', 'Perpajakan')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
-                Buku Perpajakan & Fiskal
+                {t('footer.catalogLinks.taxation')}
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('katalog', 'Akuntansi')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
-                Buku Akuntansi & Audit Forensik
+                {t('footer.catalogLinks.accounting')}
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('katalog', 'Hukum')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
-                Buku Hukum Acara & Pidana
+                {t('footer.catalogLinks.law')}
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('katalog', 'Ekonomi & Bisnis')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
-                Ekonomi & Manajemen Korporasi
+                {t('footer.catalogLinks.economics')}
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('katalog', 'all')}
                 className="text-[#DFBF64] font-semibold hover:underline flex items-center gap-1 mt-1"
               >
@@ -191,55 +191,55 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
         {/* Column 3: Layanan & Jurnal */}
         <div className="space-y-3 text-xs">
           <h4 className="font-serif font-bold text-sm text-white uppercase tracking-wider">
-            Layanan & Riset
+            {t('footer.servicesHeading')}
           </h4>
           <ul className="space-y-2">
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('penerbitan', 'layanan')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
-                Layanan Penerbitan Buku
+                {t('footer.servicesLinks.publishing')}
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('penerbitan', 'kirim-naskah')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
-                Kirim Naskah / Proposal Buku
+                {t('footer.servicesLinks.submit')}
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('penerbitan', 'panduan')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
-                Panduan Penulisan & Format
+                {t('footer.servicesLinks.guidelines')}
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('pelatihan')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
-                Executive Workshop Pajak
+                {t('footer.servicesLinks.taxWorkshop')}
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('jurnal')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
-                Jurnal Ilmiah Peer-Reviewed
+                {t('footer.servicesLinks.journal')}
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('penerbitan', 'faq')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
-                FAQ Penerbitan ISBN
+                {t('footer.servicesLinks.isbnFaq')}
               </button>
             </li>
           </ul>
@@ -248,51 +248,51 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
         {/* Column 4: Perusahaan */}
         <div className="space-y-3 text-xs">
           <h4 className="font-serif font-bold text-sm text-white uppercase tracking-wider">
-            Perusahaan
+            {t('footer.companyHeading')}
           </h4>
           <ul className="space-y-2">
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('tentang-kami', 'profil')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
-                Profil PT Cakrawala Magna
+                {t('footer.companyLinks.profile')}
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('tentang-kami', 'visi-misi')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
-                Visi, Misi & Komitmen
+                {t('footer.companyLinks.visionMission')}
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('tentang-kami', 'legalitas')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
-                Legalitas & Akta Kemenkumham
+                {t('footer.companyLinks.legality')}
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('blog')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
-                Law & Tax Commentary (Blog)
+                {t('footer.companyLinks.blog')}
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('karir')}
                 className="hover:text-[#DFBF64] transition-colors"
               >
-                Karir & Kemitraan
+                {t('footer.companyLinks.careers')}
               </button>
             </li>
             <li>
-              <button 
+              <button
                 onClick={() => onNavigate('kontak')}
                 className="hover:text-[#D4AF37] transition-colors cursor-pointer"
               >
@@ -309,20 +309,22 @@ Melalui CakraNexa, kami menghubungkan penulis, pembaca, akademisi, profesional, 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
           <div className="flex flex-wrap justify-center sm:justify-start gap-6 font-medium text-slate-400">
             <button onClick={() => onNavigate('tentang-kami', 'legalitas')} className="hover:text-[#D4AF37] transition-colors cursor-pointer">
-              Kebijakan Privasi
+              {t('footer.legal.privacy')}
             </button>
             <button onClick={() => onNavigate('tentang-kami', 'legalitas')} className="hover:text-[#D4AF37] transition-colors cursor-pointer">
-              Syarat & Ketentuan
+              {t('footer.legal.terms')}
             </button>
             <button onClick={() => onNavigate('penerbitan', 'isbn')} className="hover:text-[#D4AF37] transition-colors cursor-pointer">
-              Verifikasi ISBN
+              {t('footer.legal.isbnVerification')}
             </button>
             <button onClick={() => onNavigate('tentang-kami', 'dewan-redaksi')} className="hover:text-[#D4AF37] transition-colors cursor-pointer">
-              Dewan Editorial
+              {t('footer.legal.editorialBoard')}
             </button>
           </div>
           <p className="text-slate-500 text-[11px] text-center sm:text-right">
-            {footerData.copyrightText || `© ${new Date().getFullYear()} PT CAKRAWALA MAGNA SCIENTIA (CakraNexa). Hak Cipta Dilindungi Undang-Undang.`}
+            {footerData.copyrightText
+              ? cmsText(footerData.copyrightText, DEFAULT_SITE_CONTENT.footer.copyrightText, t('footer.copyright'))
+              : t('footer.copyrightFallback', { year: new Date().getFullYear() })}
           </p>
         </div>
       </div>

@@ -1,6 +1,11 @@
 import { Book, ActivePage, SubSection, SeoSettings, SeoAuditResult, SeoAuditCheck } from '../types';
 import { toTitleCase } from '../utils/formatters';
 import { apiClient } from './apiClient';
+import i18n, { DEFAULT_LANGUAGE, HTML_LANG, SUPPORTED_LANGUAGES, getCurrentLanguage, type AppLanguage } from '../i18n/index';
+import { formatCurrency } from '../i18n/format';
+import { localizeCmsDefault } from '../i18n/cms';
+import { getLocalized } from '../i18n/localized';
+import { withLanguagePrefix } from '../utils/router';
 
 export const DEFAULT_SEO_SETTINGS: SeoSettings = {
   siteTitle: 'CakraNexa — Penerbit Buku Akademik & Profesional Ber-ISBN',
@@ -98,6 +103,8 @@ export interface NextMetadata {
   };
   alternates: {
     canonical: string;
+    /** hreflang -> URL untuk tiap versi bahasa (termasuk 'x-default'). */
+    languages?: Record<string, string>;
   };
   openGraph: {
     title: string;
@@ -121,12 +128,29 @@ export interface NextMetadata {
   };
 }
 
+/** Kunci halaman di seo:pages.* dan path-nya (tanpa prefix bahasa). */
+type SeoPageKey = 'catalog' | 'publishing' | 'training' | 'journal' | 'about' | 'blog' | 'career' | 'contact' | 'authors' | 'checkout';
+const SEO_PAGES: Partial<Record<ActivePage, { key: SeoPageKey; path: string }>> = {
+  katalog: { key: 'catalog', path: '/katalog' },
+  penerbitan: { key: 'publishing', path: '/penerbitan' },
+  pelatihan: { key: 'training', path: '/pelatihan' },
+  jurnal: { key: 'journal', path: '/jurnal' },
+  'tentang-kami': { key: 'about', path: '/tentang-kami' },
+  blog: { key: 'blog', path: '/blog' },
+  karir: { key: 'career', path: '/karir' },
+  career: { key: 'career', path: '/karir' },
+  kontak: { key: 'contact', path: '/kontak' },
+  checkout: { key: 'checkout', path: '/checkout' }
+};
+
+const OG_LOCALE: Record<AppLanguage, string> = { id: 'id_ID', en: 'en_US', zh: 'zh_CN' };
+
 /**
- * Dynamic Next.js-style generateMetadata() implementation for public pages:
- * - `/` (Beranda)
- * - `/katalog` (Katalog Buku)
- * - `/katalog/[slug]` (Detail Buku)
- * - `/penerbitan` (Layanan Penerbitan & Kirim Naskah)
+ * Dynamic Next.js-style generateMetadata() implementation for public pages, per bahasa:
+ * - `/` (Beranda), `/katalog`, `/katalog/[slug]` (Detail Buku), `/katalog/penulis`, `/penerbitan`,
+ *   `/pelatihan`, `/jurnal`, `/tentang-kami`, `/blog`, `/karir`, `/kontak`, `/checkout`
+ * - Judul & deskripsi dari namespace terjemahan `seo`; URL berprefiks /en, /zh untuk bahasa lain,
+ *   dengan canonical per bahasa dan tautan hreflang ke semua versi bahasa.
  */
 export const generatePageMetadata = (
   page: ActivePage,
@@ -135,9 +159,13 @@ export const generatePageMetadata = (
     subSection?: SubSection;
     settings?: SeoSettings;
     customUrl?: string;
+    /** Bahasa halaman; default bahasa aktif. */
+    language?: AppLanguage;
   } = {}
 ): NextMetadata => {
   const settings = options.settings || getStoredSeoSettings();
+  const lang = options.language || getCurrentLanguage();
+  const t = i18n.getFixedT(lang, 'seo');
   const siteUrl = settings.siteUrl.replace(/\/$/, '');
   const isNoIndex = settings.noindex;
 
@@ -150,22 +178,81 @@ export const generatePageMetadata = (
     }
   };
 
+  const splitKeywords = (value: string): string[] => value.split(',').map((k) => k.trim()).filter(Boolean);
+  // Kata kunci situs dari pengaturan SEO admin; nilai bawaan diterjemahkan untuk EN/ZH.
   const parsedKeywords = settings.targetKeywords
-    ? settings.targetKeywords.split(',').map((k) => k.trim()).filter(Boolean)
+    ? splitKeywords(localizeCmsDefault(settings.targetKeywords, DEFAULT_SEO_SETTINGS.targetKeywords, t('home.keywords'), lang))
     : [];
+
+  // URL tiap bahasa: Indonesia tanpa prefix, bahasa lain /en, /zh (lihat src/utils/router.ts).
+  const urlFor = (path: string, language: AppLanguage): string => {
+    const localizedPath = withLanguagePrefix(path, language);
+    return localizedPath === '/' ? siteUrl : `${siteUrl}${localizedPath}`;
+  };
+
+  const build = (meta: {
+    path: string;
+    title: string;
+    description: string;
+    keywords: string[];
+    image: string;
+    imageAlt: string;
+    imageWidth?: number;
+    imageHeight?: number;
+    type?: NextMetadata['openGraph']['type'];
+  }): NextMetadata => {
+    const pageUrl = urlFor(meta.path, lang);
+    const languages: Record<string, string> = Object.fromEntries(
+      SUPPORTED_LANGUAGES.map((language) => [HTML_LANG[language], urlFor(meta.path, language)])
+    );
+    languages['x-default'] = urlFor(meta.path, DEFAULT_LANGUAGE);
+    return {
+      title: meta.title,
+      description: meta.description,
+      keywords: meta.keywords,
+      robots: baseRobots,
+      alternates: {
+        canonical: pageUrl,
+        languages
+      },
+      openGraph: {
+        title: meta.title,
+        description: meta.description,
+        url: pageUrl,
+        siteName: t('siteName'),
+        images: [
+          {
+            url: meta.image,
+            width: meta.imageWidth ?? 1200,
+            height: meta.imageHeight ?? 630,
+            alt: meta.imageAlt
+          }
+        ],
+        locale: OG_LOCALE[lang],
+        type: meta.type ?? 'website'
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: meta.title,
+        description: meta.description,
+        images: [meta.image]
+      }
+    };
+  };
 
   // 1. DETAIL BUKU (`/katalog/[slug]`)
   if (page === 'katalog' && options.book) {
     const book = options.book;
-    const formattedTitle = toTitleCase(book.title || book.name);
-    const pageUrl = `${siteUrl}/katalog/${book.slug || book.id}`;
-    const pageTitle = `${formattedTitle} — ${book.author} | CakraNexa`;
-    const pageDescription = book.sinopsis
-      ? book.sinopsis.slice(0, 155) + (book.sinopsis.length > 155 ? '...' : '')
-      : `Beli buku akademik "${formattedTitle}" karya ${book.author}. ISBN: ${book.isbn}. Harga Rp ${book.harga.toLocaleString('id-ID')}.`;
+    const translatedName = getLocalized(book, 'name', lang);
+    const formattedTitle = translatedName !== book.name ? translatedName : toTitleCase(book.title || book.name);
+    const synopsis = getLocalized(book, 'sinopsis', lang);
+    const pageDescription = synopsis
+      ? synopsis.slice(0, 155) + (synopsis.length > 155 ? '...' : '')
+      : t('bookDetail.description', { title: formattedTitle, author: book.author, isbn: book.isbn, price: formatCurrency(book.harga, lang) });
 
-    return {
-      title: pageTitle,
+    return build({
+      path: `/katalog/${book.slug || book.id}`,
+      title: t('bookDetail.title', { title: formattedTitle, author: book.author }),
       description: pageDescription,
       keywords: [
         ...parsedKeywords,
@@ -173,168 +260,41 @@ export const generatePageMetadata = (
         book.author,
         book.category,
         `ISBN ${book.isbn}`,
-        'buku monografi',
+        t('bookDetail.keyword'),
         book.penerbit || 'PT Cakrawala Magna Scientia'
       ],
-      robots: baseRobots,
-      alternates: {
-        canonical: pageUrl
-      },
-      openGraph: {
-        title: pageTitle,
-        description: pageDescription,
-        url: pageUrl,
-        siteName: 'CakraNexa Publishing',
-        images: [
-          {
-            url: book.coverBuku || settings.ogImage,
-            width: 800,
-            height: 1200,
-            alt: `Sampul Buku ${formattedTitle}`
-          }
-        ],
-        locale: 'id_ID',
-        type: 'book'
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: pageTitle,
-        description: pageDescription,
-        images: [book.coverBuku || settings.ogImage]
-      }
-    };
+      image: book.coverBuku || settings.ogImage,
+      imageAlt: t('bookDetail.imageAlt', { title: formattedTitle }),
+      imageWidth: 800,
+      imageHeight: 1200,
+      type: 'book'
+    });
   }
 
-  // 2. KATALOG BUKU (`/katalog`)
-  if (page === 'katalog') {
-    const pageUrl = `${siteUrl}/katalog`;
-    const pageTitle = `Katalog Buku Akademik & Monografi Ber-ISBN — CakraNexa`;
-    const pageDescription = `Jelajahi koleksi 21+ monografi akademik, buku teks hukum, perpajakan, akuntansi, dan ekonomi ber-ISBN resmi Perpustakaan Nasional. Diterbitkan oleh PT Cakrawala Magna Scientia.`;
-
-    return {
-      title: pageTitle,
-      description: pageDescription,
-      keywords: [...parsedKeywords, 'katalog buku', 'buku perpajakan', 'buku hukum', 'akuntansi', 'buku unesco'],
-      robots: baseRobots,
-      alternates: {
-        canonical: pageUrl
-      },
-      openGraph: {
-        title: pageTitle,
-        description: pageDescription,
-        url: pageUrl,
-        siteName: 'CakraNexa Publishing',
-        images: [{ url: settings.ogImage, width: 1200, height: 630, alt: 'Katalog Buku CakraNexa' }],
-        locale: 'id_ID',
-        type: 'website'
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: pageTitle,
-        description: pageDescription,
-        images: [settings.ogImage]
-      }
-    };
+  // 2. HALAMAN LAIN DENGAN METADATA SENDIRI
+  const seoPage = page === 'katalog' && options.subSection === 'penulis'
+    ? { key: 'authors' as const, path: '/katalog/penulis' }
+    : SEO_PAGES[page];
+  if (seoPage) {
+    return build({
+      path: seoPage.path,
+      title: t(`pages.${seoPage.key}.title`),
+      description: t(`pages.${seoPage.key}.description`),
+      keywords: [...parsedKeywords, ...splitKeywords(t(`pages.${seoPage.key}.keywords`))],
+      image: settings.ogImage,
+      imageAlt: t(`pages.${seoPage.key}.imageAlt`)
+    });
   }
 
-  // 3. PENERBITAN & KIRIM NASKAH (`/penerbitan`)
-  if (page === 'penerbitan') {
-    const pageUrl = `${siteUrl}/penerbitan`;
-    const pageTitle = `Layanan Penerbitan Buku Akademik & ISBN Resmi — CakraNexa`;
-    const pageDescription = `Penerbitan monografi, buku teks, dan bunga rampai ilmiah ber-ISBN resmi Perpusnas. Layanan copyediting, layout UNESCO, cetak berkualitas, dan sertifikat HKI.`;
-
-    return {
-      title: pageTitle,
-      description: pageDescription,
-      keywords: [...parsedKeywords, 'penerbitan buku', 'kirim naskah', 'isbn perpusnas', 'cetak buku dosen', 'hki'],
-      robots: baseRobots,
-      alternates: {
-        canonical: pageUrl
-      },
-      openGraph: {
-        title: pageTitle,
-        description: pageDescription,
-        url: pageUrl,
-        siteName: 'CakraNexa Publishing',
-        images: [{ url: settings.ogImage, width: 1200, height: 630, alt: 'Layanan Penerbitan CakraNexa' }],
-        locale: 'id_ID',
-        type: 'website'
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: pageTitle,
-        description: pageDescription,
-        images: [settings.ogImage]
-      }
-    };
-  }
-
-  // 4. PELATIHAN (`/pelatihan`)
-  if (page === 'pelatihan') {
-    const pageUrl = `${siteUrl}/pelatihan`;
-    const pageTitle = `Pelatihan Penulisan & Workshop Akademik — CakraNexa`;
-    const pageDescription = `Program workshop penulisan monografi akademik, metodologi riset, dan strategi publikasi ilmiah berindeks bersama para pakar.`;
-
-    return {
-      title: pageTitle,
-      description: pageDescription,
-      keywords: [...parsedKeywords, 'pelatihan menulis', 'workshop jurnal', 'metodologi riset'],
-      robots: baseRobots,
-      alternates: { canonical: pageUrl },
-      openGraph: {
-        title: pageTitle,
-        description: pageDescription,
-        url: pageUrl,
-        siteName: 'CakraNexa Publishing',
-        images: [{ url: settings.ogImage, width: 1200, height: 630, alt: 'Pelatihan CakraNexa' }],
-        locale: 'id_ID',
-        type: 'website'
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: pageTitle,
-        description: pageDescription,
-        images: [settings.ogImage]
-      }
-    };
-  }
-
-  // 5. DEFAULT / BERANDA (`/`)
-  const pageUrl = siteUrl;
-  const pageTitle = settings.siteTitle;
-  const pageDescription = settings.metaDescription;
-
-  return {
-    title: pageTitle,
-    description: pageDescription,
+  // 3. DEFAULT / BERANDA (`/`) — judul & deskripsi dari pengaturan SEO admin; nilai bawaan diterjemahkan.
+  return build({
+    path: '/',
+    title: localizeCmsDefault(settings.siteTitle, DEFAULT_SEO_SETTINGS.siteTitle, t('home.title'), lang),
+    description: localizeCmsDefault(settings.metaDescription, DEFAULT_SEO_SETTINGS.metaDescription, t('home.description'), lang),
     keywords: parsedKeywords,
-    robots: baseRobots,
-    alternates: {
-      canonical: pageUrl
-    },
-    openGraph: {
-      title: pageTitle,
-      description: pageDescription,
-      url: pageUrl,
-      siteName: 'CakraNexa Publishing',
-      images: [
-        {
-          url: settings.ogImage,
-          width: 1200,
-          height: 630,
-          alt: 'CakraNexa Academic Publisher'
-        }
-      ],
-      locale: 'id_ID',
-      type: 'website'
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: pageTitle,
-      description: pageDescription,
-      images: [settings.ogImage]
-    }
-  };
+    image: settings.ogImage,
+    imageAlt: t('home.imageAlt')
+  });
 };
 
 /**
@@ -345,7 +305,8 @@ export const generatePageMetadata = (
 export const generateJsonLdSchema = (
   page: ActivePage,
   book?: Book | null,
-  settings: SeoSettings = getStoredSeoSettings()
+  settings: SeoSettings = getStoredSeoSettings(),
+  lang: AppLanguage = getCurrentLanguage()
 ): object => {
   const siteUrl = settings.siteUrl.replace(/\/$/, '');
 
@@ -371,13 +332,15 @@ export const generateJsonLdSchema = (
       bookFormat: 'https://schema.org/Hardcover',
       inLanguage: 'id',
       image: book.coverBuku,
-      description: book.sinopsis || `Buku akademik ${formattedTitle} ber-ISBN ${book.isbn}.`,
+      // inLanguage di atas = bahasa isi buku (Indonesia); deskripsi mengikuti bahasa halaman.
+      description: getLocalized(book, 'sinopsis', lang)
+        || i18n.t('seo:bookDetail.schemaDescription', { lng: lang, title: formattedTitle, isbn: book.isbn }),
       offers: {
         '@type': 'Offer',
         price: book.harga,
         priceCurrency: 'IDR',
         availability: (book.stock && book.stock > 0) ? 'https://schema.org/InStock' : 'https://schema.org/LimitedAvailability',
-        url: `${siteUrl}/katalog/${book.slug || book.id}`,
+        url: `${siteUrl}${withLanguagePrefix(`/katalog/${book.slug || book.id}`, lang)}`,
         seller: {
           '@type': 'Organization',
           name: 'PT Cakrawala Magna Scientia'
@@ -395,7 +358,12 @@ export const generateJsonLdSchema = (
     alternateName: 'CakraNexa Publishing',
     url: siteUrl,
     logo: `${siteUrl}/logo.jpg`,
-    description: settings.metaDescription,
+    description: localizeCmsDefault(
+      settings.metaDescription,
+      DEFAULT_SEO_SETTINGS.metaDescription,
+      i18n.t('seo:home.description', { lng: lang }),
+      lang
+    ),
     sameAs: [
       'https://www.instagram.com/cakranexa',
       'https://www.linkedin.com/company/cakrawala-magna-scientia'
@@ -405,7 +373,7 @@ export const generateJsonLdSchema = (
       telephone: '+62-852-8614-6806',
       contactType: 'customer support',
       areaServed: 'ID',
-      availableLanguage: ['Indonesian', 'English']
+      availableLanguage: ['Indonesian', 'English', 'Chinese']
     }
   };
 };
@@ -476,6 +444,24 @@ export const applyDocumentMetadata = (
     document.head.appendChild(canonicalEl);
   }
   canonicalEl.setAttribute('href', metadata.alternates.canonical);
+
+  // 7b. Tautan hreflang ke semua versi bahasa + og:locale:alternate (diganti setiap navigasi/ganti bahasa)
+  document.querySelectorAll('link[rel="alternate"][hreflang], meta[property="og:locale:alternate"]').forEach((el) => el.remove());
+  Object.entries(metadata.alternates.languages || {}).forEach(([hreflang, href]) => {
+    const link = document.createElement('link');
+    link.setAttribute('rel', 'alternate');
+    link.setAttribute('hreflang', hreflang);
+    link.setAttribute('href', href);
+    document.head.appendChild(link);
+  });
+  ['id_ID', 'en_US', 'zh_CN']
+    .filter((locale) => locale !== metadata.openGraph.locale)
+    .forEach((locale) => {
+      const meta = document.createElement('meta');
+      meta.setAttribute('property', 'og:locale:alternate');
+      meta.setAttribute('content', locale);
+      document.head.appendChild(meta);
+    });
 
   // 8. JSON-LD Structured Data Injection
   let scriptEl = document.getElementById('schema-structured-data');

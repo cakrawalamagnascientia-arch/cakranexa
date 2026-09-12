@@ -1,0 +1,93 @@
+{
+  "loading": {
+    "title": "正在加载图书信息...",
+    "hint": "如图书未自动显示，请返回图书目录。"
+  },
+  "nav": {
+    "backToPrevious": "返回上一页",
+    "backTitle": "返回上一步页面"
+  },
+  "cover": {
+    "alt": "图书封面",
+    "officialEdition": "官方正版"
+  },
+  "assurance": {
+    "officialIsbn": "正式 ISBN",
+    "isbnPending": "ISBN 待定"
+  },
+  "meta": {
+    "academicMonograph": "学术专著",
+    "newRelease": "新书",
+    "labeledValue": "{{label}}：<strong>{{value}}</strong>",
+    "verifiedReviews_other": "（{{count}} 条已核实评价）"
+  },
+  "pricing": {
+    "officialPrintPrice": "纸质书官方定价",
+    "save": "节省 {{percent}}%",
+    "inStock_other": "现货供应（{{count}} 册）",
+    "availableOnDemand": "可供订购 — 预购 / 按需印刷",
+    "forthcoming": "即将出版 — 价格与 ISBN 待公布",
+    "paymentNote": "官方安全支付方式：Virtual Account 转账、QRIS 及信用卡。"
+  },
+  "actions": {
+    "buyNow": "立即购买",
+    "addToCart": "加入购物车",
+    "notifyOnRelease": "出版时通知我（WhatsApp）"
+  },
+  "whatsapp": {
+    "notifyMessage": "您好，CakraNexa 编辑部：我想了解图书《{{title}}》的出版信息与价格。"
+  },
+  "specs": {
+    "title": "出版物技术规格详情",
+    "isbn": "ISBN 号",
+    "isbnUnavailable": "暂未提供",
+    "publicationYear": "出版年份",
+    "pageCount": "页数",
+    "pages_other": "{{count}} 页",
+    "pagesPending": "待定",
+    "dimensions": "图书尺寸",
+    "category": "类别 / 学科",
+    "estimatedWeight": "预估重量",
+    "weight": "{{weight}} 克",
+    "language": "语言",
+    "languageValue": "印度尼西亚语",
+    "physicalCondition": "品相",
+    "conditionValue": "全新 / 塑封"
+  },
+  "tabs": {
+    "synopsis": "专著简介",
+    "aboutAuthor": "关于作者",
+    "contents": "目录与章节结构",
+    "reviews": "书评与评分",
+    "reviewsWithTotal": "书评与评分（{{total}}）"
+  },
+  "synopsis": {
+    "heading": "学术概述与实践意义",
+    "audienceTitle": "目标读者",
+    "audienceText": "学者、高校教师、经济学院与法学院本科/硕士/博士研究生、税务顾问、公共财政审计师以及财政政策制定者。",
+    "valueTitle": "学术附加价值",
+    "valueText": "融合法律确定性原则（legal certainty）、当代税法学说，以及印度尼西亚税务法院的真实案例研究。"
+  },
+  "aboutAuthor": {
+    "byline": "作者 — 由 PT Cakrawala Magna Scientia 出版",
+    "fallbackBio": "作者的完整简介将由编辑部尽快补充。如需学术联络或采访，请联系 redaksi@cakranexa.com。",
+    "affiliationLabel": "研究机构：",
+    "affiliationValue": "PT Cakrawala Magna Scientia • 学术出版与印度尼西亚财政政策研究部"
+  },
+  "contents": {
+    "heading": "专著章节结构与大纲",
+    "verifiedChapter": "已核实章节",
+    "empty": "完整目录将由编辑部尽快补充。请在<strong>摘要</strong>标签页阅读内容简介。"
+  },
+  "reviews": {
+    "outOf": "（满分 5.0 星）",
+    "basedOn_other": "基于 {{count}} 条经核实的读者评价",
+    "emptyTitle": "本书暂无评价。",
+    "emptyText": "仅展示经核实购买的读者评价。读过本书？欢迎将您的评价发送至 redaksi@cakranexa.com。"
+  },
+  "related": {
+    "heading": "{{category}}类相关图书",
+    "curated": "精选推荐",
+    "view": "查看 →"
+  }
+}

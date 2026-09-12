@@ -1,7 +1,20 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import fs from 'fs';
 import path from 'path';
 import { defineConfig } from 'vite';
+
+// Satu chunk per bahasa non-default (locale-en, locale-zh, ...): ganti bahasa cukup memuat 1 file.
+// Bahasa Indonesia (default) dibundel langsung di aplikasi utama.
+const localesDir = path.resolve(__dirname, 'src/i18n/locales');
+const localeChunks = Object.fromEntries(
+  fs.readdirSync(localesDir)
+    .filter((lang) => lang !== 'id' && fs.statSync(path.join(localesDir, lang)).isDirectory())
+    .map((lang) => [
+      `locale-${lang}`,
+      fs.readdirSync(path.join(localesDir, lang)).filter((file) => file.endsWith('.json')).map((file) => path.join(localesDir, lang, file))
+    ])
+);
 
 export default defineConfig(() => ({
   plugins: [react(), tailwindcss()],
@@ -31,7 +44,8 @@ export default defineConfig(() => ({
           react: ['react', 'react-dom'],
           charts: ['recharts'],
           pdf: ['jspdf', 'html2canvas', 'jsbarcode', 'qrcode'],
-          motion: ['motion']
+          motion: ['motion'],
+          ...localeChunks
         }
       }
     }

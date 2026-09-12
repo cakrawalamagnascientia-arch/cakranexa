@@ -1,0 +1,43 @@
+{
+  "header": {
+    "eyebrow": "学术期刊出版",
+    "title": "国家级索引同行评审学术期刊",
+    "subtitle": "为税务、法务审计及商法领域的学者、研究人员和从业者提供符合 OJS（Open Journal Systems）标准的原创学术研究传播平台。"
+  },
+  "cfp": {
+    "badge": "征稿启事 2026 - 2025",
+    "title": "现接受下期学术论文投稿",
+    "note": "免收投稿费（快速同行评审及正式 Crossref DOI）。",
+    "submit": "在线投稿（OJS）",
+    "submitAlert": "期刊论文投稿表单将转至 PT Cakrawala Magna Scientia 的 OJS 系统。"
+  },
+  "card": {
+    "scope": "<strong>研究重点与范围：</strong>{{scope}}",
+    "frequency": "出版频率：{{frequency}}",
+    "indexing": "收录数据库：<strong>{{indexing}}</strong>",
+    "viewArchive": "查看过刊存档",
+    "archiveAlert": "正在打开《{{title}}》的存档...",
+    "authorGuidelines": "作者指南",
+    "guidelinesAlert": "《{{title}}》的作者投稿指南已可下载。"
+  },
+  "journals": {
+    "fiscalLaw": {
+      "volume": "第4卷第2期（2026年7月 - 12月）",
+      "scope": "税务法院诉讼程序法、转让定价争议、财税犯罪",
+      "frequency": "每年两期（双语：印尼语与英语）",
+      "indexing": "Garuda、Google Scholar、SINTA S2 认证审核中"
+    },
+    "forensicAccounting": {
+      "volume": "第3卷第1期（2026年1月 - 6月）",
+      "scope": "舞弊审计、洗钱犯罪（TPPU）资产追踪、公共部门调查审计",
+      "frequency": "每年三期",
+      "indexing": "Crossref（DOI）、Garuda、Dimensions、Google Scholar"
+    },
+    "digitalTax": {
+      "volume": "第2卷第2期（2026年8月）",
+      "scope": "OECD 支柱一与支柱二、跨境电子交易增值税（PPN PMSE）、税收协定（P3B）",
+      "frequency": "每年两期",
+      "indexing": "开放获取期刊目录（DOAJ 候选）、SINTA"
+    }
+  }
+}

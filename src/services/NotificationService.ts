@@ -1,5 +1,7 @@
 import { Order } from '../types';
 import { getStoredPaymentSettings } from './paymentService';
+import i18n, { DEFAULT_LANGUAGE, isAppLanguage } from '../i18n/index';
+import { formatCurrency } from '../i18n/format';
 
 export interface DispatchLog {
   id: string;
@@ -66,20 +68,25 @@ class NotificationService {
   }
 
   /**
-   * Format Customer WhatsApp confirmation message
+   * Format Customer WhatsApp confirmation message — dalam bahasa pelanggan saat checkout
+   * (order.language); pesanan lama tanpa bahasa memakai Bahasa Indonesia.
+   * Terjemahan en/zh dimuat dashboard admin saat dibuka (i18n.loadLanguages).
    */
   public formatCustomerWhatsAppMessage(order: Order): string {
+    const lang = isAppLanguage(order.language) ? order.language : DEFAULT_LANGUAGE;
+    const t = i18n.getFixedT(lang, 'checkout');
+    const status = t(`status.${order.paymentStatus}`).toUpperCase();
     return (
-      `Halo Bapak/Ibu *${order.customer.name}*,\n\n` +
-      `Terima kasih telah memesan publikasi akademik resmi di *PT CAKRAWALA MAGNA SCIENTIA* (CakraNexa).\n\n` +
-      `Detail Pemesanan Anda:\n` +
-      `• No. Faktur: *${order.orderNumber}*\n` +
-      `• Total: *Rp ${order.total.toLocaleString('id-ID')}*\n` +
-      `• Status: *${order.paymentStatus.toUpperCase()}*\n` +
-      `• Ekspedisi: *${order.customer.courier}*\n` +
-      (order.trackingNumber ? `• Nomor Resi: *${order.trackingNumber}*\n` : '') +
-      `\nTim logistik kami sedang menyiapkan eksemplar naskah ber-ISBN Anda dengan standar kemasan protektif berlapis.\n\n` +
-      `Salam hormat,\n*Divisi Sirkulasi CakraNexa*`
+      `${t('customerWhatsApp.greeting', { name: order.customer.name })}\n\n` +
+      `${t('customerWhatsApp.thanks')}\n\n` +
+      `${t('customerWhatsApp.detailsHeading')}\n` +
+      `${t('customerWhatsApp.invoice', { number: order.orderNumber })}\n` +
+      `${t('customerWhatsApp.total', { total: formatCurrency(order.total, lang) })}\n` +
+      `${t('customerWhatsApp.status', { status })}\n` +
+      `${t('customerWhatsApp.courier', { courier: order.customer.courier })}\n` +
+      (order.trackingNumber ? `${t('customerWhatsApp.tracking', { tracking: order.trackingNumber })}\n` : '') +
+      `\n${t('customerWhatsApp.preparing')}\n\n` +
+      `${t('customerWhatsApp.closing')}\n${t('customerWhatsApp.team')}`
     );
   }
 

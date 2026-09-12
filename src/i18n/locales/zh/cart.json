@@ -1,0 +1,11 @@
+{
+  "drawer": {
+    "itemTypes_other": "{{count}} 种图书",
+    "emptyDescription": "浏览我们的学术参考书籍，将您需要的图书加入购物车。",
+    "remove": "删除",
+    "totalProducts": "商品总数",
+    "bookCount_other": "{{count}} 本",
+    "subtotal": "小计",
+    "secureTransaction": "交易采用 256 位 SSL 加密，安全有保障"
+  }
+}

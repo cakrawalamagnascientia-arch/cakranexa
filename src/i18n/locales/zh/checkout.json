@@ -1,0 +1,332 @@
+{
+  "status": {
+    "pending": "待付款",
+    "paid": "已付清",
+    "processing": "处理中",
+    "shipped": "已发货",
+    "failed": "失败",
+    "cancelled": "已取消"
+  },
+  "paymentMethods": {
+    "bca_va": "BCA Virtual Account",
+    "mandiri_bill": "Mandiri Bill / VA",
+    "bni_va": "BNI Virtual Account",
+    "bri_va": "BRI Virtual Account",
+    "permata_va": "Permata VA",
+    "qris": "QRIS 通用码",
+    "gopay": "GoPay",
+    "ovo": "OVO",
+    "dana": "DANA",
+    "shopeepay": "ShopeePay",
+    "linkaja": "LinkAja",
+    "credit_card": "信用卡/借记卡",
+    "manual_mandiri": "银行转账"
+  },
+  "paymentMethodsShort": {
+    "mandiri_bill": "Mandiri Bill"
+  },
+  "shippingMethods": {
+    "jneReg": {
+      "service": "REG（标准）",
+      "estimatedDays": "2-3 天",
+      "description": "可靠的标准快递服务，覆盖所有区县及高校机构"
+    },
+    "jneYes": {
+      "service": "YES（次日达）",
+      "estimatedDays": "1 个工作日",
+      "description": "文件、专著及重要教材模块的优先航空快递"
+    },
+    "jntEz": {
+      "service": "EZ（标准）",
+      "estimatedDays": "2-3 天",
+      "description": "全年 365 天无休，揽收及派送覆盖印度尼西亚全境"
+    },
+    "posKilat": {
+      "service": "Kilat Khusus（特快）",
+      "estimatedDays": "2-4 天",
+      "description": "专注于向高校、地方图书馆及偏远地区配送"
+    },
+    "sicepatBest": {
+      "service": "BEST（次日达）",
+      "estimatedDays": "1 个工作日",
+      "description": "为省会城市及主要大学城市提供最佳时效"
+    },
+    "sicepatReg": {
+      "service": "REG（标准）",
+      "estimatedDays": "2-3 天",
+      "description": "经济实惠，提供准确的实时数字条码追踪"
+    },
+    "tikiReg": {
+      "service": "REG（标准）",
+      "estimatedDays": "2-3 天",
+      "description": "经验丰富的快递网络，确保图书包裹安全处理"
+    }
+  },
+  "bank": {
+    "officialAccount": "公司官方账户",
+    "accountHolder": "户名：{{name}}",
+    "copied": "已复制",
+    "copyAccountNumber": "复制账号",
+    "whatsappFinance": "财务 WhatsApp 快速确认：<strong>{{phone}}</strong>",
+    "instructions": {
+      "default": "请按应付金额转账至上方任一出版社官方银行账户。请保留付款凭证（ATM 凭条 / 手机银行截图），并在验证表单中上传，或通过编辑部财务 WhatsApp 确认。",
+      "fallback": "请按金额转账至上方 PT Cakrawala Magna Scientia 官方银行账户，然后上传付款凭证。"
+    }
+  },
+  "modal": {
+    "title": {
+      "customerDetails": "收货与订单信息",
+      "midtransSnap": "Midtrans 支付网关（模拟模式）",
+      "orderComplete": "图书购买正式账单"
+    },
+    "orderedItems": "所订图书（{{itemCount}}）",
+    "form": {
+      "fullName": {
+        "label": "姓名及职称/学位 *",
+        "placeholder": "例如：Dr. Budi Santoso, S.E., M.Si."
+      },
+      "email": {
+        "label": "常用电子邮箱（用于接收账单通知）*",
+        "placeholder": "name@institution.ac.id"
+      },
+      "phone": {
+        "label": "WhatsApp / 电话号码 *"
+      },
+      "city": {
+        "label": "目的地市/县（Kota / Kabupaten）*"
+      },
+      "address": {
+        "label": "图书收货详细地址（办公室 / 校园 / 住宅）*",
+        "placeholder": "街道名称、楼号/房间号、RT/RW、村（Kelurahan）、区（Kecamatan）……"
+      },
+      "postalCode": {
+        "label": "邮政编码"
+      },
+      "courier": {
+        "label": "快递公司",
+        "option": "{{name}}（{{service}}）- {{fee}}（预计 {{days}}）",
+        "free": "免运费"
+      }
+    },
+    "summary": {
+      "subtotal": "图书小计",
+      "shippingCost": "运费（已计算）",
+      "total": "应付总额"
+    },
+    "buyNow": "立即购买",
+    "toast": {
+      "incompleteAddress": "请完整填写所有收货地址信息。",
+      "orderFailed": "订单处理失败，请重试。",
+      "midtransFailed": "Midtrans 支付失败或已取消。",
+      "popupClosed": "支付窗口已关闭。订单仍已记录，状态为待付款。",
+      "onlineUnavailable": "在线支付暂不可用。Midtrans 服务器尚未生成真实的支付令牌。请重试或选择银行转账。",
+      "paymentVerified": "付款验证成功！账单已开具。",
+      "orderRecorded": "订单已记录。请按照 Virtual Account / QRIS 说明完成付款。",
+      "simulationDisabled": "模拟支付已停用。请使用真实的 Midtrans Snap 令牌或银行转账。"
+    },
+    "snap": {
+      "header": "Midtrans SNAP — 模拟模式（尚未设置服务器密钥）",
+      "token": "令牌：{{token}}",
+      "totalDue": "应付金额",
+      "chooseMethod": "选择官方支付方式：",
+      "companyAccount": "公司往来账户",
+      "instructionsLabel": "说明：",
+      "vaNumber": "Virtual Account 号码",
+      "vaDeadline": "付款截止时间：23:59 WIB（印尼西部时间）",
+      "copyNumber": "复制号码",
+      "vaSteps": "打开您所选银行的手机银行或 ATM > Virtual Account 转账 > 输入上方号码 > 确认收款方名称 PT Cakrawala Magna Scientia > 点击支付。",
+      "qrisScan": "扫描 QRIS：{{merchant}}",
+      "qrisExpiry": "剩余有效时间：14 分 59 秒",
+      "cardNumber": "信用卡号（示例）",
+      "cardExpiry": "有效期至",
+      "simulatorActions": "沙盒模拟操作：",
+      "simulateSuccess": "模拟成功",
+      "simulatePending": "模拟待付款",
+      "simulateCancel": "取消 / 失败"
+    },
+    "complete": {
+      "successTitle": "交易成功，付款已验证",
+      "successDescription": "正式账单已生成，印刷图书即将安排发货。",
+      "brand": "品牌：CakraNexa Academic & Professional Publishing",
+      "companyInfo": "纳税人识别号（NPWP）：{{npwp}} • 印度尼西亚雅加达",
+      "paidBadge": "已付清",
+      "buyer": "收货人及购买人：",
+      "shippingAddress": "收货地址：",
+      "table": {
+        "title": "图书名称",
+        "qty": "数量",
+        "unitPrice": "单价",
+        "amount": "金额"
+      },
+      "subtotal": "小计",
+      "shippingCost": "运费",
+      "total": "付款总额",
+      "printInvoice": "打印账单",
+      "backToCatalog": "返回目录"
+    }
+  },
+  "form": {
+    "secureSystem": "256 位 SSL 加密支付系统",
+    "sections": {
+      "customer": {
+        "title": "订购人信息与收货地址",
+        "subtitle": "请确保 WhatsApp 号码可用，以便接收快递状态更新及订单通知"
+      },
+      "shipping": {
+        "title": "快递公司与运费动态计算",
+        "subtitle": "自动计算重量，已接入 JNE、J&T、POS Indonesia 和 SiCepat"
+      },
+      "payment": {
+        "subtitle": "支持 Virtual Account、QRIS、电子钱包，以及向 PT Cakrawala Magna Scientia 的 Bank Mandiri 转账"
+      }
+    },
+    "fields": {
+      "name": {
+        "label": "订购人姓名 / 机构名称 *",
+        "placeholder": "例如：Prof. Dr. Hendra Wijaya, S.E., M.Si."
+      },
+      "phone": {
+        "label": "WhatsApp 号码（常用）*"
+      },
+      "email": {
+        "label": "电子邮箱（接收账单及付款凭证）*",
+        "placeholder": "hendra@university.ac.id"
+      },
+      "address": {
+        "label": "详细收货地址（街道、楼宇、门牌号、RT/RW）*",
+        "placeholder": "Jl. Salemba Raya No. 4，经济与商业学院，院长办公楼 3 层"
+      },
+      "province": {
+        "label": "省份"
+      },
+      "city": {
+        "label": "市/县（Kota / Kabupaten）*"
+      },
+      "district": {
+        "label": "区（Kecamatan）"
+      },
+      "postalCode": {
+        "label": "邮政编码 *"
+      },
+      "notes": {
+        "label": "特殊配送备注（选填）",
+        "placeholder": "请放在校园保安室 / 大堂前台"
+      }
+    },
+    "errors": {
+      "nameRequired": "请填写姓名",
+      "phoneRequired": "请填写 WhatsApp 号码",
+      "emailRequired": "请填写有效的电子邮箱",
+      "addressRequired": "请填写详细收货地址",
+      "cityRequired": "请填写市/县",
+      "postalCodeRequired": "请填写邮政编码",
+      "paymentProofRequired": "请上传 Bank Mandiri 转账的付款凭证",
+      "orderFailed": "订单处理失败，请重试。",
+      "midtransFailed": "Midtrans 支付失败或已取消，您可以重试。",
+      "onlineUnavailable": "在线支付暂不可用。Midtrans 服务器尚未生成真实的支付令牌。请重试或选择银行转账。",
+      "simulationDisabled": "模拟支付已停用。请使用真实的 Midtrans Snap 令牌或银行转账。"
+    },
+    "summary": {
+      "title": "图书订单摘要",
+      "subtotal_other": "图书小计（{{count}} 册）：",
+      "shippingCost": "运费：",
+      "serviceInsurance": "服务费及保险费：",
+      "free": "免费",
+      "totalDue": "应付总额：",
+      "totalNote": "含增值税（PPN）及正式账单"
+    },
+    "submit": {
+      "processing": "正在处理订单……",
+      "confirmManual": "确认并提交订单",
+      "buyNow": "立即购买"
+    },
+    "autoNotification": "系统将实时自动向管理员和客户的 WhatsApp 发送通知。",
+    "simulation": {
+      "badge": "模拟模式 — 尚未配置 Midtrans",
+      "total": "总计：{{amount}}",
+      "instructionsTitle": "数字支付说明",
+      "billNumber": "账单编号：<strong>{{orderNumber}}</strong>",
+      "qrisHint": "请使用手机银行或电子钱包应用扫描上方二维码。",
+      "vaNumberLabel": "Virtual Account 账号：",
+      "vaPending": "Virtual Account 号码将由 Midtrans 提供。",
+      "vaDeadline": "付款期限为 24 小时。系统自动验证，无需提交付款凭证。",
+      "confirming": "正在确认付款……",
+      "simulateSuccess": "模拟付款成功（Success）",
+      "cancel": "取消 / 更换支付方式"
+    },
+    "success": {
+      "badge": "订单已成功验证",
+      "title": "感谢您的订购！",
+      "description": "正式账单及订单通知已自动转交 PT CAKRAWALA MAGNA SCIENTIA 物流团队。",
+      "invoiceNumber": "正式账单编号：",
+      "recipient": "收货人：",
+      "courier": "快递公司：",
+      "paymentStatus": "付款状态：",
+      "totalPayment": "付款总额：",
+      "sendProofWhatsApp": "通过 WhatsApp 向管理员发送凭证",
+      "printInvoice": "打印账单"
+    }
+  },
+  "payment": {
+    "tabs": {
+      "va": "银行 Virtual Account",
+      "ewallet": "QRIS 与电子钱包",
+      "manual": "出版社银行转账（人工）",
+      "cards": "信用卡/借记卡"
+    },
+    "va": {
+      "chooseBank": "选择 Virtual Account 银行（自动验证）：",
+      "instantVerification": "24 小时即时验证"
+    },
+    "ewallet": {
+      "choose": "选择 QRIS 或电子钱包：",
+      "subtitles": {
+        "gopay": "Gojek / GoPay 应用",
+        "ovo": "OVO 推送通知",
+        "dana": "DANA 钱包余额",
+        "shopeepay": "跳转至 Shopee 应用",
+        "linkaja": "印尼国企（BUMN）支付生态"
+      }
+    },
+    "manual": {
+      "chooseAccount": "请从下方选择一个出版社官方收款账户：",
+      "verifiedAccount": "已验证往来账户",
+      "noAccounts": "管理员尚未配置任何可用账户，请联系管理员。",
+      "instructionsLabel": "付款说明：",
+      "upload": {
+        "label": "上传付款凭证（转账凭条 / 手机银行截图）*",
+        "cta": "点击上传或拖入付款凭条文件",
+        "formats": "支持 JPG、PNG 或 PDF 格式（最大 5 MB）",
+        "defaultFileName": "付款凭证.jpg",
+        "attached": "文件已上传"
+      }
+    },
+    "cards": {
+      "title": "在线信用卡 / 借记卡（Visa 与 Mastercard）",
+      "description": "通过经印度尼西亚央行（Bank Indonesia）许可的官方支付网关处理，采用 3D-Secure（短信验证码）安全标准。"
+    }
+  },
+  "shipping": {
+    "totalWeight": "图书总重量：<strong>{{weight}} g</strong>（按 {{kg}} kg 计费）",
+    "zone": "邮编区域 [{{postalCode}}]（x{{multiplier}}）",
+    "enterPostalCode": "请输入邮政编码以获取准确运费",
+    "estimate": "预计：{{days}}",
+    "freeShippingBadge": "免运费",
+    "freeShippingThreshold": "订单满 {{amount}} 免运费",
+    "remaining": "（还差 {{amount}}）",
+    "insuranceNote": "已包含图书运输保险及 PT Cakrawala Magna Scientia 官方防撞纸箱包装。"
+  },
+  "customerWhatsApp": {
+    "greeting": "尊敬的 *{{name}}*，您好：",
+    "thanks": "感谢您在 *PT CAKRAWALA MAGNA SCIENTIA*（CakraNexa）订购正式学术出版物。",
+    "detailsHeading": "您的订单详情：",
+    "invoice": "• 账单编号：*{{number}}*",
+    "total": "• 总计：*{{total}}*",
+    "status": "• 状态：*{{status}}*",
+    "courier": "• 快递公司：*{{courier}}*",
+    "tracking": "• 运单号：*{{tracking}}*",
+    "preparing": "我们的物流团队正在以多层防护包装为您准备已获ISBN的图书。",
+    "closing": "此致敬礼，",
+    "team": "*CakraNexa 发行部*"
+  }
+}

@@ -1,0 +1,291 @@
+{
+  "hero": {
+    "eyebrow": "CAKRANEXA ACADEMY & EXECUTIVE EDUCATION",
+    "title": "CakraNexa Academy Training & Scholarly Development Programs",
+    "subtitle": "Building the capacity of academics and practitioners through scholarly writing workshops, research management, and professional certification.",
+    "highlights": {
+      "certificate": "Official Certificates Eligible for KUM Credit Points (32 Lesson Hours)",
+      "instructors": "Instructors from Our Research Board & Senior Experts",
+      "curriculum": "Curriculum Aligned with DIKTI & DJKI Standards"
+    }
+  },
+  "catalog": {
+    "eyebrow": "Scholarly Modules",
+    "title": "Accredited Training Curriculum"
+  },
+  "categories": {
+    "all": "All Programs (6)",
+    "penulisan": "Writing & Publication",
+    "riset": "Research Methodology",
+    "hukum": "Law & Taxation"
+  },
+  "module": {
+    "investmentLabel": "Investment:",
+    "nextSchedule": "Next Session",
+    "duration": "Duration",
+    "format": "Delivery Format",
+    "fee": "Program Fee",
+    "targetAudience": "Target Participants:",
+    "curriculumTitle": "Topics & Curriculum Syllabus",
+    "facilitiesTitle": "Exclusive Benefits & Certificate",
+    "discountNote": "*A 15% institutional discount is available for delegations of at least 3 participants from the same university/institution.",
+    "register": "Register for This Program"
+  },
+  "inHouse": {
+    "eyebrow": "In-House Training",
+    "title": "Training Partnerships for Universities & Corporations",
+    "description": "CakraNexa Academy organizes customized training programs (In-House Workshops) tailored to the curriculum needs of faculties, university LPPM units (research and community service institutes), or professional associations.",
+    "cta": "Request In-House Training",
+    "whatsappMessage": "Hello CakraNexa Academy, we would like to submit a proposal for In-House Training for our institution/faculty."
+  },
+  "registration": {
+    "success": {
+      "code": "REGISTRATION CODE: {{code}}",
+      "title": "Registration Successfully Recorded",
+      "message": "Thank you, <strong>{{name}}</strong>. Your registration for <strong>{{program}}</strong> has been saved in our system.",
+      "nextTitle": "Next Steps:",
+      "nextBody": "Our academic admin team will send the official invoice, detailed schedule, and platform link to WhatsApp <strong>{{phone}}</strong> within 24 hours.",
+      "whatsappCta": "Quick Confirmation via WhatsApp",
+      "whatsappMessage": "Hello CakraNexa Academy Admin, I have registered for the training \"{{program}}\" with Registration Code {{code}}.",
+      "close": "Close Window"
+    },
+    "form": {
+      "eyebrow": "Registration Form",
+      "title": "Training Participant Registration",
+      "fullName": "Full Name & Academic Titles",
+      "fullNamePlaceholder": "Dr. Participant Name, S.E., M.Si.",
+      "institution": "Institution / University / Office",
+      "institutionPlaceholder": "Faculty of Economics, Universitas Indonesia / Public Accounting Firm...",
+      "email": "Official Email",
+      "emailPlaceholder": "participant@university.ac.id",
+      "whatsapp": "WhatsApp Number",
+      "attendance": "Attendance Format",
+      "attendanceOnsite": "In Person at the Venue (Hotel)",
+      "attendanceOnline": "Online via Zoom HD Interactive",
+      "notes": "Additional Notes (Optional)",
+      "notesPlaceholder": "Special requirements, collective institutional registration, etc.",
+      "submit": "Submit Registration Form"
+    }
+  },
+  "modules": {
+    "mod-1": {
+      "title": "Academic Textbook & Monograph Writing Training",
+      "subtitle": "Techniques for writing high-value, plagiarism-free manuscripts that meet DIKTI (Directorate General of Higher Education) standards.",
+      "badge": "DIKTI & BKD Standards",
+      "duration": "2 Intensive Days (16 Training Hours)",
+      "format": "Hybrid (Star-Rated Hotel in Jakarta & Zoom Live Streaming)",
+      "schedule": "Cohort IX: 21–22 October 2026",
+      "investment": "IDR 2,750,000 / participant",
+      "targetAudience": "University lecturers, researchers at BRIN (National Research and Innovation Agency) and research institutes, and postgraduate students (master's/doctoral).",
+      "curriculum": [
+        "House Style Standards and DIKTI BKD (Lecturer Workload Report) Operational Guidelines for Monographs & Course Books",
+        "Techniques for Converting Research Reports, Theses, and Dissertations into Substantive Commercial Monograph Manuscripts",
+        "Building Academic Arguments, Chapter Concept Maps, and Integrated Thematic Glossaries",
+        "Strategies for Passing the Credit Point (KUM) Assessment for Professor and Associate Professor"
+      ],
+      "facilities": [
+        "Printed CakraNexa House Style Guidebook",
+        "UNESCO B5 Monograph Writing Template (.docx)",
+        "Official Training Certificate, 32 Lesson Hours (JP), Eligible for KUM Credit Points",
+        "CakraNexa Book Publishing Voucher Worth IDR 1,000,000"
+      ]
+    },
+    "mod-2": {
+      "title": "Workshop on Publishing in Reputable International Journals",
+      "subtitle": "Strategies for getting published in Scopus- and SINTA 1–2-indexed journals.",
+      "badge": "Scopus Q1–Q4 & SINTA",
+      "duration": "2-Day Workshop + 3 Months of Manuscript Mentoring",
+      "format": "Interactive Online via Zoom HD & Cloud Classroom",
+      "schedule": "Cohort VI: 28–29 October 2026",
+      "investment": "IDR 3,500,000 / participant",
+      "targetAudience": "Lecturers, principal researchers, and doctoral candidates who need an international publication to meet graduation requirements.",
+      "curriculum": [
+        "Analysis of Editorial Criteria for Q1–Q2 Scopus and Web of Science (WoS) Journals",
+        "Dissecting an IMRaD Structure (Introduction, Methods, Results, Discussion) That Wins Over Reviewers",
+        "Techniques for Responding to Reviewer Comments (Drafting a Rebuttal Letter & Response Matrix)",
+        "Identifying and Avoiding Predatory Journals, Hijacked Journals, and Paper Mills"
+      ],
+      "facilities": [
+        "Diagnostic Manuscript Review by Senior Peer Reviewers",
+        "Access to the CakraNexa Researcher Community & Mendeley Shared Library",
+        "International Workshop Certificate, 32 Lesson Hours (JP)",
+        "Submission Support Until the Manuscript Reaches the Under Review Stage"
+      ]
+    },
+    "mod-3": {
+      "title": "Research Methodology & Applied Data Analysis Training",
+      "subtitle": "Mastering quantitative and qualitative data analysis tools for scholarly work.",
+      "badge": "Hands-on Practicum",
+      "duration": "3 Days of Intensive Practicum (24 Training Hours)",
+      "format": "Computer Lab & Hybrid via Zoom",
+      "schedule": "Cohort IV: 11–13 November 2026",
+      "investment": "IDR 3,250,000 / participant",
+      "targetAudience": "Social researchers, accounting/management/law lecturers, fiscal policy analysts, and research consultants.",
+      "curriculum": [
+        "Empirical Research Design in Accounting, Taxation, Economic Law, and Business Governance",
+        "Quantitative Multivariate Analysis with SmartPLS 4, SPSS 29, and Stata 18",
+        "NVivo 14-Assisted Thematic Qualitative Analysis & Bibliometric Mapping (VOSviewer)",
+        "Writing a Discussion Chapter That Links Data Findings to the Grand Theory"
+      ],
+      "facilities": [
+        "Verified Real-World Datasets for Practice Simulations",
+        "Practice Software Licenses for the Duration of the Training",
+        "Step-by-Step Guide Modules for Quantitative & Qualitative Data Processing",
+        "Applied Data Analysis Competency Certificate, 32 Lesson Hours (JP)"
+      ]
+    },
+    "mod-4": {
+      "title": "Copyright Governance & Work Licensing Training",
+      "subtitle": "Intellectual property management and legal protection for authors and institutions.",
+      "badge": "Legal Compliance & Moral Rights",
+      "duration": "1-Day Masterclass (8 Training Hours)",
+      "format": "Hybrid (Hotel Aryaduta Jakarta & Zoom HD)",
+      "schedule": "Cohort III: 18 November 2026",
+      "investment": "IDR 1,850,000 / participant",
+      "targetAudience": "Book authors, heads of university LPPM (research and community service institutes), campus publishing managers, and in-house legal counsel.",
+      "curriculum": [
+        "Core Principles of Law No. 28 of 2014 on Copyright in Protecting Academic Works",
+        "Simulation and Procedures for Self-Registration via the e-Hakcipta Portal of the Directorate General of Intellectual Property (DJKI), Ministry of Law and Human Rights",
+        "Negotiating Publishing License Clauses, Royalty Rights, and Cross-Border Translation Rights",
+        "Mitigating Digital Infringement Risks and Policies on the Use of Works for AI Model Training"
+      ],
+      "facilities": [
+        "Ready-to-Use Copyright License Agreement Template",
+        "Hands-on Guidance to Register 1 Work on DJKI e-Hakcipta",
+        "Intellectual Property Legal Consultation with the CakraNexa Legal Expert Board",
+        "Intellectual Property Governance Competency Certificate, 16 Lesson Hours (JP)"
+      ]
+    },
+    "mod-5": {
+      "title": "Digital Teaching Module Development Training",
+      "subtitle": "Developing interactive teaching materials for higher education and training institutions.",
+      "badge": "Outcome-Based Education",
+      "duration": "2-Day Workshop (16 Training Hours)",
+      "format": "Interactive Online via Zoom & Learning Management System",
+      "schedule": "Cohort V: 25–26 November 2026",
+      "investment": "IDR 2,500,000 / participant",
+      "targetAudience": "Course lecturers, vocational training instructors, and curriculum development teams.",
+      "curriculum": [
+        "Aligning Teaching Materials with an OBE-Based Semester Learning Plan (RPS)",
+        "Designing Interactive Digital Teaching Modules (ePub3 Format, Integrated Multimedia, and SCORM Packages)",
+        "Developing Student Worksheets (LKM) Based on Real Cases (Case Method & Project-Based Learning)",
+        "Assessment Rubrics for Graduate Learning Outcomes (CPL) Meeting BAN-PT / LAM \"Excellent\" Accreditation Standards"
+      ],
+      "facilities": [
+        "RPS Document and Interactive Teaching Material Design Templates",
+        "1-Month Access to the CakraNexa Academy LMS Sandbox",
+        "Guide to Converting Conventional Lecture Notes into Interactive E-Modules",
+        "Accredited Teaching Material Developer Certificate, 32 Lesson Hours (JP)"
+      ]
+    },
+    "mod-6": {
+      "title": "Applied Taxation Certification & Practice Workshop",
+      "subtitle": "Comprehensive mentoring for practitioners and academics in tax law.",
+      "badge": "Fiscal Accreditation",
+      "duration": "4 Intensive Weekend Days (32 Training Hours)",
+      "format": "Hotel Mulia Senayan, Jakarta & Hybrid Live Streaming",
+      "schedule": "Cohort VIII: 6–9 December 2026",
+      "investment": "IDR 4,850,000 / participant",
+      "targetAudience": "Tax consultants, corporate tax managers, forensic auditors, tax lawyers, and fiscal law lecturers.",
+      "curriculum": [
+        "Analysis of the Implementation of Minister of Finance Regulation PMK 172/2023 and Practical Preparation of Transfer Pricing Documentation (Local/Master File)",
+        "Tax Dispute Handling Strategies: Objection, Appeal, and Lawsuit Proceedings at the Tax Court",
+        "Mitigating Preliminary Evidence Examination (Bukper) Risks and Applying the Ultimum Remedium Principle under the HPP Law (Tax Harmonization Law)",
+        "Tax Consultant Certification Exam (USKP) Simulation, Levels A & B, with Real Case Discussions"
+      ],
+      "facilities": [
+        "Hardcover Tax Monograph Reference Book Published by CakraNexa",
+        "Compilation of Selected Tax Court Rulings as Study Material",
+        "Lunch & Coffee Breaks at a Star-Rated Hotel (In-Person Participants Only)",
+        "Applied Tax Practice Expertise Certificate, 48 Lesson Hours (JP)"
+      ]
+    }
+  },
+  "cmsModules": {
+    "mod-3": {
+      "subtitle": "Quantitative, qualitative, and mixed methods with state-of-the-art tools.",
+      "badge": "SmartPLS, SPSS & NVivo",
+      "duration": "3 Days of Hands-on Computer Training (24 Training Hours)",
+      "format": "In Person at a Jakarta Computer Lab & Online",
+      "schedule": "Cohort IV: 4–6 November 2026",
+      "investment": "IDR 2,500,000 / participant",
+      "targetAudience": "Researchers, thesis supervisors, data analysis consultants, and final-year students.",
+      "curriculum": [
+        "Formulating Conceptual Frameworks & Structural Hypothesis Testing (SEM-PLS)",
+        "Complex Quantitative Data Processing Using SmartPLS 4 & IBM SPSS",
+        "Qualitative Data Analysis & Thematic Triangulation with NVivo 14",
+        "Creating Statistical Data Visualizations to International Publication Standards"
+      ],
+      "facilities": [
+        "Educational Software Licenses & Comprehensive Practice Datasets",
+        "Full-Color Practicum Modules & Step-by-Step Video Tutorials",
+        "Data Analysis Competency Certificate, 32 Lesson Hours (JP)",
+        "Post-Training 1-on-1 Data Processing Consultation"
+      ]
+    },
+    "mod-4": {
+      "subtitle": "Legal protection of academic works, royalties, and intellectual property registration.",
+      "badge": "Intellectual Property & DJKI Licensing",
+      "duration": "1-Day Executive Workshop (8 Training Hours)",
+      "format": "Hybrid (Central Jakarta Ballroom & Zoom Webinar)",
+      "schedule": "Cohort III: 12 November 2026",
+      "investment": "IDR 2,250,000 / participant",
+      "targetAudience": "University intellectual property centers (Sentra KI), book authors, legal consultants, and publisher management.",
+      "curriculum": [
+        "The Declarative Principle of Copyright under Law No. 28 of 2014",
+        "Crucial Clauses in Publishing License Agreements and Fair Royalty Schemes",
+        "Simulation of Self-Registration Procedures via the DJKI e-Hakcipta Portal",
+        "Mitigating Book Piracy Disputes and Moral/Economic Rights Infringement in the Digital Realm"
+      ],
+      "facilities": [
+        "Standard Draft Contract for Academic Book Publishing Licenses",
+        "Step-by-Step DJKI e-Hakcipta Technical Guide",
+        "Intellectual Property Regulation Workshop Certificate, 16 Lesson Hours (JP)",
+        "Assistance with 1 Copyright Registration Application"
+      ]
+    },
+    "mod-5": {
+      "title": "OBE-Based Digital Teaching Module Development Training",
+      "subtitle": "Developing interactive teaching materials and Outcome-Based Education curricula.",
+      "badge": "OBE & MBKM Curriculum",
+      "duration": "2 Days of Structured Training (16 Training Hours)",
+      "format": "Interactive Online via Learning Management System (LMS)",
+      "schedule": "Cohort V: 18–19 November 2026",
+      "investment": "IDR 2,000,000 / participant",
+      "targetAudience": "Course lecturers, study program curriculum development teams, and Guru Penggerak (teacher leaders).",
+      "curriculum": [
+        "Aligning Graduate Learning Outcomes (CPL) and Course Learning Outcomes (CPMK) with Learning Modules",
+        "Developing Authentic Assessment Rubrics and Measurable Asynchronous Activities",
+        "Integrating Interactive Learning Media (Audio-Visual & Real-World Case Studies)",
+        "Standardizing the ePub3 Format for Student Mobile Device Accessibility"
+      ],
+      "facilities": [
+        "RPS & Teaching Module Templates Based on the OBE Curriculum",
+        "6-Month LMS Sandbox Access",
+        "Learning Development Certificate, 32 Lesson Hours (JP)",
+        "Teaching Module Review by Higher Education Curriculum Experts"
+      ]
+    },
+    "mod-6": {
+      "subtitle": "Case analysis of tax disputes and transfer pricing, plus certification exam preparation.",
+      "badge": "PMK 172/2023 & CoreTax",
+      "duration": "3 Intensive Days of Case Discussion (24 Training Hours)",
+      "format": "Exclusive In-Person Sessions at a 5-Star Hotel in Central Jakarta",
+      "schedule": "Cohort VII: 25–27 November 2026",
+      "investment": "IDR 3,250,000 / participant",
+      "targetAudience": "Tax consultants, Tax Court legal representatives, corporate tax managers, and taxation lecturers.",
+      "curriculum": [
+        "Harmonization of Transfer Pricing Regulations Following the Issuance of PMK 172/2023",
+        "Strategies for Preparing Audit-Proof Local Files, Master Files & CbCR",
+        "Case Analysis of Lawsuits and Appeals at the Tax Court through Judicial Review",
+        "Readiness Simulation for Implementing the Core Tax Administration System (CTAS)"
+      ],
+      "facilities": [
+        "Contemporary Taxation Monograph Published by CakraNexa",
+        "Selected Tax Court Rulings & Fiscal Working Papers",
+        "Applied Tax Expertise Training Certificate, 32 Lesson Hours (JP)",
+        "Membership in the CakraNexa Tax Research Forum"
+      ]
+    }
+  }
+}

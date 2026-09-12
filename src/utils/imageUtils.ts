@@ -1,5 +1,7 @@
 import type React from 'react';
 import { toTitleCase } from './formatters';
+import i18n from '../i18n/index';
+import { categoryKey } from '../i18n/labels';
 
 /**
  * Image Utilities & Error-Free JPG Asset Handler
@@ -83,9 +85,14 @@ export function resolveImageUrl(src?: string | null, defaultType: 'book' | 'bann
  * the website renders a prestigious, publication-grade academic cover with zero error.
  */
 export function createFallbackBookCoverSvg(meta?: FallbackBookMeta): string {
-  const title = toTitleCase(meta?.title || 'Monografi Akademik & Ilmiah');
+  const title = toTitleCase(meta?.title || i18n.t('catalog:cover.defaultTitle'));
   const author = meta?.author || 'PT Cakrawala Magna Scientia';
-  const category = (meta?.category || 'PERPAJAKAN & HUKUM').toUpperCase();
+  // Nilai kategori (Bahasa Indonesia) ditampilkan dengan label bahasa aktif.
+  const knownCategory = meta?.category ? categoryKey(meta.category) : undefined;
+  const categoryText = knownCategory
+    ? i18n.t(`catalog:categories.${knownCategory}`)
+    : meta?.category || i18n.t('catalog:cover.defaultCategory');
+  const category = categoryText.toUpperCase();
   const isbn = meta?.isbn || '978-623-8120-XX-X';
   const year = meta?.year || new Date().getFullYear();
 
@@ -171,14 +178,14 @@ export function createFallbackBookCoverSvg(meta?: FallbackBookMeta): string {
 
     <!-- Author & Institutional Affiliation -->
     <line x1="220" y1="580" x2="380" y2="580" stroke="#D4AF37" stroke-width="1" stroke-opacity="0.5" />
-    <text x="300" y="620" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="15" font-weight="600" fill="#E2E8F0" text-anchor="middle" letter-spacing="1">PENULIS / TIM PENYUSUN</text>
+    <text x="300" y="620" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="15" font-weight="600" fill="#E2E8F0" text-anchor="middle" letter-spacing="1">${escapeXml(i18n.t('catalog:cover.authorLabel'))}</text>
     <text x="300" y="650" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="18" font-weight="bold" fill="#FFFFFF" text-anchor="middle">${safeAuthor}</text>
 
     <!-- Footer Bar & ISBN -->
     <rect x="32" y="745" width="536" height="73" fill="#0B1120" />
     <line x1="32" y1="745" x2="568" y2="745" stroke="#D4AF37" stroke-width="1" stroke-opacity="0.6" />
     <text x="60" y="785" font-family="monospace" font-size="12" fill="#94A3B8">ISBN: ${safeIsbn}</text>
-    <text x="540" y="785" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="12" font-weight="bold" fill="#DFBF64" text-anchor="end">${year} EDITION</text>
+    <text x="540" y="785" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="12" font-weight="bold" fill="#DFBF64" text-anchor="end">${escapeXml(i18n.t('catalog:cover.edition', { year }))}</text>
 
     <!-- 3D Realistic Spine Shadow on Left Edge -->
     <rect x="0" y="0" width="40" height="850" fill="url(#spineGrad)" pointer-events="none" />

@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Award, 
-  ArrowRight, 
-  FileCheck, 
-  ChevronLeft, 
-  ChevronRight, 
-  BookOpen, 
-  Scale, 
-  GraduationCap, 
+import { useTranslation } from 'react-i18next';
+import {
+  Award,
+  ArrowRight,
+  FileCheck,
+  ChevronLeft,
+  ChevronRight,
+  BookOpen,
+  Scale,
+  GraduationCap,
   FileText
 } from 'lucide-react';
 import { Book, ActivePage, SubSection, HeroSlide as HeroSlideType, HeroBrandingSettings } from '../types';
 import { DEFAULT_SITE_CONTENT } from '../services/siteContentService';
+import { useCmsText } from '../i18n/hooks';
 
 interface HeroProps {
   featuredBook?: Book;
@@ -86,6 +88,34 @@ const LOCAL_HERO_BANNERS = [
   '/images/banners/hero-peer-review.png'
 ];
 
+/*
+ * Terjemahan slide bawaan (CMS DEFAULT_SITE_CONTENT & DEFAULT_HERO_SLIDES) ada di home:hero.slides.<kunci>.
+ * Teks slide yang sudah diubah admin (berbeda dari bawaan Bahasa Indonesia) tetap tampil apa adanya.
+ */
+type SlideTranslationKey = 'literature' | 'vatTrilogy' | 'isbnService' | 'taxLegal' | 'textbooks' | 'peerReview';
+type SlideTextField = 'badge' | 'title' | 'subtitle' | 'primaryCtaText' | 'secondaryCtaText';
+const SLIDE_TEXT_FIELDS: SlideTextField[] = ['badge', 'title', 'subtitle', 'primaryCtaText', 'secondaryCtaText'];
+const SLIDE_TRANSLATION_KEYS: Record<string, SlideTranslationKey> = {
+  'slide-1': 'literature',
+  'slide-2': 'vatTrilogy',
+  'slide-3': 'isbnService',
+  'monographs-academic': 'literature',
+  'tax-legal-literature': 'taxLegal',
+  'university-textbooks': 'textbooks',
+  'journal-publishing': 'peerReview'
+};
+const INDONESIAN_DEFAULT_SLIDES: HeroSlideType[] = [...DEFAULT_SITE_CONTENT.heroSlides, ...DEFAULT_HERO_SLIDES];
+
+type PillarTranslationKey = 'books' | 'journals' | 'research' | 'education' | 'seminars' | 'digitalKnowledge';
+const PILLAR_TRANSLATION_KEYS: Record<string, PillarTranslationKey> = {
+  'pillar-books': 'books',
+  'pillar-journals': 'journals',
+  'pillar-research': 'research',
+  'pillar-education': 'education',
+  'pillar-seminars': 'seminars',
+  'pillar-digital-knowledge': 'digitalKnowledge'
+};
+
 export const Hero: React.FC<HeroProps> = ({
   slides,
   branding = DEFAULT_SITE_CONTENT.heroBranding,
@@ -93,9 +123,24 @@ export const Hero: React.FC<HeroProps> = ({
   onExploreCatalog,
   onPublishBook,
 }) => {
+  const { t } = useTranslation('home');
+  const cmsText = useCmsText();
+
+  const localizeSlide = (slide: HeroSlideType): HeroSlideType => {
+    const key = SLIDE_TRANSLATION_KEYS[slide.id];
+    const defaults = INDONESIAN_DEFAULT_SLIDES.find((item) => item.id === slide.id);
+    if (!key || !defaults) return slide;
+    const localized = { ...slide };
+    SLIDE_TEXT_FIELDS.forEach((field) => {
+      const value = slide[field];
+      if (value) localized[field] = cmsText(value, defaults[field], t(`hero.slides.${key}.${field}` as const));
+    });
+    return localized;
+  };
+
   const sourceSlides = slides && slides.length > 0 ? slides : DEFAULT_HERO_SLIDES;
   const activeSlides = sourceSlides.map((slide, index) => ({
-    ...slide,
+    ...localizeSlide(slide),
     bgImageUrl: slide.bgImageUrl?.includes('unsplash.com')
       ? LOCAL_HERO_BANNERS[index % LOCAL_HERO_BANNERS.length]
       : slide.bgImageUrl || LOCAL_HERO_BANNERS[index % LOCAL_HERO_BANNERS.length]
@@ -130,10 +175,19 @@ export const Hero: React.FC<HeroProps> = ({
   const activeSlide = activeSlides[currentSlide] || activeSlides[0];
 
   const companyName = branding.companyName?.trim() || '';
-  const brandTagline = branding.tagline?.trim() || '';
+  const rawTagline = branding.tagline?.trim() || '';
+  const brandTagline = rawTagline
+    ? cmsText(rawTagline, DEFAULT_SITE_CONTENT.heroBranding.tagline, t('hero.branding.tagline'))
+    : '';
   const brandPillars = [...(branding.pillars || [])]
     .sort((a, b) => a.order - b.order)
-    .filter((pillar) => pillar.label?.trim());
+    .filter((pillar) => pillar.label?.trim())
+    .map((pillar) => {
+      const key = PILLAR_TRANSLATION_KEYS[pillar.id];
+      if (!key) return pillar;
+      const defaultLabel = DEFAULT_SITE_CONTENT.heroBranding.pillars.find((item) => item.id === pillar.id)?.label;
+      return { ...pillar, label: cmsText(pillar.label, defaultLabel, t(`hero.branding.pillars.${key}` as const)) };
+    });
   const showBranding = branding.isEnabled !== false && Boolean(companyName || brandTagline || brandPillars.length);
 
   const getSlideIcon = (id: string) => {
@@ -176,16 +230,16 @@ export const Hero: React.FC<HeroProps> = ({
   };
 
   return (
-    <section 
-      id="hero-section" 
-      aria-label="Carousel Banner Beranda CakraNexa"
+    <section
+      id="hero-section"
+      aria-label={t('hero.ariaLabel')}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="relative bg-[#0F172A] text-white pt-24 pb-14 sm:pb-16 md:pt-32 md:pb-20 border-b border-slate-800 overflow-hidden select-none"
     >
       {/* Background Images with smooth opacity crossfade */}
       {activeSlides.map((slide, index) => (
-        <div 
+        <div
           key={slide.id}
           className={`absolute inset-0 transition-opacity duration-1000 ease-in-out pointer-events-none ${
             index === currentSlide ? 'opacity-35 scale-100' : 'opacity-0 scale-105'
@@ -202,7 +256,7 @@ export const Hero: React.FC<HeroProps> = ({
 
       {/* Subtle navy overlay keeps the background visible while preserving text contrast */}
       <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/55 via-[#0F172A]/42 to-[#0F172A]/35 pointer-events-none" />
-      
+
       {/* Subtle Architectural Grid Accent */}
       <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:32px_32px] opacity-25 pointer-events-none" />
 
@@ -247,7 +301,7 @@ export const Hero: React.FC<HeroProps> = ({
         {/* Tagline Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-700 text-[#DFBF64] text-[10px] sm:text-xs uppercase tracking-wider font-semibold shadow-xs">
           <IconComponent className="w-3.5 h-3.5 text-[#DFBF64] shrink-0" />
-          <span>{activeSlide.badge || 'PENERBIT RESMI IKAPI'}</span>
+          <span>{activeSlide.badge || t('hero.fallback.badge')}</span>
         </div>
 
         {/* Main Headline */}
@@ -269,7 +323,7 @@ export const Hero: React.FC<HeroProps> = ({
             onClick={handlePrimaryClick}
             className="px-6 py-3.5 rounded-lg bg-[#D4AF37] text-[#0F172A] font-bold text-sm tracking-wide hover:bg-[#c5a059] transition-all shadow-sm flex items-center justify-center gap-2 group cursor-pointer"
           >
-            <span>{activeSlide.primaryCtaText || 'Jelajahi Katalog Buku'}</span>
+            <span>{activeSlide.primaryCtaText || t('hero.fallback.primaryCta')}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
 
@@ -279,7 +333,7 @@ export const Hero: React.FC<HeroProps> = ({
             className="px-6 py-3.5 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-[#DFBF64] text-white font-semibold text-sm tracking-wide transition-all hover:bg-slate-800 flex items-center justify-center gap-2 cursor-pointer"
           >
             <FileCheck className="w-4 h-4 text-[#DFBF64]" />
-            <span>{activeSlide.secondaryCtaText || 'Kirim Naskah'}</span>
+            <span>{activeSlide.secondaryCtaText || t('hero.fallback.secondaryCta')}</span>
           </button>
         </div>
 
@@ -287,15 +341,15 @@ export const Hero: React.FC<HeroProps> = ({
         <div className="pt-6 border-t border-slate-800/80 grid grid-cols-3 gap-4 max-w-2xl mx-auto">
           <div>
             <div className="text-xl sm:text-2xl font-bold text-[#DFBF64]">21+</div>
-            <div className="text-[10px] sm:text-xs text-slate-400 font-medium uppercase tracking-wider mt-0.5">Buku Referensi Utama</div>
+            <div className="text-[10px] sm:text-xs text-slate-400 font-medium uppercase tracking-wider mt-0.5">{t('hero.stats.references')}</div>
           </div>
           <div>
             <div className="text-xl sm:text-2xl font-bold text-white">100%</div>
-            <div className="text-[10px] sm:text-xs text-slate-400 font-medium uppercase tracking-wider mt-0.5">Ber-ISBN Resmi Perpusnas</div>
+            <div className="text-[10px] sm:text-xs text-slate-400 font-medium uppercase tracking-wider mt-0.5">{t('hero.stats.isbn')}</div>
           </div>
           <div>
             <div className="text-xl sm:text-2xl font-bold text-[#DFBF64]">IKAPI</div>
-            <div className="text-[10px] sm:text-xs text-slate-400 font-medium uppercase tracking-wider mt-0.5">Penerbit Anggota Resmi</div>
+            <div className="text-[10px] sm:text-xs text-slate-400 font-medium uppercase tracking-wider mt-0.5">{t('hero.stats.ikapi')}</div>
           </div>
         </div>
 
@@ -305,7 +359,7 @@ export const Hero: React.FC<HeroProps> = ({
       <button
         type="button"
         onClick={handlePrev}
-        aria-label="Slide sebelumnya"
+        aria-label={t('hero.prevSlide')}
         className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-900/80 border border-slate-700 text-white hover:text-[#DFBF64] hover:border-[#DFBF64] flex items-center justify-center transition-all cursor-pointer shadow-md"
       >
         <ChevronLeft className="w-5 h-5" />
@@ -314,7 +368,7 @@ export const Hero: React.FC<HeroProps> = ({
       <button
         type="button"
         onClick={handleNext}
-        aria-label="Slide berikutnya"
+        aria-label={t('hero.nextSlide')}
         className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-900/80 border border-slate-700 text-white hover:text-[#DFBF64] hover:border-[#DFBF64] flex items-center justify-center transition-all cursor-pointer shadow-md"
       >
         <ChevronRight className="w-5 h-5" />
@@ -327,7 +381,7 @@ export const Hero: React.FC<HeroProps> = ({
             key={slide.id}
             type="button"
             onClick={() => setCurrentSlide(idx)}
-            aria-label={`Pindah ke banner ${idx + 1}`}
+            aria-label={t('hero.goToSlide', { number: idx + 1 })}
             className={`transition-all rounded-full cursor-pointer ${
               idx === currentSlide
                 ? 'w-7 h-2 bg-[#D4AF37]'

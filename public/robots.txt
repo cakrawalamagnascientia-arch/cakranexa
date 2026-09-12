@@ -2,5 +2,9 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /checkout
+Disallow: /en/admin
+Disallow: /en/checkout
+Disallow: /zh/admin
+Disallow: /zh/checkout
 
 Sitemap: https://cakranexa.com/sitemap.xml

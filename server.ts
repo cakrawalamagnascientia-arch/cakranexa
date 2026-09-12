@@ -148,7 +148,8 @@ const rowToBook = (b: any): Book => normalizeBookAuthors({
   daftarIsi: Array.isArray(b.daftar_isi) ? b.daftar_isi : undefined,
   tentangPenulis: b.tentang_penulis || undefined,
   isBestSeller: Boolean(b.is_best_seller),
-  featured: Boolean(b.featured)
+  featured: Boolean(b.featured),
+  i18n: b.i18n && typeof b.i18n === 'object' ? b.i18n : undefined
 });
 
 const bookToRow = (b: Book) => ({
@@ -182,6 +183,7 @@ const bookToRow = (b: Book) => ({
   tentang_penulis: b.tentangPenulis ?? null,
   is_best_seller: Boolean(b.isBestSeller),
   featured: Boolean(b.featured),
+  i18n: b.i18n ?? {},
   updated_at: new Date().toISOString()
 });
 
@@ -229,7 +231,8 @@ const rowToAuthor = (row: any): Author => normalizeAuthorProfile({
   organization_seminar: row.organization_seminar || undefined,
   publications: row.publications || undefined,
   created_at: row.created_at ? new Date(row.created_at).toISOString() : undefined,
-  updated_at: row.updated_at ? new Date(row.updated_at).toISOString() : undefined
+  updated_at: row.updated_at ? new Date(row.updated_at).toISOString() : undefined,
+  i18n: row.i18n && typeof row.i18n === 'object' ? row.i18n : undefined
 });
 
 const authorToRow = (a: Author) => ({
@@ -245,6 +248,7 @@ const authorToRow = (a: Author) => ({
   work_experience: a.work_experience || null,
   organization_seminar: a.organization_seminar || null,
   publications: a.publications || null,
+  i18n: a.i18n ?? {},
   updated_at: new Date().toISOString()
 });
 
@@ -699,6 +703,8 @@ async function startServer() {
         shippingCost,
         total,
         paymentStatus: order.paymentMethod === 'manual_mandiri' ? 'processing' : 'pending',
+        // Bahasa pelanggan saat checkout (untuk pesan WhatsApp ke pelanggan); nilai lain -> 'id'.
+        language: ['id', 'en', 'zh'].includes(order.language) ? order.language : 'id',
         createdAt: new Date().toISOString()
       };
       inMemoryOrders.unshift(normalized);
@@ -724,7 +730,8 @@ async function startServer() {
           va_number: normalized.vaNumber || null,
           payment_proof_url: normalized.paymentProofUrl || null,
           tracking_number: normalized.trackingNumber || null,
-          customer_notes: c.notes || null
+          customer_notes: c.notes || null,
+          language: normalized.language
         });
         if (orderError) {
           console.error('Supabase order insert error:', orderError.message);
@@ -996,6 +1003,7 @@ async function startServer() {
         work_experience: body.work_experience ?? undefined,
         organization_seminar: body.organization_seminar ?? undefined,
         publications: body.publications ?? undefined,
+        i18n: body.i18n && typeof body.i18n === 'object' ? body.i18n : undefined,
         created_at: now,
         updated_at: now
       };
@@ -1154,12 +1162,27 @@ async function startServer() {
       { path: '/kontak', freq: 'monthly', prio: '0.6' }
     ];
     const books = await loadBooks();
+    // Setiap halaman dalam 3 bahasa (Indonesia tanpa prefix, /en, /zh) beserta tautan hreflang antarbahasa.
+    const languages = [
+      { hreflang: 'id', prefix: '' },
+      { hreflang: 'en', prefix: '/en' },
+      { hreflang: 'zh-CN', prefix: '/zh' }
+    ];
+    const entry = (path: string, freq: string, prio: string) => {
+      const alternates = [
+        ...languages.map((l) => `    <xhtml:link rel="alternate" hreflang="${l.hreflang}" href="${escapeXml(`${baseUrl}${l.prefix}${path}`)}"/>`),
+        `    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(`${baseUrl}${path}`)}"/>`
+      ].join('\n');
+      return languages
+        .map((l) => `  <url>\n    <loc>${escapeXml(`${baseUrl}${l.prefix}${path}`)}</loc>\n${alternates}\n    <lastmod>${now}</lastmod>\n    <changefreq>${freq}</changefreq>\n    <priority>${prio}</priority>\n  </url>`)
+        .join('\n');
+    };
     const urls = [
-      ...staticPages.map((p) => `  <url>\n    <loc>${baseUrl}${p.path}</loc>\n    <lastmod>${now}</lastmod>\n    <changefreq>${p.freq}</changefreq>\n    <priority>${p.prio}</priority>\n  </url>`),
-      ...books.map((b) => `  <url>\n    <loc>${escapeXml(`${baseUrl}/katalog/${b.slug || b.id}`)}</loc>\n    <lastmod>${now}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.80</priority>\n  </url>`)
+      ...staticPages.map((p) => entry(p.path, p.freq, p.prio)),
+      ...books.map((b) => entry(`/katalog/${b.slug || b.id}`, 'weekly', '0.80'))
     ];
     res.header('Content-Type', 'application/xml');
-    return res.send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>`);
+    return res.send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls.join('\n')}\n</urlset>`);
   });
 
   app.get('/robots.txt', async (_req, res) => {
@@ -1167,7 +1190,7 @@ async function startServer() {
     const baseUrl = String(seo.siteUrl || 'https://cakranexa.com').replace(/\/$/, '');
     const body = seo.noindex
       ? `User-agent: *\nDisallow: /\n`
-      : `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /checkout\n`;
+      : `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /checkout\nDisallow: /en/admin\nDisallow: /en/checkout\nDisallow: /zh/admin\nDisallow: /zh/checkout\n`;
     res.header('Content-Type', 'text/plain');
     return res.send(`${body}\nSitemap: ${baseUrl}/sitemap.xml\n`);
   });

@@ -11,8 +11,10 @@ import {
   BookOpen,
   User
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { toTitleCase } from '../utils/formatters';
 import { resolveImageUrl } from '../utils/imageUtils';
+import { useBookText, useCategoryLabel, useLocalized } from '../i18n/hooks';
 
 export interface AuthorDetailViewProps {
   author: Author;
@@ -23,29 +25,29 @@ export interface AuthorDetailViewProps {
 
 type AuthorTabKey = 1 | 2 | 3 | 4;
 
-const TABS: { key: AuthorTabKey; label: string; icon: typeof GraduationCap; hint: string }[] = [
-  { key: 1, label: 'Profil &amp; Pendidikan', icon: GraduationCap, hint: 'profile_education' },
-  { key: 2, label: 'Pengalaman Kerja',    icon: Building2,    hint: 'work_experience' },
-  { key: 3, label: 'Organisasi &amp; Seminar', icon: Award,  hint: 'organization_seminar' },
-  { key: 4, label: 'Publikasi &amp; Karya Ilmiah', icon: FileText, hint: 'publications' }
-];
+// Label tab diambil dari author.json (detail.tabs.*) di dalam komponen.
+const TABS = [
+  { key: 1, labelKey: 'detail.tabs.profileEducation', icon: GraduationCap, hint: 'profile_education' },
+  { key: 2, labelKey: 'detail.tabs.workExperience',    icon: Building2,    hint: 'work_experience' },
+  { key: 3, labelKey: 'detail.tabs.organizationSeminar', icon: Award,  hint: 'organization_seminar' },
+  { key: 4, labelKey: 'detail.tabs.publications', icon: FileText, hint: 'publications' }
+] as const satisfies readonly { key: AuthorTabKey; labelKey: string; icon: typeof GraduationCap; hint: string }[];
 
-const getContentByTab = (a: Author, k: AuthorTabKey): any => {
-  switch (k) {
-    case 1: return a.profile_education;
-    case 2: return a.work_experience;
-    case 3: return a.organization_seminar;
-    case 4: return a.publications;
-  }
+// Field bio per tab; isinya dibaca dalam bahasa aktif (fallback Bahasa Indonesia) lewat useLocalized.
+const BIO_FIELD_BY_TAB: Record<AuthorTabKey, 'profile_education' | 'work_experience' | 'organization_seminar' | 'publications'> = {
+  1: 'profile_education',
+  2: 'work_experience',
+  3: 'organization_seminar',
+  4: 'publications'
 };
 
-const renderBioContent = (value: any): React.ReactNode => {
+const renderBioContent = (value: any, emptyText: string): React.ReactNode => {
   if (value === null || value === undefined) {
-    return <div className="text-slate-500 text-sm italic">Konten belum diisi.</div>;
+    return <div className="text-slate-500 text-sm italic">{emptyText}</div>;
   }
   if (Array.isArray(value)) {
     if (value.length === 0) {
-      return <div className="text-slate-500 text-sm italic">Konten belum diisi.</div>;
+      return <div className="text-slate-500 text-sm italic">{emptyText}</div>;
     }
     return (
       <ul className="space-y-3 list-disc pl-5 marker:text-[#A9850C] text-[15px] leading-relaxed text-slate-700">
@@ -61,7 +63,7 @@ const renderBioContent = (value: any): React.ReactNode => {
   if (typeof value === 'string') {
     const trimmed = value.trim();
     if (!trimmed) {
-      return <div className="text-slate-500 text-sm italic">Konten belum diisi.</div>;
+      return <div className="text-slate-500 text-sm italic">{emptyText}</div>;
     }
     // Jika string mengandung karakter bullet atau line break, coba split dengan newline agar menjadi paragraf
     const paragraphs = trimmed.split(/\n{2,}/).filter(Boolean);
@@ -102,6 +104,10 @@ const renderBioContent = (value: any): React.ReactNode => {
 const resolveBookCover = (b: Book): string => b.coverBuku || '/images/books/placeholder.svg';
 
 export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allBooks, onSelectBook }) => {
+  const { t } = useTranslation('author');
+  const categoryLabel = useCategoryLabel();
+  const bookText = useBookText();
+  const localized = useLocalized();
   const [tab, setTab] = useState<AuthorTabKey>(1);
 
   const authorBooks: Book[] = useMemo(() => {
@@ -144,9 +150,9 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
                   <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-inner aspect-square">
                     <div className="w-full h-full flex items-center justify-center">
                       {author.photo_url ? (
-                        <img src={resolveImageUrl(author.photo_url)} alt={`Foto ${author.name}`} className="w-full h-full object-cover" />
+                        <img src={resolveImageUrl(author.photo_url)} alt={t('photo.alt', { name: author.name })} className="w-full h-full object-cover" />
                       ) : (
-                        <User className="w-24 h-24 text-slate-300" aria-label="Foto belum diunggah" />
+                        <User className="w-24 h-24 text-slate-300" aria-label={t('photo.missing')} />
                       )}
                     </div>
                   </div>
@@ -165,7 +171,7 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
                   )}
                   <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0F172A]/5 border border-[#0F172A]/10 text-xs font-semibold text-[#0F172A]/80">
                     <User className="w-3.5 h-3.5 text-[#A9850C]" />
-                    Penulis &amp; Akademisi CakraNexa
+                    {t('detail.badge')}
                   </div>
                 </div>
 
@@ -211,7 +217,7 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
                     {mailtoLink ? (
                       <a
                         href={mailtoLink}
-                        title={`Email ${author.email}`}
+                        title={t('detail.emailTitle', { email: author.email })}
                         className="p-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-[#0F172A] hover:border-[#D4AF37]/60 transition shadow-sm"
                       >
                         <Mail className="w-4.5 h-4.5" />
@@ -248,17 +254,17 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-5 sm:px-6 pt-5 sm:pt-6 border-b border-slate-100">
                 <h2 className="text-lg sm:text-xl font-extrabold text-[#0F172A] mb-4">
-                  Profil &amp; Rekam Jejak Akademik
+                  {t('detail.heading')}
                 </h2>
                 <div className="-mb-px flex gap-1 sm:gap-2 overflow-x-auto pb-px scrollbar-thin">
-                  {TABS.map((t) => {
-                    const active = tab === t.key;
-                    const Icon = t.icon;
+                  {TABS.map((tabItem) => {
+                    const active = tab === tabItem.key;
+                    const Icon = tabItem.icon;
                     return (
                       <button
-                        key={t.key}
+                        key={tabItem.key}
                         type="button"
-                        onClick={() => setTab(t.key)}
+                        onClick={() => setTab(tabItem.key)}
                         className={[
                           'shrink-0 group relative px-3 sm:px-4 py-3 text-xs sm:text-sm font-bold transition-all border-b-2 whitespace-nowrap',
                           active
@@ -268,7 +274,7 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
                       >
                         <span className="inline-flex items-center gap-2">
                           <Icon className={active ? 'w-4 h-4 text-[#A9850C]' : 'w-4 h-4 text-slate-400'} />
-                          <span dangerouslySetInnerHTML={{ __html: t.label }} />
+                          <span>{t(tabItem.labelKey)}</span>
                         </span>
                       </button>
                     );
@@ -276,7 +282,7 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
                 </div>
               </div>
               <div className="p-5 sm:p-7">
-                {renderBioContent(getContentByTab(author, tab))}
+                {renderBioContent(localized(author, BIO_FIELD_BY_TAB[tab]), t('detail.contentEmpty'))}
               </div>
             </div>
 
@@ -289,10 +295,10 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
                   </div>
                   <div>
                     <h3 className="text-lg sm:text-xl font-extrabold text-[#0F172A]">
-                      Karya Buku CakraNexa
+                      {t('detail.books.title')}
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                      Total {authorBooks.length} monograf / buku yang diterbitkan
+                      {t('detail.books.total', { count: authorBooks.length })}
                     </p>
                   </div>
                 </div>
@@ -303,7 +309,7 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
                   <div className="py-12 text-center rounded-xl bg-slate-50 border border-dashed border-slate-200">
                     <BookOpen className="w-12 h-12 mx-auto text-slate-300 mb-3" />
                     <div className="text-sm text-slate-500">
-                      Belum ada daftar buku yang terhubung untuk penulis ini.
+                      {t('detail.books.empty')}
                     </div>
                   </div>
                 ) : (
@@ -322,7 +328,7 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
                               <div className="aspect-[3/4] rounded-lg overflow-hidden bg-slate-100 border border-slate-200 shadow-sm group-hover:shadow-md transition">
                                 <img
                                   src={cover}
-                                  alt={book.title || book.name}
+                                  alt={bookText.title(book)}
                                   loading="lazy"
                                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                 />
@@ -330,16 +336,16 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
                             </div>
                             <div className="flex-1 min-w-0 py-1">
                               <div className="text-[10px] sm:text-[11px] font-bold tracking-widest uppercase text-[#A9850C] mb-1.5">
-                                {book.category}
+                                {categoryLabel(book.category)}
                               </div>
                               <div className="text-sm sm:text-base font-extrabold text-[#0F172A] line-clamp-2 leading-snug group-hover:text-[#0B1120]">
-                                {toTitleCase(book.title || book.name)}
+                                {toTitleCase(bookText.title(book))}
                               </div>
                               <div className="mt-2 text-[11px] sm:text-xs text-slate-500 line-clamp-2">
                                 ISBN · {book.isbn || '—'}
                               </div>
                               <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0F172A]/5 text-[11px] sm:text-xs font-bold text-[#0F172A]/80 group-hover:bg-[#D4AF37]/15 group-hover:text-[#0F172A] transition border border-transparent group-hover:border-[#D4AF37]/30">
-                                Lihat Detail Buku
+                                {t('detail.books.viewDetail')}
                                 <ExternalLink className="w-3 h-3 text-[#A9850C]" />
                               </div>
                             </div>

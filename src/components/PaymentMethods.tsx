@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Building, 
-  QrCode, 
-  Smartphone, 
-  CreditCard, 
-  Copy, 
-  Check, 
-  Upload, 
-  FileText, 
+import { Trans, useTranslation } from 'react-i18next';
+import {
+  Building,
+  QrCode,
+  Smartphone,
+  CreditCard,
+  Copy,
+  Check,
+  Upload,
+  FileText,
   AlertCircle,
   ShieldCheck,
   CheckCircle2,
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 import { PaymentMethod, PaymentSettings, AdminBankAccount } from '../types';
 import { getStoredPaymentSettings } from '../services/paymentService';
+import { useManualTransferInstructions, useOrderLabels } from '../i18n/orderLabels';
 
 interface PaymentMethodsProps {
   selectedMethod: PaymentMethod;
@@ -24,6 +26,17 @@ interface PaymentMethodsProps {
   paymentSettings?: PaymentSettings;
 }
 
+// Nilai metode pembayaran adalah kunci data; labelnya dari checkout:paymentMethods.*
+const VA_BANKS: { id: PaymentMethod; code: string }[] = [
+  { id: 'bca_va', code: 'BCA' },
+  { id: 'mandiri_bill', code: 'MANDIRI' },
+  { id: 'bni_va', code: 'BNI' },
+  { id: 'bri_va', code: 'BRI' },
+  { id: 'permata_va', code: 'PERMATA' },
+];
+
+const E_WALLETS = ['gopay', 'ovo', 'dana', 'shopeepay', 'linkaja'] as const satisfies readonly PaymentMethod[];
+
 export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
   selectedMethod,
   onSelectMethod,
@@ -31,6 +44,9 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
   uploadedProofName,
   paymentSettings
 }) => {
+  const { t } = useTranslation('checkout');
+  const { paymentMethodLabel } = useOrderLabels();
+  const manualTransferInstructions = useManualTransferInstructions();
   const [settings, setSettings] = useState<PaymentSettings>(() => paymentSettings || getStoredPaymentSettings());
   const [copiedAccount, setCopiedAccount] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'midtrans_va' | 'midtrans_ewallet' | 'manual_transfer' | 'cards'>('midtrans_va');
@@ -91,7 +107,7 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
             }`}
           >
             <Building className="w-3.5 h-3.5" />
-            <span>Virtual Account Bank</span>
+            <span>{t('payment.tabs.va')}</span>
           </button>
         )}
 
@@ -106,7 +122,7 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
             }`}
           >
             <QrCode className="w-3.5 h-3.5" />
-            <span>QRIS & e-Wallet</span>
+            <span>{t('payment.tabs.ewallet')}</span>
           </button>
         )}
 
@@ -124,7 +140,7 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
             }`}
           >
             <Building className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>Transfer Bank Penerbit (Manual)</span>
+            <span>{t('payment.tabs.manual')}</span>
           </button>
         )}
 
@@ -142,7 +158,7 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
             }`}
           >
             <CreditCard className="w-3.5 h-3.5" />
-            <span>Kartu Kredit/Debit</span>
+            <span>{t('payment.tabs.cards')}</span>
           </button>
         )}
       </div>
@@ -151,22 +167,16 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
       {activeTab === 'midtrans_va' && settings.enableMidtransVA && (
         <div className="space-y-3">
           <label className="text-xs font-bold text-slate-700 block">
-            Pilih Bank Virtual Account (Otomatis Terverifikasi):
+            {t('payment.va.chooseBank')}
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {[
-              { id: 'bca_va', name: 'BCA Virtual Account', code: 'BCA' },
-              { id: 'mandiri_bill', name: 'Mandiri Bill / VA', code: 'MANDIRI' },
-              { id: 'bni_va', name: 'BNI Virtual Account', code: 'BNI' },
-              { id: 'bri_va', name: 'BRI Virtual Account', code: 'BRI' },
-              { id: 'permata_va', name: 'Permata VA', code: 'PERMATA' },
-            ].map((bank) => {
+            {VA_BANKS.map((bank) => {
               const isSelected = selectedMethod === bank.id;
               return (
                 <button
                   key={bank.id}
                   type="button"
-                  onClick={() => onSelectMethod(bank.id as PaymentMethod)}
+                  onClick={() => onSelectMethod(bank.id)}
                   className={`p-3 rounded-lg border text-left flex items-center justify-between transition-all cursor-pointer ${
                     isSelected
                       ? 'border-[#0F172A] bg-slate-900 text-white font-bold ring-1 ring-[#D4AF37]'
@@ -174,8 +184,8 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
                   }`}
                 >
                   <div>
-                    <div className="text-xs">{bank.name}</div>
-                    <span className="text-[9px] uppercase tracking-wider opacity-70">Verifikasi Instan 24 Jam</span>
+                    <div className="text-xs">{paymentMethodLabel(bank.id)}</div>
+                    <span className="text-[9px] uppercase tracking-wider opacity-70">{t('payment.va.instantVerification')}</span>
                   </div>
                   {isSelected && <Check className="w-4 h-4 text-[#D4AF37]" />}
                 </button>
@@ -189,7 +199,7 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
       {activeTab === 'midtrans_ewallet' && (settings.enableQris || settings.enableEWallet) && (
         <div className="space-y-3">
           <label className="text-xs font-bold text-slate-700 block">
-            Pilih QRIS atau Dompet Digital (e-Wallet):
+            {t('payment.ewallet.choose')}
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {settings.enableQris && (
@@ -203,26 +213,20 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
                 }`}
               >
                 <div>
-                  <div className="text-xs">QRIS Universal</div>
+                  <div className="text-xs">{paymentMethodLabel('qris')}</div>
                   <span className="text-[9px] opacity-70 block">{settings.qrisMerchantName}</span>
                 </div>
                 {selectedMethod === 'qris' && <Check className="w-4 h-4 text-[#D4AF37]" />}
               </button>
             )}
 
-            {settings.enableEWallet && [
-              { id: 'gopay', name: 'GoPay', sub: 'Aplikasi Gojek / GoPay' },
-              { id: 'ovo', name: 'OVO', sub: 'Push Notification OVO' },
-              { id: 'dana', name: 'DANA', sub: 'DANA Wallet Saldo' },
-              { id: 'shopeepay', name: 'ShopeePay', sub: 'Shopee App Redirect' },
-              { id: 'linkaja', name: 'LinkAja', sub: 'BUMN Payment Ecosystem' },
-            ].map((wallet) => {
-              const isSelected = selectedMethod === wallet.id;
+            {settings.enableEWallet && E_WALLETS.map((walletId) => {
+              const isSelected = selectedMethod === walletId;
               return (
                 <button
-                  key={wallet.id}
+                  key={walletId}
                   type="button"
-                  onClick={() => onSelectMethod(wallet.id as PaymentMethod)}
+                  onClick={() => onSelectMethod(walletId)}
                   className={`p-3 rounded-lg border text-left flex items-center justify-between transition-all cursor-pointer ${
                     isSelected
                       ? 'border-[#0F172A] bg-slate-900 text-white font-bold ring-1 ring-[#D4AF37]'
@@ -230,8 +234,8 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
                   }`}
                 >
                   <div>
-                    <div className="text-xs">{wallet.name}</div>
-                    <span className="text-[9px] opacity-70 block">{wallet.sub}</span>
+                    <div className="text-xs">{paymentMethodLabel(walletId)}</div>
+                    <span className="text-[9px] opacity-70 block">{t(`payment.ewallet.subtitles.${walletId}`)}</span>
                   </div>
                   {isSelected && <Check className="w-4 h-4 text-[#D4AF37]" />}
                 </button>
@@ -247,17 +251,17 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
           <div className="flex items-start justify-between">
             <div>
               <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 block">
-                Rekening Resmi Korporat
+                {t('bank.officialAccount')}
               </span>
               <h4 className="font-bold text-sm text-slate-900 tracking-tight">
                 PT CAKRAWALA MAGNA SCIENTIA
               </h4>
               <p className="text-slate-500 text-[11px] mt-0.5">
-                Silakan pilih salah satu rekening tujuan transfer resmi penerbit di bawah ini:
+                {t('payment.manual.chooseAccount')}
               </p>
             </div>
             <span className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-semibold">
-              Rekening Giro Terverifikasi
+              {t('payment.manual.verifiedAccount')}
             </span>
           </div>
 
@@ -265,7 +269,7 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
           <div className="space-y-2.5">
             {activeBankAccounts.length === 0 ? (
               <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-xs">
-                Belum ada rekening aktif yang dikonfigurasi oleh administrator. Silakan hubungi admin.
+                {t('payment.manual.noAccounts')}
               </div>
             ) : (
               activeBankAccounts.map((acc) => (
@@ -286,7 +290,7 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
                       {acc.accountNumber}
                     </span>
                     <span className="text-[11px] font-medium text-slate-600 block mt-0.5">
-                      a.n. {acc.accountHolder}
+                      {t('bank.accountHolder', { name: acc.accountHolder })}
                     </span>
                   </div>
                   <button
@@ -299,7 +303,7 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
                     ) : (
                       <Copy className="w-3.5 h-3.5 text-slate-500" />
                     )}
-                    <span>{copiedAccount === acc.id ? 'Tersalin' : 'Salin No. Rekening'}</span>
+                    <span>{copiedAccount === acc.id ? t('bank.copied') : t('bank.copyAccountNumber')}</span>
                   </button>
                 </div>
               ))
@@ -308,8 +312,8 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
 
           {/* Admin Configured Instruction Text */}
           <div className="p-3 bg-white border border-slate-200 rounded-lg text-slate-700 text-[11px] leading-relaxed">
-            <strong className="text-slate-900 font-semibold block mb-0.5">Petunjuk Pembayaran:</strong>
-            {settings.manualTransferInstructions || 'Silahkan transfer sesuai nominal ke nomor rekening resmi PT Cakrawala Magna Scientia di atas, lalu unggah bukti transfer.'}
+            <strong className="text-slate-900 font-semibold block mb-0.5">{t('payment.manual.instructionsLabel')}</strong>
+            {manualTransferInstructions(settings.manualTransferInstructions)}
           </div>
 
           {/* WhatsApp Finance Contact Direct Link */}
@@ -317,7 +321,14 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
             <div className="flex items-center justify-between p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs">
               <div className="flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Konfirmasi cepat WhatsApp Finance: <strong>{settings.adminNotificationWhatsapp}</strong></span>
+                <span>
+                  <Trans
+                    t={t}
+                    i18nKey="bank.whatsappFinance"
+                    values={{ phone: settings.adminNotificationWhatsapp }}
+                    components={{ strong: <strong /> }}
+                  />
+                </span>
               </div>
             </div>
           )}
@@ -325,9 +336,9 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
           {/* Payment Proof Upload */}
           <div className="space-y-2 pt-2 border-t border-slate-200">
             <label className="text-xs font-bold text-slate-700 block">
-              Unggah Bukti Transfer Bank (Struk / Tangkapan Layar M-Banking) *
+              {t('payment.manual.upload.label')}
             </label>
-            
+
             <div className="border-2 border-dashed border-slate-300 hover:border-[#D4AF37] rounded-xl p-4 text-center bg-white transition-colors">
               <input
                 type="file"
@@ -339,10 +350,10 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
               <label htmlFor="payment-proof-input" className="cursor-pointer block space-y-1">
                 <Upload className="w-6 h-6 text-slate-400 mx-auto" />
                 <div className="text-xs font-semibold text-[#0F172A]">
-                  Klik untuk unggah atau seret file struk bukti bayar
+                  {t('payment.manual.upload.cta')}
                 </div>
                 <div className="text-[10px] text-slate-400">
-                  Format JPG, PNG, atau PDF (Maks. 5 MB)
+                  {t('payment.manual.upload.formats')}
                 </div>
               </label>
             </div>
@@ -352,11 +363,11 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
                 <div className="flex items-center gap-2 truncate">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <span className="font-semibold truncate">
-                    {uploadedProofName || 'Bukti_Transfer_Penerbit.jpg'}
+                    {uploadedProofName || t('payment.manual.upload.defaultFileName')}
                   </span>
                 </div>
                 <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded flex-shrink-0">
-                  File Terpasang
+                  {t('payment.manual.upload.attached')}
                 </span>
               </div>
             )}
@@ -368,11 +379,11 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
       {activeTab === 'cards' && settings.enableCreditCard && (
         <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3 text-xs">
           <div className="flex items-center justify-between">
-            <span className="font-bold text-slate-800">Kartu Kredit / Debit Online (Visa & Mastercard)</span>
+            <span className="font-bold text-slate-800">{t('payment.cards.title')}</span>
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
           </div>
           <p className="text-slate-500 text-[11px] leading-relaxed">
-            Diproses melalui gerbang pembayaran resmi berlisensi Bank Indonesia dengan standar keamanan 3D-Secure (OTP SMS).
+            {t('payment.cards.description')}
           </p>
         </div>
       )}

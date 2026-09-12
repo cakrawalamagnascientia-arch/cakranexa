@@ -57,6 +57,7 @@ CREATE TABLE books (
     tentang_penulis TEXT,
     is_best_seller BOOLEAN NOT NULL DEFAULT false,
     featured BOOLEAN NOT NULL DEFAULT false,
+    i18n JSONB NOT NULL DEFAULT '{}'::jsonb, -- terjemahan judul/subjudul/sinopsis (en, zh)
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT books_stock_non_negative CHECK (stock IS NULL OR stock >= 0)
@@ -82,6 +83,7 @@ CREATE TABLE orders (
     payment_proof_url TEXT,
     va_number VARCHAR(100),
     customer_notes TEXT,
+    language VARCHAR(8) NOT NULL DEFAULT 'id', -- bahasa pelanggan saat checkout (id, en, zh)
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT orders_payment_status_check CHECK (

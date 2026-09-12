@@ -1,0 +1,11 @@
+{
+  "header": {
+    "eyebrow": "MAGNA SCIENTIA 法律与税务评论",
+    "title": "批判性研究、专家观点与学术阅读资讯",
+    "subtitle": "深度编辑文章，剖析最新法院判决、财政法规改革，以及会计与公司治理领域的前沿思想。"
+  },
+  "article": {
+    "readMore": "阅读全文",
+    "openAlert": "正在打开文章：《{{title}}》"
+  }
+}

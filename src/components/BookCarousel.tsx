@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { Book } from '../types';
 import { BookCard } from './BookCard';
+import { useCategoryLabel } from '../i18n/hooks';
 
 interface BookCarouselProps {
   id: string;
@@ -29,11 +31,13 @@ export const BookCarousel: React.FC<BookCarouselProps> = ({
   onAddToCart,
   onQuickBuy,
   onViewMore,
-  viewMoreText = 'Lihat Semua Buku',
+  viewMoreText,
   categories,
   selectedCategory,
   onSelectCategory
 }) => {
+  const { t } = useTranslation('home');
+  const categoryLabel = useCategoryLabel();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -70,7 +74,7 @@ export const BookCarousel: React.FC<BookCarouselProps> = ({
 
       // Scroll amount roughly equal to 1-2 card widths
       const step = el.clientWidth < 640 ? el.clientWidth * 0.5 : el.clientWidth * 0.25;
-      
+
       // If reached near end, smoothly wrap back to start
       if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 20) {
         el.scrollTo({ left: 0, behavior: 'smooth' });
@@ -93,14 +97,14 @@ export const BookCarousel: React.FC<BookCarouselProps> = ({
   };
 
   return (
-    <section 
+    <section
       id={id}
       className="py-10 border-b border-slate-200 bg-white"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        
+
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-1 text-left">
@@ -130,7 +134,7 @@ export const BookCarousel: React.FC<BookCarouselProps> = ({
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                Semua
+                {t('carousel.all')}
               </button>
               {categories.map((cat) => (
                 <button
@@ -142,7 +146,7 @@ export const BookCarousel: React.FC<BookCarouselProps> = ({
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
-                  {cat}
+                  {categoryLabel(cat)}
                 </button>
               ))}
             </div>
@@ -158,7 +162,7 @@ export const BookCarousel: React.FC<BookCarouselProps> = ({
                   ? 'bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-50 shadow-xs'
                   : 'bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed'
               }`}
-              title="Geser Kiri"
+              title={t('carousel.scrollLeft')}
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -170,7 +174,7 @@ export const BookCarousel: React.FC<BookCarouselProps> = ({
                   ? 'bg-white text-slate-800 hover:border-slate-400 hover:bg-slate-50 shadow-xs'
                   : 'bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed'
               }`}
-              title="Geser Kanan"
+              title={t('carousel.scrollRight')}
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -184,7 +188,7 @@ export const BookCarousel: React.FC<BookCarouselProps> = ({
             <button
               onClick={() => scroll('left')}
               className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-r-xl bg-white/95 text-slate-800 shadow-md border border-slate-200 hover:bg-white transition-all opacity-0 group-hover:opacity-100 cursor-pointer hidden md:flex items-center justify-center"
-              title="Geser ke kiri"
+              title={t('carousel.scrollLeftHover')}
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -216,7 +220,7 @@ export const BookCarousel: React.FC<BookCarouselProps> = ({
             <button
               onClick={() => scroll('right')}
               className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-l-xl bg-white/95 text-slate-800 shadow-md border border-slate-200 hover:bg-white transition-all opacity-0 group-hover:opacity-100 cursor-pointer hidden md:flex items-center justify-center"
-              title="Geser ke kanan"
+              title={t('carousel.scrollRightHover')}
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -229,7 +233,7 @@ export const BookCarousel: React.FC<BookCarouselProps> = ({
             onClick={onViewMore}
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg border border-slate-300 hover:border-slate-900 bg-white hover:bg-slate-50 text-slate-800 font-semibold text-xs tracking-wider uppercase transition-all shadow-xs group cursor-pointer"
           >
-            <span>{viewMoreText}</span>
+            <span>{viewMoreText ?? t('carousel.viewAllBooks')}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>

@@ -1,0 +1,332 @@
+{
+  "status": {
+    "pending": "Menunggu Pembayaran",
+    "paid": "Lunas",
+    "processing": "Diproses",
+    "shipped": "Dikirim",
+    "failed": "Gagal",
+    "cancelled": "Dibatalkan"
+  },
+  "paymentMethods": {
+    "bca_va": "BCA Virtual Account",
+    "mandiri_bill": "Mandiri Bill / VA",
+    "bni_va": "BNI Virtual Account",
+    "bri_va": "BRI Virtual Account",
+    "permata_va": "Permata VA",
+    "qris": "QRIS Universal",
+    "gopay": "GoPay",
+    "ovo": "OVO",
+    "dana": "DANA",
+    "shopeepay": "ShopeePay",
+    "linkaja": "LinkAja",
+    "credit_card": "Kartu Kredit/Debit",
+    "manual_mandiri": "Transfer Manual Bank"
+  },
+  "paymentMethodsShort": {
+    "mandiri_bill": "Mandiri Bill"
+  },
+  "shippingMethods": {
+    "jneReg": {
+      "service": "REG (Reguler)",
+      "estimatedDays": "2 - 3 Hari",
+      "description": "Layanan reguler terpercaya menjangkau seluruh kecamatan dan instansi kampus"
+    },
+    "jneYes": {
+      "service": "YES (Yakin Esok Sampai)",
+      "estimatedDays": "1 Hari Kerja",
+      "description": "Prioritas penerbangan ekspres khusus dokumen, monografi & modul penting"
+    },
+    "jntEz": {
+      "service": "EZ (Standar)",
+      "estimatedDays": "2 - 3 Hari",
+      "description": "Penjemputan dan pengantaran 365 hari tanpa libur ke seluruh penjuru Indonesia"
+    },
+    "posKilat": {
+      "service": "Kilat Khusus",
+      "estimatedDays": "2 - 4 Hari",
+      "description": "Spesialis pengiriman instansi universitas, perpustakaan daerah, dan pelosok"
+    },
+    "sicepatBest": {
+      "service": "BEST (Besok Sampai)",
+      "estimatedDays": "1 Hari Kerja",
+      "description": "Kecepatan optimal untuk ibu kota provinsi dan kota-kota besar universitas"
+    },
+    "sicepatReg": {
+      "service": "REG (Reguler)",
+      "estimatedDays": "2 - 3 Hari",
+      "description": "Ekonomis dengan pelacakan barcode digital real-time akurat"
+    },
+    "tikiReg": {
+      "service": "REG (Reguler)",
+      "estimatedDays": "2 - 3 Hari",
+      "description": "Jaringan kurir berpengalaman dengan jaminan penanganan paket buku aman"
+    }
+  },
+  "bank": {
+    "officialAccount": "Rekening Resmi Korporat",
+    "accountHolder": "a.n. {{name}}",
+    "copied": "Tersalin",
+    "copyAccountNumber": "Salin No. Rekening",
+    "whatsappFinance": "Konfirmasi cepat WhatsApp Finance: <strong>{{phone}}</strong>",
+    "instructions": {
+      "default": "Silakan transfer sesuai total tagihan pembayaran ke salah satu nomor rekening resmi penerbit di atas. Simpan bukti transfer (struk ATM / screenshot m-Banking) dan unggah pada formulir verifikasi atau konfirmasi ke WhatsApp Finance Redaksi.",
+      "fallback": "Silahkan transfer sesuai nominal ke nomor rekening resmi PT Cakrawala Magna Scientia di atas, lalu unggah bukti transfer."
+    }
+  },
+  "modal": {
+    "title": {
+      "customerDetails": "Rincian Pengiriman & Pemesanan",
+      "midtransSnap": "Midtrans Payment Gateway (Mode Simulasi)",
+      "orderComplete": "Faktur Resmi Pembelian Buku"
+    },
+    "orderedItems": "Item Buku yang Dipesan ({{itemCount}})",
+    "form": {
+      "fullName": {
+        "label": "Nama Lengkap & Gelar *",
+        "placeholder": "Contoh: Dr. Budi Santoso, S.E., M.Si."
+      },
+      "email": {
+        "label": "Email Aktif (Untuk Notifikasi Faktur) *",
+        "placeholder": "nama@institusi.ac.id"
+      },
+      "phone": {
+        "label": "Nomor WhatsApp / Telepon *"
+      },
+      "city": {
+        "label": "Kota / Kabupaten Tujuan *"
+      },
+      "address": {
+        "label": "Alamat Lengkap Pengiriman Buku (Kantor / Kampus / Rumah) *",
+        "placeholder": "Nama Jalan, Nomor Gedung/Ruangan, RT/RW, Kelurahan, Kecamatan..."
+      },
+      "postalCode": {
+        "label": "Kode Pos"
+      },
+      "courier": {
+        "label": "Pilihan Ekspedisi Pengiriman",
+        "option": "{{name}} ({{service}}) - {{fee}} (Est. {{days}})",
+        "free": "GRATIS ONGKIR"
+      }
+    },
+    "summary": {
+      "subtotal": "Subtotal Harga Buku",
+      "shippingCost": "Ongkos Kirim Terhitung",
+      "total": "Total Tagihan Pembayaran"
+    },
+    "buyNow": "Beli Sekarang",
+    "toast": {
+      "incompleteAddress": "Mohon lengkapi semua rincian alamat pengiriman.",
+      "orderFailed": "Pesanan gagal diproses. Coba lagi.",
+      "midtransFailed": "Pembayaran Midtrans gagal atau dibatalkan.",
+      "popupClosed": "Popup pembayaran ditutup. Pesanan tetap tercatat dengan status pending.",
+      "onlineUnavailable": "Pembayaran online belum tersedia. Server Midtrans belum menghasilkan token pembayaran nyata. Silakan coba lagi atau pilih transfer manual.",
+      "paymentVerified": "Pembayaran berhasil diverifikasi! Faktur diterbitkan.",
+      "orderRecorded": "Pesanan tercatat. Selesaikan pembayaran sesuai instruksi Virtual Account / QRIS.",
+      "simulationDisabled": "Pembayaran simulasi dinonaktifkan. Gunakan token Snap Midtrans yang nyata atau transfer manual."
+    },
+    "snap": {
+      "header": "Midtrans SNAP — Mode Simulasi (server key belum diset)",
+      "token": "Token: {{token}}",
+      "totalDue": "Total Tagihan",
+      "chooseMethod": "Pilih Metode Pembayaran Resmi:",
+      "companyAccount": "Giro Perusahaan",
+      "instructionsLabel": "Petunjuk:",
+      "vaNumber": "Nomor Virtual Account",
+      "vaDeadline": "Batas Pembayaran: 23:59 WIB",
+      "copyNumber": "Salin Nomor",
+      "vaSteps": "Buka m-Banking atau ATM bank pilihan Anda > Transfer Virtual Account > Masukkan nomor di atas > Konfirmasi nama PT Cakrawala Magna Scientia > Tekan Bayar.",
+      "qrisScan": "Scan QRIS: {{merchant}}",
+      "qrisExpiry": "Kadaluarsa dalam: 14 menit 59 detik",
+      "cardNumber": "Nomor Kartu Kredit (Dummy)",
+      "cardExpiry": "Berlaku Hingga",
+      "simulatorActions": "Sandbox Simulator Actions:",
+      "simulateSuccess": "Simulasi Sukses",
+      "simulatePending": "Simulasi Pending",
+      "simulateCancel": "Batal / Gagal"
+    },
+    "complete": {
+      "successTitle": "Transaksi Berhasil & Pembayaran Terverifikasi",
+      "successDescription": "Faktur resmi telah dibuat dan naskah cetak siap diproses untuk pengiriman.",
+      "brand": "Brand: CakraNexa Academic & Professional Publishing",
+      "companyInfo": "NPWP: {{npwp}} • Jakarta, Indonesia",
+      "paidBadge": "LUNAS (PAID)",
+      "buyer": "Penerima & Pembeli:",
+      "shippingAddress": "Alamat Pengiriman:",
+      "table": {
+        "title": "Judul Publikasi Buku",
+        "qty": "Qty",
+        "unitPrice": "Harga Satuan",
+        "amount": "Jumlah"
+      },
+      "subtotal": "Subtotal",
+      "shippingCost": "Biaya Pengiriman",
+      "total": "Total Pembayaran",
+      "printInvoice": "Cetak Faktur",
+      "backToCatalog": "Kembali ke Katalog"
+    }
+  },
+  "form": {
+    "secureSystem": "Sistem Pembayaran Terenkripsi 256-Bit SSL",
+    "sections": {
+      "customer": {
+        "title": "Identitas Pemesan & Alamat Pengiriman",
+        "subtitle": "Pastikan nomor WhatsApp aktif untuk pembaruan status kurir & notifikasi sirkulasi"
+      },
+      "shipping": {
+        "title": "Ekspedisi & Kalkulator Ongkos Kirim Dinamis",
+        "subtitle": "Kalkulasi berat otomatis terintegrasi JNE, J&T, POS Indonesia, dan SiCepat"
+      },
+      "payment": {
+        "subtitle": "Mendukung Virtual Account, QRIS, e-Wallets, serta Transfer Bank Mandiri PT Cakrawala Magna Scientia"
+      }
+    },
+    "fields": {
+      "name": {
+        "label": "Nama Lengkap Pemesan / Instansi *",
+        "placeholder": "e.g. Prof. Dr. Hendra Wijaya, S.E., M.Si."
+      },
+      "phone": {
+        "label": "Nomor WhatsApp (Aktif) *"
+      },
+      "email": {
+        "label": "Alamat Email (Faktur & Bukti Bayar) *",
+        "placeholder": "hendra@universitas.ac.id"
+      },
+      "address": {
+        "label": "Alamat Lengkap Pengiriman (Nama Jalan, Gedung, No. Rumah, RT/RW) *",
+        "placeholder": "Jl. Salemba Raya No. 4, Fakultas Ekonomi & Bisnis, Gedung Dekanat Lt. 3"
+      },
+      "province": {
+        "label": "Provinsi"
+      },
+      "city": {
+        "label": "Kota / Kabupaten *"
+      },
+      "district": {
+        "label": "Kecamatan (Sub-district)"
+      },
+      "postalCode": {
+        "label": "Kode Pos *"
+      },
+      "notes": {
+        "label": "Catatan Pengiriman Khusus (Opsional)",
+        "placeholder": "Titipkan di pos satpam kampus / resepsionis lobi utama"
+      }
+    },
+    "errors": {
+      "nameRequired": "Nama lengkap wajib diisi",
+      "phoneRequired": "Nomor WhatsApp wajib diisi",
+      "emailRequired": "Alamat email aktif wajib diisi",
+      "addressRequired": "Alamat lengkap pengiriman wajib diisi",
+      "cityRequired": "Kota / Kabupaten wajib diisi",
+      "postalCodeRequired": "Kode pos wajib diisi",
+      "paymentProofRequired": "Silakan unggah bukti transfer pembayaran Bank Mandiri",
+      "orderFailed": "Pesanan gagal diproses. Silakan coba lagi.",
+      "midtransFailed": "Pembayaran Midtrans gagal atau dibatalkan. Anda dapat mencoba lagi.",
+      "onlineUnavailable": "Pembayaran online belum tersedia. Server Midtrans belum menghasilkan token pembayaran nyata. Silakan coba lagi atau pilih transfer manual.",
+      "simulationDisabled": "Pembayaran simulasi dinonaktifkan. Gunakan token Snap Midtrans yang nyata atau transfer manual."
+    },
+    "summary": {
+      "title": "Ringkasan Pesanan Buku",
+      "subtotal_other": "Subtotal Literatur ({{count}} eks):",
+      "shippingCost": "Biaya Pengiriman:",
+      "serviceInsurance": "Biaya Layanan & Asuransi:",
+      "free": "GRATIS",
+      "totalDue": "TOTAL TAGIHAN:",
+      "totalNote": "Termasuk PPN & Faktur Resmi"
+    },
+    "submit": {
+      "processing": "Memproses Pemesanan...",
+      "confirmManual": "Konfirmasi & Kirim Pesanan",
+      "buyNow": "Beli Sekarang"
+    },
+    "autoNotification": "Notifikasi otomatis akan dikirim ke WhatsApp Admin & Customer secara real-time.",
+    "simulation": {
+      "badge": "MODE SIMULASI — Midtrans belum dikonfigurasi",
+      "total": "Total: {{amount}}",
+      "instructionsTitle": "Instruksi Pembayaran Digital",
+      "billNumber": "Nomor Tagihan: <strong>{{orderNumber}}</strong>",
+      "qrisHint": "Pindai kode QR di atas menggunakan aplikasi perbankan digital atau dompet digital Anda.",
+      "vaNumberLabel": "Nomor Rekening Virtual Account:",
+      "vaPending": "Nomor Virtual Account akan diberikan oleh Midtrans.",
+      "vaDeadline": "Batas waktu pembayaran 24 jam. Verifikasi sistem berjalan otomatis tanpa kirim bukti.",
+      "confirming": "Mengonfirmasi Pembayaran...",
+      "simulateSuccess": "Simulasikan Pembayaran Berhasil (Success)",
+      "cancel": "Batal / Ganti Metode Pembayaran"
+    },
+    "success": {
+      "badge": "Pesanan Berhasil Diverifikasi",
+      "title": "Terima Kasih atas Pesanan Anda!",
+      "description": "Faktur resmi dan pemberitahuan sirkulasi otomatis diteruskan ke tim logistik PT CAKRAWALA MAGNA SCIENTIA.",
+      "invoiceNumber": "Nomor Invoice Resmi:",
+      "recipient": "Penerima Naskah:",
+      "courier": "Kurir Pengiriman:",
+      "paymentStatus": "Status Pembayaran:",
+      "totalPayment": "Total Pembayaran:",
+      "sendProofWhatsApp": "Kirim Bukti ke WhatsApp Admin",
+      "printInvoice": "Cetak Faktur"
+    }
+  },
+  "payment": {
+    "tabs": {
+      "va": "Virtual Account Bank",
+      "ewallet": "QRIS & e-Wallet",
+      "manual": "Transfer Bank Penerbit (Manual)",
+      "cards": "Kartu Kredit/Debit"
+    },
+    "va": {
+      "chooseBank": "Pilih Bank Virtual Account (Otomatis Terverifikasi):",
+      "instantVerification": "Verifikasi Instan 24 Jam"
+    },
+    "ewallet": {
+      "choose": "Pilih QRIS atau Dompet Digital (e-Wallet):",
+      "subtitles": {
+        "gopay": "Aplikasi Gojek / GoPay",
+        "ovo": "Push Notification OVO",
+        "dana": "DANA Wallet Saldo",
+        "shopeepay": "Shopee App Redirect",
+        "linkaja": "BUMN Payment Ecosystem"
+      }
+    },
+    "manual": {
+      "chooseAccount": "Silakan pilih salah satu rekening tujuan transfer resmi penerbit di bawah ini:",
+      "verifiedAccount": "Rekening Giro Terverifikasi",
+      "noAccounts": "Belum ada rekening aktif yang dikonfigurasi oleh administrator. Silakan hubungi admin.",
+      "instructionsLabel": "Petunjuk Pembayaran:",
+      "upload": {
+        "label": "Unggah Bukti Transfer Bank (Struk / Tangkapan Layar M-Banking) *",
+        "cta": "Klik untuk unggah atau seret file struk bukti bayar",
+        "formats": "Format JPG, PNG, atau PDF (Maks. 5 MB)",
+        "defaultFileName": "Bukti_Transfer_Penerbit.jpg",
+        "attached": "File Terpasang"
+      }
+    },
+    "cards": {
+      "title": "Kartu Kredit / Debit Online (Visa & Mastercard)",
+      "description": "Diproses melalui gerbang pembayaran resmi berlisensi Bank Indonesia dengan standar keamanan 3D-Secure (OTP SMS)."
+    }
+  },
+  "shipping": {
+    "totalWeight": "Total Berat Literatur: <strong>{{weight}} g</strong> ({{kg}} Kg hitungan kirim)",
+    "zone": "Zona Kode Pos [{{postalCode}}] (x{{multiplier}})",
+    "enterPostalCode": "Masukkan kode pos untuk tarif presisi",
+    "estimate": "Estimasi: {{days}}",
+    "freeShippingBadge": "BEBAS ONGKIR",
+    "freeShippingThreshold": "Gratis ongkir belanja ≥ {{amount}}",
+    "remaining": "(Kurang {{amount}})",
+    "insuranceNote": "Sudah mencakup proteksi asuransi pengiriman buku dan kemasan kardus tahan benturan resmi PT Cakrawala Magna Scientia."
+  },
+  "customerWhatsApp": {
+    "greeting": "Halo Bapak/Ibu *{{name}}*,",
+    "thanks": "Terima kasih telah memesan publikasi akademik resmi di *PT CAKRAWALA MAGNA SCIENTIA* (CakraNexa).",
+    "detailsHeading": "Detail Pemesanan Anda:",
+    "invoice": "• No. Faktur: *{{number}}*",
+    "total": "• Total: *{{total}}*",
+    "status": "• Status: *{{status}}*",
+    "courier": "• Ekspedisi: *{{courier}}*",
+    "tracking": "• Nomor Resi: *{{tracking}}*",
+    "preparing": "Tim logistik kami sedang menyiapkan eksemplar naskah ber-ISBN Anda dengan standar kemasan protektif berlapis.",
+    "closing": "Salam hormat,",
+    "team": "*Divisi Sirkulasi CakraNexa*"
+  }
+}

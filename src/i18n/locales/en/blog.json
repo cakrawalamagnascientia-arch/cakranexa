@@ -1,0 +1,11 @@
+{
+  "header": {
+    "eyebrow": "MAGNA SCIENTIA LAW & TAX COMMENTARY",
+    "title": "Critical Analysis, Expert Opinion & Academic Literacy News",
+    "subtitle": "In-depth editorial articles examining the latest court rulings, fiscal regulatory reforms, and current thinking on accounting and corporate governance."
+  },
+  "article": {
+    "readMore": "Read More",
+    "openAlert": "Opening article: \"{{title}}\""
+  }
+}

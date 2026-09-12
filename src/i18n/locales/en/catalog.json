@@ -1,0 +1,85 @@
+{
+  "categories": {
+    "taxation": "Taxation",
+    "accounting": "Accounting",
+    "law": "Law",
+    "economicsBusiness": "Economics & Business",
+    "philosophy": "Philosophy",
+    "theology": "Theology"
+  },
+  "grid": {
+    "heading": "<highlight>{{category}}</highlight> Catalog",
+    "defaultHeading": "Academic Literature",
+    "description": "Showing verified academic monographs and reference books with official ISBNs.",
+    "showingOf_one": "Showing {{shown}} of {{count}} Title",
+    "showingOf_other": "Showing {{shown}} of {{count}} Titles",
+    "searchPlaceholder": "Search by book title, VAT/Audit topic, ISBN, or author...",
+    "clearSearch": "Clear",
+    "resultCount_one": "<strong>{{count}}</strong> book",
+    "resultCount_other": "<strong>{{count}}</strong> books",
+    "sort": {
+      "newest": "Newest Books",
+      "recommended": "Top Recommendations",
+      "priceLow": "Price: Low to High",
+      "priceHigh": "Price: High to Low",
+      "title": "Title (A - Z)"
+    },
+    "view": {
+      "grid": "Grid View",
+      "list": "List View"
+    },
+    "empty": {
+      "title": "No books match your search criteria",
+      "description": "Try adjusting your search keywords, changing the category filter, or resetting the price limit to see our full collection.",
+      "reset": "Reset All Filters"
+    },
+    "listMeta": "Author: <strong>{{author}}</strong> • {{pages}} pp. • {{year}}",
+    "officialPrice": "Official Price"
+  },
+  "card": {
+    "coverAlt": "Book Cover",
+    "categoryFallback": "Monograph",
+    "titleFallback": "Book Title",
+    "pages": "{{pages}} pp."
+  },
+  "isbn": {
+    "label": "ISBN: {{isbn}}",
+    "labelWithAuthor": "ISBN: {{isbn}} • {{author}}",
+    "pending": "pending",
+    "short": "ISBN …{{suffix}}",
+    "inSubmission": "ISBN in process",
+    "toFollow": "ISBN pending"
+  },
+  "filter": {
+    "heading": "Filter Literature",
+    "reset": "Reset",
+    "categoriesHeading": "Book Categories",
+    "allCategories": "All Categories",
+    "onlyNew": "Latest Books Only",
+    "yearHeading": "Publication Year",
+    "allYears": "All",
+    "priceHeading": "Price Limit",
+    "priceUpTo": "up to {{price}}",
+    "authorServices": {
+      "title": "Author Services",
+      "description": "Submit your manuscript today and become part of the nation's literacy.",
+      "cta": "Start Publishing"
+    }
+  },
+  "quickSearch": {
+    "placeholder": "Type a book title, ISBN (e.g. 978-623), author name, or category...",
+    "clear": "Clear",
+    "results": "Search Results ({{total}})",
+    "recommended": "Featured Publications",
+    "escHint": "ESC to close",
+    "noResults": "No books found for the keyword \"{{query}}\".",
+    "footer_one": "{{count}} Monograph & Reference Book Published by CakraNexa",
+    "footer_other": "A Collection of {{count}} Monographs & Reference Books Published by CakraNexa"
+  },
+  "cover": {
+    "defaultTitle": "Academic & Scholarly Monograph",
+    "defaultCategory": "TAXATION & LAW",
+    "authorLabel": "AUTHOR / EDITORIAL TEAM",
+    "edition": "{{year}} EDITION"
+  }
+}

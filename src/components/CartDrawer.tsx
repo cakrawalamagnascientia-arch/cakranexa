@@ -1,9 +1,10 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck } from 'lucide-react';
 import { CartItem } from '../types';
 import { resolveImageUrl, handleImageError } from '../utils/imageUtils';
 import { toTitleCase } from '../utils/formatters';
-import { useLanguage } from '../i18n';
+import { useBookText, useCategoryLabel, useFormatters } from '../i18n/hooks';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -22,7 +23,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onRemoveItem,
   onProceedCheckout
 }) => {
-  const { t } = useLanguage();
+  const { t } = useTranslation(['cart', 'common']);
+  const { currency } = useFormatters();
+  const bookText = useBookText();
+  const categoryLabel = useCategoryLabel();
   if (!isOpen) return null;
 
   const subtotal = items.reduce((sum, item) => sum + item.book.harga * item.quantity, 0);
@@ -30,22 +34,22 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   return (
     <div className="fixed inset-0 z-50 overflow-hidden text-left">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-[#0F172A]/60 backdrop-blur-xs transition-opacity"
         onClick={onClose}
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
         <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col">
-          
+
           {/* Drawer Header */}
           <div className="px-6 py-5 bg-[#0F172A] text-white flex items-center justify-between border-b border-[#DFBF64]/30">
             <div className="flex items-center gap-2.5">
               <ShoppingBag className="w-5 h-5 text-[#DFBF64]" />
               <div>
-                <h3 className="font-serif font-bold text-base text-white">{t('cart')}</h3>
+                <h3 className="font-serif font-bold text-base text-white">{t('common:cart')}</h3>
                 <p className="text-[11px] text-slate-400">
-                  {items.length} ragam publikasi buku
+                  {t('drawer.itemTypes', { count: items.length })}
                 </p>
               </div>
             </div>
@@ -64,30 +68,30 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <div className="w-16 h-16 rounded-full bg-slate-100 mx-auto flex items-center justify-center text-slate-400">
                   <ShoppingBag className="w-8 h-8 stroke-1" />
                 </div>
-                <h4 className="font-serif font-bold text-slate-800 text-base">{t('cart')} - {t('noData')}</h4>
+                <h4 className="font-serif font-bold text-slate-800 text-base">{t('common:cart')} - {t('common:noData')}</h4>
                 <p className="text-xs text-slate-500 max-w-xs mx-auto">
-                  Jelajahi koleksi buku referensi akademik kami dan tambahkan naskah yang Anda butuhkan.
+                  {t('drawer.emptyDescription')}
                 </p>
                 <button
                   onClick={onClose}
                   className="px-4 py-2 text-xs font-semibold rounded bg-[#0F172A] text-[#DFBF64] hover:bg-[#1E293B]"
                 >
-                  {t('allBooks')}
+                  {t('common:allBooks')}
                 </button>
               </div>
             ) : (
               items.map((item) => (
-                <div 
+                <div
                   key={item.book.id}
                   className="flex gap-3.5 p-3 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition-colors"
                 >
                   {/* Mini Cover */}
                   <div className="w-16 h-20 flex-shrink-0 book-shadow rounded overflow-hidden bg-[#0F172A]">
-                    <img 
-                      src={resolveImageUrl(item.book.coverBuku, 'book', item.book.id)} 
-                      alt={item.book.name} 
+                    <img
+                      src={resolveImageUrl(item.book.coverBuku, 'book', item.book.id)}
+                      alt={bookText.title(item.book)}
                       onError={(e) => handleImageError(e, {
-                        title: item.book.name,
+                        title: bookText.title(item.book),
                         author: item.book.author,
                         category: item.book.category,
                         isbn: item.book.isbn
@@ -102,18 +106,18 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     <div>
                       <div className="flex justify-between items-start gap-1">
                         <span className="text-[10px] uppercase font-bold text-[#C5A059]">
-                          {item.book.category}
+                          {categoryLabel(item.book.category)}
                         </span>
                         <button
                           onClick={() => onRemoveItem(item.book.id)}
                           className="text-slate-400 hover:text-rose-600 transition-colors p-0.5"
-                          title="Hapus"
+                          title={t('drawer.remove')}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                       <h4 className="font-semibold text-xs text-slate-900 line-clamp-2 leading-snug">
-                        {toTitleCase(item.book.title || item.book.name)}
+                        {toTitleCase(bookText.title(item.book))}
                       </h4>
                     </div>
 
@@ -139,7 +143,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                       <div className="text-right">
                         <span className="text-xs font-bold font-mono text-slate-900">
-                          Rp {(item.book.harga * item.quantity).toLocaleString('id-ID')}
+                          {currency(item.book.harga * item.quantity)}
                         </span>
                       </div>
                     </div>
@@ -154,19 +158,19 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             <div className="p-6 bg-white border-t border-slate-200 space-y-4">
               <div className="space-y-1.5 text-xs">
                 <div className="flex justify-between text-slate-500">
-                  <span>Total Produk</span>
-                  <span>{items.reduce((acc, i) => acc + i.quantity, 0)} buku</span>
+                  <span>{t('drawer.totalProducts')}</span>
+                  <span>{t('drawer.bookCount', { count: items.reduce((acc, i) => acc + i.quantity, 0) })}</span>
                 </div>
                 <div className="flex justify-between text-slate-500">
-                  <span>Subtotal</span>
+                  <span>{t('drawer.subtotal')}</span>
                   <span className="font-mono font-semibold text-slate-900">
-                    Rp {subtotal.toLocaleString('id-ID')}
+                    {currency(subtotal)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm font-bold text-slate-900 pt-2 border-t border-slate-100">
-                  <span>{t('cart')}</span>
+                  <span>{t('common:cart')}</span>
                   <span className="font-mono text-[#9A7B38] text-base">
-                    Rp {subtotal.toLocaleString('id-ID')}
+                    {currency(subtotal)}
                   </span>
                 </div>
               </div>
@@ -176,13 +180,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 onClick={onProceedCheckout}
                 className="w-full py-3.5 px-4 rounded-xl bg-[#D4AF37] hover:bg-[#c5a059] text-[#0F172A] font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>{t('viewDetails')}</span>
+                <span>{t('common:viewDetails')}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
               <p className="text-[10px] text-slate-400 text-center flex items-center justify-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Transaksi dijamin aman dengan Enkripsi SSL 256-bit</span>
+                <span>{t('drawer.secureTransaction')}</span>
               </p>
             </div>
           )}

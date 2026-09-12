@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { resolveImageUrl, createFallbackBookCoverSvg, FallbackBookMeta } from '../utils/imageUtils';
 
 interface SafeImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
@@ -12,13 +13,14 @@ interface SafeImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
 
 export const SafeImage: React.FC<SafeImageProps> = ({
   src,
-  alt = 'Image',
+  alt,
   fallbackType = 'book',
   bookMeta,
   bookId,
   className = '',
   ...rest
 }) => {
+  const { t } = useTranslation('common');
   const resolvedType = (fallbackType === 'general' || !fallbackType ? 'book' : fallbackType) as 'book' | 'banner' | 'logo' | 'blog' | 'payment';
   const initialUrl = resolveImageUrl(src, resolvedType, bookId);
   const [imgSrc, setImgSrc] = useState<string>(initialUrl);
@@ -49,7 +51,7 @@ export const SafeImage: React.FC<SafeImageProps> = ({
     <img
       {...rest}
       src={imgSrc}
-      alt={alt}
+      alt={alt ?? t('image.defaultAlt')}
       onError={onError}
       referrerPolicy="no-referrer"
       className={className}

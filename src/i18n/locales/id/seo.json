@@ -1,0 +1,78 @@
+{
+  "siteName": "CakraNexa Publishing",
+  "home": {
+    "title": "CakraNexa — Penerbit Buku Akademik & Profesional Ber-ISBN",
+    "description": "Platform resmi penerbitan buku akademik ber-ISBN, perpajakan, hukum, dan ekonomi oleh PT Cakrawala Magna Scientia. Layanan profesional, ISBN resmi Perpusnas, dan distribusi nasional.",
+    "keywords": "penerbit buku akademik, penerbitan isbn, buku perpajakan, monografi hukum, cetak buku unesco, jurnal ilmiah, cakrawala magna scientia",
+    "imageAlt": "CakraNexa Academic Publisher"
+  },
+  "bookDetail": {
+    "title": "{{title}} — {{author}} | CakraNexa",
+    "description": "Beli buku akademik \"{{title}}\" karya {{author}}. ISBN: {{isbn}}. Harga {{price}}.",
+    "imageAlt": "Sampul Buku {{title}}",
+    "keyword": "buku monografi",
+    "schemaDescription": "Buku akademik {{title}} ber-ISBN {{isbn}}."
+  },
+  "pages": {
+    "catalog": {
+      "title": "Katalog Buku Akademik & Monografi Ber-ISBN — CakraNexa",
+      "description": "Jelajahi koleksi 21+ monografi akademik, buku teks hukum, perpajakan, akuntansi, dan ekonomi ber-ISBN resmi Perpustakaan Nasional. Diterbitkan oleh PT Cakrawala Magna Scientia.",
+      "keywords": "katalog buku, buku perpajakan, buku hukum, akuntansi, buku unesco",
+      "imageAlt": "Katalog Buku CakraNexa"
+    },
+    "publishing": {
+      "title": "Layanan Penerbitan Buku Akademik & ISBN Resmi — CakraNexa",
+      "description": "Penerbitan monografi, buku teks, dan bunga rampai ilmiah ber-ISBN resmi Perpusnas. Layanan copyediting, layout UNESCO, cetak berkualitas, dan sertifikat HKI.",
+      "keywords": "penerbitan buku, kirim naskah, isbn perpusnas, cetak buku dosen, hki",
+      "imageAlt": "Layanan Penerbitan CakraNexa"
+    },
+    "training": {
+      "title": "Pelatihan Penulisan & Workshop Akademik — CakraNexa",
+      "description": "Program workshop penulisan monografi akademik, metodologi riset, dan strategi publikasi ilmiah berindeks bersama para pakar.",
+      "keywords": "pelatihan menulis, workshop jurnal, metodologi riset",
+      "imageAlt": "Pelatihan CakraNexa"
+    },
+    "journal": {
+      "title": "Jurnal Ilmiah & Call for Papers — CakraNexa",
+      "description": "Jurnal ilmiah terbitan CakraNexa di bidang hukum fiskal, akuntansi forensik, dan kebijakan pajak digital, lengkap dengan informasi call for papers dan pengajuan naskah.",
+      "keywords": "jurnal ilmiah, call for papers, jurnal hukum pajak, akuntansi forensik",
+      "imageAlt": "Jurnal Ilmiah CakraNexa"
+    },
+    "about": {
+      "title": "Tentang PT Cakrawala Magna Scientia — CakraNexa",
+      "description": "Profil, visi dan misi, tim, serta legalitas PT Cakrawala Magna Scientia, penerbit buku akademik dan profesional ber-ISBN di Indonesia.",
+      "keywords": "profil penerbit, pt cakrawala magna scientia, penerbit anggota ikapi, legalitas penerbit",
+      "imageAlt": "Tentang CakraNexa"
+    },
+    "blog": {
+      "title": "Blog & Wawasan Hukum Fiskal — CakraNexa",
+      "description": "Artikel analisis perpajakan, akuntansi forensik, dan hukum acara pajak dari tim riset dan penulis CakraNexa.",
+      "keywords": "artikel perpajakan, analisis hukum pajak, akuntansi forensik",
+      "imageAlt": "Blog CakraNexa"
+    },
+    "career": {
+      "title": "Karier di PT Cakrawala Magna Scientia — CakraNexa",
+      "description": "Lowongan kerja di bidang penerbitan, pemasaran, dan percetakan buku akademik bersama PT Cakrawala Magna Scientia.",
+      "keywords": "lowongan kerja penerbit, karier penerbitan, lowongan cakranexa",
+      "imageAlt": "Karier CakraNexa"
+    },
+    "contact": {
+      "title": "Kontak & Konsultasi Penerbitan — CakraNexa",
+      "description": "Hubungi redaksi CakraNexa untuk konsultasi penerbitan naskah, pemesanan buku, dan kerja sama institusi.",
+      "keywords": "kontak penerbit, konsultasi penerbitan, hubungi cakranexa",
+      "imageAlt": "Kontak CakraNexa"
+    },
+    "authors": {
+      "title": "Penulis & Kontributor — CakraNexa",
+      "description": "Profil akademisi, praktisi, dan peneliti yang menulis monografi dan buku referensi terbitan CakraNexa.",
+      "keywords": "penulis buku akademik, kontributor cakranexa, profil penulis",
+      "imageAlt": "Penulis & Kontributor CakraNexa"
+    },
+    "checkout": {
+      "title": "Checkout Pesanan — CakraNexa",
+      "description": "Selesaikan pemesanan buku akademik CakraNexa dengan pembayaran aman dan pengiriman ke seluruh Indonesia.",
+      "keywords": "beli buku akademik, checkout cakranexa",
+      "imageAlt": "Checkout CakraNexa"
+    }
+  }
+}

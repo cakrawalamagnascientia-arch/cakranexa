@@ -1,0 +1,31 @@
+{
+  "photo": {
+    "alt": "Photo of {{name}}",
+    "missing": "Photo not yet uploaded"
+  },
+  "listing": {
+    "eyebrow": "CakraNexa Knowledge Hub",
+    "heroTitle": "<highlight>Authors & Contributors</highlight><br/> of CakraNexa Scholarly Monographs",
+    "heroDescription": "Profiles of the academics, lecturers, researchers, and expert practitioners in taxation, accounting, law, and economics & business who contribute to building CakraNexa's sustainable knowledge ecosystem.",
+    "authorCount": "<num>{{total}}+</num> Authors & Contributors"
+  },
+  "detail": {
+    "badge": "CakraNexa Author & Academic",
+    "emailTitle": "Email {{email}}",
+    "heading": "Profile & Academic Track Record",
+    "tabs": {
+      "profileEducation": "Profile & Education",
+      "workExperience": "Work Experience",
+      "organizationSeminar": "Organizations & Seminars",
+      "publications": "Publications & Scholarly Works"
+    },
+    "contentEmpty": "No content yet.",
+    "books": {
+      "title": "CakraNexa Books",
+      "total_one": "{{count}} monograph / book published in total",
+      "total_other": "{{count}} monographs / books published in total",
+      "empty": "No books are linked to this author yet.",
+      "viewDetail": "View Book Details"
+    }
+  }
+}

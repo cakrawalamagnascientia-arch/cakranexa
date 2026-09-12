@@ -1,0 +1,291 @@
+{
+  "hero": {
+    "eyebrow": "CAKRANEXA ACADEMY · 学术与高管教育",
+    "title": "CakraNexa Academy 培训与学术发展项目",
+    "subtitle": "通过学术写作工作坊、科研管理及专业资格认证，提升学者与从业者的能力。",
+    "highlights": {
+      "certificate": "官方证书，可计入 KUM 职称学分（32 学时）",
+      "instructors": "由研究委员会成员与资深专家授课",
+      "curriculum": "课程符合 DIKTI 与 DJKI 标准"
+    }
+  },
+  "catalog": {
+    "eyebrow": "学术模块",
+    "title": "经认证的培训课程体系"
+  },
+  "categories": {
+    "all": "全部项目（6）",
+    "penulisan": "写作与发表",
+    "riset": "研究方法",
+    "hukum": "法律与税务"
+  },
+  "module": {
+    "investmentLabel": "费用：",
+    "nextSchedule": "最近开班",
+    "duration": "时长",
+    "format": "授课方式",
+    "fee": "培训费用",
+    "targetAudience": "目标学员：",
+    "curriculumTitle": "课程主题与教学大纲",
+    "facilitiesTitle": "专属权益与证书",
+    "discountNote": "*同一高校/机构至少 3 名学员集体报名，可享 15% 机构折扣。",
+    "register": "报名本项目"
+  },
+  "inHouse": {
+    "eyebrow": "定制内训",
+    "title": "高校与企业机构培训合作",
+    "description": "CakraNexa Academy 可根据院系、高校 LPPM（研究与社会服务机构）或专业协会的课程需求，举办定制化培训项目（内训工作坊）。",
+    "cta": "申请定制内训",
+    "whatsappMessage": "您好，CakraNexa Academy，我们希望为本机构/院系提交定制内训方案申请。"
+  },
+  "registration": {
+    "success": {
+      "code": "报名编号：{{code}}",
+      "title": "报名信息已成功登记",
+      "message": "感谢您，<strong>{{name}}</strong>。您报名 <strong>{{program}}</strong> 的信息已保存至我们的系统。",
+      "nextTitle": "后续确认：",
+      "nextBody": "我们的教务管理员将在 24 小时内通过 WhatsApp <strong>{{phone}}</strong> 向您发送正式账单、详细日程及平台链接。",
+      "whatsappCta": "通过 WhatsApp 快速确认",
+      "whatsappMessage": "您好，CakraNexa Academy 管理员，我已报名培训“{{program}}”，报名编号为 {{code}}。",
+      "close": "关闭窗口"
+    },
+    "form": {
+      "eyebrow": "报名表",
+      "title": "培训学员报名",
+      "fullName": "姓名及学术头衔",
+      "fullNamePlaceholder": "Dr. 学员姓名, S.E., M.Si.",
+      "institution": "机构 / 大学 / 工作单位",
+      "institutionPlaceholder": "印度尼西亚大学经济学院 / 会计师事务所……",
+      "email": "工作邮箱",
+      "emailPlaceholder": "participant@university.edu",
+      "whatsapp": "WhatsApp 号码",
+      "attendance": "参加方式",
+      "attendanceOnsite": "现场参加（酒店）",
+      "attendanceOnline": "通过 Zoom HD 在线互动参加",
+      "notes": "补充说明（选填）",
+      "notesPlaceholder": "特殊需求、机构集体报名等信息。",
+      "submit": "提交报名表"
+    }
+  },
+  "modules": {
+    "mod-1": {
+      "title": "学术教科书与专著写作培训",
+      "subtitle": "撰写高附加值、无抄袭且符合 DIKTI（印尼高等教育总局）标准的书稿技巧。",
+      "badge": "DIKTI 与 BKD 标准",
+      "duration": "2 天密集培训（16 个培训学时）",
+      "format": "线上线下混合（雅加达星级酒店 + Zoom 直播）",
+      "schedule": "第九期：2026年10月21日至22日",
+      "investment": "IDR 2,750,000 / 每人",
+      "targetAudience": "高校教师、BRIN（印尼国家研究与创新署）及科研机构研究人员，以及研究生（硕士/博士）。",
+      "curriculum": [
+        "专著与教材的出版社体例规范及 DIKTI BKD（教师工作量考核）操作指南",
+        "将研究报告、硕士论文与博士论文转化为高质量商业专著书稿的技巧",
+        "构建学术论证、章节概念图及编写综合主题术语表",
+        "顺利通过教授与副教授职称学分（KUM）评审的策略"
+      ],
+      "facilities": [
+        "CakraNexa 出版体例规范手册（印刷版）",
+        "UNESCO B5 版式专著写作模板（.docx）",
+        "官方培训证书（32 学时，可计入 KUM 职称学分）",
+        "价值 IDR 1,000,000 的 CakraNexa 图书出版代金券"
+      ]
+    },
+    "mod-2": {
+      "title": "高水平国际期刊发表工作坊",
+      "subtitle": "成功发表于 Scopus 及 SINTA 1–2 级收录期刊的策略。",
+      "badge": "Scopus Q1–Q4 与 SINTA",
+      "duration": "2 天工作坊 + 3 个月稿件辅导",
+      "format": "通过 Zoom HD 与云课堂进行线上互动教学",
+      "schedule": "第六期：2026年10月28日至29日",
+      "investment": "IDR 3,500,000 / 每人",
+      "targetAudience": "高校教师、首席研究员，以及需以国际期刊发表满足毕业要求的博士候选人。",
+      "curriculum": [
+        "Scopus 与 Web of Science（WoS）Q1–Q2 期刊编辑标准分析",
+        "剖析能打动审稿人的 IMRaD 结构（引言、方法、结果、讨论）",
+        "回复审稿意见的技巧（撰写答辩信与回复矩阵）",
+        "识别并规避掠夺性期刊、劫持期刊及论文工厂"
+      ],
+      "facilities": [
+        "由资深同行评审专家进行稿件诊断性评审",
+        "加入 CakraNexa 研究者社群并使用 Mendeley 共享文献库",
+        "国际工作坊证书（32 学时）",
+        "投稿全程辅导，直至进入“审稿中”（Under Review）阶段"
+      ]
+    },
+    "mod-3": {
+      "title": "研究方法与应用数据分析培训",
+      "subtitle": "掌握用于学术研究的定量与定性数据分析工具。",
+      "badge": "上机实操",
+      "duration": "3 天密集实操（24 个培训学时）",
+      "format": "计算机实验室 + Zoom 混合模式",
+      "schedule": "第四期：2026年11月11日至13日",
+      "investment": "IDR 3,250,000 / 每人",
+      "targetAudience": "社会科学研究人员、会计/管理/法律专业教师、财政政策分析师及研究顾问。",
+      "curriculum": [
+        "会计、税务、经济法与企业治理领域的实证研究设计",
+        "使用 SmartPLS 4、SPSS 29 与 Stata 18 进行定量多元分析",
+        "借助 NVivo 14 的主题定性分析与文献计量图谱（VOSviewer）",
+        "撰写将数据发现与核心理论相衔接的讨论（Discussion）章节"
+      ],
+      "facilities": [
+        "用于实操模拟的真实已验证数据集",
+        "培训期间提供实操软件授权",
+        "定量与定性数据处理分步指导手册",
+        "应用数据分析能力证书（32 学时）"
+      ]
+    },
+    "mod-4": {
+      "title": "著作权管理与作品许可培训",
+      "subtitle": "面向作者与机构的知识产权管理与法律保护。",
+      "badge": "合法合规与精神权利",
+      "duration": "1 天大师课（8 个培训学时）",
+      "format": "线上线下混合（雅加达 Aryaduta 酒店 + Zoom HD）",
+      "schedule": "第三期：2026年11月18日",
+      "investment": "IDR 1,850,000 / 每人",
+      "targetAudience": "图书作者、高校 LPPM（研究与社会服务机构）负责人、校园出版机构管理者及企业内部法务人员。",
+      "curriculum": [
+        "2014年第28号《著作权法》在学术作品保护中的核心原则",
+        "通过法律与人权部知识产权总局（DJKI）e-Hakcipta 门户自主登记的模拟与流程",
+        "出版许可协议条款、版税权益及跨国翻译权的谈判",
+        "数字侵权风险防范及作品用于 AI 模型训练的政策"
+      ],
+      "facilities": [
+        "即用型著作权许可协议模板",
+        "现场指导在 DJKI e-Hakcipta 登记 1 件作品",
+        "与 CakraNexa 法律专家委员会进行知识产权法律咨询",
+        "知识产权管理能力证书（16 学时）"
+      ]
+    },
+    "mod-5": {
+      "title": "数字教学模块编写培训",
+      "subtitle": "为高校与培训机构开发互动式教学材料。",
+      "badge": "成果导向教育（OBE）",
+      "duration": "2 天工作坊（16 个培训学时）",
+      "format": "通过 Zoom 与学习管理系统（LMS）进行线上互动教学",
+      "schedule": "第五期：2026年11月25日至26日",
+      "investment": "IDR 2,500,000 / 每人",
+      "targetAudience": "课程主讲教师、职业培训讲师及课程开发团队。",
+      "curriculum": [
+        "使教学材料与基于 OBE 的学期教学计划（RPS）相衔接",
+        "互动式数字教学模块设计（ePub3 格式、多媒体集成及 SCORM 课件包）",
+        "编写基于真实案例的学生练习册（LKM）（案例教学法与项目式学习）",
+        "符合 BAN-PT / LAM（高等教育认证机构）“优秀”等级认证标准的毕业生学习成果（CPL）评价量规"
+      ],
+      "facilities": [
+        "RPS 文件与互动教学材料设计模板",
+        "CakraNexa Academy LMS 沙盒环境 1 个月使用权",
+        "传统讲义转化为互动式电子模块指南",
+        "认证教学材料编写者证书（32 学时）"
+      ]
+    },
+    "mod-6": {
+      "title": "应用税务认证与实务研习班",
+      "subtitle": "为税法领域从业者与学者提供全面辅导。",
+      "badge": "财税认证",
+      "duration": "4 天周末密集培训（32 个培训学时）",
+      "format": "雅加达 Hotel Mulia Senayan + 混合直播",
+      "schedule": "第八期：2026年12月6日至9日",
+      "investment": "IDR 4,850,000 / 每人",
+      "targetAudience": "税务顾问、企业税务经理、法证审计师、税务律师及财税法教师。",
+      "curriculum": [
+        "PMK 172/2023（财政部长条例）实施分析及转让定价文档（本地文档/主体文档）编制实务",
+        "税务争议处理策略：从异议、上诉到税务法院诉讼",
+        "初步证据审查（Bukper）风险防范及 HPP 法（税收协调法）中最后手段原则（Ultimum Remedium）的适用",
+        "税务顾问资格认证考试（USKP）A、B 级模拟及真实案例解析"
+      ],
+      "facilities": [
+        "CakraNexa 出版的精装税务专著参考书",
+        "精选税务法院判决汇编（作为研习材料）",
+        "星级酒店午餐与茶歇（仅限现场参加者）",
+        "应用税务实务专业证书（48 学时）"
+      ]
+    }
+  },
+  "cmsModules": {
+    "mod-3": {
+      "subtitle": "运用前沿工具开展定量、定性及混合方法研究。",
+      "badge": "SmartPLS、SPSS 与 NVivo",
+      "duration": "3 天计算机实操培训（24 个培训学时）",
+      "format": "雅加达计算机实验室现场授课 + 线上",
+      "schedule": "第四期：2026年11月4日至6日",
+      "investment": "IDR 2,500,000 / 每人",
+      "targetAudience": "研究人员、论文指导教师、数据分析顾问及毕业班学生。",
+      "curriculum": [
+        "构建概念框架与结构假设检验（SEM-PLS）",
+        "使用 SmartPLS 4 与 IBM SPSS 处理复杂定量数据",
+        "使用 NVivo 14 进行定性数据分析与主题三角互证",
+        "制作符合国际发表标准的统计数据可视化图表"
+      ],
+      "facilities": [
+        "教学版软件授权及全面的练习数据集",
+        "彩色实操手册及分步视频教程",
+        "数据分析能力证书（32 学时）",
+        "培训后一对一数据处理咨询"
+      ]
+    },
+    "mod-4": {
+      "subtitle": "学术作品法律保护、版税及知识产权登记。",
+      "badge": "知识产权与 DJKI 许可",
+      "duration": "1 天高管工作坊（8 个培训学时）",
+      "format": "线上线下混合（雅加达中区宴会厅 + Zoom 网络研讨会）",
+      "schedule": "第三期：2026年11月12日",
+      "investment": "IDR 2,250,000 / 每人",
+      "targetAudience": "高校知识产权中心（Sentra KI）、图书作者、法律顾问及出版社管理层。",
+      "curriculum": [
+        "依据2014年第28号法律的著作权自动取得（宣示性）原则",
+        "出版许可协议关键条款与公平版税方案",
+        "通过 DJKI e-Hakcipta 门户自主登记流程模拟",
+        "防范数字领域的图书盗版纠纷及精神权利/经济权利侵权"
+      ],
+      "facilities": [
+        "学术图书出版许可标准合同草案",
+        "DJKI e-Hakcipta 分步操作指南",
+        "知识产权法规工作坊证书（16 学时）",
+        "协助完成 1 项著作权登记申请"
+      ]
+    },
+    "mod-5": {
+      "title": "基于 OBE 的数字教学模块编写培训",
+      "subtitle": "开发互动式教学材料与成果导向教育（OBE）课程。",
+      "badge": "OBE 与 MBKM 课程",
+      "duration": "2 天系统化培训（16 个培训学时）",
+      "format": "通过学习管理系统（LMS）进行线上互动教学",
+      "schedule": "第五期：2026年11月18日至19日",
+      "investment": "IDR 2,000,000 / 每人",
+      "targetAudience": "课程主讲教师、专业课程开发团队及“先锋教师”（Guru Penggerak）。",
+      "curriculum": [
+        "将毕业生学习成果（CPL）与课程学习成果（CPMK）融入教学模块",
+        "编制真实性评价量规与可衡量的异步学习活动",
+        "整合互动式教学媒体（视听资料与现实案例研究）",
+        "统一 ePub3 格式，提升学生移动设备的可访问性"
+      ],
+      "facilities": [
+        "基于 OBE 课程的 RPS 与教学模块模板",
+        "LMS 沙盒环境 6 个月使用权",
+        "教学开发证书（32 学时）",
+        "由高校课程专家评审教学模块"
+      ]
+    },
+    "mod-6": {
+      "subtitle": "税务争议与转让定价案例剖析，以及资格认证考试备考。",
+      "badge": "PMK 172/2023 与 CoreTax",
+      "duration": "3 天密集案例研讨（24 个培训学时）",
+      "format": "于雅加达中区五星级酒店举办的专属现场课程",
+      "schedule": "第七期：2026年11月25日至27日",
+      "investment": "IDR 3,250,000 / 每人",
+      "targetAudience": "税务顾问、税务法院诉讼代理人、企业税务经理及税务专业教师。",
+      "curriculum": [
+        "PMK 172/2023 颁布后转让定价法规的协调",
+        "编制经得起税务稽查的本地文档、主体文档及国别报告（CbCR）的策略",
+        "税务法院诉讼与上诉直至再审（Peninjauan Kembali）案例剖析",
+        "核心税务管理系统（CTAS）实施准备模拟"
+      ],
+      "facilities": [
+        "CakraNexa 出版的当代税务专著",
+        "精选税务法院判决与财税工作底稿",
+        "应用税务专业培训证书（32 学时）",
+        "CakraNexa 税务研究论坛会员资格"
+      ]
+    }
+  }
+}

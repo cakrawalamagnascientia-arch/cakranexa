@@ -1,0 +1,30 @@
+{
+  "photo": {
+    "alt": "{{name}} 的照片",
+    "missing": "照片尚未上传"
+  },
+  "listing": {
+    "eyebrow": "CakraNexa 知识中心",
+    "heroTitle": "<highlight>作者与贡献者</highlight><br/> CakraNexa 学术专著",
+    "heroDescription": "汇集税务、会计、法律、经济与商业领域的学者、高校教师、研究人员及资深从业者的简介，他们共同为 CakraNexa 构建可持续的知识生态系统贡献力量。",
+    "authorCount": "<num>{{total}}+</num> 位作者与贡献者"
+  },
+  "detail": {
+    "badge": "CakraNexa 作者与学者",
+    "emailTitle": "发送邮件至 {{email}}",
+    "heading": "简介与学术履历",
+    "tabs": {
+      "profileEducation": "简介与教育背景",
+      "workExperience": "工作经历",
+      "organizationSeminar": "学术组织与研讨会",
+      "publications": "出版物与学术成果"
+    },
+    "contentEmpty": "暂无内容。",
+    "books": {
+      "title": "CakraNexa 出版图书",
+      "total_other": "共出版 {{count}} 部专著 / 图书",
+      "empty": "暂无与该作者关联的图书。",
+      "viewDetail": "查看图书详情"
+    }
+  }
+}

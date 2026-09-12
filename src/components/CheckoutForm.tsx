@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  CartItem, 
-  Order, 
-  CustomerDetails, 
-  PaymentMethod 
+import { Trans, useTranslation } from 'react-i18next';
+import {
+  CartItem,
+  Order,
+  CustomerDetails,
+  PaymentMethod
 } from '../types';
 import { ShippingCalculator, CourierOption, AVAILABLE_COURIERS } from './ShippingCalculator';
 import { PaymentMethods } from './PaymentMethods';
@@ -15,19 +16,21 @@ import { apiClient, ApiError } from '../services/apiClient';
 import { openSnapPayment } from '../services/midtransSnap';
 import { getStoredPaymentSettings } from '../services/paymentService';
 import { generateOrderNumber, generateOrderId, nowIso } from '../utils/orderUtils';
-import { useLanguage } from '../i18n';
-import { 
-  ArrowLeft, 
-  ShieldCheck, 
-  CreditCard, 
-  Truck, 
-  User, 
-  MapPin, 
-  FileText, 
-  CheckCircle2, 
-  ExternalLink, 
-  Printer, 
-  MessageSquare, 
+import { useBookText, useCategoryLabel, useFormatters } from '../i18n/hooks';
+import { getCurrentLanguage } from '../i18n/index';
+import { useOrderLabels, useShippingMethodText } from '../i18n/orderLabels';
+import {
+  ArrowLeft,
+  ShieldCheck,
+  CreditCard,
+  Truck,
+  User,
+  MapPin,
+  FileText,
+  CheckCircle2,
+  ExternalLink,
+  Printer,
+  MessageSquare,
   Lock,
   Package,
   QrCode
@@ -44,7 +47,12 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
   onOrderCompleted,
   onCancel
 }) => {
-  const { t } = useLanguage();
+  const { t } = useTranslation(['checkout', 'common']);
+  const { currency } = useFormatters();
+  const bookText = useBookText();
+  const categoryLabel = useCategoryLabel();
+  const { statusLabel } = useOrderLabels();
+  const shippingMethodText = useShippingMethodText();
   // Step state: 'form' | 'midtrans_simulation' | 'success'
   const [checkoutStep, setCheckoutStep] = useState<'form' | 'midtrans_simulation' | 'success'>('form');
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
@@ -98,6 +106,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
   const handleCourierSelect = (courier: CourierOption, cost: number) => {
     setSelectedCourier(courier);
     setShippingCost(cost);
+    // Disimpan ke pesanan untuk admin: memakai data kurir apa adanya (Bahasa Indonesia).
     setCustomer(prev => ({
       ...prev,
       courier: `${courier.name} - ${courier.service}`
@@ -106,15 +115,15 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
-    if (!customer.name.trim()) errors.name = 'Nama lengkap wajib diisi';
-    if (!customer.phone.trim()) errors.phone = 'Nomor WhatsApp wajib diisi';
-    if (!customer.email.trim() || !customer.email.includes('@')) errors.email = 'Alamat email aktif wajib diisi';
-    if (!customer.address.trim()) errors.address = 'Alamat lengkap pengiriman wajib diisi';
-    if (!customer.city.trim()) errors.city = 'Kota / Kabupaten wajib diisi';
-    if (!customer.postalCode.trim()) errors.postalCode = 'Kode pos wajib diisi';
+    if (!customer.name.trim()) errors.name = t('form.errors.nameRequired');
+    if (!customer.phone.trim()) errors.phone = t('form.errors.phoneRequired');
+    if (!customer.email.trim() || !customer.email.includes('@')) errors.email = t('form.errors.emailRequired');
+    if (!customer.address.trim()) errors.address = t('form.errors.addressRequired');
+    if (!customer.city.trim()) errors.city = t('form.errors.cityRequired');
+    if (!customer.postalCode.trim()) errors.postalCode = t('form.errors.postalCodeRequired');
 
     if (paymentMethod === 'manual_mandiri' && !proofUrl) {
-      errors.paymentProof = 'Silakan unggah bukti transfer pembayaran Bank Mandiri';
+      errors.paymentProof = t('form.errors.paymentProofRequired');
     }
 
     setFormErrors(errors);
@@ -159,7 +168,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
       serverResult = await apiClient.createOrder(draftOrder);
     } catch (err) {
       setIsSubmitting(false);
-      setSubmitError(err instanceof ApiError ? err.message : 'Pesanan gagal diproses. Silakan coba lagi.');
+      setSubmitError(err instanceof ApiError ? err.message : t('form.errors.orderFailed'));
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -172,7 +181,9 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
       total: serverResult.total ?? draftOrder.total,
       snapToken: serverResult.snapToken || undefined,
       serverSynced: serverResult.paymentMode !== 'offline',
-      paymentMode: serverResult.paymentMode
+      paymentMode: serverResult.paymentMode,
+      // Bahasa pelanggan: konfirmasi WhatsApp ke pelanggan ditulis dalam bahasa ini.
+      language: getCurrentLanguage()
     };
     setCreatedOrder(newOrder);
 
@@ -192,7 +203,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
         onPending: () => finalizeOrder(newOrder, 'pending'),
         onError: () => {
           setIsSubmitting(false);
-          setSubmitError('Pembayaran Midtrans gagal atau dibatalkan. Anda dapat mencoba lagi.');
+          setSubmitError(t('form.errors.midtransFailed'));
         },
         onClose: () => setIsSubmitting(false)
       });
@@ -200,7 +211,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
     }
 
     setIsSubmitting(false);
-    setSubmitError('Pembayaran online belum tersedia. Server Midtrans belum menghasilkan token pembayaran nyata. Silakan coba lagi atau pilih transfer manual.');
+    setSubmitError(t('form.errors.onlineUnavailable'));
     setCheckoutStep('form');
   };
 
@@ -217,14 +228,14 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
   // Tidak ada pembayaran simulasi di lingkungan produksi.
   const handleCompleteMidtransPayment = async () => {
-    setSubmitError('Pembayaran simulasi dinonaktifkan. Gunakan token Snap Midtrans yang nyata atau transfer manual.');
+    setSubmitError(t('form.errors.simulationDisabled'));
     setCheckoutStep('form');
   };
 
   return (
     <div className="bg-slate-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
-        
+
         {/* Header Navigation */}
         <div className="flex items-center justify-between pb-6 border-b border-slate-200">
           <button
@@ -233,13 +244,13 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
             className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-[#0F172A] transition-colors"
           >
             <ArrowLeft className="w-4 h-4 text-[#D4AF37]" />
-            <span>{t('back')} - {t('cart')}</span>
+            <span>{t('common:back')} - {t('common:cart')}</span>
           </button>
-          
+
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span className="text-xs font-mono font-semibold text-slate-500">
-              Sistem Pembayaran Terenkripsi 256-Bit SSL
+              {t('form.secureSystem')}
             </span>
           </div>
         </div>
@@ -254,10 +265,10 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
         {checkoutStep === 'form' && (
           <form onSubmit={handleSubmitOrder} className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
+
             {/* LEFT COLUMN: Customer, Shipping & Payment (7 Cols) */}
             <div className="lg:col-span-7 space-y-8">
-              
+
               {/* SECTION A: Customer & Shipping Details */}
               <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
                 <div className="flex items-center gap-2.5 pb-4 border-b border-slate-100">
@@ -266,10 +277,10 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   </div>
                   <div>
                     <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                      Identitas Pemesan & Alamat Pengiriman
+                      {t('form.sections.customer.title')}
                     </h2>
                     <p className="text-xs text-slate-500">
-                      Pastikan nomor WhatsApp aktif untuk pembaruan status kurir & notifikasi sirkulasi
+                      {t('form.sections.customer.subtitle')}
                     </p>
                   </div>
                 </div>
@@ -277,11 +288,11 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
                   <div className="sm:col-span-2">
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      Nama Lengkap Pemesan / Instansi *
+                      {t('form.fields.name.label')}
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. Prof. Dr. Hendra Wijaya, S.E., M.Si."
+                      placeholder={t('form.fields.name.placeholder')}
                       value={customer.name}
                       onChange={(e) => setCustomer({ ...customer, name: e.target.value })}
                       className={`w-full px-3.5 py-2.5 rounded-lg border text-xs focus:outline-none focus:ring-1 focus:ring-[#D4AF37] ${
@@ -293,7 +304,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      Nomor WhatsApp (Aktif) *
+                      {t('form.fields.phone.label')}
                     </label>
                     <input
                       type="tel"
@@ -309,11 +320,11 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      Alamat Email (Faktur & Bukti Bayar) *
+                      {t('form.fields.email.label')}
                     </label>
                     <input
                       type="email"
-                      placeholder="hendra@universitas.ac.id"
+                      placeholder={t('form.fields.email.placeholder')}
                       value={customer.email}
                       onChange={(e) => setCustomer({ ...customer, email: e.target.value })}
                       className={`w-full px-3.5 py-2.5 rounded-lg border text-xs focus:outline-none focus:ring-1 focus:ring-[#D4AF37] ${
@@ -325,11 +336,11 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
                   <div className="sm:col-span-2">
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      Alamat Lengkap Pengiriman (Nama Jalan, Gedung, No. Rumah, RT/RW) *
+                      {t('form.fields.address.label')}
                     </label>
                     <textarea
                       rows={2}
-                      placeholder="Jl. Salemba Raya No. 4, Fakultas Ekonomi & Bisnis, Gedung Dekanat Lt. 3"
+                      placeholder={t('form.fields.address.placeholder')}
                       value={customer.address}
                       onChange={(e) => setCustomer({ ...customer, address: e.target.value })}
                       className={`w-full px-3.5 py-2.5 rounded-lg border text-xs focus:outline-none focus:ring-1 focus:ring-[#D4AF37] ${
@@ -341,7 +352,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      Provinsi
+                      {t('form.fields.province.label')}
                     </label>
                     <input
                       type="text"
@@ -354,7 +365,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      Kota / Kabupaten *
+                      {t('form.fields.city.label')}
                     </label>
                     <input
                       type="text"
@@ -370,7 +381,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      Kecamatan (Sub-district)
+                      {t('form.fields.district.label')}
                     </label>
                     <input
                       type="text"
@@ -383,7 +394,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      Kode Pos *
+                      {t('form.fields.postalCode.label')}
                     </label>
                     <input
                       type="text"
@@ -399,11 +410,11 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
                   <div className="sm:col-span-2">
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      Catatan Pengiriman Khusus (Opsional)
+                      {t('form.fields.notes.label')}
                     </label>
                     <input
                       type="text"
-                      placeholder="Titipkan di pos satpam kampus / resepsionis lobi utama"
+                      placeholder={t('form.fields.notes.placeholder')}
                       value={customer.notes}
                       onChange={(e) => setCustomer({ ...customer, notes: e.target.value })}
                       className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-[#D4AF37]"
@@ -420,10 +431,10 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   </div>
                   <div>
                     <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                      Ekspedisi & Kalkulator Ongkos Kirim Dinamis
+                      {t('form.sections.shipping.title')}
                     </h2>
                     <p className="text-xs text-slate-500">
-                      Kalkulasi berat otomatis terintegrasi JNE, J&T, POS Indonesia, dan SiCepat
+                      {t('form.sections.shipping.subtitle')}
                     </p>
                   </div>
                 </div>
@@ -447,10 +458,10 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   </div>
                   <div>
                     <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                      {t('paymentMethod')}
+                      {t('common:paymentMethod')}
                     </h2>
                     <p className="text-xs text-slate-500">
-                      Mendukung Virtual Account, QRIS, e-Wallets, serta Transfer Bank Mandiri PT Cakrawala Magna Scientia
+                      {t('form.sections.payment.subtitle')}
                     </p>
                   </div>
                 </div>
@@ -485,7 +496,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
             <div className="lg:col-span-5 space-y-6">
               <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs sticky top-24">
                 <h3 className="font-serif font-bold text-lg text-slate-900 pb-3 border-b border-slate-100">
-                  Ringkasan Pesanan Buku
+                  {t('form.summary.title')}
                 </h3>
 
                 {/* Book Items List */}
@@ -494,22 +505,22 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     <div key={item.book.id} className="py-3 flex gap-3">
                       <img
                         src={item.book.coverBuku}
-                        alt={item.book.name}
+                        alt={bookText.title(item.book)}
                         className="w-12 h-16 object-cover rounded shadow-xs flex-shrink-0"
                       />
                       <div className="flex-1 min-w-0">
                         <span className="text-[9px] uppercase font-bold text-[#D4AF37]">
-                          {item.book.category}
+                          {categoryLabel(item.book.category)}
                         </span>
                         <h4 className="text-xs font-semibold text-slate-900 line-clamp-2 leading-snug">
-                          {toTitleCase(item.book.title || item.book.name)}
+                          {toTitleCase(bookText.title(item.book))}
                         </h4>
                         <div className="flex items-center justify-between mt-1 text-xs">
                           <span className="text-slate-500 font-mono">
-                            {item.quantity} x Rp {item.book.harga.toLocaleString('id-ID')}
+                            {item.quantity} x {currency(item.book.harga)}
                           </span>
                           <span className="font-mono font-bold text-[#0F172A]">
-                            Rp {(item.book.harga * item.quantity).toLocaleString('id-ID')}
+                            {currency(item.book.harga * item.quantity)}
                           </span>
                         </div>
                       </div>
@@ -520,36 +531,36 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 {/* Price Breakdown */}
                 <div className="space-y-2.5 pt-4 border-t border-slate-100 text-xs">
                   <div className="flex justify-between text-slate-600">
-                    <span>Subtotal Literatur ({cartItems.reduce((a, b) => a + b.quantity, 0)} eks):</span>
+                    <span>{t('form.summary.subtotal', { count: cartItems.reduce((a, b) => a + b.quantity, 0) })}</span>
                     <span className="font-mono font-bold text-slate-900">
-                      Rp {subtotal.toLocaleString('id-ID')}
+                      {currency(subtotal)}
                     </span>
                   </div>
 
                   <div className="flex justify-between text-slate-600">
                     <div>
-                      <span>Biaya Pengiriman:</span>
+                      <span>{t('form.summary.shippingCost')}</span>
                       <span className="block text-[10px] text-slate-400">
-                        {selectedCourier.name} ({selectedCourier.service})
+                        {selectedCourier.name} ({shippingMethodText(selectedCourier).service})
                       </span>
                     </div>
                     <span className="font-mono font-bold text-slate-900">
-                      Rp {shippingCost.toLocaleString('id-ID')}
+                      {currency(shippingCost)}
                     </span>
                   </div>
 
                   <div className="flex justify-between text-slate-600">
-                    <span>Biaya Layanan & Asuransi:</span>
-                    <span className="font-mono text-emerald-600 font-semibold">GRATIS</span>
+                    <span>{t('form.summary.serviceInsurance')}</span>
+                    <span className="font-mono text-emerald-600 font-semibold">{t('form.summary.free')}</span>
                   </div>
 
                   <div className="pt-3 border-t border-slate-200 flex justify-between items-baseline">
                     <div>
-                      <span className="text-xs font-bold text-slate-900 block">TOTAL TAGIHAN:</span>
-                      <span className="text-[10px] text-slate-400">Termasuk PPN & Faktur Resmi</span>
+                      <span className="text-xs font-bold text-slate-900 block">{t('form.summary.totalDue')}</span>
+                      <span className="text-[10px] text-slate-400">{t('form.summary.totalNote')}</span>
                     </div>
                     <span className="font-mono text-lg font-black text-[#0F172A]">
-                      Rp {grandTotal.toLocaleString('id-ID')}
+                      {currency(grandTotal)}
                     </span>
                   </div>
                 </div>
@@ -562,16 +573,16 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 >
                   <Lock className="w-4 h-4 text-[#D4AF37]" />
                   <span>
-                    {isSubmitting 
-                      ? 'Memproses Pemesanan...' 
-                      : paymentMethod === 'manual_mandiri' 
-                        ? 'Konfirmasi & Kirim Pesanan' 
-                        : 'Beli Sekarang'}
+                    {isSubmitting
+                      ? t('form.submit.processing')
+                      : paymentMethod === 'manual_mandiri'
+                        ? t('form.submit.confirmManual')
+                        : t('form.submit.buyNow')}
                   </span>
                 </button>
 
                 <p className="text-[10px] text-center text-slate-400 mt-3">
-                  Notifikasi otomatis akan dikirim ke WhatsApp Admin & Customer secara real-time.
+                  {t('form.autoNotification')}
                 </p>
               </div>
             </div>
@@ -587,24 +598,29 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
               <div className="flex items-center gap-2">
                 <span className="font-serif font-black tracking-tight text-white">MIDTRANS</span>
                 <span className="text-[9px] bg-amber-500 text-slate-950 font-mono font-bold px-1.5 py-0.5 rounded">
-                  MODE SIMULASI — Midtrans belum dikonfigurasi
+                  {t('form.simulation.badge')}
                 </span>
               </div>
               <span className="text-xs font-mono text-[#D4AF37]">
-                Total: Rp {createdOrder.total.toLocaleString('id-ID')}
+                {t('form.simulation.total', { amount: currency(createdOrder.total) })}
               </span>
             </div>
 
             <div className="p-6 space-y-6">
               <div className="text-center space-y-1">
                 <span className="text-xs text-slate-400 uppercase tracking-wider font-bold">
-                  Instruksi Pembayaran Digital
+                  {t('form.simulation.instructionsTitle')}
                 </span>
                 <h3 className="font-serif font-bold text-lg text-slate-900">
                   {createdOrder.paymentMethod.toUpperCase().replace('_', ' ')}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Nomor Tagihan: <strong className="font-mono">{createdOrder.orderNumber}</strong>
+                  <Trans
+                    t={t}
+                    i18nKey="form.simulation.billNumber"
+                    values={{ orderNumber: createdOrder.orderNumber }}
+                    components={{ strong: <strong className="font-mono" /> }}
+                  />
                 </p>
               </div>
 
@@ -615,18 +631,18 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     <QrCode className="w-40 h-40 text-slate-900" />
                   </div>
                   <p className="text-xs text-slate-600">
-                    Pindai kode QR di atas menggunakan aplikasi perbankan digital atau dompet digital Anda.
+                    {t('form.simulation.qrisHint')}
                   </p>
                 </div>
               ) : (
                 /* Virtual Account Display Simulation */
                 <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 text-center space-y-3">
-                  <span className="text-xs text-slate-500">Nomor Rekening Virtual Account:</span>
+                  <span className="text-xs text-slate-500">{t('form.simulation.vaNumberLabel')}</span>
                   <div className="font-mono text-sm font-bold text-[#0F172A]">
-                    Nomor Virtual Account akan diberikan oleh Midtrans.
+                    {t('form.simulation.vaPending')}
                   </div>
                   <p className="text-[11px] text-slate-400">
-                    Batas waktu pembayaran 24 jam. Verifikasi sistem berjalan otomatis tanpa kirim bukti.
+                    {t('form.simulation.vaDeadline')}
                   </p>
                 </div>
               )}
@@ -640,7 +656,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all"
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>{isSubmitting ? 'Mengonfirmasi Pembayaran...' : 'Simulasikan Pembayaran Berhasil (Success)'}</span>
+                  <span>{isSubmitting ? t('form.simulation.confirming') : t('form.simulation.simulateSuccess')}</span>
                 </button>
 
                 <button
@@ -648,7 +664,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   onClick={() => setCheckoutStep('form')}
                   className="w-full py-2.5 text-slate-500 hover:text-slate-800 text-xs font-semibold text-center block"
                 >
-                  Batal / Ganti Metode Pembayaran
+                  {t('form.simulation.cancel')}
                 </button>
               </div>
             </div>
@@ -664,37 +680,37 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
             <div>
               <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded bg-emerald-100 text-emerald-800">
-                Pesanan Berhasil Diverifikasi
+                {t('form.success.badge')}
               </span>
               <h2 className="font-serif font-bold text-2xl text-slate-900 mt-2">
-                Terima Kasih atas Pesanan Anda!
+                {t('form.success.title')}
               </h2>
               <p className="text-xs text-slate-500 mt-1">
-                Faktur resmi dan pemberitahuan sirkulasi otomatis diteruskan ke tim logistik PT CAKRAWALA MAGNA SCIENTIA.
+                {t('form.success.description')}
               </p>
             </div>
 
             {/* Receipt Summary Card */}
             <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 text-left text-xs space-y-3">
               <div className="flex justify-between border-b border-slate-200 pb-2.5">
-                <span className="text-slate-500">Nomor Invoice Resmi:</span>
+                <span className="text-slate-500">{t('form.success.invoiceNumber')}</span>
                 <span className="font-mono font-bold text-[#0F172A]">{createdOrder.orderNumber}</span>
               </div>
               <div className="flex justify-between border-b border-slate-200 pb-2.5">
-                <span className="text-slate-500">Penerima Naskah:</span>
+                <span className="text-slate-500">{t('form.success.recipient')}</span>
                 <span className="font-semibold text-slate-800">{createdOrder.customer.name} ({createdOrder.customer.phone})</span>
               </div>
               <div className="flex justify-between border-b border-slate-200 pb-2.5">
-                <span className="text-slate-500">Kurir Pengiriman:</span>
+                <span className="text-slate-500">{t('form.success.courier')}</span>
                 <span className="font-semibold text-slate-800">{createdOrder.customer.courier}</span>
               </div>
               <div className="flex justify-between border-b border-slate-200 pb-2.5">
-                <span className="text-slate-500">Status Pembayaran:</span>
-                <span className="font-bold text-emerald-700 uppercase">{createdOrder.paymentStatus}</span>
+                <span className="text-slate-500">{t('form.success.paymentStatus')}</span>
+                <span className="font-bold text-emerald-700 uppercase">{statusLabel(createdOrder.paymentStatus)}</span>
               </div>
               <div className="flex justify-between pt-1 text-sm font-bold">
-                <span className="text-slate-900">Total Pembayaran:</span>
-                <span className="font-mono text-[#0F172A]">Rp {createdOrder.total.toLocaleString('id-ID')}</span>
+                <span className="text-slate-900">{t('form.success.totalPayment')}</span>
+                <span className="font-mono text-[#0F172A]">{currency(createdOrder.total)}</span>
               </div>
             </div>
 
@@ -710,7 +726,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 className="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow transition-colors"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>Kirim Bukti ke WhatsApp Admin</span>
+                <span>{t('form.success.sendProofWhatsApp')}</span>
               </a>
 
               <button
@@ -719,7 +735,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 className="py-3 px-4 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center gap-2 transition-colors"
               >
                 <Printer className="w-4 h-4" />
-                <span>Cetak Faktur</span>
+                <span>{t('form.success.printInvoice')}</span>
               </button>
             </div>
 
@@ -728,7 +744,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
               onClick={onCancel}
               className="text-xs font-semibold text-slate-500 hover:text-slate-800"
             >
-              {t('back')} - {t('home')} &amp; {t('catalog')}
+              {t('common:back')} - {t('common:home')} &amp; {t('common:catalog')}
             </button>
           </div>
         )}

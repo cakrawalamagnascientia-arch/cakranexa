@@ -1,0 +1,149 @@
+{
+  "hero": {
+    "ariaLabel": "CakraNexa Homepage Banner Carousel",
+    "prevSlide": "Previous slide",
+    "nextSlide": "Next slide",
+    "goToSlide": "Go to banner {{number}}",
+    "fallback": {
+      "badge": "OFFICIAL IKAPI MEMBER PUBLISHER",
+      "primaryCta": "Explore the Book Catalog",
+      "secondaryCta": "Submit Manuscript"
+    },
+    "branding": {
+      "tagline": "Knowledge Ecosystem",
+      "pillars": {
+        "books": "Books",
+        "journals": "Journals",
+        "research": "Research",
+        "education": "Education",
+        "seminars": "Seminars",
+        "digitalKnowledge": "Digital Knowledge"
+      }
+    },
+    "slides": {
+      "literature": {
+        "badge": "PUBLISHER OF ACADEMIC & PROFESSIONAL LITERATURE",
+        "title": "Publishing Knowledge, Building a Scholarly Legacy.",
+        "subtitle": "Through the CakraNexa ecosystem, we connect authors, academics, and professionals on a sustainable knowledge platform—designed to grow beyond a single book, a single format, and a single generation.",
+        "primaryCtaText": "Explore the Book Catalog",
+        "secondaryCtaText": "Submit Manuscript"
+      },
+      "vatTrilogy": {
+        "badge": "Indonesia's Digital VAT Reformulation Trilogy",
+        "title": "The Most Comprehensive & Up-to-Date Tax Law Monograph Collection",
+        "subtitle": "In-depth analysis of the restructuring of tax subjects, tax objects, and administrative compliance in the digital tax system of the Core Tax Administration System era.",
+        "primaryCtaText": "View the VAT Trilogy",
+        "secondaryCtaText": "Buy the Monograph Bundle"
+      },
+      "isbnService": {
+        "badge": "Fast & Professional ISBN-Registered Book Publishing Services",
+        "title": "Turn Your Dissertation, Thesis, & Lecture Notes into a National Reference Book",
+        "subtitle": "Peer review by expert reviewers, international-standard layout, ISBN registration with Perpusnas, and copyright registration.",
+        "primaryCtaText": "Publishing Consultation",
+        "secondaryCtaText": "Writing Guidelines"
+      },
+      "taxLegal": {
+        "badge": "STRATEGIC LAW & TAXATION LITERATURE",
+        "title": "Legal Certainty & Discourse on Applied Tax Regulation",
+        "subtitle": "An authoritative reference for practitioners, academics, and Tax Court judges by Dr. Prianto Budi Saptono, Ak., CA, M.B.A. and a national panel of experts.",
+        "primaryCtaText": "VIEW TAXATION BOOKS",
+        "secondaryCtaText": "EDITORIAL CONSULTATION"
+      },
+      "textbooks": {
+        "badge": "UNIVERSITY TEXTBOOKS & MONOGRAPHS",
+        "title": "Vocational & Undergraduate Curricula Grounded in Contextual Research",
+        "subtitle": "Structured textbooks with comprehensive case studies, reviewed by independent peer reviewers and officially registered with the National Library of Indonesia.",
+        "primaryCtaText": "EXPLORE TEXTBOOKS",
+        "secondaryCtaText": "AUTHOR GUIDELINES"
+      },
+      "peerReview": {
+        "badge": "QUALITY PUBLISHING & PEER-REVIEW SERVICES",
+        "title": "Fast, Globally Standardized Publication Support",
+        "subtitle": "Comprehensive support from dissertation/thesis conversion and scholarly typesetting to ISBN registration and national distribution.",
+        "primaryCtaText": "SUBMIT BOOK MANUSCRIPT",
+        "secondaryCtaText": "PUBLISHING SERVICES"
+      }
+    },
+    "stats": {
+      "references": "Core Reference Books",
+      "isbn": "ISBN-registered with Perpusnas",
+      "ikapi": "Official Member Publisher"
+    }
+  },
+  "bestSeller": {
+    "badge": "ACADEMIC BESTSELLING MONOGRAPHS",
+    "title": "Bestselling Books Trusted by Experts, Lecturers, & Practitioners",
+    "subtitle": "ISBN-registered scholarly monographs with the highest curriculum adoption and citation rates."
+  },
+  "ticker": {
+    "speedLabel": "Speed:",
+    "speed": {
+      "slow": "Slow",
+      "normal": "Normal",
+      "fast": "Fast"
+    },
+    "speedTitle": {
+      "slow": "Slow Speed",
+      "normal": "Normal Speed",
+      "fast": "Fast Speed"
+    }
+  },
+  "showcase": {
+    "badge": "Independent & Institutional Publishing Services",
+    "heading": "Be Your Own Publisher. <br/><muted>Professional Publishing to National Standards.</muted>",
+    "intro": "PT Cakrawala Magna Scientia supports academics, lecturers, legal practitioners, accountants, and researchers in publishing high-quality scholarly manuscripts through a fast, transparent, and officially indexed process.",
+    "features": {
+      "editorial": {
+        "title": "Precise Editorial & Scholarly Review",
+        "description": "Alignment of academic citations, proofreading to standard grammar, and substantive verification by an editorial board specializing in law and applied taxation."
+      },
+      "isbn": {
+        "title": "Official ISBN & Barcode from the National Library of Indonesia (Perpusnas)",
+        "description": "Official International Standard Book Number registration, legal deposit of printed works with the National Library of Indonesia, and intellectual property registration."
+      },
+      "printing": {
+        "title": "Exclusive Printing & Integrated E-Commerce",
+        "description": "UNESCO B5 trim size, premium book paper, and an online catalog integrated directly with a payment gateway and shipping system."
+      }
+    },
+    "submitManuscript": "Submit Manuscript",
+    "authorGuide": "Author Guidelines",
+    "verifiedPublisher": "Officially Registered Publisher",
+    "stack": {
+      "alt": "Monograph {{number}}",
+      "fallbackTitle": "Scholarly Monograph {{number}}",
+      "mainAlt": "CakraNexa Featured Monograph"
+    }
+  },
+  "sections": {
+    "categories": {
+      "badge": "Category Preview",
+      "title": "Academic Monograph Categories",
+      "subtitle": "Explore law, taxation, and accounting literature by discipline"
+    },
+    "latest": {
+      "badge": "Latest Releases",
+      "title": "Latest Books Preview",
+      "subtitle": "The latest academic monographs and textbooks featuring current research"
+    },
+    "all": {
+      "badge": "Complete Catalog",
+      "title": "Preview of All Published Books",
+      "subtitle_one": "{{count}} ISBN-registered academic monograph or textbook recorded at the National Library of Indonesia",
+      "subtitle_other": "All {{count}} ISBN-registered academic monographs and textbooks recorded at the National Library of Indonesia"
+    }
+  },
+  "carousel": {
+    "viewAllBooks": "View All Books",
+    "all": "All",
+    "scrollLeft": "Scroll Left",
+    "scrollRight": "Scroll Right",
+    "scrollLeftHover": "Scroll left",
+    "scrollRightHover": "Scroll right",
+    "viewCategory": "View {{category}} in the Catalog",
+    "viewAllCategories": "View All Categories in the Catalog",
+    "viewLatest": "View the Latest Book Collection",
+    "exploreAll_one": "Explore {{count}} Book in the Catalog",
+    "exploreAll_other": "Explore All {{count}} Books in the Catalog"
+  }
+}

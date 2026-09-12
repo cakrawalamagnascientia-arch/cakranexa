@@ -1,0 +1,97 @@
+{
+  "loading": {
+    "title": "Loading Book Information...",
+    "hint": "Please return to the catalog if the book does not appear automatically."
+  },
+  "nav": {
+    "backToPrevious": "Back to Previous Page",
+    "backTitle": "Go back one step to the previous page"
+  },
+  "cover": {
+    "alt": "Book Cover",
+    "officialEdition": "OFFICIAL EDITION"
+  },
+  "assurance": {
+    "officialIsbn": "Official ISBN",
+    "isbnPending": "ISBN to follow"
+  },
+  "meta": {
+    "academicMonograph": "Academic Monograph",
+    "newRelease": "New Release",
+    "labeledValue": "{{label}}: <strong>{{value}}</strong>",
+    "verifiedReviews_one": "({{count}} verified review)",
+    "verifiedReviews_other": "({{count}} verified reviews)"
+  },
+  "pricing": {
+    "officialPrintPrice": "Official Print Edition Price",
+    "save": "Save {{percent}}%",
+    "inStock_one": "In Stock ({{count}} Copy)",
+    "inStock_other": "In Stock ({{count}} Copies)",
+    "availableOnDemand": "Available — Pre-order / Print on Demand",
+    "forthcoming": "Forthcoming — price & ISBN to be announced",
+    "paymentNote": "Official & Secure Payment Methods: Virtual Account Transfer, QRIS & Credit Card."
+  },
+  "actions": {
+    "buyNow": "Buy Now",
+    "addToCart": "Add to Cart",
+    "notifyOnRelease": "Notify Me on Release (WhatsApp)"
+  },
+  "whatsapp": {
+    "notifyMessage": "Hello CakraNexa Editorial Team, I would like to receive information about the release and price of the book \"{{title}}\"."
+  },
+  "specs": {
+    "title": "Technical Publication Specifications",
+    "isbn": "ISBN",
+    "isbnUnavailable": "Not yet available",
+    "publicationYear": "Year of Publication",
+    "pageCount": "Number of Pages",
+    "pages_one": "{{count}} Page",
+    "pages_other": "{{count}} Pages",
+    "pagesPending": "To be confirmed",
+    "dimensions": "Book Dimensions",
+    "category": "Category / Discipline",
+    "estimatedWeight": "Estimated Weight",
+    "weight": "{{weight}} g",
+    "language": "Language",
+    "languageValue": "Indonesian",
+    "physicalCondition": "Physical Condition",
+    "conditionValue": "New / Shrink-Wrapped"
+  },
+  "tabs": {
+    "synopsis": "Monograph Synopsis",
+    "aboutAuthor": "About the Author",
+    "contents": "Table of Contents & Chapter Structure",
+    "reviews": "Reviews & Ratings",
+    "reviewsWithTotal": "Reviews & Ratings ({{total}})"
+  },
+  "synopsis": {
+    "heading": "Scholarly Overview & Practical Relevance",
+    "audienceTitle": "Target Readership",
+    "audienceText": "Academics, lecturers, undergraduate, master's and doctoral students of economics and law faculties, tax consultants, public-sector financial auditors, and fiscal policymakers.",
+    "valueTitle": "Scholarly Added Value",
+    "valueText": "Combines the principle of legal certainty, contemporary tax law doctrine, and real case studies from tax court proceedings in Indonesia."
+  },
+  "aboutAuthor": {
+    "byline": "Author — published by PT Cakrawala Magna Scientia",
+    "fallbackBio": "The author's full profile will be added by our editorial team shortly. For academic correspondence or interview requests, please contact redaksi@cakranexa.com.",
+    "affiliationLabel": "Research Affiliation:",
+    "affiliationValue": "PT Cakrawala Magna Scientia • Division of Scholarly Publishing & Indonesian Fiscal Policy Studies"
+  },
+  "contents": {
+    "heading": "Chapter Structure and Monograph Syllabus",
+    "verifiedChapter": "Verified Chapter",
+    "empty": "The full table of contents will be added by our editorial team shortly. Please read the synopsis in the <strong>Summary</strong> tab."
+  },
+  "reviews": {
+    "outOf": "out of 5.0 stars",
+    "basedOn_one": "Based on {{count}} verified reader review",
+    "basedOn_other": "Based on {{count}} verified reader reviews",
+    "emptyTitle": "No reviews for this book yet.",
+    "emptyText": "Only reviews from verified purchases are displayed. Have you read this book? Send your review to redaksi@cakranexa.com."
+  },
+  "related": {
+    "heading": "Related Books in the {{category}} Category",
+    "curated": "Curated Recommendations",
+    "view": "View →"
+  }
+}

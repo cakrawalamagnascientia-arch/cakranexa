@@ -98,7 +98,7 @@ export const initTracking = (customSettings?: SeoSettings): void => {
         window.dataLayer?.push(arguments);
       }
       window.gtag = gtag as any;
-      window.gtag('js', new Date());
+      window.gtag?.('js', new Date());
 
       const existingGtag = document.getElementById('gtag-script');
       if (existingGtag) existingGtag.remove();
@@ -111,11 +111,11 @@ export const initTracking = (customSettings?: SeoSettings): void => {
     }
 
     if (gaId) {
-      window.gtag('config', gaId, { send_page_view: true });
+      window.gtag?.('config', gaId, { send_page_view: true });
       console.log(`%c[Marketing Tracking] GA4 Configured: ${gaId}`, 'color: #EA4335; font-weight: bold;');
     }
     if (gAdsId) {
-      window.gtag('config', gAdsId);
+      window.gtag?.('config', gAdsId);
       console.log(`%c[Marketing Tracking] Google Ads Configured: ${gAdsId}`, 'color: #FBBC05; font-weight: bold;');
     }
   }

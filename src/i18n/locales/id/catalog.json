@@ -1,0 +1,82 @@
+{
+  "categories": {
+    "taxation": "Perpajakan",
+    "accounting": "Akuntansi",
+    "law": "Hukum",
+    "economicsBusiness": "Ekonomi & Bisnis",
+    "philosophy": "Filsafat",
+    "theology": "Teologia"
+  },
+  "grid": {
+    "heading": "Katalog <highlight>{{category}}</highlight>",
+    "defaultHeading": "Literatur Akademik",
+    "description": "Menampilkan monografi dan buku referensi akademik terverifikasi ber-ISBN resmi.",
+    "showingOf_other": "Menampilkan {{shown}} dari {{count}} Judul",
+    "searchPlaceholder": "Cari judul buku, topik PPN/Audit, ISBN, atau penulis...",
+    "clearSearch": "Hapus",
+    "resultCount_other": "<strong>{{count}}</strong> buku",
+    "sort": {
+      "newest": "Buku Terbaru",
+      "recommended": "Rekomendasi Utama",
+      "priceLow": "Harga: Rendah ke Tinggi",
+      "priceHigh": "Harga: Tinggi ke Rendah",
+      "title": "Judul (A - Z)"
+    },
+    "view": {
+      "grid": "Grid View",
+      "list": "List View"
+    },
+    "empty": {
+      "title": "Tidak ada buku yang sesuai dengan kriteria pencarian",
+      "description": "Coba sesuaikan kata kunci pencarian, ubah filter kategori, atau reset batas harga untuk melihat koleksi lengkap kami.",
+      "reset": "Reset Semua Filter"
+    },
+    "listMeta": "Author: <strong>{{author}}</strong> • {{pages}} hlm • {{year}}",
+    "officialPrice": "Harga Resmi"
+  },
+  "card": {
+    "coverAlt": "Cover Buku",
+    "categoryFallback": "Monografi",
+    "titleFallback": "Judul Buku",
+    "pages": "{{pages}} hlm"
+  },
+  "isbn": {
+    "label": "ISBN: {{isbn}}",
+    "labelWithAuthor": "ISBN: {{isbn}} • {{author}}",
+    "pending": "menyusul",
+    "short": "ISBN …{{suffix}}",
+    "inSubmission": "ISBN dlm pengajuan",
+    "toFollow": "ISBN menyusul"
+  },
+  "filter": {
+    "heading": "Filter Literatur",
+    "reset": "Reset",
+    "categoriesHeading": "Kategori Buku",
+    "allCategories": "Semua Kategori",
+    "onlyNew": "Hanya Buku Terbaru",
+    "yearHeading": "Tahun Terbitan",
+    "allYears": "Semua",
+    "priceHeading": "Batas Harga",
+    "priceUpTo": "s/d {{price}}",
+    "authorServices": {
+      "title": "Layanan Penulis",
+      "description": "Kirim naskah Anda hari ini dan jadilah bagian dari literasi bangsa.",
+      "cta": "Mulai Publikasi"
+    }
+  },
+  "quickSearch": {
+    "placeholder": "Ketik judul buku, ISBN (misal: 978-623), nama penulis, atau kategori...",
+    "clear": "Clear",
+    "results": "Hasil Pencarian ({{total}})",
+    "recommended": "Rekomendasi Publikasi Utama",
+    "escHint": "ESC untuk keluar",
+    "noResults": "Tidak ditemukan buku dengan kata kunci \"{{query}}\".",
+    "footer_other": "Koleksi {{count}} Buku Monografi & Referensi Terbitan CakraNexa"
+  },
+  "cover": {
+    "defaultTitle": "Monografi Akademik & Ilmiah",
+    "defaultCategory": "PERPAJAKAN & HUKUM",
+    "authorLabel": "PENULIS / TIM PENYUSUN",
+    "edition": "{{year}} EDITION"
+  }
+}

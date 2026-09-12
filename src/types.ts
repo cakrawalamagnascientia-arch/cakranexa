@@ -1,4 +1,7 @@
-export type BookCategory = 
+import type { AppLanguage } from './i18n/index';
+import type { ContentTranslations } from './i18n/localized';
+
+export type BookCategory =
   | 'Perpajakan' 
   | 'Akuntansi' 
   | 'Hukum' 
@@ -39,6 +42,8 @@ export interface Book {
   featured?: boolean;
   isBestSeller?: boolean;
   bestSellerRank?: number;
+  /** Terjemahan judul/subjudul/sinopsis (en, zh); kosong = pakai Bahasa Indonesia. */
+  i18n?: ContentTranslations<'name' | 'subtitle' | 'sinopsis'>;
 }
 
 export interface CartItem {
@@ -62,6 +67,8 @@ export interface Author {
   created_at?: string;
   updated_at?: string;
   books?: Book[];
+  /** Terjemahan bio (en, zh); kosong = pakai Bahasa Indonesia. */
+  i18n?: ContentTranslations<'profile_education' | 'work_experience' | 'organization_seminar' | 'publications', string | string[]>;
 }
 
 export interface CustomerDetails {
@@ -119,6 +126,8 @@ export interface Order {
   serverSynced?: boolean;
   /** 'midtrans_production' | 'midtrans_sandbox' | 'unavailable' | 'offline' */
   paymentMode?: string;
+  /** Bahasa pelanggan saat checkout; dipakai untuk pesan WhatsApp ke pelanggan. */
+  language?: AppLanguage;
 }
 
 export type ActivePage = 
@@ -496,6 +505,8 @@ export interface BlogArticleItem {
   content: string;
   coverImage: string;
   order: number;
+  /** Terjemahan artikel (en, zh); kosong = pakai Bahasa Indonesia. */
+  i18n?: ContentTranslations<'title' | 'category' | 'readTime' | 'excerpt' | 'content'>;
 }
 
 export interface SiteContentSettings {

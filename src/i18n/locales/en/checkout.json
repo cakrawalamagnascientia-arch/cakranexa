@@ -1,0 +1,333 @@
+{
+  "status": {
+    "pending": "Awaiting Payment",
+    "paid": "Paid in Full",
+    "processing": "Processing",
+    "shipped": "Shipped",
+    "failed": "Failed",
+    "cancelled": "Cancelled"
+  },
+  "paymentMethods": {
+    "bca_va": "BCA Virtual Account",
+    "mandiri_bill": "Mandiri Bill / VA",
+    "bni_va": "BNI Virtual Account",
+    "bri_va": "BRI Virtual Account",
+    "permata_va": "Permata VA",
+    "qris": "QRIS Universal",
+    "gopay": "GoPay",
+    "ovo": "OVO",
+    "dana": "DANA",
+    "shopeepay": "ShopeePay",
+    "linkaja": "LinkAja",
+    "credit_card": "Credit/Debit Card",
+    "manual_mandiri": "Manual Bank Transfer"
+  },
+  "paymentMethodsShort": {
+    "mandiri_bill": "Mandiri Bill"
+  },
+  "shippingMethods": {
+    "jneReg": {
+      "service": "REG (Regular)",
+      "estimatedDays": "2 - 3 Days",
+      "description": "Reliable regular service reaching every district and campus institution"
+    },
+    "jneYes": {
+      "service": "YES (Next-Day Delivery)",
+      "estimatedDays": "1 Business Day",
+      "description": "Priority express air service for documents, monographs & important modules"
+    },
+    "jntEz": {
+      "service": "EZ (Standard)",
+      "estimatedDays": "2 - 3 Days",
+      "description": "Pickup and delivery 365 days a year, with no holidays, throughout Indonesia"
+    },
+    "posKilat": {
+      "service": "Kilat Khusus (Express)",
+      "estimatedDays": "2 - 4 Days",
+      "description": "Specialist in deliveries to universities, regional libraries, and remote areas"
+    },
+    "sicepatBest": {
+      "service": "BEST (Next-Day Delivery)",
+      "estimatedDays": "1 Business Day",
+      "description": "Optimal speed for provincial capitals and major university cities"
+    },
+    "sicepatReg": {
+      "service": "REG (Regular)",
+      "estimatedDays": "2 - 3 Days",
+      "description": "Economical, with accurate real-time digital barcode tracking"
+    },
+    "tikiReg": {
+      "service": "REG (Regular)",
+      "estimatedDays": "2 - 3 Days",
+      "description": "Experienced courier network with guaranteed safe handling of book parcels"
+    }
+  },
+  "bank": {
+    "officialAccount": "Official Corporate Account",
+    "accountHolder": "Account holder: {{name}}",
+    "copied": "Copied",
+    "copyAccountNumber": "Copy Account No.",
+    "whatsappFinance": "Quick confirmation via Finance WhatsApp: <strong>{{phone}}</strong>",
+    "instructions": {
+      "default": "Please transfer the total amount due to one of the publisher's official bank accounts above. Keep your proof of payment (ATM receipt / mobile banking screenshot) and upload it on the verification form or confirm via the Editorial Finance WhatsApp.",
+      "fallback": "Please transfer the exact amount to PT Cakrawala Magna Scientia's official bank account above, then upload your proof of payment."
+    }
+  },
+  "modal": {
+    "title": {
+      "customerDetails": "Shipping & Order Details",
+      "midtransSnap": "Midtrans Payment Gateway (Simulation Mode)",
+      "orderComplete": "Official Book Purchase Invoice"
+    },
+    "orderedItems": "Ordered Books ({{itemCount}})",
+    "form": {
+      "fullName": {
+        "label": "Full Name & Title *",
+        "placeholder": "Example: Dr. Budi Santoso, S.E., M.Si."
+      },
+      "email": {
+        "label": "Active Email (For Invoice Notifications) *",
+        "placeholder": "name@institution.ac.id"
+      },
+      "phone": {
+        "label": "WhatsApp / Phone Number *"
+      },
+      "city": {
+        "label": "Destination City / Regency (Kota / Kabupaten) *"
+      },
+      "address": {
+        "label": "Full Book Delivery Address (Office / Campus / Home) *",
+        "placeholder": "Street name, building/room number, RT/RW, Kelurahan (village), Kecamatan (district)..."
+      },
+      "postalCode": {
+        "label": "Postal Code"
+      },
+      "courier": {
+        "label": "Shipping Courier",
+        "option": "{{name}} ({{service}}) - {{fee}} (Est. {{days}})",
+        "free": "FREE SHIPPING"
+      }
+    },
+    "summary": {
+      "subtotal": "Book Subtotal",
+      "shippingCost": "Calculated Shipping Fee",
+      "total": "Total Amount Due"
+    },
+    "buyNow": "Buy Now",
+    "toast": {
+      "incompleteAddress": "Please complete all shipping address details.",
+      "orderFailed": "Your order could not be processed. Please try again.",
+      "midtransFailed": "Midtrans payment failed or was cancelled.",
+      "popupClosed": "Payment popup closed. Your order is still recorded with a pending status.",
+      "onlineUnavailable": "Online payment is not available yet. The Midtrans server has not generated a real payment token. Please try again or choose manual bank transfer.",
+      "paymentVerified": "Payment verified successfully! Your invoice has been issued.",
+      "orderRecorded": "Order recorded. Please complete your payment following the Virtual Account / QRIS instructions.",
+      "simulationDisabled": "Simulated payments are disabled. Use a real Midtrans Snap token or manual bank transfer."
+    },
+    "snap": {
+      "header": "Midtrans SNAP — Simulation Mode (server key not set)",
+      "token": "Token: {{token}}",
+      "totalDue": "Amount Due",
+      "chooseMethod": "Choose an Official Payment Method:",
+      "companyAccount": "Corporate Current Account",
+      "instructionsLabel": "Instructions:",
+      "vaNumber": "Virtual Account Number",
+      "vaDeadline": "Payment Deadline: 23:59 WIB (Western Indonesia Time)",
+      "copyNumber": "Copy Number",
+      "vaSteps": "Open your bank's mobile banking app or ATM > Virtual Account Transfer > Enter the number above > Confirm the name PT Cakrawala Magna Scientia > Tap Pay.",
+      "qrisScan": "Scan QRIS: {{merchant}}",
+      "qrisExpiry": "Expires in: 14 minutes 59 seconds",
+      "cardNumber": "Credit Card Number (Dummy)",
+      "cardExpiry": "Valid Until",
+      "simulatorActions": "Sandbox Simulator Actions:",
+      "simulateSuccess": "Simulate Success",
+      "simulatePending": "Simulate Pending",
+      "simulateCancel": "Cancel / Fail"
+    },
+    "complete": {
+      "successTitle": "Transaction Successful & Payment Verified",
+      "successDescription": "Your official invoice has been created and the printed books are ready to be processed for shipping.",
+      "brand": "Brand: CakraNexa Academic & Professional Publishing",
+      "companyInfo": "Taxpayer ID (NPWP): {{npwp}} • Jakarta, Indonesia",
+      "paidBadge": "PAID IN FULL",
+      "buyer": "Recipient & Buyer:",
+      "shippingAddress": "Shipping Address:",
+      "table": {
+        "title": "Book Title",
+        "qty": "Qty",
+        "unitPrice": "Unit Price",
+        "amount": "Amount"
+      },
+      "subtotal": "Subtotal",
+      "shippingCost": "Shipping Fee",
+      "total": "Total Payment",
+      "printInvoice": "Print Invoice",
+      "backToCatalog": "Back to Catalog"
+    }
+  },
+  "form": {
+    "secureSystem": "256-Bit SSL Encrypted Payment System",
+    "sections": {
+      "customer": {
+        "title": "Buyer Details & Shipping Address",
+        "subtitle": "Make sure your WhatsApp number is active to receive courier status updates & order notifications"
+      },
+      "shipping": {
+        "title": "Courier & Dynamic Shipping Fee Calculator",
+        "subtitle": "Automatic weight calculation integrated with JNE, J&T, POS Indonesia, and SiCepat"
+      },
+      "payment": {
+        "subtitle": "Supports Virtual Account, QRIS, e-Wallets, and Bank Mandiri transfer to PT Cakrawala Magna Scientia"
+      }
+    },
+    "fields": {
+      "name": {
+        "label": "Buyer's Full Name / Institution *",
+        "placeholder": "e.g. Prof. Dr. Hendra Wijaya, S.E., M.Si."
+      },
+      "phone": {
+        "label": "WhatsApp Number (Active) *"
+      },
+      "email": {
+        "label": "Email Address (Invoice & Payment Receipt) *",
+        "placeholder": "hendra@university.ac.id"
+      },
+      "address": {
+        "label": "Full Shipping Address (Street, Building, House No., RT/RW) *",
+        "placeholder": "Jl. Salemba Raya No. 4, Faculty of Economics & Business, Dean's Building, 3rd Floor"
+      },
+      "province": {
+        "label": "Province"
+      },
+      "city": {
+        "label": "City / Regency (Kota / Kabupaten) *"
+      },
+      "district": {
+        "label": "Sub-district (Kecamatan)"
+      },
+      "postalCode": {
+        "label": "Postal Code *"
+      },
+      "notes": {
+        "label": "Special Delivery Notes (Optional)",
+        "placeholder": "Leave it at the campus security post / main lobby reception"
+      }
+    },
+    "errors": {
+      "nameRequired": "Full name is required",
+      "phoneRequired": "WhatsApp number is required",
+      "emailRequired": "An active email address is required",
+      "addressRequired": "Full shipping address is required",
+      "cityRequired": "City / Regency is required",
+      "postalCodeRequired": "Postal code is required",
+      "paymentProofRequired": "Please upload your proof of payment for the Bank Mandiri transfer",
+      "orderFailed": "Your order could not be processed. Please try again.",
+      "midtransFailed": "Midtrans payment failed or was cancelled. You can try again.",
+      "onlineUnavailable": "Online payment is not available yet. The Midtrans server has not generated a real payment token. Please try again or choose manual bank transfer.",
+      "simulationDisabled": "Simulated payments are disabled. Use a real Midtrans Snap token or manual bank transfer."
+    },
+    "summary": {
+      "title": "Book Order Summary",
+      "subtotal_one": "Subtotal ({{count}} copy):",
+      "subtotal_other": "Subtotal ({{count}} copies):",
+      "shippingCost": "Shipping Fee:",
+      "serviceInsurance": "Service & Insurance Fee:",
+      "free": "FREE",
+      "totalDue": "TOTAL AMOUNT DUE:",
+      "totalNote": "Includes VAT & Official Invoice"
+    },
+    "submit": {
+      "processing": "Processing Order...",
+      "confirmManual": "Confirm & Place Order",
+      "buyNow": "Buy Now"
+    },
+    "autoNotification": "Automatic notifications will be sent to the Admin's and Customer's WhatsApp in real time.",
+    "simulation": {
+      "badge": "SIMULATION MODE — Midtrans not configured yet",
+      "total": "Total: {{amount}}",
+      "instructionsTitle": "Digital Payment Instructions",
+      "billNumber": "Bill Number: <strong>{{orderNumber}}</strong>",
+      "qrisHint": "Scan the QR code above using your mobile banking or e-wallet app.",
+      "vaNumberLabel": "Virtual Account Number:",
+      "vaPending": "The Virtual Account number will be provided by Midtrans.",
+      "vaDeadline": "Payment deadline is 24 hours. Verification is automatic; no proof of payment needed.",
+      "confirming": "Confirming Payment...",
+      "simulateSuccess": "Simulate Successful Payment (Success)",
+      "cancel": "Cancel / Change Payment Method"
+    },
+    "success": {
+      "badge": "Order Successfully Verified",
+      "title": "Thank You for Your Order!",
+      "description": "The official invoice and order notification have been automatically forwarded to the PT CAKRAWALA MAGNA SCIENTIA logistics team.",
+      "invoiceNumber": "Official Invoice Number:",
+      "recipient": "Recipient:",
+      "courier": "Shipping Courier:",
+      "paymentStatus": "Payment Status:",
+      "totalPayment": "Total Payment:",
+      "sendProofWhatsApp": "Send Proof to Admin WhatsApp",
+      "printInvoice": "Print Invoice"
+    }
+  },
+  "payment": {
+    "tabs": {
+      "va": "Bank Virtual Account",
+      "ewallet": "QRIS & e-Wallet",
+      "manual": "Publisher Bank Transfer (Manual)",
+      "cards": "Credit/Debit Card"
+    },
+    "va": {
+      "chooseBank": "Choose a Virtual Account Bank (Automatically Verified):",
+      "instantVerification": "24-Hour Instant Verification"
+    },
+    "ewallet": {
+      "choose": "Choose QRIS or a Digital Wallet (e-Wallet):",
+      "subtitles": {
+        "gopay": "Gojek / GoPay App",
+        "ovo": "OVO Push Notification",
+        "dana": "DANA Wallet Balance",
+        "shopeepay": "Shopee App Redirect",
+        "linkaja": "BUMN Payment Ecosystem"
+      }
+    },
+    "manual": {
+      "chooseAccount": "Please choose one of the publisher's official destination accounts below:",
+      "verifiedAccount": "Verified Current Account",
+      "noAccounts": "No active bank accounts have been configured by the administrator yet. Please contact the admin.",
+      "instructionsLabel": "Payment Instructions:",
+      "upload": {
+        "label": "Upload Proof of Payment (Receipt / Mobile Banking Screenshot) *",
+        "cta": "Click to upload or drag your payment receipt file here",
+        "formats": "JPG, PNG, or PDF format (Max. 5 MB)",
+        "defaultFileName": "Publisher_Payment_Proof.jpg",
+        "attached": "File Attached"
+      }
+    },
+    "cards": {
+      "title": "Online Credit / Debit Card (Visa & Mastercard)",
+      "description": "Processed through an official payment gateway licensed by Bank Indonesia, secured with 3D-Secure (SMS OTP)."
+    }
+  },
+  "shipping": {
+    "totalWeight": "Total Book Weight: <strong>{{weight}} g</strong> ({{kg}} kg chargeable weight)",
+    "zone": "Postal Code Zone [{{postalCode}}] (x{{multiplier}})",
+    "enterPostalCode": "Enter your postal code for an accurate rate",
+    "estimate": "Estimate: {{days}}",
+    "freeShippingBadge": "FREE SHIPPING",
+    "freeShippingThreshold": "Free shipping on orders ≥ {{amount}}",
+    "remaining": "({{amount}} to go)",
+    "insuranceNote": "Includes book shipping insurance and official shock-resistant cardboard packaging from PT Cakrawala Magna Scientia."
+  },
+  "customerWhatsApp": {
+    "greeting": "Dear *{{name}}*,",
+    "thanks": "Thank you for ordering official academic publications from *PT CAKRAWALA MAGNA SCIENTIA* (CakraNexa).",
+    "detailsHeading": "Your Order Details:",
+    "invoice": "• Invoice No.: *{{number}}*",
+    "total": "• Total: *{{total}}*",
+    "status": "• Status: *{{status}}*",
+    "courier": "• Courier: *{{courier}}*",
+    "tracking": "• Tracking Number: *{{tracking}}*",
+    "preparing": "Our logistics team is preparing your ISBN-registered copies with multi-layer protective packaging.",
+    "closing": "Kind regards,",
+    "team": "*CakraNexa Fulfilment Division*"
+  }
+}

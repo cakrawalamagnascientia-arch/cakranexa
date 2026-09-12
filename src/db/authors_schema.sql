@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS authors (
     work_experience TEXT,
     organization_seminar TEXT,
     publications TEXT,
+    i18n JSONB NOT NULL DEFAULT '{}'::jsonb, -- terjemahan bio (en, zh); lihat i18n_content_migration.sql
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

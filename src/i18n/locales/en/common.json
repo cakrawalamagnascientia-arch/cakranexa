@@ -1,0 +1,154 @@
+{
+  "language": "Language",
+  "indonesia": "Indonesian",
+  "english": "English",
+  "chinese": "Chinese",
+  "home": "Home",
+  "catalog": "Catalog",
+  "publishing": "Publishing",
+  "training": "Training",
+  "journal": "Journal",
+  "about": "About Us",
+  "blog": "Blog",
+  "career": "Career",
+  "contact": "Contact",
+  "authors": "Authors & Contributors",
+  "cart": "Cart",
+  "search": "Search",
+  "paymentMethod": "Payment Method",
+  "allBooks": "All Books",
+  "viewDetails": "View Details",
+  "viewProfile": "View Profile & Works",
+  "officialSeller": "Official Seller",
+  "publisher": "Main Publisher",
+  "priceComingSoon": "Price coming soon",
+  "latest": "New",
+  "back": "Back",
+  "save": "Save Changes",
+  "cancel": "Cancel",
+  "loading": "Loading...",
+  "noData": "No data available.",
+  "nav": {
+    "homeAriaLabel": "CakraNexa Home",
+    "searchTitle": "Search Title / ISBN / Author",
+    "cartTitle": "Shopping Cart",
+    "cartButton": "Cart ({{quantity}})",
+    "catalogMenu": {
+      "bookCount_one": "{{count}} Book",
+      "bookCount_other": "{{count}} Books",
+      "latestBooks": "Latest Books",
+      "categoriesHeading": "BOOK CATEGORIES"
+    },
+    "publishingMenu": {
+      "services": "PUBLISHING SERVICES",
+      "submitManuscript": "SUBMIT MANUSCRIPT",
+      "openBadge": "Open",
+      "authorGuide": "AUTHOR GUIDELINES",
+      "process": "PUBLISHING PROCESS",
+      "faq": "PUBLISHING FAQ"
+    },
+    "aboutMenu": {
+      "profile": "COMPANY PROFILE",
+      "visionMission": "VISION & MISSION",
+      "editorialTeam": "EDITORIAL BOARD & TEAM",
+      "legality": "LEGAL STATUS"
+    },
+    "mobile": {
+      "catalogAll": "Catalog (All Books)",
+      "publishingServices": "Publishing Services",
+      "submitManuscript": "Submit a Book Manuscript",
+      "authorGuide": "Author Guidelines",
+      "process": "Publishing Process",
+      "faq": "Publishing FAQ"
+    }
+  },
+  "subheader": {
+    "backTitle": "Back to the previous page",
+    "backLabel": "Back to Previous Page",
+    "sectionLabel": "Catalog:",
+    "authorDetail": "Author Details",
+    "bookDetail": "Book Details",
+    "contributingAuthors": "Contributing Authors",
+    "pages": {
+      "katalog": "catalog",
+      "katalogDetail": "catalog detail",
+      "penerbitan": "publishing",
+      "pelatihan": "training",
+      "jurnal": "journal",
+      "tentangKami": "about us",
+      "blog": "blog",
+      "career": "career",
+      "karir": "career",
+      "checkout": "checkout",
+      "kontak": "contact"
+    }
+  },
+  "toast": {
+    "forthcomingNoPrice": "\"{{title}}\" is forthcoming — the price has not been set yet.",
+    "addedToCart": "\"{{title}}\" has been added to your shopping cart.",
+    "removedFromCart": "Item removed from cart.",
+    "orderRecorded": "Order #{{orderNumber}} has been recorded. Thank you!",
+    "orderSyncFailed": "Order saved locally, but it could not be synced to the server: {{reason}}",
+    "orderUpdateFailed": "Failed to update the order on the server: {{message}}",
+    "orderUpdateOffline": "Order update saved locally (backend offline).",
+    "bookUpdateFailed": "Failed to update the book on the server: {{message}}",
+    "authorSync": {
+      "createFailed": "Failed to add the author on the server: {{message}}",
+      "createOffline": "Author added locally only (backend offline).",
+      "updateFailed": "Failed to update the author on the server: {{message}}",
+      "updateOffline": "Author updated locally only (backend offline)."
+    }
+  },
+  "actions": {
+    "addToCart": "Add to Cart",
+    "addToCartShort": "+ Cart",
+    "buyNow": "Buy Now",
+    "detail": "Details",
+    "backToTop": "Back to top"
+  },
+  "image": {
+    "defaultAlt": "Image"
+  },
+  "footer": {
+    "about": "PT CAKRAWALA MAGNA SCIENTIA - PT Cakrawala Magna Scientia is a knowledge company building an ecosystem to publish, update, develop, teach, protect, license, and pass on knowledge to future generations.\n\nThrough CakraNexa, we connect authors, readers, academics, professionals, institutions, libraries, and partners in a knowledge ecosystem designed to grow beyond a single book, a single format, a single platform, and a single generation.",
+    "trust": {
+      "ikapiMember": "Member of the Indonesian Publishers Association (IKAPI)",
+      "isbnPerpusnas": "Official ISBN from the National Library of Indonesia (Perpusnas)",
+      "nationalCatalog": "Indexed in the National Catalog",
+      "paymentGateway": "Official Payment Gateway",
+      "sslEncryption": "Verified 256-Bit SSL Encryption",
+      "legalEntity": "Registered Limited Liability Company (PT)"
+    },
+    "catalogLinks": {
+      "taxation": "Taxation & Fiscal Policy Books",
+      "accounting": "Accounting & Forensic Audit Books",
+      "law": "Procedural & Criminal Law Books",
+      "economics": "Economics & Corporate Management"
+    },
+    "servicesHeading": "Services & Research",
+    "servicesLinks": {
+      "publishing": "Book Publishing Services",
+      "submit": "Submit a Manuscript / Book Proposal",
+      "guidelines": "Writing & Formatting Guidelines",
+      "taxWorkshop": "Executive Tax Workshop",
+      "journal": "Peer-Reviewed Scholarly Journals",
+      "isbnFaq": "ISBN Publishing FAQ"
+    },
+    "companyHeading": "Company",
+    "companyLinks": {
+      "profile": "PT Cakrawala Magna Profile",
+      "visionMission": "Vision, Mission & Commitment",
+      "legality": "Legal Status & Deed (Ministry of Law and Human Rights)",
+      "blog": "Law & Tax Commentary (Blog)",
+      "careers": "Careers & Partnerships"
+    },
+    "legal": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms & Conditions",
+      "isbnVerification": "ISBN Verification",
+      "editorialBoard": "Editorial Board"
+    },
+    "copyright": "All rights reserved. All monographs and textbooks are ISBN-registered with the National Library of Indonesia.",
+    "copyrightFallback": "© {{year}} PT CAKRAWALA MAGNA SCIENTIA (CakraNexa). All rights reserved."
+  }
+}

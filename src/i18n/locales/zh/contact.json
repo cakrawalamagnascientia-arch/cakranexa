@@ -1,0 +1,49 @@
+{
+  "header": {
+    "eyebrow": "联系我们 • PT CAKRAWALA MAGNA SCIENTIA",
+    "title": "出版咨询、图书采购与学术合作",
+    "subtitle": "本公司编辑与市场团队随时为您提供书稿出版、机构及图书馆批量图书订购以及科研合作等服务。"
+  },
+  "office": {
+    "title": "出版总部",
+    "phoneLabel": "WhatsApp 与电话服务",
+    "whatsappEditorial": "{{phone}}（编辑部 WhatsApp）",
+    "emailLabel": "电子邮件",
+    "hoursLabel": "服务时间",
+    "workingHoursDefault": "周一至周五：08:30 - 17:30（WIB，西印尼时间）| 周六及周日：休息"
+  },
+  "success": {
+    "title": "我们已收到您的留言",
+    "text": "PT Cakrawala Magna Scientia 的业务代表将在 24 个工作小时内通过电子邮件或 WhatsApp 回复您的请求。"
+  },
+  "form": {
+    "title": "发送留言或合作申请",
+    "subtitle": "请填写您的联系方式及咨询事项。",
+    "name": {
+      "label": "姓名及学衔 *",
+      "placeholder": "您的姓名"
+    },
+    "email": {
+      "label": "电子邮箱 *",
+      "placeholder": "email@institution.ac.id"
+    },
+    "phone": {
+      "label": "WhatsApp / 电话号码 *"
+    },
+    "subject": {
+      "label": "咨询主题 *",
+      "options": {
+        "libraryProcurement": "图书馆 / 高校图书采购",
+        "publishingConsultation": "图书书稿出版咨询",
+        "workshopRegistration": "研讨会 / 培训报名",
+        "journalPartnership": "学术期刊合作",
+        "distributionPartnership": "发行 / 书店合作"
+      }
+    },
+    "message": {
+      "label": "留言 / 需求详情 *",
+      "placeholder": "请描述您的合作需求、预计订购册数或书稿需求……"
+    },
+    "submit": "向 CakraNexa 发送正式留言"
+  }
+}

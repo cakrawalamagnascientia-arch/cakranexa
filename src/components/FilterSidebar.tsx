@@ -1,6 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Filter, RotateCcw, Check, Clock, BookOpen } from 'lucide-react';
 import { BookCategory } from '../types';
+import { useCategoryLabel, useFormatters } from '../i18n/hooks';
 
 interface FilterSidebarProps {
   selectedCategory: string;
@@ -29,6 +31,9 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   categoryCounts,
   onPublishClick
 }) => {
+  const { t } = useTranslation('catalog');
+  const categoryLabel = useCategoryLabel();
+  const { currency } = useFormatters();
   const categories: BookCategory[] = [
     'Perpajakan',
     'Akuntansi',
@@ -45,7 +50,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2 text-[#0F172A] font-bold text-xs uppercase tracking-wider">
             <Filter className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>Filter Literatur</span>
+            <span>{t('filter.heading')}</span>
           </div>
           <button
             id="btn-reset-filters"
@@ -53,14 +58,14 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
             className="text-[11px] text-slate-400 hover:text-[#D4AF37] flex items-center gap-1 font-semibold uppercase tracking-wider transition-colors cursor-pointer"
           >
             <RotateCcw className="w-3 h-3" />
-            <span>Reset</span>
+            <span>{t('filter.reset')}</span>
           </button>
         </div>
 
         {/* 1. Categories with Artistic Flair styling */}
         <div>
           <h3 className="text-[10px] font-black text-[#0F172A]/50 uppercase tracking-widest mb-3">
-            Kategori Buku
+            {t('filter.categoriesHeading')}
           </h3>
           <ul className="flex flex-col gap-2.5 text-sm font-medium">
             <li>
@@ -73,7 +78,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                     : 'pl-3 opacity-60 hover:opacity-100 text-slate-700'
                 }`}
               >
-                <span>Semua Kategori</span>
+                <span>{t('filter.allCategories')}</span>
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-mono">
                   {Object.values(categoryCounts).reduce((a: number, b: number) => a + b, 0)}
                 </span>
@@ -94,7 +99,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                         : 'pl-3 opacity-60 hover:opacity-100 text-slate-700'
                     }`}
                   >
-                    <span>{cat}</span>
+                    <span>{categoryLabel(cat)}</span>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-mono">
                       {count}
                     </span>
@@ -110,7 +115,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
           <label className="flex items-center justify-between p-2.5 rounded bg-slate-50 border border-slate-200 cursor-pointer hover:border-[#D4AF37]/50 transition-colors">
             <div className="flex items-center gap-2">
               <Clock className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span className="text-xs font-semibold text-slate-800">Hanya Buku Terbaru</span>
+              <span className="text-xs font-semibold text-slate-800">{t('filter.onlyNew')}</span>
             </div>
             <input
               id="filter-only-new-toggle"
@@ -125,7 +130,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
         {/* 3. Tahun Terbit */}
         <div>
           <h4 className="text-[10px] font-black text-[#0F172A]/50 uppercase tracking-widest mb-2.5">
-            Tahun Terbitan
+            {t('filter.yearHeading')}
           </h4>
           <div className="grid grid-cols-3 gap-1.5">
             {['all', '2026', '2025'].map((year) => (
@@ -139,7 +144,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                     : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                 }`}
               >
-                {year === 'all' ? 'Semua' : year}
+                {year === 'all' ? t('filter.allYears') : year}
               </button>
             ))}
           </div>
@@ -148,9 +153,9 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
         {/* 4. Filter Range Harga Maksimum */}
         <div>
           <div className="flex items-center justify-between text-xs mb-2">
-            <span className="text-[10px] font-black text-[#0F172A]/50 uppercase tracking-widest">Batas Harga</span>
+            <span className="text-[10px] font-black text-[#0F172A]/50 uppercase tracking-widest">{t('filter.priceHeading')}</span>
             <span className="font-semibold text-slate-900 font-mono text-xs">
-              s/d Rp {maxPrice.toLocaleString('id-ID')}
+              {t('filter.priceUpTo', { price: currency(maxPrice) })}
             </span>
           </div>
           <input
@@ -164,24 +169,24 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
             className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#D4AF37]"
           />
           <div className="flex justify-between text-[10px] text-slate-400 font-mono mt-1">
-            <span>Rp 180.000</span>
-            <span>Rp 300.000</span>
+            <span>{currency(180000)}</span>
+            <span>{currency(300000)}</span>
           </div>
         </div>
       </div>
 
       {/* Artistic Flair Author Publishing Box */}
       <div className="mt-6 p-4 bg-[#0F172A] rounded text-white text-left">
-        <h4 className="text-[10px] uppercase text-[#D4AF37] mb-1 font-bold tracking-widest">Layanan Penulis</h4>
+        <h4 className="text-[10px] uppercase text-[#D4AF37] mb-1 font-bold tracking-widest">{t('filter.authorServices.title')}</h4>
         <p className="text-[11px] opacity-70 leading-relaxed">
-          Kirim naskah Anda hari ini dan jadilah bagian dari literasi bangsa.
+          {t('filter.authorServices.description')}
         </p>
         <button
           id="btn-sidebar-mulai-publikasi"
           onClick={onPublishClick}
           className="mt-3 text-[9px] uppercase font-bold border border-white/30 px-3 py-1.5 w-full hover:bg-white hover:text-[#0F172A] transition-all rounded-sm cursor-pointer"
         >
-          Mulai Publikasi
+          {t('filter.authorServices.cta')}
         </button>
       </div>
 

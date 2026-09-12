@@ -1,0 +1,13 @@
+{
+  "drawer": {
+    "itemTypes_one": "{{count}} book title",
+    "itemTypes_other": "{{count}} book titles",
+    "emptyDescription": "Explore our collection of academic reference books and add the titles you need.",
+    "remove": "Remove",
+    "totalProducts": "Total Items",
+    "bookCount_one": "{{count}} book",
+    "bookCount_other": "{{count}} books",
+    "subtotal": "Subtotal",
+    "secureTransaction": "Transactions are secured with 256-bit SSL encryption"
+  }
+}

@@ -1,0 +1,357 @@
+{
+  "hero": {
+    "badge": "PT CAKRAWALA MAGNA SCIENTIA 官方出版部",
+    "title": "以最高权威标准出版您的学术成果",
+    "description": "从学术书稿到已获ISBN并在全国发行的图书。我们提供全面的编辑服务、学术同行评审、联合国教科文组织（UNESCO）标准排版，以及高级书纸精装印刷。"
+  },
+  "tabs": {
+    "services": "出版服务",
+    "submit": "投稿",
+    "guidelines": "作者指南",
+    "process": "出版流程",
+    "faq": "出版常见问题"
+  },
+  "services": {
+    "categoryLabel": "类别 {{number}}",
+    "priceFrom": "{{price}} 起",
+    "priceFromPerChapter": "每章 {{price}} 起",
+    "main": {
+      "title": "核心出版套餐",
+      "description": "为参考书、专著及连续出版物提供一体化出版解决方案。",
+      "monograph": {
+        "badge": "DIKTI 标准",
+        "title": "专著",
+        "description": "专为学者和高校教师设计，用于出版可获学术学分（KUM）的独立研究成果。",
+        "features": [
+          "办理 ISBN 及国家图书馆条形码",
+          "同行评审专家委员会评审",
+          "UNESCO B5 标准排版及 3D 封面",
+          "在版编目（CIP）数据登记"
+        ],
+        "cta": "选择专著套餐"
+      },
+      "journal": {
+        "badge": "OJS 3 与 DOI",
+        "title": "学术期刊",
+        "description": "基于开放期刊系统（OJS）标准，管理和出版经认证的学术期刊。",
+        "features": [
+          "机构 OJS 3 安装与配置",
+          "官方 Crossref DOI 集成",
+          "结构化同行评审工作流程",
+          "Garuda 与 SINTA 收录辅导"
+        ],
+        "cta": "选择期刊套餐"
+      },
+      "ebook": {
+        "badge": "数字化与 DRM",
+        "title": "电子书",
+        "description": "以 ePub3 及加密 PDF 格式进行数字出版，并集成 DRM 著作权保护。",
+        "features": [
+          "ePub3 及交互式 PDF 格式转换",
+          "数字版权管理（DRM）保护",
+          "通过 Google Play 图书及 CakraNexa 发行",
+          "实时读者数据分析面板"
+        ],
+        "cta": "选择电子书套餐"
+      },
+      "periodical": {
+        "badge": "企业 / 机构",
+        "title": "连续出版物",
+        "description": "出版年度研究简报、国内及国际研讨会论文集以及企业刊物。",
+        "features": [
+          "印刷版与数字版连续出版",
+          "办理国家图书馆官方 ISSN",
+          "高端学术杂志编辑设计",
+          "面向利益相关方及图书馆发行"
+        ],
+        "cta": "选择连续出版物套餐"
+      }
+    },
+    "editorial": {
+      "title": "编辑与制作",
+      "description": "学术书稿润色、艺术封面设计及教学模块编写。",
+      "editing": {
+        "title": "编辑 / 校对",
+        "description": "依据印尼语规范（PUEBI/EYD）审校语法，核对法律与税务术语，统一术语用法，梳理论证脉络，且不改变学术实质。",
+        "note": "预计：3–5 个工作日"
+      },
+      "cover": {
+        "title": "封面设计",
+        "description": "高美学价值的 3D 编辑视觉设计、庄重的专著字体选择、高分辨率效果图，可直接用于胶印（CMYK，300 DPI）。",
+        "note": "含 3 轮设计修改"
+      },
+      "ghostwriting": {
+        "title": "代笔写作",
+        "description": "为工作繁忙的专家和从业者提供深度陪伴服务：通过深入访谈，将实践见解系统整理为结构严谨的学术章节。",
+        "note": "资深编辑全程指导"
+      },
+      "teachingModule": {
+        "title": "教学模块",
+        "description": "按高校教材格式编写，与学期教学计划（RPS）相衔接，融入案例练习和学生评估量表。",
+        "note": "符合 OBE 及 DIKTI BKD 标准"
+      }
+    },
+    "licensing": {
+      "title": "授权与知识产权",
+      "description": "著作权保护、版税合规及知识成果变现。",
+      "workLicensing": {
+        "title": "作品授权",
+        "description": "管理机构授权合同、高校课程采用、合作方重印权及透明的版税分配。",
+        "note": "正式协议契据"
+      },
+      "certification": {
+        "title": "作品认证（知识产权）",
+        "description": "向法律与人权部知识产权总局（DJKI）正式办理著作权登记证书，直至 e-Hak Cipta 证书签发。",
+        "note": "DJKI 官方证书"
+      },
+      "revisedEdition": {
+        "title": "修订版",
+        "description": "更新最新法律法规和统计数据，增补前沿研究章节，并为修订版登记新的 ISBN。",
+        "note": "延长图书生命周期"
+      },
+      "formatAdaptation": {
+        "title": "格式改编",
+        "description": "将书稿转化为执行摘要（白皮书）、有声书、数字微学习模块或机构学术数据库。",
+        "note": "多平台适配"
+      }
+    },
+    "distribution": {
+      "title": "发行与营销",
+      "description": "通过实体书店、电商平台及新书研讨活动覆盖全国读者。",
+      "bookstore": {
+        "badge": "全国网络",
+        "title": "书店发行",
+        "description": "图书进入合作实体书店网络，定期寄售，在 CakraNexa Store 电商平台设立官方展柜，并入驻 Tokopedia 与 Shopee 官方店铺。",
+        "features": [
+          "CakraNexa 仓储与物流一体化",
+          "定期透明的销售报告"
+        ],
+        "note": "覆盖 38 个省份"
+      },
+      "promotion": {
+        "badge": "宣传与媒体",
+        "title": "推广策略",
+        "description": "邀请专家举办学术新书研讨网络研讨会，通过可信赖的全国媒体发布新闻稿，开展学术引用推广，并编入高校图书馆目录。",
+        "features": [
+          "全国媒体新闻稿发布",
+          "向高校科研与社会服务机构（LPPM）及大学图书馆分发书目"
+        ],
+        "note": "作者品牌推广活动"
+      }
+    }
+  },
+  "form": {
+    "eyebrow": "官方投稿表",
+    "title": "提交学术图书书稿",
+    "description": "请填写作者信息并上传书稿初稿，由 PT Cakrawala Magna Scientia 编辑委员会进行评审。",
+    "sections": {
+      "author": "1. 作者身份信息",
+      "manuscript": "2. 书稿信息",
+      "documents": "3. 上传证明文件（PDF / DOCX）"
+    },
+    "fields": {
+      "fullName": {
+        "label": "姓名及学术头衔",
+        "placeholder": "例：张三 教授、博士"
+      },
+      "institution": {
+        "label": "NIDN / NIP / 所属机构",
+        "placeholder": "例：NIDN 0312048501 / 印度尼西亚大学"
+      },
+      "email": {
+        "label": "官方 / 学术邮箱",
+        "placeholder": "author@university.edu.cn"
+      },
+      "phone": {
+        "label": "常用 WhatsApp 号码"
+      },
+      "bookTitle": {
+        "label": "拟定书名 / 专著名称",
+        "placeholder": "完整书名，如有副标题请一并填写……"
+      },
+      "category": {
+        "label": "目标类别"
+      },
+      "synopsis": {
+        "label": "内容简介及学术创新点",
+        "placeholder": "请简要说明研究背景、研究发现的创新之处、预计页数以及目标读者……"
+      },
+      "synopsisFile": {
+        "label": "内容简介及书稿提案文件"
+      },
+      "manuscriptFile": {
+        "label": "书稿完整初稿文件"
+      }
+    },
+    "categoryOptions": {
+      "monograph": "专著",
+      "textbook": "教科书 / 教材",
+      "journal": "学术期刊",
+      "taxation": "税务",
+      "law": "法律与政策",
+      "economics": "经济与商业",
+      "accounting": "会计与审计"
+    },
+    "categoryValues": {
+      "monograph": "专著",
+      "textbook": "教科书",
+      "journal": "期刊",
+      "taxation": "税务",
+      "law": "法律",
+      "economics": "经济",
+      "accounting": "会计"
+    },
+    "upload": {
+      "synopsisPrompt": "拖放文件或点击上传",
+      "synopsisHint": "PDF 或 DOCX（最大 10 MB）",
+      "manuscriptPrompt": "拖放书稿初稿或点击上传",
+      "manuscriptHint": "PDF 或 DOCX（最大 50 MB）"
+    },
+    "terms": "本人郑重声明：所提交的书稿为原创作品，不存在抄袭（Turnitin 相似度指数 < 20%），未曾在其他出版社出版，并愿意接受 CakraNexa 编辑委员会的同行评审。",
+    "submit": "向 CakraNexa 编辑委员会提交书稿",
+    "submitting": "正在向编辑委员会提交书稿……",
+    "errors": {
+      "invalidFileType": "请上传 PDF 或 DOCX 格式的文件。",
+      "termsRequired": "您必须同意书稿原创性声明。"
+    },
+    "success": {
+      "trackingCode": "追踪编号：{{ticket}}",
+      "title": "书稿已成功提交至编辑委员会",
+      "description": "感谢您对 PT Cakrawala Magna Scientia 的信任。您的书稿已进入行政初审和学术同行评审队列。",
+      "recap": {
+        "bookTitle": "书稿标题：",
+        "author": "作者姓名：",
+        "category": "类别：",
+        "manuscriptFile": "书稿文件：",
+        "submittedAt": "提交时间："
+      },
+      "synopsisInline": "直接在表单中填写的简介",
+      "manuscriptViaForm": "通过数字表单提交",
+      "nextStepsTitle": "后续步骤：",
+      "nextStepsDescription": "学术编辑团队将在 3–5 个工作日内通过 WhatsApp/电子邮件向您发送初步评估表和同行评审矩阵。",
+      "whatsappCta": "通过编辑部 WhatsApp 确认",
+      "whatsappMessage": "您好，CakraNexa 编辑委员会：我已提交书稿，追踪编号为 {{ticket}}。请告知后续流程，谢谢。",
+      "submitAnother": "提交其他书稿"
+    }
+  },
+  "guidelines": {
+    "eyebrow": "官方体例规范",
+    "title": "书稿写作指南与格式",
+    "description": "关于排版格式、章节结构、引文格式及学术诚信标准的指南，适用于专著和教科书投稿。",
+    "downloadTemplate": "下载书稿模板（.DOCX）",
+    "layout": {
+      "title": "1. 纸张尺寸、字体与行距",
+      "items": [
+        { "label": "纸张尺寸：", "value": "UNESCO B5（15.5 x 23 厘米）或标准 A4。" },
+        { "label": "页边距：", "value": "左 3.0 厘米，右 2.5 厘米，上 2.5 厘米，下 2.5 厘米。" },
+        { "label": "字体：", "value": "Times New Roman 或 Palatino Linotype，12 磅。" },
+        { "label": "行距与缩进：", "value": "1.5 倍行距，首行缩进 1.27 厘米。" },
+        { "label": "篇幅：", "value": "学术专著不少于 150 页。" }
+      ]
+    },
+    "citation": {
+      "title": "2. 引文格式与文献管理软件",
+      "items": [
+        { "label": "引文标准：", "value": "APA 格式第 7 版（经济与商业、会计）。" },
+        { "label": "法律领域：", "value": "芝加哥格式手册（脚注）。" },
+        { "label": "必备软件：", "value": "使用 Mendeley、Zotero 或 EndNote，以确保元数据一致。" },
+        { "label": "参考文献：", "value": "至少 80% 的参考文献应来自近 10 年内的知名期刊。" }
+      ]
+    },
+    "structure": {
+      "title": "3. 完整图书结构",
+      "items": [
+        { "label": "前置部分：", "value": "内封页、版权页、前言、目录、图表目录。" },
+        { "label": "正文部分：", "value": "第一章（引言与研究背景）、理论综述、讨论与批判性分析、结论与政策建议。" },
+        { "label": "后置部分：", "value": "关键术语表、完整参考文献、主题/人名索引、作者简介。" }
+      ]
+    },
+    "plagiarism": {
+      "title": "4. 反抄袭政策与 Turnitin",
+      "thresholdTitle": "Turnitin 相似度阈值 < 20%",
+      "thresholdDescription": "书稿的相似度指数（similarity index）不得超过 20%，并使用 Turnitin 官方过滤设置：<em>Exclude Bibliography On</em> 和 <em>Exclude Matches &lt; 3 Words</em>。",
+      "note": "不得伪造研究数据、篡改研究结果，亦不得在未规范引用既往作品的情况下自我抄袭。"
+    },
+    "cta": {
+      "title": "您的书稿已符合指南要求？",
+      "description": "立即通过在线平台投稿，由编辑委员会直接评审。",
+      "button": "立即投稿"
+    }
+  },
+  "process": {
+    "eyebrow": "标准工作流程",
+    "title": "出版流程五个阶段",
+    "description": "流程透明、可衡量，秉持高学术标准，并由专业编辑团队全程支持。",
+    "outputLabel": "本阶段成果：",
+    "cta": "开始第 1 阶段：提交您的书稿",
+    "steps": [
+      {
+        "title": "投稿与同行评审",
+        "badge": "7–14 个工作日",
+        "description": "作者通过官方平台提交完整初稿和内容简介。内部团队进行行政审核和 Turnitin 查重，随后由同行评审专家进行实质性评审，以确保学术质量。",
+        "deliverables": ["书稿评估表", "同行评审矩阵", "实质性修改意见"]
+      },
+      {
+        "title": "合同与知识产权",
+        "badge": "2–3 个工作日",
+        "description": "作者与 PT Cakrawala Magna Scientia 签订正式图书出版协议，确定版税方案（10–15%）或机构资助方案，并通过法律与人权部知识产权总局（DJKI）e-Hak Cipta 系统办理著作权登记证书。",
+        "deliverables": ["正式出版协议", "DJKI e-Hak Cipta 登记", "作者精神权利保护"]
+      },
+      {
+        "title": "编辑与排版",
+        "badge": "5–7 个工作日",
+        "description": "资深编辑依据印尼语规范（PUEBI）进行语言编辑，核对法律与税务术语，并按 UNESCO B5 标准完成图书排版。设计团队打造庄重的 3D 编辑风格封面。",
+        "deliverables": ["最终排版稿（B5）", "精装/平装 3D 封面设计", "作者校样确认"]
+      },
+      {
+        "title": "ISBN 与元数据办理",
+        "badge": "3–7 个工作日",
+        "description": "向印度尼西亚国家图书馆（Perpusnas）申请官方 ISBN 及 EAN 条形码，并登记在版编目（CIP）数据和国家元数据，作为经认证学术作品合法性的证明。",
+        "deliverables": ["官方 ISBN 及条形码", "在版编目（CIP）数据", "出版证明函"]
+      },
+      {
+        "title": "印刷与数字发行",
+        "badge": "4–7 个工作日",
+        "description": "采用 72 克高级书纸印制，配以哑光精装/平装豪华装订。依据 2018 年第 13 号法律向国家图书馆呈缴 2 册出版物，随后启动全国发行。",
+        "deliverables": ["高品质印刷图书", "DRM 保护的数字电子书版本", "通过 CakraNexa Store 及书店发行"]
+      }
+    ]
+  },
+  "faq": {
+    "eyebrow": "问与答",
+    "title": "常见问题",
+    "description": "关于 ISBN、版税、出版周期及学术作品著作权的常见问题。",
+    "items": [
+      {
+        "question": "CakraNexa 出版的所有图书都能获得印度尼西亚国家图书馆颁发的官方 ISBN 吗？",
+        "answer": "是的。作为印度尼西亚出版商协会（IKAPI）会员、并在印度尼西亚国家图书馆登记的正式出版商，每一种通过编辑可行性审查的图书均以官方 ISBN 和 EAN 条形码出版。图书的书目数据亦会登记为国家图书馆在版编目（CIP）数据。"
+      },
+      {
+        "question": "从提交书稿到图书出版大约需要多长时间？",
+        "answer": "在书稿被确认完整并获批准后，标准出版周期为 14 至 30 个工作日。具体包括：实质性同行评审（7–14 天）、语言编辑及 B5 排版（5–7 天）、向国家图书馆办理官方 ISBN（3–7 个工作日），以及印刷制作和数字编目。"
+      },
+      {
+        "question": "作者的版税和图书著作权如何安排？",
+        "answer": "学术作品的著作权和精神权利完全归作者所有。版税按图书净售价的 10% 至 15% 透明支付，并每学期提供定期报告。对于机构或企业，亦可根据书面协议采用买断式（outright purchase）出版方案。"
+      },
+      {
+        "question": "CakraNexa 是否提供将硕士/博士学位论文改编为图书的出版服务？",
+        "answer": "是的。我们协助将学位论文改编为可获 DIKTI 学术学分（KUM BKD）的专著。我们的“Book Doctors”团队和专业编辑将帮助您把生硬的报告式文字重构为流畅、易读且具有高学术价值的学术专著。"
+      },
+      {
+        "question": "最低起印量是多少？",
+        "answer": "我们采用现代按需印刷（POD）技术，作者最少可印制 10 册，满足有限需求（如教授就职仪式、博士学位授予或专业认证）。我们也可使用专业胶印设备承接数千册的大批量印刷。"
+      },
+      {
+        "question": "已出版图书的发行和营销覆盖范围如何？",
+        "answer": "图书通过 CakraNexa Store 官方平台、官方电商店铺、高校图书馆目录以及遍布印度尼西亚的合作实体书店网络发行。我们还面向全球读者发行带 DRM 保护的数字电子书。"
+      }
+    ],
+    "help": {
+      "title": "还有其他具体问题？",
+      "description": "请直接与学术编辑部咨询您的书稿或机构需求。",
+      "whatsappCta": "通过 WhatsApp 联系编辑部",
+      "whatsappMessage": "您好，CakraNexa 编辑部：我想咨询图书出版服务。"
+    }
+  }
+}

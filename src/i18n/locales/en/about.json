@@ -1,0 +1,331 @@
+{
+  "hero": {
+    "badge": "ABOUT PT CAKRAWALA MAGNA SCIENTIA",
+    "title": "Publishing Knowledge, <break/><highlight>Building a Scholarly Legacy.</highlight>",
+    "description": "PT Cakrawala Magna Scientia is an Indonesian <em>knowledge enterprise</em> that develops a technology-driven ecosystem for publishing, rights management, learning, and intellectual asset development through <strong>CakraNexa</strong>.",
+    "subdescription": "We exist to build a sustainable knowledge lifecycle—from idea acquisition and publishing to copyright protection and adaptation across generations."
+  },
+  "metrics": {
+    "portfolio": {
+      "label": "Book Portfolio",
+      "value": "21+ Monographs",
+      "note": "Official ISBNs from Perpusnas"
+    },
+    "status": {
+      "label": "Publisher Status",
+      "member": "IKAPI Member",
+      "official": "Official Publisher"
+    },
+    "ethics": {
+      "label": "Ethical Standard",
+      "value": "COPE Standard",
+      "note": "Authoritative Peer Review"
+    },
+    "ecosystem": {
+      "label": "Ecosystem Model",
+      "value": "IP Ecosystem",
+      "note": "Multi-Format & Digital"
+    }
+  },
+  "tabs": {
+    "profile": "Company Profile & Ecosystem",
+    "vision": "Vision & Mission",
+    "team": "Organizational Structure",
+    "legal": "Legal Status & Official Documents"
+  },
+  "differentiator": {
+    "eyebrow": "OUR VISION & DIFFERENTIATOR",
+    "title": "Managing Works as a Long-Term Portfolio",
+    "description": "We believe the value of knowledge keeps growing when it is managed with integrity, technology, and sound governance.",
+    "highlight": "Through <strong>CakraNexa</strong>, a work does not end as a printed book—it continues to evolve into <strong>e-books, audiobooks, training modules, toolkits, institutional licenses, and integrated databases</strong>."
+  },
+  "scope": {
+    "eyebrow": "PORTFOLIO OF CAPABILITIES",
+    "title": "Scope of Activities",
+    "description": "CakraNexa's six operational pillars supporting the dissemination and monetization of academic and professional intellectual works.",
+    "items": {
+      "publishing": {
+        "title": "Publishing & Digital Publication",
+        "description": "Manuscript acquisition, editorial, design, bibliographic metadata, print publication, e-books, and catalogue management."
+      },
+      "academy": {
+        "title": "Education & Training (Academy)",
+        "description": "Development of courses, workshops, training, and learning programs grounded in the expertise of practitioners and academics."
+      },
+      "rights": {
+        "title": "Rights & IP Licensing",
+        "description": "Management of translation, audio, and adaptation rights, library licensing, and the lawful use of works."
+      },
+      "institutional": {
+        "title": "Institutional Solutions",
+        "description": "Strategic partnerships with educational institutions, professional associations, companies, and libraries."
+      },
+      "technology": {
+        "title": "Knowledge Technology",
+        "description": "Responsible application of structured data, discoverability, analytics, and artificial intelligence (AI)."
+      },
+      "authorDevelopment": {
+        "title": "Author Development",
+        "description": "Long-term mentoring and collaboration with authors to advance their scholarly careers."
+      }
+    }
+  },
+  "lifecycle": {
+    "eyebrow": "CYCLICAL PUBLISHING PROCESS",
+    "title": "The Lifecycle of a Work",
+    "description": "A measured, circular workflow ensuring that every work does not stop at printing, but continues to be nurtured and to grow in value.",
+    "continued": "The Cycle Continues",
+    "summary": "<strong>CakraNexa</strong> nurtures published works through metadata updates, revised editions, new licenses, and a readership that expands across generations.",
+    "steps": {
+      "idea": { "name": "Idea", "description": "Idea & research proposal acquisition" },
+      "selection": { "name": "Selection", "description": "Expert panel review" },
+      "editorial": { "name": "Editorial", "description": "Proofreading & citation review" },
+      "production": { "name": "Production", "description": "B5 layout & official ISBN" },
+      "publication": { "name": "Publication", "description": "Official release & legal deposit" },
+      "distribution": { "name": "Distribution", "description": "E-commerce, campuses & libraries" },
+      "licensing": { "name": "Licensing", "description": "Audio, transcripts & institutions" },
+      "renewal": { "name": "Renewal", "description": "Revised editions & research updates" }
+    }
+  },
+  "governance": {
+    "eyebrow": "GOVERNANCE & ETHICS",
+    "title": "Copyright Protection & Publishing Integrity",
+    "items": {
+      "copyright": {
+        "title": "Respect for Copyright (IP)",
+        "description": "Every use of a work—for translation, digitization, or AI technology—is carried out transparently under valid legal agreements."
+      },
+      "editorial": {
+        "title": "Editorial Integrity",
+        "description": "We place emphasis on originality, writing ethics, and reference verification to uphold academic and professional publishing standards."
+      },
+      "continuity": {
+        "title": "Institutional Continuity",
+        "description": "Documentation, source files, metadata, and contracts are managed centrally as institutional assets, ensuring that works remain available for the long term."
+      }
+    }
+  },
+  "entity": {
+    "legalName": {
+      "label": "Official Entity Name",
+      "note": "Limited Liability Company"
+    },
+    "brand": {
+      "label": "Publishing Brand & Platform",
+      "note": "Knowledge Enterprise Ecosystem"
+    },
+    "location": {
+      "label": "Operational Seat",
+      "value": "DKI Jakarta, Indonesia",
+      "note": "Salemba Raya, Central Jakarta"
+    }
+  },
+  "vision": {
+    "header": {
+      "eyebrow": "DIRECTION & SCHOLARLY FOUNDATIONS",
+      "title": "Publishing Knowledge, Building a Legacy",
+      "description": "PT Cakrawala Magna Scientia is building a knowledge ecosystem that goes beyond publishing. We manage knowledge throughout its lifecycle—from idea, publication, learning, renewal, and rights protection to cross-format development and its handing down to future generations."
+    },
+    "statement": {
+      "eyebrow": "OUR OUTLOOK",
+      "title": "Our Vision",
+      "text": "To be a world-class Indonesian knowledge enterprise that builds an intellectual legacy across generations by making every work a knowledge asset that can be discovered, trusted, studied, updated, protected, developed, licensed, and passed on sustainably."
+    },
+    "missions": {
+      "eyebrow": "EIGHT STRATEGIC COMMITMENTS",
+      "title": "Mission",
+      "description": "The operational steps we consistently take to realize CakraNexa's scholarly vision.",
+      "items": [
+        {
+          "title": "Quality Publishing",
+          "description": "Publishing works that are high-quality, credible, relevant, and impactful through professional and accountable selection, editing, production, publication, and quality assurance processes."
+        },
+        {
+          "title": "Knowledge That Stays Alive",
+          "description": "Updating the substance, data, references, metadata, design, and format of works so that knowledge remains relevant as times change and for the next generation of readers."
+        },
+        {
+          "title": "Multiformat Development",
+          "description": "Developing every work into a multiformat knowledge portfolio that may include print books, e-books, audiobooks, courses, toolkits, databases, translations, adaptations, and institutional and technology licenses."
+        },
+        {
+          "title": "Access and Discoverability",
+          "description": "Expanding the visibility and reach of works and authors through quality metadata, structured data, search systems, categories, series, editorial content, semantic search, and recommendation technology."
+        },
+        {
+          "title": "An Ecosystem of Authors, Readers, and Institutions",
+          "description": "Building long-term relationships with authors, readers, professionals, academics, libraries, educational institutions, corporations, resellers, and strategic partners."
+        },
+        {
+          "title": "Protecting Intellectual Assets",
+          "description": "Responsibly protecting and managing copyright, publishing rights, translation, audio, and adaptation rights, digital licenses, AI licenses, contracts, provenance, metadata, source files, and other intellectual assets."
+        },
+        {
+          "title": "Technology and Data",
+          "description": "Using technology, data, analytics, automation, and artificial intelligence responsibly to improve quality, efficiency, access, decision-making, and the company's long-term sustainability."
+        },
+        {
+          "title": "Governance and Succession",
+          "description": "Building governance, documentation, systems, leadership succession, and talent development so that the company can grow across generations without depending on any single individual, vendor, platform, or technology."
+        }
+      ]
+    },
+    "values": {
+      "eyebrow": "CORE VALUES",
+      "title": "The Values That Guide Us",
+      "description": "The principles behind every CakraNexa decision, work, partnership, and innovation.",
+      "items": [
+        {
+          "name": "Intellectual Integrity",
+          "description": "Upholding accuracy, academic honesty, transparency of sources, respect for copyright, and responsibility to our readers."
+        },
+        {
+          "name": "Excellence",
+          "description": "Setting high standards in editorial work, design, production, technology, marketing, author services, and the reader experience."
+        },
+        {
+          "name": "Knowledge Sustainability",
+          "description": "Treating every work as an intellectual asset that can continually be updated, developed, licensed, and passed on."
+        },
+        {
+          "name": "Accessibility & Visibility",
+          "description": "Making quality knowledge ever easier to discover, access, understand, and use."
+        },
+        {
+          "name": "Collaboration",
+          "description": "Building fair, productive, long-term relationships with all stakeholders in the knowledge ecosystem."
+        },
+        {
+          "name": "Responsible Innovation",
+          "description": "Using technology, data, automation, and AI to strengthen quality and access without compromising the integrity of the work."
+        },
+        {
+          "name": "Governance & Accountability",
+          "description": "Ensuring that key processes are documented, measurable, auditable, and carried out under clear lines of authority and responsibility."
+        },
+        {
+          "name": "Succession",
+          "description": "Ensuring that the company's knowledge, competencies, leadership, and systems can be handed on to the next generation."
+        }
+      ]
+    },
+    "pillars": {
+      "eyebrow": "STRATEGIC PILLARS",
+      "title": "CakraNexa's Strategic Pillars",
+      "description": "Six operational pillars that sustain the ecosystem's longevity and excellence.",
+      "items": {
+        "publishing": {
+          "title": "Publishing Excellence",
+          "description": "Building a professional publishing process—from manuscript acquisition, editorial, design, production, and distribution to evaluating the performance of every title."
+        },
+        "lifecycle": {
+          "title": "Knowledge Lifecycle",
+          "description": "Managing works throughout their lifecycle: published, marketed, updated, reformatted, translated, taught, and licensed."
+        },
+        "discoverability": {
+          "title": "Discoverability & Commerce",
+          "description": "Ensuring works can be found and obtained through metadata, search, structured data, categories, series, editorial content, and integrated sales channels."
+        },
+        "community": {
+          "title": "Community & Learning",
+          "description": "Building lasting relationships with readers, authors, professionals, academics, institutions, and libraries through community and learning."
+        },
+        "rights": {
+          "title": "Rights & Intellectual Assets",
+          "description": "Managing rights, contracts, provenance, backlist, metadata, source files, translations, audio, adaptations, and licenses as long-term assets."
+        },
+        "continuity": {
+          "title": "Institutional Continuity",
+          "description": "Building systems, documentation, succession planning, data, governance, security, and diversified revenue so that the company can thrive across generations."
+        }
+      }
+    },
+    "manifesto": {
+      "eyebrow": "KNOWLEDGE ENTERPRISE MANIFESTO",
+      "title": "Knowledge Is More Than a Product",
+      "text": "PT Cakrawala Magna Scientia sees every work not as a one-time product, but as a long-term knowledge asset. A book can keep growing into new editions, e-books, audiobooks, courses, toolkits, databases, translations, institutional licenses, adaptations, and other forms of knowledge use. That is why we build systems that safeguard not only the published work, but also the metadata, contracts, provenance, source files, intellectual property rights, author relationships, and institutional knowledge that come with it."
+    },
+    "collaboration": {
+      "eyebrow": "COLLABORATION & SYNERGY",
+      "title": "Building a Knowledge Legacy Together",
+      "text": "PT Cakrawala Magna Scientia welcomes collaboration with authors, academics, professionals, institutions, libraries, and partners who share our commitment to creating and passing on meaningful knowledge.",
+      "badge": "CakraNexa Long-Term Partnerships"
+    }
+  },
+  "organization": {
+    "title": "Organizational Structure",
+    "caption": "Official Governance and Management Chart of PT Cakrawala Magna Scientia",
+    "roles": {
+      "commissioner": "Commissioner",
+      "director": "Director",
+      "expertBoard": "Expert Advisory Board",
+      "generalHr": "General Affairs & HR Manager",
+      "finance": "Finance Manager",
+      "it": "IT Manager",
+      "publishing": "Publishing Manager",
+      "printing": "Printing Manager"
+    },
+    "duties": {
+      "eyebrow": "ORGANIZATIONAL FUNCTIONS & RESPONSIBILITIES",
+      "title": "Management Roles & Responsibilities",
+      "items": {
+        "commissioner": {
+          "scope": "Oversight & Governance",
+          "description": "Performs general oversight, reviews budget compliance, and ensures that the company consistently applies the principles of Good Corporate Governance."
+        },
+        "director": {
+          "scope": "Executive & Operations",
+          "description": "Leads the implementation of the vision, sets the operational and commercial direction, and coordinates all management lines across the CakraNexa publishing ecosystem."
+        },
+        "expertBoard": {
+          "scope": "Scholarly Counsel",
+          "description": "An independent advisory body that provides counsel on scientific substance, publication ethics, the soundness of research methodology, and strengthening the quality of published monographs."
+        },
+        "generalHr": {
+          "scope": "HR & Administration",
+          "description": "Manages talent development, corporate legal administration, external institutional relations, and office facilities and infrastructure."
+        },
+        "finance": {
+          "scope": "Finance & Fiscal Affairs",
+          "description": "Manages budget planning, cash flow, transparent author royalties, tax compliance, and accountable financial reporting for the company."
+        },
+        "it": {
+          "scope": "Technology & Data Systems",
+          "description": "Develops CakraNexa's digital platform infrastructure, semantic search architecture, structured metadata management, and the company's data security."
+        },
+        "publishing": {
+          "scope": "Editorial & Intellectual Property",
+          "description": "Oversees the manuscript publishing cycle, the editorial process, substantive peer review, scholarly quality assurance, Perpusnas ISBN administration, and copyright governance."
+        },
+        "printing": {
+          "scope": "Physical Production & Supply Chain",
+          "description": "Manages prepress operations, physical printing, binding and paper quality assurance, and the warehousing, logistics, and shipping of books in a measured, well-controlled way."
+        }
+      }
+    }
+  },
+  "legal": {
+    "title": "Legal Documents & Official Corporate Status",
+    "description": "PT Cakrawala Magna Scientia operates lawfully under the laws of the Republic of Indonesia.",
+    "kemenkumham": {
+      "label": "Ministry of Law and Human Rights Approval",
+      "defaultNote": "Notarial Deed & Decree of Approval from the Minister of Law and Human Rights",
+      "fallbackNote": "Notarial Deed of Establishment of a Limited Liability Company"
+    },
+    "nib": {
+      "label": "Business ID Number (NIB)",
+      "defaultNote": "KBLI 58111 (Book Publishing) & KBLI 58130",
+      "fallbackNote": "KBLI 58111 (Book Publishing) & KBLI 58130"
+    },
+    "npwp": {
+      "label": "Company Taxpayer ID (NPWP)",
+      "defaultNote": "Central Jakarta Primary Tax Office (KPP Pratama) • Registered VAT-Collecting Entrepreneur (PKP)",
+      "fallbackNote": "Central Jakarta Primary Tax Office (KPP Pratama) • Registered VAT-Collecting Entrepreneur (PKP)"
+    },
+    "membership": {
+      "label": "Official Publisher Membership",
+      "defaultNote": "Indonesian Publishers Association (IKAPI) & Affiliated with the National Library of Indonesia (Perpusnas)",
+      "fallbackNote": "Indonesian Publishers Association & Affiliated with the National Library of Indonesia (Perpusnas)"
+    }
+  }
+}

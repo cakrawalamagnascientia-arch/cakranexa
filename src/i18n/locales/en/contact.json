@@ -1,0 +1,49 @@
+{
+  "header": {
+    "eyebrow": "CONTACT US • PT CAKRAWALA MAGNA SCIENTIA",
+    "title": "Publishing Consultation, Book Procurement & Academic Partnerships",
+    "subtitle": "Our editorial and marketing teams are ready to assist with manuscript publishing, institutional and library-scale book orders, and research partnerships."
+  },
+  "office": {
+    "title": "Publishing Head Office",
+    "phoneLabel": "WhatsApp & Phone Service",
+    "whatsappEditorial": "{{phone}} (Editorial WhatsApp)",
+    "emailLabel": "Email",
+    "hoursLabel": "Service Hours",
+    "workingHoursDefault": "Monday - Friday: 08:30 - 17:30 WIB | Saturday & Sunday: Closed"
+  },
+  "success": {
+    "title": "We Have Received Your Message",
+    "text": "A PT Cakrawala Magna Scientia representative will respond to your request by email or WhatsApp within 24 business hours."
+  },
+  "form": {
+    "title": "Send a Message or Partnership Request",
+    "subtitle": "Please fill in your contact details and the matter you would like to discuss.",
+    "name": {
+      "label": "Full Name & Academic Title *",
+      "placeholder": "Your full name"
+    },
+    "email": {
+      "label": "Email Address *",
+      "placeholder": "email@institution.ac.id"
+    },
+    "phone": {
+      "label": "WhatsApp / Phone Number *"
+    },
+    "subject": {
+      "label": "Inquiry Topic *",
+      "options": {
+        "libraryProcurement": "Library / Campus Book Procurement",
+        "publishingConsultation": "Book Manuscript Publishing Consultation",
+        "workshopRegistration": "Workshop / Training Registration",
+        "journalPartnership": "Scholarly Journal Partnership",
+        "distributionPartnership": "Distribution / Bookstore Partnership"
+      }
+    },
+    "message": {
+      "label": "Message / Details of Your Request *",
+      "placeholder": "Describe your partnership request, the estimated number of copies to order, or your manuscript needs..."
+    },
+    "submit": "Send Official Message to CakraNexa"
+  }
+}

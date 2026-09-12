@@ -832,45 +832,89 @@ export const DEFAULT_SITE_CONTENT: SiteContentSettings = {
   ],
 
   // 12. Blog & Wawasan Hukum Fiskal
+  // Artikel yang tampil di halaman Blog (sebelumnya tertulis langsung di BlogView).
+  // Terjemahan en/zh tersimpan per artikel di field i18n dan dapat diubah admin di CMS.
   blogArticles: [
     {
       id: 'art-1',
-      title: 'Penerapan Global Minimum Tax Pillar Two: Implikasi Terhadap Insentif Tax Holiday di Indonesia',
-      slug: 'penerapan-global-minimum-tax-pillar-two',
-      author: 'Dr. Henry Dianto P. Sinaga, S.H., M.Kn.',
-      category: 'Perpajakan Internasional',
-      publishDate: '24 Agustus 2026',
-      readTime: '6 Menit Baca',
-      excerpt: 'Analisis komparatif penerapan aturan GloBE 15% terhadap efektivitas insentif perpajakan bagi penanaman modal asing di sektor strategis nasional.',
-      content: 'Penerapan Pilar Dua OECD/G20 yang menetapkan tarif pajak minimum global 15% menjadi tantangan besar bagi negara berkembang seperti Indonesia dalam mempertahankan daya tarik insentif fiskal...',
-      coverImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
-      order: 1
+      title: 'Implikasi Yuridis Penerapan Global Minimum Tax (Pillar Two) bagi Konglomerasi Multinasional di Indonesia',
+      slug: 'implikasi-yuridis-global-minimum-tax-pillar-two',
+      author: 'Dewan Riset Fiskal Magna Scientia',
+      category: 'Analisis Perpajakan',
+      publishDate: '18 Agustus 2026',
+      readTime: '6 menit baca',
+      excerpt: 'Menelaah aturan Qualified Domestic Minimum Top-up Tax (QDMTT) dan kesiapan DJP dalam mengantisipasi pelarian laba lintas batas negara.',
+      content: '',
+      coverImage: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80',
+      order: 1,
+      i18n: {
+        en: {
+          title: 'Legal Implications of the Global Minimum Tax (Pillar Two) for Multinational Conglomerates in Indonesia',
+          category: 'Tax Analysis',
+          readTime: '6 min read',
+          excerpt: "Examining the Qualified Domestic Minimum Top-up Tax (QDMTT) rules and the Directorate General of Taxes' (DJP) readiness to anticipate cross-border profit shifting."
+        },
+        zh: {
+          title: '全球最低税（支柱二）对印度尼西亚跨国企业集团的法律影响',
+          category: '税务分析',
+          readTime: '阅读约6分钟',
+          excerpt: '解读合格国内最低补足税（QDMTT）规则，以及印尼税务总局（DJP）应对跨境利润转移的准备情况。'
+        }
+      }
     },
     {
       id: 'art-2',
-      title: 'Audit Forensik Pengadaan Barang & Jasa di Lingkungan BUMN: Perspektif Hukum Pembuktian',
-      slug: 'audit-forensik-pengadaan-bumn',
-      author: 'Prof. Yuli Teguh Hidayat, M.Si., Ak.',
-      category: 'Audit & Akuntansi Forensik',
-      publishDate: '15 Agustus 2026',
-      readTime: '8 Menit Baca',
-      excerpt: 'Mendeteksi modus operandi fraud pengadaan dan teknik rekonstruksi bukti digital yang memenuhi kriteria pro justitia di persidangan Tipikor.',
-      content: 'Dalam era keterbukaan informasi, metode audit konvensional sering kali tidak memadai untuk mengungkap skema rekayasa penawaran (bid rigging) yang tersembunyi...',
-      coverImage: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80',
-      order: 2
+      title: 'Audit Forensik atas Kecurangan Rekayasa Laba (Earnings Management) pada BUMN Pasca Putusan Mahkamah Agung',
+      slug: 'audit-forensik-rekayasa-laba-bumn',
+      author: 'Klinik Audit Investigasi CakraNexa',
+      category: 'Akuntansi & Hukum',
+      publishDate: '02 Agustus 2026',
+      readTime: '8 menit baca',
+      excerpt: 'Kajian mendalam terhadap batas pemisah antara diskresi akrual manajemen dengan perbuatan melawan hukum yang merugikan keuangan negara.',
+      content: '',
+      coverImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
+      order: 2,
+      i18n: {
+        en: {
+          title: 'Forensic Audit of Earnings Management Fraud at State-Owned Enterprises Following the Supreme Court Ruling',
+          category: 'Accounting & Law',
+          readTime: '8 min read',
+          excerpt: "An in-depth study of the line between management's accrual discretion and unlawful acts that cause losses to state finances."
+        },
+        zh: {
+          title: '最高法院判决后国有企业盈余管理舞弊的法务审计',
+          category: '会计与法律',
+          readTime: '阅读约8分钟',
+          excerpt: '深入探讨管理层应计裁量权与造成国家财政损失的违法行为之间的界限。'
+        }
+      }
     },
     {
       id: 'art-3',
-      title: 'Dinamika Sengketa Pembuktian Faktur Pajak Fiktif dalam Yurisprudensi Pengadilan Pajak',
-      slug: 'dinamika-sengketa-faktur-pajak-fiktif',
-      author: 'Sigit Haryoko, S.H., LL.M.',
+      title: 'Dinamika Pembuktian Beban Bukti Terbalik dalam Sengketa Faktur Pajak Tidak Sah di Pengadilan Pajak',
+      slug: 'beban-bukti-terbalik-faktur-pajak-tidak-sah',
+      author: 'Tim Penulis Monografi Hukum Acara',
       category: 'Hukum Acara Pajak',
-      publishDate: '02 Agustus 2026',
-      readTime: '7 Menit Baca',
-      excerpt: 'Telaah kritis terhadap beban pembuktian iktikad baik (good faith) bagi pembeli Barang Kena Pajak dalam menghadapi koreksi PPN masukan.',
-      content: 'Sengketa faktur pajak yang tidak berdasarkan transaksi sebenarnya (TBTS) terus mendominasi perkara di Pengadilan Pajak dan Mahkamah Agung...',
+      publishDate: '22 Juli 2026',
+      readTime: '5 menit baca',
+      excerpt: 'Menjawab pertentangan antara iktikad baik pembeli (SE-27/PJ/2002) dan Pasal 39A UU KUP dalam praktik peradilan perpajakan teraktual.',
+      content: '',
       coverImage: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
-      order: 3
+      order: 3,
+      i18n: {
+        en: {
+          title: 'The Dynamics of the Reversed Burden of Proof in Invalid Tax Invoice Disputes at the Tax Court',
+          category: 'Tax Procedure Law',
+          readTime: '5 min read',
+          excerpt: "Addressing the conflict between the buyer's good faith (SE-27/PJ/2002) and Article 39A of the General Provisions and Tax Procedures Law (UU KUP) in current tax court practice."
+        },
+        zh: {
+          title: '税务法院无效税务发票争议中举证责任倒置的发展',
+          category: '税务程序法',
+          readTime: '阅读约5分钟',
+          excerpt: '探讨买方善意（SE-27/PJ/2002）与《税收总则与程序法》（UU KUP）第39A条在当前税务司法实践中的冲突。'
+        }
+      }
     }
   ],
 
@@ -889,6 +933,24 @@ function normalizeHeroBranding(raw: any): HeroBrandingSettings {
     tagline: typeof raw.tagline === 'string' ? raw.tagline : defaults.tagline,
     pillars: Array.isArray(raw.pillars) ? raw.pillars : defaults.pillars
   };
+}
+
+// Artikel bawaan CMS versi lama tidak pernah tampil di situs (halaman Blog dulu memakai daftar sendiri).
+// Data tersimpan yang masih berisi artikel bawaan lama itu diganti dengan artikel yang selama ini tampil;
+// artikel yang sudah diubah atau ditambah admin dibiarkan.
+const LEGACY_DEFAULT_BLOG_TITLES = new Set([
+  'Penerapan Global Minimum Tax Pillar Two: Implikasi Terhadap Insentif Tax Holiday di Indonesia',
+  'Audit Forensik Pengadaan Barang & Jasa di Lingkungan BUMN: Perspektif Hukum Pembuktian',
+  'Dinamika Sengketa Pembuktian Faktur Pajak Fiktif dalam Yurisprudensi Pengadilan Pajak'
+]);
+
+export function migrateLegacyBlogArticles(stored: unknown): SiteContentSettings['blogArticles'] {
+  if (!Array.isArray(stored) || stored.length === 0) return DEFAULT_SITE_CONTENT.blogArticles;
+  return stored.map((article) => (
+    LEGACY_DEFAULT_BLOG_TITLES.has(article?.title)
+      ? DEFAULT_SITE_CONTENT.blogArticles.find((item) => item.id === article.id) ?? article
+      : article
+  ));
 }
 
 export function getStoredSiteContent(): SiteContentSettings {
@@ -1012,7 +1074,7 @@ export function getStoredSiteContent(): SiteContentSettings {
           );
           return [...missingTop, ...enrichedParsed];
         })(),
-        blogArticles: parsed.blogArticles || DEFAULT_SITE_CONTENT.blogArticles
+        blogArticles: migrateLegacyBlogArticles(parsed.blogArticles)
       };
     }
   } catch (e) {
@@ -1049,6 +1111,7 @@ export async function fetchSiteContentApi(): Promise<SiteContentSettings | null>
       ...stored,
       ...data,
       heroBranding: normalizeHeroBranding(data.heroBranding ?? stored.heroBranding),
+      blogArticles: migrateLegacyBlogArticles(data.blogArticles ?? stored.blogArticles),
       footer: {
         ...getStoredSiteContent().footer,
         ...(data.footer || {}),

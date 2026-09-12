@@ -1,0 +1,208 @@
+{
+  "hero": {
+    "eyebrow": "WE ARE HIRING • KARIER & KEPEMIMPINAN",
+    "title": "Membangun Pengetahuan, <accent>Mewariskan Peradaban</accent>",
+    "description": "PT Cakrawala Magna Scientia sedang membangun perusahaan pengetahuan yang mampu menerbitkan, memperbarui, melisensikan, mengajarkan, melindungi, dan mewariskan pengetahuan selama beberapa generasi. Kami membuka kesempatan bagi para pemimpin dan profesional berdedikasi tinggi untuk bergabung.",
+    "deadline": "Batas Akhir: 1 September 2026"
+  },
+  "highlight": {
+    "title": "3 Posisi Kepemimpinan Manajerial Utama Tersedia",
+    "priority": "Prioritas",
+    "positions": "1. <strong>Manager Publishing</strong> • 2. <strong>Manajer Marketing</strong> • 3. <strong>Manajer Percetakan</strong>. Lamaran dibuka hingga <strong>1 September 2026</strong>.",
+    "cta": "Lihat 3 Posisi Teratas"
+  },
+  "filters": {
+    "all": "Semua Lowongan ({{total}})",
+    "managerial": "Level Manajerial (3)",
+    "editorial": "Penerbitan & Editorial",
+    "marketing": "Pemasaran & Sales",
+    "printing": "Percetakan & Produksi",
+    "searchPlaceholder": "Cari lowongan / keahlian..."
+  },
+  "job": {
+    "fallbackBadge": "LOWONGAN STRATEGIS TERBARU",
+    "deadline": "Batas Akhir: {{date}}",
+    "deadlineHighlighted": "Batas Akhir: <strong>{{date}}</strong>",
+    "apply": "Lamar Posisi Ini",
+    "hideDetails": "Tutup Rincian",
+    "showDetails": "Lihat Rincian Lengkap",
+    "about": "Tentang Posisi:",
+    "responsibilities": "Tanggung Jawab Utama",
+    "requirements": "Persyaratan Umum",
+    "benefits": "Kami Menawarkan"
+  },
+  "apply": {
+    "title": "Cara Melamar Resmi",
+    "instructions": "Kirimkan surat lamaran, CV terbaru & portofolio Anda ke email:",
+    "copied": "Email Tersalin!",
+    "copy": "Salin Email",
+    "suggestedSubject": "Subjek Email yang disarankan: <strong>{{subject}}</strong>",
+    "defaultSubject": "Lamaran Posisi {{title}} - [Nama Anda]",
+    "sendEmail": "Kirim via Email Aplikasi",
+    "note": "* Catatan: Hanya kandidat yang memenuhi kualifikasi yang akan dihubungi. Lamaran diterima paling lambat <strong>{{date}}</strong>."
+  },
+  "footer": {
+    "title": "Tidak Menemukan Posisi yang Sesuai dengan Keahlian Anda?",
+    "body": "PT Cakrawala Magna Scientia selalu terbuka bagi talenta akademik luar biasa, editor naskah bersertifikasi, reviewer jurnal, dan desainer grafis penerbitan. Kirimkan surat ketertarikan dan portofolio ke <email>hrd@cakranexa.com</email>."
+  },
+  "jobs": {
+    "car-mgr-publishing": {
+      "title": "Manager Publishing",
+      "badge": "WE ARE HIRING!",
+      "department": "Divisi Penerbitan & Operasional Editorial",
+      "type": "Penuh Waktu (Full-time) • Level Manajerial",
+      "location": "Kantor Pusat Jakarta / Hybrid",
+      "deadline": "1 September 2026",
+      "tagline": "Membangun Perusahaan Pengetahuan Lintas Generasi",
+      "quote": "PT Cakrawala Magna Scientia sedang membangun perusahaan pengetahuan yang mampu menerbitkan, memperbarui, melisensikan, mengajarkan, melindungi, dan mewariskan pengetahuan selama beberapa generasi.",
+      "description": "Manajer Publishing bertanggung jawab memimpin strategi dan operasional penerbitan perusahaan, mulai dari perencanaan naskah, pengembangan produk, pengelolaan editorial, produksi, distribusi, hingga penguatan portofolio pengetahuan perusahaan.",
+      "responsibilities": [
+        "Menyusun strategi penerbitan yang sejalan dengan visi perusahaan.",
+        "Memimpin proses akuisisi naskah, editorial, desain, produksi, dan distribusi.",
+        "Mengembangkan portofolio buku, jurnal, modul, dan produk pengetahuan lainnya.",
+        "Menjaga kualitas konten, ketepatan waktu, dan standar mutu penerbitan.",
+        "Membangun jejaring dengan penulis, editor, reviewer, akademisi, dan mitra strategis.",
+        "Memimpin, membina, dan mengembangkan tim publishing secara profesional."
+      ],
+      "requirements": [
+        "Pendidikan minimal S1; diutamakan S2 pada bidang Penerbitan, Bahasa, Sastra, Komunikasi, Pendidikan, atau bidang terkait.",
+        "Berpengalaman minimal 5 tahun di bidang publishing/penerbitan.",
+        "Memiliki pengalaman kepemimpinan minimal 2 tahun pada level manajerial atau setara.",
+        "Memahami alur penerbitan secara menyeluruh: editorial, desain, produksi, distribusi, dan pemasaran.",
+        "Memiliki kemampuan leadership, komunikasi, negosiasi, dan manajemen tim yang sangat baik.",
+        "Berorientasi pada kualitas, detail, inovasi, dan hasil.",
+        "Mampu menganalisis pasar dan peluang pengembangan produk pengetahuan.",
+        "Adaptif, kolaboratif, dan memiliki integritas tinggi."
+      ],
+      "emailSubject": "MANAGER PUBLISHING_NAMA ANDA"
+    },
+    "car-mgr-marketing": {
+      "title": "Manajer Marketing",
+      "badge": "WE'RE HIRING",
+      "department": "Divisi Pemasaran & Penjualan Omnichannel",
+      "type": "Penuh Waktu (Full-time) • Level Manajerial",
+      "location": "Kantor Pusat Jakarta / Hybrid",
+      "deadline": "1 September 2026",
+      "tagline": "Membangun pasar. Menguatkan merek. Memperluas dampak pengetahuan.",
+      "quote": "PT Cakrawala Magna Scientia sedang membangun perusahaan pengetahuan yang mampu menerbitkan, memperbarui, melisensikan, mengajarkan, melindungi, dan mewariskan pengetahuan selama beberapa generasi.",
+      "description": "Memimpin strategi marketing omnichannel, ekspansi kanal D2C, marketplace, kemitraan institusi perpustakaan/universitas, serta peluncuran produk pengetahuan PT Cakrawala Magna Scientia.",
+      "responsibilities": [
+        "Menyusun strategi marketing dan penjualan omnichannel.",
+        "Mengembangkan kanal D2C, marketplace, reseller, institusi, dan kemitraan.",
+        "Memimpin kampanye digital, peluncuran buku, CRM, serta analisis kinerja.",
+        "Membangun tim marketing yang berorientasi target dan reputasi merek."
+      ],
+      "requirements": [
+        "S1 Marketing, Manajemen, Komunikasi, atau bidang relevan.",
+        "Pengalaman minimal 5 tahun di marketing dan 2 tahun memimpin tim.",
+        "Terbukti mencapai target pendapatan dan mengelola anggaran kampanye.",
+        "Menguasai digital marketing, SEO, content, CRM, marketplace, dan analytics.",
+        "Kuat dalam leadership, komunikasi, negosiasi, dan networking.",
+        "Berintegritas, kreatif, data-driven, dan tertarik pada industri pengetahuan.",
+        "Pengalaman di penerbitan, edutech, atau media menjadi nilai tambah."
+      ],
+      "emailSubject": "Lamaran Manajer Marketing – [Nama]"
+    },
+    "car-mgr-percetakan": {
+      "title": "Manajer Percetakan",
+      "badge": "LOWONGAN KERJA",
+      "department": "Divisi Operasional Percetakan & Produksi",
+      "type": "Penuh Waktu (Full-time) • Level Manajerial",
+      "location": "Lokasi Operasional Perusahaan (Unit Percetakan)",
+      "deadline": "1 September 2026",
+      "tagline": "Memimpin, mengelola, dan mengoptimalkan seluruh operasional percetakan untuk menghasilkan produk berkualitas, tepat waktu, dan efisien.",
+      "quote": "Excellence in printing, innovation in every solution. PT Cakrawala Magna Scientia sedang membangun perusahaan pengetahuan yang mampu menerbitkan, memperbarui, melisensikan, mengajarkan, melindungi, dan mewariskan pengetahuan selama beberapa generasi.",
+      "description": "Bertanggung jawab penuh mengendalikan alur operasional cetak (prepress, press, finishing), pemeliharaan armada mesin cetak, serta optimalisasi biaya dan efisiensi produksi.",
+      "responsibilities": [
+        "Merencanakan, mengarahkan, dan mengendalikan seluruh kegiatan operasional percetakan.",
+        "Memastikan kualitas produk sesuai standar perusahaan dan kepuasan pelanggan.",
+        "Mengelola SDM, termasuk rekrutmen, pelatihan, evaluasi kinerja, dan pengembangan tim.",
+        "Mengelola anggaran, biaya produksi, dan meningkatkan efisiensi untuk mencapai target.",
+        "Mengelola perawatan mesin dan memastikan ketersediaan serta kinerja peralatan.",
+        "Mengembangkan proses kerja dan menerapkan inovasi untuk peningkatan produktivitas.",
+        "Berkoordinasi dengan departemen terkait (penjualan, desain, prepress, gudang, keuangan) untuk kelancaran operasional."
+      ],
+      "requirements": [
+        "Pendidikan minimal S1 (Teknik Industri, Teknik Grafika, Manajemen atau bidang terkait).",
+        "Minimal 5 tahun pengalaman di bidang percetakan, dengan minimal 2 tahun pada posisi manajerial.",
+        "Memahami proses cetak (prepress, press, finishing) dan jenis-jenis mesin cetak.",
+        "Mampu memimpin tim, berkomunikasi dengan baik, dan berorientasi pada hasil.",
+        "Menguasai perencanaan produksi, pengendalian biaya, dan manajemen kualitas.",
+        "Mampu bekerja di bawah tekanan dan memenuhi target.",
+        "Menguasai Microsoft Office (Excel, Word, PowerPoint) dan sistem produksi (lebih disukai).",
+        "Bersedia ditempatkan di lokasi operasional perusahaan."
+      ],
+      "benefits": [
+        "Kesempatan berkembang bersama perusahaan",
+        "Lingkungan kerja profesional dan kolaboratif",
+        "Kompensasi kompetitif sesuai pengalaman dan kinerja",
+        "Jaminan kesehatan dan tunjangan lainnya"
+      ],
+      "emailSubject": "Lamaran Manajer Percetakan – Nama Anda"
+    },
+    "car-1": {
+      "title": "Senior Managing Academic Editor (Hukum & Fiskal)",
+      "badge": "EDITORIAL TEAM",
+      "department": "Divisi Penerbitan Ilmiah",
+      "type": "Penuh Waktu (Full-time)",
+      "location": "Jakarta Pusat / Hybrid",
+      "deadline": "31 Oktober 2026",
+      "description": "Menyunting naskah monografi akademik bidang perpajakan, keuangan negara, dan hukum tata kelola.",
+      "requirements": [
+        "Minimal S2 Ilmu Hukum, Perpajakan, atau Akuntansi.",
+        "Pengalaman minimal 3 tahun sebagai editor buku monografi atau jurnal terakreditasi SINTA/Scopus.",
+        "Menguasai gaya selingkung APA 7th, Chicago Manual, dan sitasi digital (Zotero/Mendeley)."
+      ],
+      "emailSubject": "Lamaran Senior Editor – [Nama Anda]"
+    },
+    "car-2": {
+      "title": "Book Production Specialist & Typographer (InDesign UNESCO B5)",
+      "badge": "CREATIVE & GRAPHIC",
+      "department": "Divisi Desain & Produksi Grafis",
+      "type": "Penuh Waktu (Full-time)",
+      "location": "Jakarta Pusat / Remote",
+      "deadline": "15 November 2026",
+      "description": "Merancang tata letak interior buku akademik dan desain sampul 3D berstandar peradaban literasi.",
+      "requirements": [
+        "Keahlian tingkat mahir dalam Adobe InDesign, Photoshop, dan Illustrator.",
+        "Portofolio desain cover buku 3D mewah dan layout buku teks minimal 200 halaman.",
+        "Memahami standar pracetak cetak offset dan digital bookpaper."
+      ],
+      "emailSubject": "Lamaran Typographer & Layout Specialist – [Nama Anda]"
+    },
+    "car-3": {
+      "title": "Academic Community & Institutional Sales Specialist",
+      "badge": "PARTNERSHIP",
+      "department": "Divisi Kemitraan & Perpustakaan",
+      "type": "Penuh Waktu (Full-time)",
+      "location": "Jabodetabek",
+      "deadline": "30 November 2026",
+      "description": "Menjalin kolaborasi strategis dengan perpustakaan universitas dan institusi riset nasional.",
+      "requirements": [
+        "Pengalaman menjalin kemitraan pengadaan buku dengan perpustakaan universitas dan lembaga negara.",
+        "Komunikasi persuasif, pemahaman tentang katalog ISBN nasional dan e-Katalog LKPP."
+      ],
+      "emailSubject": "Lamaran Institutional Sales – [Nama Anda]"
+    }
+  },
+  "cmsJobs": {
+    "car-mgr-marketing": {
+      "description": "Memimpin perencanaan strategi pemasaran terpadu omnichannel, pengembangan kanal D2C, kemitraan institusi, dan peluncuran produk pengetahuan di seluruh lini."
+    },
+    "car-1": {
+      "requirements": [
+        "Pendidikan min. S1/S2 Hukum, Akuntansi, atau Perpajakan",
+        "Pengalaman menyunting buku ilmiah atau jurnal terakreditasi min. 2 tahun",
+        "Memahami format sitasi APA/Chicago style dan standar penulisan UNESCO",
+        "Memiliki ketelitian tinggi dalam tata bahasa baku PUEBI"
+      ]
+    },
+    "car-2": {
+      "requirements": [
+        "Mahir Adobe InDesign, Photoshop, dan Illustrator",
+        "Berpengalaman menata layout buku teks ukuran B5/Royal sesuai standar percetakan",
+        "Portofolio desain sampul buku akademik dan buku fiksi/non-fiksi yang menarik"
+      ]
+    }
+  }
+}

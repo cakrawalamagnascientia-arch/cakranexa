@@ -1,0 +1,208 @@
+{
+  "hero": {
+    "eyebrow": "WE ARE HIRING • CAREERS & LEADERSHIP",
+    "title": "Building Knowledge, <accent>Passing On Civilization</accent>",
+    "description": "PT Cakrawala Magna Scientia is building a knowledge company capable of publishing, updating, licensing, teaching, protecting, and passing on knowledge for generations. We are opening opportunities for highly dedicated leaders and professionals to join us.",
+    "deadline": "Deadline: 1 September 2026"
+  },
+  "highlight": {
+    "title": "3 Key Managerial Leadership Positions Available",
+    "priority": "Priority",
+    "positions": "1. <strong>Publishing Manager</strong> • 2. <strong>Marketing Manager</strong> • 3. <strong>Printing Manager</strong>. Applications are open until <strong>1 September 2026</strong>.",
+    "cta": "View the Top 3 Positions"
+  },
+  "filters": {
+    "all": "All Openings ({{total}})",
+    "managerial": "Managerial Level (3)",
+    "editorial": "Publishing & Editorial",
+    "marketing": "Marketing & Sales",
+    "printing": "Printing & Production",
+    "searchPlaceholder": "Search openings / skills..."
+  },
+  "job": {
+    "fallbackBadge": "LATEST STRATEGIC OPENING",
+    "deadline": "Deadline: {{date}}",
+    "deadlineHighlighted": "Deadline: <strong>{{date}}</strong>",
+    "apply": "Apply for This Position",
+    "hideDetails": "Hide Details",
+    "showDetails": "View Full Details",
+    "about": "About the Role:",
+    "responsibilities": "Key Responsibilities",
+    "requirements": "General Requirements",
+    "benefits": "What We Offer"
+  },
+  "apply": {
+    "title": "How to Apply",
+    "instructions": "Send your cover letter, latest CV & portfolio to:",
+    "copied": "Email Copied!",
+    "copy": "Copy Email",
+    "suggestedSubject": "Suggested email subject: <strong>{{subject}}</strong>",
+    "defaultSubject": "Application for {{title}} - [Your Name]",
+    "sendEmail": "Send via Your Email App",
+    "note": "* Note: Only candidates who meet the qualifications will be contacted. Applications must be received by <strong>{{date}}</strong>."
+  },
+  "footer": {
+    "title": "Can't Find a Position That Matches Your Expertise?",
+    "body": "PT Cakrawala Magna Scientia is always open to exceptional academic talent, certified manuscript editors, journal reviewers, and publishing graphic designers. Send a letter of interest and your portfolio to <email>hrd@cakranexa.com</email>."
+  },
+  "jobs": {
+    "car-mgr-publishing": {
+      "title": "Publishing Manager",
+      "badge": "WE ARE HIRING!",
+      "department": "Publishing & Editorial Operations Division",
+      "type": "Full-time • Managerial Level",
+      "location": "Jakarta Head Office / Hybrid",
+      "deadline": "1 September 2026",
+      "tagline": "Building a Knowledge Company Across Generations",
+      "quote": "PT Cakrawala Magna Scientia is building a knowledge company capable of publishing, updating, licensing, teaching, protecting, and passing on knowledge for generations.",
+      "description": "The Publishing Manager leads the company's publishing strategy and operations, from manuscript planning, product development, and editorial management to production, distribution, and strengthening the company's knowledge portfolio.",
+      "responsibilities": [
+        "Develop a publishing strategy aligned with the company's vision.",
+        "Lead the manuscript acquisition, editorial, design, production, and distribution processes.",
+        "Develop a portfolio of books, journals, modules, and other knowledge products.",
+        "Maintain content quality, timeliness, and publishing quality standards.",
+        "Build networks with authors, editors, reviewers, academics, and strategic partners.",
+        "Lead, mentor, and develop the publishing team professionally."
+      ],
+      "requirements": [
+        "Minimum bachelor's degree (S1); a master's degree (S2) in Publishing, Linguistics, Literature, Communication, Education, or a related field is preferred.",
+        "At least 5 years of experience in publishing.",
+        "At least 2 years of leadership experience at a managerial or equivalent level.",
+        "Thorough understanding of the entire publishing workflow: editorial, design, production, distribution, and marketing.",
+        "Excellent leadership, communication, negotiation, and team management skills.",
+        "Oriented toward quality, detail, innovation, and results.",
+        "Able to analyze the market and opportunities for developing knowledge products.",
+        "Adaptive, collaborative, and of high integrity."
+      ],
+      "emailSubject": "PUBLISHING MANAGER_YOUR NAME"
+    },
+    "car-mgr-marketing": {
+      "title": "Marketing Manager",
+      "badge": "WE'RE HIRING",
+      "department": "Omnichannel Marketing & Sales Division",
+      "type": "Full-time • Managerial Level",
+      "location": "Jakarta Head Office / Hybrid",
+      "deadline": "1 September 2026",
+      "tagline": "Building markets. Strengthening the brand. Expanding the impact of knowledge.",
+      "quote": "PT Cakrawala Magna Scientia is building a knowledge company capable of publishing, updating, licensing, teaching, protecting, and passing on knowledge for generations.",
+      "description": "Lead omnichannel marketing strategy, the expansion of D2C and marketplace channels, partnerships with library and university institutions, and the launch of PT Cakrawala Magna Scientia's knowledge products.",
+      "responsibilities": [
+        "Develop omnichannel marketing and sales strategies.",
+        "Develop D2C, marketplace, reseller, institutional, and partnership channels.",
+        "Lead digital campaigns, book launches, CRM, and performance analysis.",
+        "Build a marketing team focused on targets and brand reputation."
+      ],
+      "requirements": [
+        "Bachelor's degree (S1) in Marketing, Management, Communication, or a relevant field.",
+        "At least 5 years of experience in marketing and 2 years in team leadership.",
+        "Proven track record of meeting revenue targets and managing campaign budgets.",
+        "Proficient in digital marketing, SEO, content, CRM, marketplaces, and analytics.",
+        "Strong in leadership, communication, negotiation, and networking.",
+        "Of high integrity, creative, data-driven, and interested in the knowledge industry.",
+        "Experience in publishing, edtech, or media is a plus."
+      ],
+      "emailSubject": "Application for Marketing Manager – [Name]"
+    },
+    "car-mgr-percetakan": {
+      "title": "Printing Manager",
+      "badge": "JOB OPENING",
+      "department": "Printing & Production Operations Division",
+      "type": "Full-time • Managerial Level",
+      "location": "Company Operational Site (Printing Unit)",
+      "deadline": "1 September 2026",
+      "tagline": "Leading, managing, and optimizing all printing operations to deliver quality products on time and efficiently.",
+      "quote": "Excellence in printing, innovation in every solution. PT Cakrawala Magna Scientia is building a knowledge company capable of publishing, updating, licensing, teaching, protecting, and passing on knowledge for generations.",
+      "description": "Fully responsible for controlling the print operations workflow (prepress, press, finishing), maintaining the printing press fleet, and optimizing production costs and efficiency.",
+      "responsibilities": [
+        "Plan, direct, and control all printing operations.",
+        "Ensure product quality meets company standards and customer satisfaction.",
+        "Manage human resources, including recruitment, training, performance evaluation, and team development.",
+        "Manage budgets and production costs, and improve efficiency to meet targets.",
+        "Manage machine maintenance and ensure equipment availability and performance.",
+        "Develop work processes and implement innovations to increase productivity.",
+        "Coordinate with related departments (sales, design, prepress, warehouse, finance) to ensure smooth operations."
+      ],
+      "requirements": [
+        "Minimum bachelor's degree (S1) in Industrial Engineering, Graphic Arts Engineering, Management, or a related field.",
+        "At least 5 years of experience in printing, including at least 2 years in a managerial position.",
+        "Understanding of the printing process (prepress, press, finishing) and types of printing presses.",
+        "Able to lead a team, communicate well, and focus on results.",
+        "Proficient in production planning, cost control, and quality management.",
+        "Able to work under pressure and meet targets.",
+        "Proficient in Microsoft Office (Excel, Word, PowerPoint) and production systems (preferred).",
+        "Willing to be based at the company's operational site."
+      ],
+      "benefits": [
+        "Opportunities to grow with the company",
+        "A professional and collaborative work environment",
+        "Competitive compensation based on experience and performance",
+        "Health insurance and other allowances"
+      ],
+      "emailSubject": "Application for Printing Manager – Your Name"
+    },
+    "car-1": {
+      "title": "Senior Managing Academic Editor (Law & Fiscal Affairs)",
+      "badge": "EDITORIAL TEAM",
+      "department": "Scholarly Publishing Division",
+      "type": "Full-time",
+      "location": "Central Jakarta / Hybrid",
+      "deadline": "31 October 2026",
+      "description": "Edit academic monograph manuscripts in taxation, public finance, and governance law.",
+      "requirements": [
+        "Minimum master's degree (S2) in Law, Taxation, or Accounting.",
+        "At least 3 years of experience as an editor of monographs or SINTA/Scopus-accredited journals.",
+        "Proficient in APA 7th edition, the Chicago Manual of Style, and digital citation tools (Zotero/Mendeley)."
+      ],
+      "emailSubject": "Application for Senior Editor – [Your Name]"
+    },
+    "car-2": {
+      "title": "Book Production Specialist & Typographer (InDesign UNESCO B5)",
+      "badge": "CREATIVE & GRAPHIC",
+      "department": "Design & Graphic Production Division",
+      "type": "Full-time",
+      "location": "Central Jakarta / Remote",
+      "deadline": "15 November 2026",
+      "description": "Design interior layouts for academic books and 3D covers that meet high literary standards.",
+      "requirements": [
+        "Advanced proficiency in Adobe InDesign, Photoshop, and Illustrator.",
+        "Portfolio of premium 3D book cover designs and textbook layouts of at least 200 pages.",
+        "Understanding of prepress standards for offset and digital printing on bookpaper."
+      ],
+      "emailSubject": "Application for Typographer & Layout Specialist – [Your Name]"
+    },
+    "car-3": {
+      "title": "Academic Community & Institutional Sales Specialist",
+      "badge": "PARTNERSHIP",
+      "department": "Partnerships & Libraries Division",
+      "type": "Full-time",
+      "location": "Greater Jakarta (Jabodetabek)",
+      "deadline": "30 November 2026",
+      "description": "Build strategic collaborations with university libraries and national research institutions.",
+      "requirements": [
+        "Experience building book procurement partnerships with university libraries and government agencies.",
+        "Persuasive communication skills and knowledge of the national ISBN catalog and the LKPP e-Catalog (government procurement)."
+      ],
+      "emailSubject": "Application for Institutional Sales – [Your Name]"
+    }
+  },
+  "cmsJobs": {
+    "car-mgr-marketing": {
+      "description": "Lead integrated omnichannel marketing strategy planning, D2C channel development, institutional partnerships, and knowledge product launches across all lines."
+    },
+    "car-1": {
+      "requirements": [
+        "Minimum bachelor's/master's degree (S1/S2) in Law, Accounting, or Taxation",
+        "At least 2 years of experience editing scholarly books or accredited journals",
+        "Familiar with APA/Chicago citation styles and UNESCO writing standards",
+        "Highly meticulous in standard Indonesian grammar (PUEBI)"
+      ]
+    },
+    "car-2": {
+      "requirements": [
+        "Proficient in Adobe InDesign, Photoshop, and Illustrator",
+        "Experienced in laying out B5/Royal-size textbooks to printing standards",
+        "An attractive portfolio of academic and fiction/non-fiction book cover designs"
+      ]
+    }
+  }
+}

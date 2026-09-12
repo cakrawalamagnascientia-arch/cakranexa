@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react';
 import { INITIAL_BOOKS, withLocalBookCover } from './data/booksData';
 import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthors, authorNameKey } from './data/authorsData';
 import { Book, CartItem, Order, ActivePage, SubSection, BookCategory, SeoSettings, SiteContentSettings, Author } from './types';
 import { apiClient, ApiError } from './services/apiClient';
-import { parseLocation, pushRoute, RouteState } from './utils/router';
+import { parseLocation, pushRoute, RouteState, languageFromLocation, replaceLanguageInUrl } from './utils/router';
 import { AdminLoginGate } from './components/AdminLoginGate';
 import { useSeoMetadata } from './hooks/useSeoMetadata';
 import { getStoredSeoSettings, fetchSeoSettingsApi } from './services/seoService';
-import { getStoredSiteContent, saveStoredSiteContent, fetchSiteContentApi, saveSiteContentApi } from './services/siteContentService';
+import { DEFAULT_SITE_CONTENT, getStoredSiteContent, saveStoredSiteContent, fetchSiteContentApi, saveSiteContentApi } from './services/siteContentService';
 import { initTracking, trackPageView, trackViewContent, trackAddToCart } from './services/trackingService';
 import { toTitleCase } from './utils/formatters';
 
@@ -38,7 +39,24 @@ import { AuthorDetailView } from './components/AuthorDetailView';
 import { ScrollReveal } from './components/ScrollReveal';
 import { ScrollProgress } from './components/ScrollProgress';
 import { isAdminAuthenticated } from './services/adminAuth';
-import { useLanguage } from './i18n';
+import i18n, { changeAppLanguage, getCurrentLanguage, isAppLanguage } from './i18n/index';
+import { useBookText, useCategoryLabel, useCmsText } from './i18n/hooks';
+
+// Label halaman pada sub-header (common:subheader.pages.*); halaman lain memakai slug apa adanya.
+type SubheaderPageKey = 'katalog' | 'katalogDetail' | 'penerbitan' | 'pelatihan' | 'jurnal' | 'tentangKami' | 'blog' | 'career' | 'karir' | 'checkout' | 'kontak';
+const SUBHEADER_PAGE_KEYS: Partial<Record<ActivePage, SubheaderPageKey>> = {
+  katalog: 'katalog',
+  'katalog-detail': 'katalogDetail',
+  penerbitan: 'penerbitan',
+  pelatihan: 'pelatihan',
+  jurnal: 'jurnal',
+  'tentang-kami': 'tentangKami',
+  blog: 'blog',
+  career: 'career',
+  karir: 'karir',
+  checkout: 'checkout',
+  kontak: 'kontak'
+};
 
 /** Mengubah baris Supabase (snake_case + order_items) atau objek in-memory server menjadi Order frontend */
 function mapServerOrder(r: any, books: Book[]): Order {
@@ -74,15 +92,19 @@ function mapServerOrder(r: any, books: Book[]): Order {
     trackingNumber: r.tracking_number || undefined,
     paymentProofUrl: r.payment_proof_url || undefined,
     createdAt: r.created_at,
-    serverSynced: true
+    serverSynced: true,
+    language: r.language || undefined
   };
 }
 
 const serverErrorMessage = (err: unknown): string =>
-  err instanceof ApiError ? err.message : 'Server tidak dapat dihubungi. Coba lagi beberapa saat.';
+  err instanceof ApiError ? err.message : i18n.t('errors:serverUnreachable');
 
 export default function App() {
-  const { t } = useLanguage();
+  const { t } = useTranslation(['common', 'home', 'errors']);
+  const categoryLabel = useCategoryLabel();
+  const cmsText = useCmsText();
+  const bookText = useBookText();
   // Field bawaan hanya mengisi yang belum ada; harga 0 / sinopsis kosong dari admin tetap dihormati.
   const withSeedDefaults = (book: Book): Book => {
     const initial = INITIAL_BOOKS.find((item) => item.id === book.id);
@@ -355,6 +377,18 @@ export default function App() {
     }
   }, [pendingBookSlug, books]);
 
+  // Prefix bahasa di URL (/en, /zh) mengikuti bahasa aktif. Dijalankan sebelum sinkronisasi rute di bawah
+  // agar kunjungan ulang dengan bahasa tersimpan (atau ?lang=) langsung memakai URL berprefiks tanpa
+  // menambah riwayat. Mengganti bahasa mengganti prefix URL halaman saat ini.
+  useEffect(() => {
+    replaceLanguageInUrl(getCurrentLanguage());
+    const onLanguageChanged = (language: string) => {
+      if (isAppLanguage(language)) replaceLanguageInUrl(language);
+    };
+    i18n.on('languageChanged', onLanguageChanged);
+    return () => i18n.off('languageChanged', onLanguageChanged);
+  }, []);
+
   // Sinkronkan state -> URL (History API) agar bisa di-refresh, dibagikan, dan di-crawl
   useEffect(() => {
     if (pendingBookSlug) return; // tunggu resolve
@@ -371,6 +405,9 @@ export default function App() {
   // Tombol Back/Forward browser
   useEffect(() => {
     const onPopState = () => {
+      // Back/Forward ke URL berbahasa lain: ikuti bahasa di URL.
+      const urlLanguage = languageFromLocation();
+      if (urlLanguage !== getCurrentLanguage()) void changeAppLanguage(urlLanguage);
       const route = parseLocation();
       setActivePage(route.page);
       setActiveSubSection(route.subSection ?? null);
@@ -576,7 +613,7 @@ export default function App() {
   // Cart operations
   const handleAddToCart = (book: Book, quantity: number = 1) => {
     if (!(Number(book.harga) > 0)) {
-      showNotification(`"${toTitleCase(book.title || book.name)}" segera terbit — harga belum ditetapkan.`);
+      showNotification(t('toast.forthcomingNoPrice', { title: bookText.title(book) }));
       return;
     }
     setCart((prev) => {
@@ -591,7 +628,7 @@ export default function App() {
       return [...prev, { book, quantity }];
     });
     trackAddToCart(book, quantity);
-    showNotification(`"${toTitleCase(book.title || book.name)}" ditambahkan ke keranjang belanja.`);
+    showNotification(t('toast.addedToCart', { title: bookText.title(book) }));
   };
 
   const handleUpdateCartQuantity = (bookId: string, delta: number) => {
@@ -610,12 +647,12 @@ export default function App() {
 
   const handleRemoveFromCart = (bookId: string) => {
     setCart((prev) => prev.filter((item) => item.book.id !== bookId));
-    showNotification('Item dihapus dari keranjang.');
+    showNotification(t('toast.removedFromCart'));
   };
 
   const handleBuyNow = (book: Book) => {
     if (!(Number(book.harga) > 0)) {
-      showNotification(`"${toTitleCase(book.title || book.name)}" segera terbit — harga belum ditetapkan.`);
+      showNotification(t('toast.forthcomingNoPrice', { title: bookText.title(book) }));
       return;
     }
     trackAddToCart(book, 1);
@@ -641,7 +678,7 @@ export default function App() {
         }
       }).catch((err) => {
         console.warn('Order tidak tersinkron ke backend:', err);
-        showNotification(`Pesanan tersimpan lokal, namun gagal tersinkron ke server: ${err instanceof ApiError ? err.message : 'backend offline'}`);
+        showNotification(t('toast.orderSyncFailed', { reason: err instanceof ApiError ? err.message : t('errors:backendOffline') }));
       });
     }
     // If it was from regular cart, clear cart
@@ -654,7 +691,7 @@ export default function App() {
   const handleUpdateOrder = (updatedOrder: Order) => {
     setOrders((prev) => prev.map((o) => (o.id === updatedOrder.id ? updatedOrder : o)));
     apiClient.updateOrder(updatedOrder).catch((err) => {
-      showNotification(err instanceof ApiError ? `Gagal update pesanan di server: ${err.message}` : 'Update pesanan tersimpan lokal (backend offline).');
+      showNotification(err instanceof ApiError ? t('toast.orderUpdateFailed', { message: err.message }) : t('toast.orderUpdateOffline'));
     });
   };
 
@@ -713,7 +750,7 @@ export default function App() {
     syncBookToServer(toggled).then((error) => {
       if (!error) return;
       setBooks((prev) => prev.map((b) => (b.id === id ? target : b))); // batalkan perubahan
-      showNotification(`Gagal memperbarui buku di server: ${error}`);
+      showNotification(t('toast.bookUpdateFailed', { message: error }));
     });
   };
 
@@ -758,7 +795,10 @@ export default function App() {
 
   const syncAuthorToServer = (author: Author, verb: string, operation: 'create' | 'update') => {
     apiClient.saveAuthor(author, operation).catch((err) => {
-      showNotification(err instanceof ApiError ? `Gagal ${verb} penulis di server: ${err.message}` : `Penulis ${verb} lokal saja (backend offline).`);
+      // Teks dipilih per operasi (create/update) agar bisa diterjemahkan; `verb` dipertahankan demi kompatibilitas pemanggil.
+      showNotification(err instanceof ApiError
+        ? t(`toast.authorSync.${operation}Failed` as const, { message: err.message })
+        : t(`toast.authorSync.${operation}Offline` as const));
     });
   };
 
@@ -817,6 +857,17 @@ export default function App() {
 
   const cartTotalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
+  const subheaderPageKey = SUBHEADER_PAGE_KEYS[activePage];
+  const subheaderPageLabel = subheaderPageKey ? t(`subheader.pages.${subheaderPageKey}` as const) : activePage.replace('-', ' ');
+
+  // Teks section beranda dari CMS; nilai kosong jatuh ke teks bawaan (terjemahan home:sections.*).
+  const homeSectionText = (sectionId: string, field: 'badge' | 'title' | 'subtitle', translated: string): string =>
+    cmsText(
+      siteContent.homeSections?.find((s) => s.id === sectionId)?.[field] || undefined,
+      DEFAULT_SITE_CONTENT.homeSections.find((s) => s.id === sectionId)?.[field],
+      translated
+    );
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#1E293B] flex flex-col font-sans selection:bg-[#DFBF64] selection:text-[#0F172A]">
       
@@ -850,16 +901,16 @@ export default function App() {
               id="btn-universal-back-step"
               onClick={handleGoBack}
               className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#0F172A] bg-slate-100 hover:bg-slate-200/90 px-3.5 py-1.5 rounded-lg border border-slate-300 transition-all cursor-pointer group shadow-xs"
-              title="Kembali ke halaman sebelumnya"
+              title={t('subheader.backTitle')}
             >
               <ArrowLeft className="w-4 h-4 text-[#DFBF64] group-hover:-translate-x-1 transition-transform" />
-              <span>Kembali ke Halaman Sebelumnya</span>
+              <span>{t('subheader.backLabel')}</span>
             </button>
 
             <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-              <span className="hidden sm:inline">{t('catalog')}:</span>
+              <span className="hidden sm:inline">{t('subheader.sectionLabel')}</span>
               <span className="font-semibold text-slate-800 uppercase tracking-wide bg-slate-100 px-2.5 py-0.5 rounded text-[11px] font-mono border border-slate-200">
-                {selectedAuthor ? 'Detail Penulis' : selectedBook ? 'Detail Buku' : activeSubSection === 'penulis' ? 'Penulis Kontributor' : activePage.replace('-', ' ')}
+                {selectedAuthor ? t('subheader.authorDetail') : selectedBook ? t('subheader.bookDetail') : activeSubSection === 'penulis' ? t('subheader.contributingAuthors') : subheaderPageLabel}
               </span>
             </div>
           </div>
@@ -889,9 +940,9 @@ export default function App() {
             {(siteContent.bestSellerSection?.isEnabled ?? true) && (
               <ScrollReveal direction="up" distance={20} duration={0.6}>
                 <BestSellerTicker
-                  badge={siteContent.bestSellerSection?.badge || 'MONOGRAFI BEST SELLER AKADEMIK'}
-                  title={siteContent.bestSellerSection?.title || 'Koleksi Buku Terlaris Rujukan Pakar, Dosen, & Praktisi'}
-                  subtitle={siteContent.bestSellerSection?.subtitle || 'Deretan monografi ilmiah ber-ISBN dengan tingkat adopsi kurikulum dan sitasi tertinggi.'}
+                  badge={cmsText(siteContent.bestSellerSection?.badge || undefined, DEFAULT_SITE_CONTENT.bestSellerSection.badge, t('home:bestSeller.badge'))}
+                  title={cmsText(siteContent.bestSellerSection?.title || undefined, DEFAULT_SITE_CONTENT.bestSellerSection.title, t('home:bestSeller.title'))}
+                  subtitle={cmsText(siteContent.bestSellerSection?.subtitle || undefined, DEFAULT_SITE_CONTENT.bestSellerSection.subtitle, t('home:bestSeller.subtitle'))}
                   speedSeconds={siteContent.bestSellerSection?.speed === 'fast' ? 18 : siteContent.bestSellerSection?.speed === 'slow' ? 40 : 28}
                   books={books}
                   customBookIds={siteContent.bestSellerSection?.customBookIds}
@@ -922,9 +973,9 @@ export default function App() {
               <ScrollReveal direction="up" distance={24} duration={0.65}>
                 <BookCarousel
                   id="carousel-preview-kategori"
-                  badge={siteContent.homeSections?.find(s => s.id === 'sec-carousel-kategori')?.badge || 'Preview Kategori'}
-                  title={siteContent.homeSections?.find(s => s.id === 'sec-carousel-kategori')?.title || 'Kategori Monografi Akademik'}
-                  subtitle={siteContent.homeSections?.find(s => s.id === 'sec-carousel-kategori')?.subtitle || 'Eksplorasi literatur hukum, perpajakan, dan akuntansi berdasarkan disiplin ilmu'}
+                  badge={homeSectionText('sec-carousel-kategori', 'badge', t('home:sections.categories.badge'))}
+                  title={homeSectionText('sec-carousel-kategori', 'title', t('home:sections.categories.title'))}
+                  subtitle={homeSectionText('sec-carousel-kategori', 'subtitle', t('home:sections.categories.subtitle'))}
                   books={books}
                   categories={['Perpajakan', 'Akuntansi', 'Hukum', 'Ekonomi & Bisnis', 'Filsafat', 'Teologia']}
                   selectedCategory={homeCategoryPreview}
@@ -938,7 +989,7 @@ export default function App() {
                     }
                     navigateTo('katalog');
                   }}
-                  viewMoreText={homeCategoryPreview && homeCategoryPreview !== 'all' ? `Lihat Kategori ${homeCategoryPreview} di Katalog` : 'Lihat Semua Kategori di Katalog'}
+                  viewMoreText={homeCategoryPreview && homeCategoryPreview !== 'all' ? t('home:carousel.viewCategory', { category: categoryLabel(homeCategoryPreview) }) : t('home:carousel.viewAllCategories')}
                 />
               </ScrollReveal>
             )}
@@ -948,9 +999,9 @@ export default function App() {
               <ScrollReveal direction="up" distance={24} duration={0.65}>
                 <BookCarousel
                   id="carousel-preview-terbaru"
-                  badge={siteContent.homeSections?.find(s => s.id === 'sec-carousel-terbaru')?.badge || 'Rilis Terkini'}
-                  title={siteContent.homeSections?.find(s => s.id === 'sec-carousel-terbaru')?.title || 'Preview Buku Terbaru'}
-                  subtitle={siteContent.homeSections?.find(s => s.id === 'sec-carousel-terbaru')?.subtitle || 'Monografi akademik dan buku teks terbaru dengan telaah riset terkini'}
+                  badge={homeSectionText('sec-carousel-terbaru', 'badge', t('home:sections.latest.badge'))}
+                  title={homeSectionText('sec-carousel-terbaru', 'title', t('home:sections.latest.title'))}
+                  subtitle={homeSectionText('sec-carousel-terbaru', 'subtitle', t('home:sections.latest.subtitle'))}
                   books={(() => {
                     const latest = (books || []).filter(b => {
                       if (b?.bukuTerbaru) return true;
@@ -980,7 +1031,7 @@ export default function App() {
                     setCatalogCategory('all');
                     navigateTo('katalog');
                   }}
-                  viewMoreText="Lihat Koleksi Buku Terbaru"
+                  viewMoreText={t('home:carousel.viewLatest')}
                 />
               </ScrollReveal>
             )}
@@ -990,9 +1041,9 @@ export default function App() {
               <ScrollReveal direction="up" distance={24} duration={0.65}>
                 <BookCarousel
                   id="carousel-preview-semua"
-                  badge={siteContent.homeSections?.find(s => s.id === 'sec-carousel-semua')?.badge || 'Katalog Lengkap'}
-                  title={siteContent.homeSections?.find(s => s.id === 'sec-carousel-semua')?.title || 'Preview Semua Buku Terbitan'}
-                  subtitle={siteContent.homeSections?.find(s => s.id === 'sec-carousel-semua')?.subtitle || `Seluruh ${books.length} monografi akademik dan buku teks ber-ISBN resmi Perpustakaan Nasional`}
+                  badge={homeSectionText('sec-carousel-semua', 'badge', t('home:sections.all.badge'))}
+                  title={homeSectionText('sec-carousel-semua', 'title', t('home:sections.all.title'))}
+                  subtitle={homeSectionText('sec-carousel-semua', 'subtitle', t('home:sections.all.subtitle', { count: books.length }))}
                   books={books}
                   onSelectBook={handleSelectBook}
                   onAddToCart={(b) => handleAddToCart(b, 1)}
@@ -1001,7 +1052,7 @@ export default function App() {
                     setCatalogCategory('all');
                     navigateTo('katalog');
                   }}
-                  viewMoreText={`Jelajahi Semua ${books.length} Buku di Katalog`}
+                  viewMoreText={t('home:carousel.exploreAll', { count: books.length })}
                 />
               </ScrollReveal>
             )}
@@ -1075,7 +1126,7 @@ export default function App() {
 
         {/* VIEW 7: BLOG / COMMENTARY */}
         {activePage === 'blog' && (
-          <BlogView />
+          <BlogView articles={siteContent.blogArticles} />
         )}
 
         {/* VIEW 8: KARIR */}
@@ -1123,7 +1174,7 @@ export default function App() {
                 cartItems={directBookBuy ? [directBookBuy] : cart}
                 onOrderCompleted={(order) => {
                   handleOrderSuccess(order);
-                  showNotification(`Pesanan #${order.orderNumber} berhasil dicatat. Terima kasih!`);
+                  showNotification(t('toast.orderRecorded', { orderNumber: order.orderNumber }));
                 }}
                 onCancel={() => {
                   setDirectBookBuy(null);

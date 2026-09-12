@@ -15,8 +15,10 @@ import {
   ExternalLink,
   X
 } from 'lucide-react';
+import { Trans, useTranslation } from 'react-i18next';
 import { AcademicModule, SiteContentSettings } from '../types';
-import { getStoredSiteContent } from '../services/siteContentService';
+import { DEFAULT_SITE_CONTENT, getStoredSiteContent } from '../services/siteContentService';
+import { useCmsText } from '../i18n/hooks';
 
 const defaultAcademicModules: AcademicModule[] = [
   {
@@ -171,11 +173,24 @@ const defaultAcademicModules: AcademicModule[] = [
   }
 ];
 
+// Field modul yang ditampilkan dan punya terjemahan (training.json: modules.<id> dan cmsModules.<id>).
+type ModuleTextField = 'title' | 'subtitle' | 'badge' | 'duration' | 'format' | 'schedule' | 'investment' | 'targetAudience';
+type ModuleListField = 'curriculum' | 'facilities';
+type ModuleCopy = Partial<Pick<AcademicModule, ModuleTextField | ModuleListField>>;
+type ModuleCopyMap = Record<string, ModuleCopy | undefined>;
+
+const MODULE_TEXT_FIELDS: ModuleTextField[] = ['title', 'subtitle', 'badge', 'duration', 'format', 'schedule', 'investment', 'targetAudience'];
+const MODULE_LIST_FIELDS: ModuleListField[] = ['curriculum', 'facilities'];
+
+const sameList = (a: string[], b: string[]) => a.length === b.length && a.every((value, i) => value === b[i]);
+
 interface PelatihanViewProps {
   siteContent?: SiteContentSettings;
 }
 
 export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propContent }) => {
+  const { t } = useTranslation('training');
+  const cmsText = useCmsText();
   const [content, setContent] = useState<SiteContentSettings>(() => propContent || getStoredSiteContent());
 
   useEffect(() => {
@@ -214,6 +229,38 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
     return m.category === activeCategory;
   });
 
+  // Konten modul berasal dari CMS (bawaan Bahasa Indonesia). Teks yang masih sama dengan bawaan komponen
+  // atau DEFAULT_SITE_CONTENT ditampilkan dari file terjemahan; teks yang sudah diubah admin tampil apa adanya.
+  const moduleCopy = t('modules', { returnObjects: true }) as ModuleCopyMap;
+  const cmsModuleCopy = t('cmsModules', { returnObjects: true }) as ModuleCopyMap;
+
+  const localizeModule = (item: AcademicModule): AcademicModule => {
+    const variants: Array<[AcademicModule | undefined, ModuleCopy | undefined]> = [
+      [defaultAcademicModules.find((m) => m.id === item.id), moduleCopy?.[item.id]],
+      [DEFAULT_SITE_CONTENT.academicModules?.find((m) => m.id === item.id), cmsModuleCopy?.[item.id]]
+    ];
+    const localized: AcademicModule = { ...item };
+    for (const field of MODULE_TEXT_FIELDS) {
+      const value = item[field];
+      if (!value) continue;
+      const match = variants.find(([source, copy]) => source?.[field] === value && typeof copy?.[field] === 'string');
+      if (match) localized[field] = cmsText(value, value, match[1]![field]!);
+    }
+    for (const field of MODULE_LIST_FIELDS) {
+      const value = item[field];
+      if (!Array.isArray(value) || value.length === 0) continue;
+      const match = variants.find(([source, copy]) => {
+        const defaults = source?.[field];
+        const translated = copy?.[field];
+        return !!defaults && Array.isArray(translated) && sameList(value, defaults) && translated.length === value.length;
+      });
+      if (match) localized[field] = value.map((entry, i) => cmsText(entry, entry, match[1]![field]![i]));
+    }
+    return localized;
+  };
+
+  const selectedModuleView = selectedModuleForReg ? localizeModule(selectedModuleForReg) : null;
+
   const handleRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedModuleForReg) return;
@@ -246,29 +293,29 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
         <div className="relative z-10 max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[#D4AF37] text-xs font-semibold tracking-wider uppercase">
             <GraduationCap className="w-3.5 h-3.5" />
-            <span>CAKRANEXA ACADEMY & EXECUTIVE EDUCATION</span>
+            <span>{t('hero.eyebrow')}</span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white leading-tight">
-            Program Pelatihan & Pengembangan Keilmuan CakraNexa Academy
+            {t('hero.title')}
           </h1>
 
           <p className="text-slate-300 text-xs sm:text-sm font-normal leading-relaxed">
-            Meningkatkan kapasitas akademisi dan praktisi melalui workshop penulisan ilmiah, manajemen riset, serta sertifikasi keahlian.
+            {t('hero.subtitle')}
           </p>
 
           <div className="pt-3 flex flex-wrap items-center gap-4 text-xs text-slate-300">
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-[#D4AF37]" />
-              <span>Sertifikat Resmi Bernilai KUM (32 JP)</span>
+              <span>{t('hero.highlights.certificate')}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Users className="w-4 h-4 text-[#D4AF37]" />
-              <span>Instruktur Dewan Riset & Pakar Senior</span>
+              <span>{t('hero.highlights.instructors')}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Award className="w-4 h-4 text-[#D4AF37]" />
-              <span>Kurikulum Selaras Standar DIKTI & DJKI</span>
+              <span>{t('hero.highlights.curriculum')}</span>
             </div>
           </div>
         </div>
@@ -277,16 +324,16 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
       {/* Category Filter Tabs */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 pb-4 gap-3">
         <div>
-          <span className="text-[11px] font-bold tracking-widest text-[#D4AF37] uppercase">Modul Keilmuan</span>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Kurikulum Pelatihan Terakreditasi</h2>
+          <span className="text-[11px] font-bold tracking-widest text-[#D4AF37] uppercase">{t('catalog.eyebrow')}</span>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900">{t('catalog.title')}</h2>
         </div>
 
         <div className="flex flex-wrap gap-1.5">
           {[
-            { id: 'all', label: 'Semua Program (6)' },
-            { id: 'penulisan', label: 'Penulisan & Publikasi' },
-            { id: 'riset', label: 'Metodologi Riset' },
-            { id: 'hukum', label: 'Hukum & Perpajakan' }
+            { id: 'all', label: t('categories.all') },
+            { id: 'penulisan', label: t('categories.penulisan') },
+            { id: 'riset', label: t('categories.riset') },
+            { id: 'hukum', label: t('categories.hukum') }
           ].map((cat) => (
             <button
               key={cat.id}
@@ -307,7 +354,8 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
       {/* B. INTERACTIVE ACCORDION / EXPANDABLE LIST                          */}
       {/* =================================================================== */}
       <div className="space-y-4">
-        {filteredModules.map((item) => {
+        {filteredModules.map((rawItem) => {
+          const item = localizeModule(rawItem);
           const isExpanded = expandedModule === item.id;
 
           return (
@@ -350,13 +398,13 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
 
                 <div className="flex items-center gap-3 self-end sm:self-center">
                   <div className="text-right hidden md:block">
-                    <span className="text-[10px] text-slate-400 block font-medium">Investasi:</span>
+                    <span className="text-[10px] text-slate-400 block font-medium">{t('module.investmentLabel')}</span>
                     <span className="text-xs font-mono font-bold text-emerald-600">{item.investment}</span>
                   </div>
 
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center border transition-all ${
-                    isExpanded 
-                      ? 'bg-[#0F172A] border-[#0F172A] text-white rotate-180' 
+                    isExpanded
+                      ? 'bg-[#0F172A] border-[#0F172A] text-white rotate-180'
                       : 'bg-slate-50 border-slate-200 text-slate-500'
                   }`}>
                     <ChevronDown className="w-4 h-4" />
@@ -367,11 +415,11 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
               {/* Accordion Expanded Content */}
               {isExpanded && (
                 <div className="px-5 sm:px-6 pb-6 pt-2 border-t border-slate-100 bg-slate-50/50 space-y-6 animate-in fade-in duration-150">
-                  
+
                   {/* Meta Bar */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-white p-4 rounded-xl border border-slate-200 text-xs">
                     <div>
-                      <span className="text-[10px] text-slate-400 uppercase font-semibold block mb-0.5">Jadwal Terdekat</span>
+                      <span className="text-[10px] text-slate-400 uppercase font-semibold block mb-0.5">{t('module.nextSchedule')}</span>
                       <div className="flex items-center gap-1.5 text-slate-800 font-medium">
                         <Calendar className="w-3.5 h-3.5 text-[#D4AF37]" />
                         <span>{item.schedule}</span>
@@ -379,7 +427,7 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
                     </div>
 
                     <div>
-                      <span className="text-[10px] text-slate-400 uppercase font-semibold block mb-0.5">Durasi Jam</span>
+                      <span className="text-[10px] text-slate-400 uppercase font-semibold block mb-0.5">{t('module.duration')}</span>
                       <div className="flex items-center gap-1.5 text-slate-800 font-medium">
                         <Clock className="w-3.5 h-3.5 text-[#D4AF37]" />
                         <span>{item.duration}</span>
@@ -387,7 +435,7 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
                     </div>
 
                     <div>
-                      <span className="text-[10px] text-slate-400 uppercase font-semibold block mb-0.5">Metode Pelaksanaan</span>
+                      <span className="text-[10px] text-slate-400 uppercase font-semibold block mb-0.5">{t('module.format')}</span>
                       <div className="flex items-center gap-1.5 text-slate-800 font-medium">
                         <Users className="w-3.5 h-3.5 text-[#D4AF37]" />
                         <span className="truncate">{item.format}</span>
@@ -395,7 +443,7 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
                     </div>
 
                     <div>
-                      <span className="text-[10px] text-slate-400 uppercase font-semibold block mb-0.5">Biaya Investasi</span>
+                      <span className="text-[10px] text-slate-400 uppercase font-semibold block mb-0.5">{t('module.fee')}</span>
                       <div className="text-emerald-600 font-mono font-bold">
                         {item.investment}
                       </div>
@@ -404,7 +452,7 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
 
                   {/* Target Audience */}
                   <div className="bg-white p-3.5 rounded-xl border border-slate-200 text-xs">
-                    <span className="font-bold text-slate-900 block mb-0.5">Sasaran Peserta:</span>
+                    <span className="font-bold text-slate-900 block mb-0.5">{t('module.targetAudience')}</span>
                     <p className="text-slate-600">{item.targetAudience}</p>
                   </div>
 
@@ -416,7 +464,7 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
                       <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
                         <BookOpen className="w-4 h-4 text-[#D4AF37]" />
                         <h4 className="font-bold text-xs sm:text-sm text-slate-900 uppercase tracking-wide">
-                          Pokok Bahasan & Silabus Kurikulum
+                          {t('module.curriculumTitle')}
                         </h4>
                       </div>
                       <ul className="text-xs text-slate-600 space-y-2.5">
@@ -434,7 +482,7 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
                       <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
                         <Award className="w-4 h-4 text-[#D4AF37]" />
                         <h4 className="font-bold text-xs sm:text-sm text-slate-900 uppercase tracking-wide">
-                          Fasilitas Eksklusif & Sertifikat
+                          {t('module.facilitiesTitle')}
                         </h4>
                       </div>
                       <ul className="text-xs text-slate-600 space-y-2.5">
@@ -452,18 +500,18 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
                   {/* Action Footer */}
                   <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200">
                     <p className="text-xs text-slate-500">
-                      *Tersedia diskon institusional 15% untuk pendaftaran delegasi minimal 3 peserta dari universitas/lembaga yang sama.
+                      {t('module.discountNote')}
                     </p>
 
                     <button
                       id={`btn-daftar-pelatihan-${item.id}`}
                       onClick={() => {
-                        setSelectedModuleForReg(item);
+                        setSelectedModuleForReg(rawItem);
                         setRegSuccess(null);
                       }}
                       className="w-full sm:w-auto py-2.5 px-5 rounded-lg bg-[#0F172A] hover:bg-slate-800 text-[#DFBF64] font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap shadow-xs"
                     >
-                      <span>Daftar Program Ini</span>
+                      <span>{t('module.register')}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -478,28 +526,28 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
       {/* Institutional Partnership Box */}
       <div className="p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-1 text-center md:text-left">
-          <span className="text-[10px] font-bold tracking-widest text-[#D4AF37] uppercase">In-House Training</span>
-          <h3 className="text-lg sm:text-xl font-bold text-slate-900">Kerja Sama Pelatihan Institusi Kampus & Korporat</h3>
+          <span className="text-[10px] font-bold tracking-widest text-[#D4AF37] uppercase">{t('inHouse.eyebrow')}</span>
+          <h3 className="text-lg sm:text-xl font-bold text-slate-900">{t('inHouse.title')}</h3>
           <p className="text-xs text-slate-600 max-w-2xl">
-            CakraNexa Academy menyelenggarakan program pelatihan khusus (In-House Workshop) yang disesuaikan dengan kebutuhan kurikulum fakultas, LPPM perguruan tinggi, atau asosiasi profesi.
+            {t('inHouse.description')}
           </p>
         </div>
 
         <a
-                  href="https://wa.me/6285286146806?text=Halo%20CakraNexa%20Academy,%20kami%20ingin%20mengajukan%20proposal%20In-House%20Training%20untuk%20institusi/fakultas%20kami."
+          href={`https://wa.me/6285286146806?text=${encodeURIComponent(t('inHouse.whatsappMessage'))}`}
           target="_blank"
           rel="noopener noreferrer"
           className="py-3 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 whitespace-nowrap shadow-xs"
         >
           <ExternalLink className="w-4 h-4" />
-          <span>Ajukan In-House Training</span>
+          <span>{t('inHouse.cta')}</span>
         </a>
       </div>
 
       {/* =================================================================== */}
       {/* REGISTRATION MODAL DIALOG                                           */}
       {/* =================================================================== */}
-      {selectedModuleForReg && (
+      {selectedModuleView && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="bg-white rounded-2xl border border-slate-200 max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 relative max-h-[90vh] overflow-y-auto">
             
@@ -518,30 +566,30 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
 
                 <div className="space-y-1">
                   <span className="px-2.5 py-0.5 rounded bg-slate-100 text-slate-800 text-xs font-mono font-bold">
-                    KODE REGISTRASI: {regSuccess}
+                    {t('registration.success.code', { code: regSuccess })}
                   </span>
                   <h3 className="text-xl font-bold text-slate-900">
-                    Pendaftaran Berhasil Dicatat
+                    {t('registration.success.title')}
                   </h3>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Terima kasih, <strong>{regForm.fullName}</strong>. Data registrasi untuk program <strong>{selectedModuleForReg.title}</strong> telah tersimpan dalam sistem kami.
+                    <Trans t={t} i18nKey="registration.success.message" values={{ name: regForm.fullName, program: selectedModuleView.title }} components={{ strong: <strong /> }} />
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 text-left space-y-1">
-                  <p className="font-semibold text-slate-900">Konfirmasi Selanjutnya:</p>
-                  <p>Admin akademik kami akan mengirimkan invoice resmi, jadwal rinci, dan tautan platform ke WhatsApp <strong>{regForm.phoneWhatsApp}</strong> dalam 1x24 jam.</p>
+                  <p className="font-semibold text-slate-900">{t('registration.success.nextTitle')}</p>
+                  <p><Trans t={t} i18nKey="registration.success.nextBody" values={{ phone: regForm.phoneWhatsApp }} components={{ strong: <strong /> }} /></p>
                 </div>
 
                 <div className="pt-2 flex flex-col gap-2">
                   <a
-                    href={`https://wa.me/6285286146806?text=Halo%20Admin%20CakraNexa%20Academy,%20saya%20telah%20mendaftar%20pelatihan%20"${selectedModuleForReg.title}"%20dengan%20Kode%20Registrasi%20${regSuccess}.`}
+                    href={`https://wa.me/6285286146806?text=${encodeURIComponent(t('registration.success.whatsappMessage', { program: selectedModuleView.title, code: regSuccess }))}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="py-2.5 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
-                    <span>Konfirmasi Cepat via WhatsApp</span>
+                    <span>{t('registration.success.whatsappCta')}</span>
                   </a>
 
                   <button
@@ -551,43 +599,43 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
                     }}
                     className="py-2 px-4 rounded-lg border border-slate-300 text-slate-700 font-semibold text-xs hover:bg-slate-50 transition-colors"
                   >
-                    Tutup Jendela
+                    {t('registration.success.close')}
                   </button>
                 </div>
               </div>
             ) : (
               <div>
                 <div className="border-b border-slate-200 pb-3 mb-4 space-y-1">
-                  <span className="text-[10px] font-bold tracking-widest text-[#D4AF37] uppercase">Formulir Pendaftaran</span>
-                  <h3 className="text-lg font-bold text-slate-900">Registrasi Peserta Pelatihan</h3>
-                  <p className="text-xs text-slate-600 font-medium truncate">{selectedModuleForReg.title}</p>
+                  <span className="text-[10px] font-bold tracking-widest text-[#D4AF37] uppercase">{t('registration.form.eyebrow')}</span>
+                  <h3 className="text-lg font-bold text-slate-900">{t('registration.form.title')}</h3>
+                  <p className="text-xs text-slate-600 font-medium truncate">{selectedModuleView.title}</p>
                 </div>
 
                 <form onSubmit={handleRegisterSubmit} className="space-y-4 text-xs">
                   <div>
                     <label className="font-semibold text-slate-700 block mb-1">
-                      Nama Lengkap & Gelar Akademik <span className="text-red-500">*</span>
+                      {t('registration.form.fullName')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       required
                       value={regForm.fullName}
                       onChange={(e) => setRegForm({ ...regForm, fullName: e.target.value })}
-                      placeholder="Dr. Nama Peserta, S.E., M.Si."
+                      placeholder={t('registration.form.fullNamePlaceholder')}
                       className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#D4AF37] text-slate-900 text-xs"
                     />
                   </div>
 
                   <div>
                     <label className="font-semibold text-slate-700 block mb-1">
-                      Institusi / Universitas / Kantor <span className="text-red-500">*</span>
+                      {t('registration.form.institution')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       required
                       value={regForm.institution}
                       onChange={(e) => setRegForm({ ...regForm, institution: e.target.value })}
-                      placeholder="Fakultas Ekonomi Universitas Indonesia / KAP..."
+                      placeholder={t('registration.form.institutionPlaceholder')}
                       className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#D4AF37] text-slate-900 text-xs"
                     />
                   </div>
@@ -595,21 +643,21 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="font-semibold text-slate-700 block mb-1">
-                        Email Resmi <span className="text-red-500">*</span>
+                        {t('registration.form.email')} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="email"
                         required
                         value={regForm.email}
                         onChange={(e) => setRegForm({ ...regForm, email: e.target.value })}
-                        placeholder="peserta@kampus.ac.id"
+                        placeholder={t('registration.form.emailPlaceholder')}
                         className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#D4AF37] text-slate-900 text-xs"
                       />
                     </div>
 
                     <div>
                       <label className="font-semibold text-slate-700 block mb-1">
-                        Nomor WhatsApp <span className="text-red-500">*</span>
+                        {t('registration.form.whatsapp')} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="tel"
@@ -624,27 +672,27 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
 
                   <div>
                     <label className="font-semibold text-slate-700 block mb-1">
-                      Pilihan Format Kehadiran
+                      {t('registration.form.attendance')}
                     </label>
                     <select
                       value={regForm.participationFormat}
                       onChange={(e) => setRegForm({ ...regForm, participationFormat: e.target.value })}
                       className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#D4AF37] bg-white text-slate-900 text-xs"
                     >
-                      <option value="Hybrid (Tatap Muka di Lokasi)">Tatap Muka di Lokasi (Hotel)</option>
-                      <option value="Online Zoom Interactive">Online via Zoom HD Interactive</option>
+                      <option value="Hybrid (Tatap Muka di Lokasi)">{t('registration.form.attendanceOnsite')}</option>
+                      <option value="Online Zoom Interactive">{t('registration.form.attendanceOnline')}</option>
                     </select>
                   </div>
 
                   <div>
                     <label className="font-semibold text-slate-700 block mb-1">
-                      Catatan Tambahan (Opsional)
+                      {t('registration.form.notes')}
                     </label>
                     <textarea
                       rows={2}
                       value={regForm.notes}
                       onChange={(e) => setRegForm({ ...regForm, notes: e.target.value })}
-                      placeholder="Informasi kebutuhan khusus, pendaftaran kolektif institusi, dsb."
+                      placeholder={t('registration.form.notesPlaceholder')}
                       className="w-full p-2 rounded-lg border border-slate-300 focus:outline-none focus:border-[#D4AF37] text-slate-900 text-xs"
                     />
                   </div>
@@ -655,7 +703,7 @@ export const PelatihanView: React.FC<PelatihanViewProps> = ({ siteContent: propC
                       className="w-full py-3 px-4 rounded-xl bg-[#0F172A] hover:bg-slate-800 text-[#DFBF64] font-bold text-xs tracking-wide transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>Kirim Formulir Pendaftaran</span>
+                      <span>{t('registration.form.submit')}</span>
                     </button>
                   </div>
                 </form>

@@ -1,0 +1,30 @@
+{
+  "photo": {
+    "alt": "Foto {{name}}",
+    "missing": "Foto belum diunggah"
+  },
+  "listing": {
+    "eyebrow": "CakraNexa Knowledge Hub",
+    "heroTitle": "<highlight>Penulis & Kontributor</highlight><br/> Monografi Ilmiah CakraNexa",
+    "heroDescription": "Profil para akademisi, dosen, peneliti, dan praktisi ahli di bidang perpajakan, akuntansi, hukum, ekonomi & bisnis yang turut berkontribusi membangun ekosistem pengetahuan berkelanjutan CakraNexa.",
+    "authorCount": "<num>{{total}}+</num> Penulis & Kontributor"
+  },
+  "detail": {
+    "badge": "Penulis & Akademisi CakraNexa",
+    "emailTitle": "Email {{email}}",
+    "heading": "Profil & Rekam Jejak Akademik",
+    "tabs": {
+      "profileEducation": "Profil & Pendidikan",
+      "workExperience": "Pengalaman Kerja",
+      "organizationSeminar": "Organisasi & Seminar",
+      "publications": "Publikasi & Karya Ilmiah"
+    },
+    "contentEmpty": "Konten belum diisi.",
+    "books": {
+      "title": "Karya Buku CakraNexa",
+      "total_other": "Total {{count}} monograf / buku yang diterbitkan",
+      "empty": "Belum ada daftar buku yang terhubung untuk penulis ini.",
+      "viewDetail": "Lihat Detail Buku"
+    }
+  }
+}

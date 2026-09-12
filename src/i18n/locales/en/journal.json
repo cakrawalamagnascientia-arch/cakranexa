@@ -1,0 +1,43 @@
+{
+  "header": {
+    "eyebrow": "PERIODICAL SCHOLARLY PUBLICATIONS",
+    "title": "Nationally Indexed Peer-Reviewed Scholarly Journals",
+    "subtitle": "Providing a platform, built on the OJS (Open Journal Systems) standard, for disseminating original scholarly research by academics, researchers, and practitioners in taxation, forensic auditing, and business law."
+  },
+  "cfp": {
+    "badge": "CALL FOR PAPERS 2026 - 2025",
+    "title": "Now Accepting Scholarly Article Manuscripts for Upcoming Issues",
+    "note": "No manuscript submission fee (Fast-Track Peer Review & official Crossref DOI).",
+    "submit": "Submit Article (OJS)",
+    "submitAlert": "The journal article submission form is redirected to the PT Cakrawala Magna Scientia OJS system."
+  },
+  "card": {
+    "scope": "<strong>Focus & Scope:</strong> {{scope}}",
+    "frequency": "Frequency: {{frequency}}",
+    "indexing": "Indexed in: <strong>{{indexing}}</strong>",
+    "viewArchive": "View Issue Archive",
+    "archiveAlert": "Opening the archive of {{title}}...",
+    "authorGuidelines": "Author Guidelines",
+    "guidelinesAlert": "The author guidelines for {{title}} are ready to download."
+  },
+  "journals": {
+    "fiscalLaw": {
+      "volume": "Vol. 4 No. 2 (July - December 2026)",
+      "scope": "Tax Court Procedural Law, Transfer Pricing Disputes, Fiscal Crimes",
+      "frequency": "Twice a year (Bilingual: ID & EN)",
+      "indexing": "Garuda, Google Scholar, SINTA S2 Accreditation Process"
+    },
+    "forensicAccounting": {
+      "volume": "Vol. 3 No. 1 (January - June 2026)",
+      "scope": "Fraud Auditing, Money Laundering (TPPU) Asset Tracing, Public Sector Investigative Auditing",
+      "frequency": "Three times a year",
+      "indexing": "Crossref (DOI), Garuda, Dimensions, Google Scholar"
+    },
+    "digitalTax": {
+      "volume": "Vol. 2 No. 2 (August 2026)",
+      "scope": "OECD Pillar One & Pillar Two, Cross-Border VAT on Electronic Commerce (PPN PMSE), Tax Treaties (P3B)",
+      "frequency": "Twice a year",
+      "indexing": "Directory of Open Access Journals (DOAJ Candidate), SINTA"
+    }
+  }
+}

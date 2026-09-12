@@ -16,7 +16,10 @@
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "i18n:check": "node scripts/i18n-check.mjs",
+    "i18n:find": "node scripts/i18n-find-hardcoded.mjs",
+    "i18n:screenshots": "node scripts/i18n-screenshots.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.115.0",
@@ -29,6 +32,8 @@
     "esbuild": "^0.25.0",
     "express": "^4.21.2",
     "html2canvas": "^1.4.1",
+    "i18next": "^26.4.2",
+    "i18next-browser-languagedetector": "^8.2.1",
     "jsbarcode": "^3.12.3",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.546.0",
@@ -36,6 +41,7 @@
     "qrcode": "^1.5.4",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
+    "react-i18next": "^17.0.13",
     "recharts": "^3.10.1",
     "tailwindcss": "^4.1.14",
     "vite": "^6.2.3"
@@ -49,6 +55,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "pdf-parse": "^2.4.5",
+    "playwright": "^1.63.0",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2"
   }

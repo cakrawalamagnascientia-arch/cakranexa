@@ -1,0 +1,357 @@
+{
+  "hero": {
+    "badge": "DIVISI PENERBITAN RESMI PT CAKRAWALA MAGNA SCIENTIA",
+    "title": "Publikasikan Karya Ilmiah Anda Bersama Standar Otoritas Tertinggi",
+    "description": "Mulai dari manuskrip akademik hingga buku ber-ISBN terdistribusi nasional. Kami menyediakan layanan editorial komprehensif, peer-review akademik, layout standar UNESCO, hingga cetak bookpaper lux hardcover."
+  },
+  "tabs": {
+    "services": "Layanan Penerbitan",
+    "submit": "Kirim Naskah",
+    "guidelines": "Panduan Penulis",
+    "process": "Proses Penerbitan",
+    "faq": "FAQ Penerbitan"
+  },
+  "services": {
+    "categoryLabel": "Kategori {{number}}",
+    "priceFrom": "Mulai {{price}}",
+    "priceFromPerChapter": "Mulai {{price}} / Bab",
+    "main": {
+      "title": "Paket Penerbitan Utama",
+      "description": "Solusi terpadu publikasi buku referensi, monografi, dan terbitan berkala.",
+      "monograph": {
+        "badge": "Standar DIKTI",
+        "title": "Buku Monografi",
+        "description": "Dikhususkan bagi akademisi dan dosen untuk mempublikasikan hasil riset tunggal berangka kredit (KUM).",
+        "features": [
+          "Pengurusan ISBN & Barcode Perpusnas",
+          "Peer-review Dewan Mitra Bestari",
+          "Layout standar UNESCO B5 & Cover 3D",
+          "Pencatatan KDT Katalog Nasional"
+        ],
+        "cta": "Pilih Paket Monografi"
+      },
+      "journal": {
+        "badge": "OJS 3 & DOI",
+        "title": "Jurnal Akademik",
+        "description": "Pengelolaan dan penerbitan berkala ilmiah terakreditasi dengan standar sistem Open Journal Systems.",
+        "features": [
+          "Setup & Konfigurasi OJS 3 Institusi",
+          "Integrasi DOI CrossRef Resmi",
+          "Workflow Peer-Review Terstruktur",
+          "Pendampingan Indeksasi Garuda & Sinta"
+        ],
+        "cta": "Pilih Paket Jurnal"
+      },
+      "ebook": {
+        "badge": "Digital & DRM",
+        "title": "E-Book",
+        "description": "Penerbitan format digital ePub3 dan PDF terenkripsi dengan proteksi hak cipta DRM terintegrasi.",
+        "features": [
+          "Konversi Format ePub3 & Interactive PDF",
+          "Proteksi Hak Cipta Digital (DRM)",
+          "Distribusi Google Play Books & CakraNexa",
+          "Dashboard Analitik Pembaca Realtime"
+        ],
+        "cta": "Pilih Paket E-Book"
+      },
+      "periodical": {
+        "badge": "Korporasi / Lembaga",
+        "title": "Periodikal",
+        "description": "Penerbitan buletin riset tahunan, prosiding seminar nasional/internasional, dan majalah korporat.",
+        "features": [
+          "Penerbitan Berkala Cetak & Digital",
+          "Pengurusan ISSN Resmi Perpusnas",
+          "Desain Editorial Majalah Ilmiah Lux",
+          "Distribusi Stakeholder & Perpustakaan"
+        ],
+        "cta": "Pilih Paket Periodikal"
+      }
+    },
+    "editorial": {
+      "title": "Editorial & Produksi",
+      "description": "Penyempurnaan naskah ilmiah, desain cover artistik, dan modul bahan ajar.",
+      "editing": {
+        "title": "Editing / Proofreading",
+        "description": "Pemeriksaan tata bahasa baku PUEBI/EYD, terminologi hukum & perpajakan, konsistensi istilah, dan penyelarasan alur argumen tanpa mengubah esensi keilmuan.",
+        "note": "Estimasi: 3 - 5 Hari Kerja"
+      },
+      "cover": {
+        "title": "Desain Cover",
+        "description": "Perancangan visual 3D editorial bernilai estetika tinggi, pemilihan tipografi monografi berwibawa, mockup visual resolusi tinggi, siap cetak offset (CMYK 300 DPI).",
+        "note": "Revisi: 3x Putaran Desain"
+      },
+      "ghostwriting": {
+        "title": "Ghostwriting",
+        "description": "Pendampingan intensif bagi pakar dan praktisi sibuk, wawancara mendalam, perumusan gagasan praktis menjadi bab naskah ilmiah yang tersusun sistematis.",
+        "note": "Didampingi Editor Senior"
+      },
+      "teachingModule": {
+        "title": "Modul Ajar",
+        "description": "Penyusunan format buku ajar perguruan tinggi, keselarasan dengan RPS (Rencana Pembelajaran Semester), integrasi latihan kasus dan rubrik asesmen mahasiswa.",
+        "note": "Standar OBE & BKD Dikti"
+      }
+    },
+    "licensing": {
+      "title": "Lisensi & HAKI",
+      "description": "Perlindungan hak cipta, legalitas royalti, dan monetisasi karya intelektual.",
+      "workLicensing": {
+        "title": "Lisensi Karya",
+        "description": "Pengelolaan kontrak lisensi institusional, adopsi kurikulum universitas, hak cetak ulang rekanan, dan pembagian royalti transparan.",
+        "note": "Akta Perjanjian Formal"
+      },
+      "certification": {
+        "title": "Sertifikasi Karya (HAKI)",
+        "description": "Pengurusan resmi Surat Pencatatan Ciptaan ke Direktorat Jenderal Kekayaan Intelektual (DJKI) Kemenkumham RI hingga sertifikat e-HakCipta terbit.",
+        "note": "Sertifikat Resmi DJKI"
+      },
+      "revisedEdition": {
+        "title": "Edisi Revisi",
+        "description": "Pembaruan regulasi perundang-undangan baru, pemutakhiran data statistik, penambahan bab telaah mutakhir, dan pendaftaran ISBN revisi baru.",
+        "note": "Perpanjangan Siklus Buku"
+      },
+      "formatAdaptation": {
+        "title": "Adaptasi Format",
+        "description": "Transformasi naskah menjadi ringkasan eksekutif (whitepaper), audiobook, modul microlearning digital, atau pangkalan data ilmiah institusional.",
+        "note": "Multi-Platform Ready"
+      }
+    },
+    "distribution": {
+      "title": "Distribusi & Pemasaran",
+      "description": "Jangkauan pembaca nasional melalui toko buku fisik, marketplace, dan bedah buku.",
+      "bookstore": {
+        "badge": "Jejaring Nasional",
+        "title": "Distribusi Toko Buku",
+        "description": "Penempatan buku di jaringan toko buku rekanan fisik, sistem konsinyasi terjadwal, etalase resmi di e-Commerce CakraNexa Store, serta marketplace official Tokopedia dan Shopee.",
+        "features": [
+          "Integrasi Pergudangan & Logistik CakraNexa",
+          "Pelaporan Penjualan Transparan Berkala"
+        ],
+        "note": "Jangkauan 38 Provinsi"
+      },
+      "promotion": {
+        "badge": "Publikasi & Media",
+        "title": "Strategi Promosi",
+        "description": "Penyelenggaraan webinar bedah buku ilmiah bersama narasumber pakar, siaran pers media nasional terpercaya, kampanye sitasi akademik, serta katalogisasi ke perpustakaan perguruan tinggi.",
+        "features": [
+          "Publikasi Siaran Pers Media Nasional",
+          "Sirkulasi Katalog ke LPPM & Perpustakaan Universitas"
+        ],
+        "note": "Kampanye Branding Penulis"
+      }
+    }
+  },
+  "form": {
+    "eyebrow": "Formulir Resmi Pengajuan",
+    "title": "Kirim Naskah Buku Akademik",
+    "description": "Lengkapi data penulis dan unggah draft manuskrip Anda untuk dievaluasi oleh Dewan Redaksi PT Cakrawala Magna Scientia.",
+    "sections": {
+      "author": "1. Data Identitas Penulis",
+      "manuscript": "2. Informasi Naskah Buku",
+      "documents": "3. Unggah Dokumen Pendukung (PDF / DOCX)"
+    },
+    "fields": {
+      "fullName": {
+        "label": "Nama Lengkap & Gelar Akademik",
+        "placeholder": "Prof. Dr. Ir. Nama Penulis, S.E., M.Ak."
+      },
+      "institution": {
+        "label": "NIDN / NIP / Institusi Lembaga",
+        "placeholder": "Contoh: NIDN 0312048501 / Universitas Indonesia"
+      },
+      "email": {
+        "label": "Email Resmi / Akademik",
+        "placeholder": "penulis@kampus.ac.id"
+      },
+      "phone": {
+        "label": "Nomor WhatsApp Aktif"
+      },
+      "bookTitle": {
+        "label": "Usulan Judul Buku / Monografi",
+        "placeholder": "Judul lengkap beserta anak judul jika ada..."
+      },
+      "category": {
+        "label": "Kategori Target"
+      },
+      "synopsis": {
+        "label": "Sinopsis Singkat & Kebaruan Ilmiah (Novelty)",
+        "placeholder": "Jelaskan secara ringkas latar belakang riset, fokus kebaruan temuan, perkiraan jumlah halaman, dan target sasaran pembaca..."
+      },
+      "synopsisFile": {
+        "label": "File Sinopsis & Proposal Naskah"
+      },
+      "manuscriptFile": {
+        "label": "File Draf Lengkap Manuskrip"
+      }
+    },
+    "categoryOptions": {
+      "monograph": "Buku Monografi",
+      "textbook": "Buku Teks / Ajar",
+      "journal": "Jurnal Akademik",
+      "taxation": "Perpajakan",
+      "law": "Hukum & Kebijakan",
+      "economics": "Ekonomi & Bisnis",
+      "accounting": "Akuntansi & Audit"
+    },
+    "categoryValues": {
+      "monograph": "Monografi",
+      "textbook": "Buku Teks",
+      "journal": "Jurnal",
+      "taxation": "Perpajakan",
+      "law": "Hukum",
+      "economics": "Ekonomi",
+      "accounting": "Akuntansi"
+    },
+    "upload": {
+      "synopsisPrompt": "Tarik file atau klik untuk unggah",
+      "synopsisHint": "PDF atau DOCX (Maks 10 MB)",
+      "manuscriptPrompt": "Tarik draf naskah atau klik",
+      "manuscriptHint": "PDF atau DOCX (Maks 50 MB)"
+    },
+    "terms": "Saya menyatakan dengan sebenar-benarnya bahwa naskah yang diajukan merupakan karya orisinal, bebas dari unsur plagiarisme (similarity index Turnitin < 20%), belum pernah diterbitkan di penerbit lain, dan siap menjalani proses peer-review oleh Dewan Redaksi CakraNexa.",
+    "submit": "Kirim Naskah ke Dewan Redaksi CakraNexa",
+    "submitting": "Mengirimkan Naskah ke Dewan Redaksi...",
+    "errors": {
+      "invalidFileType": "Mohon unggah dokumen berformat PDF atau DOCX.",
+      "termsRequired": "Anda harus menyetujui pernyataan orisinalitas naskah."
+    },
+    "success": {
+      "trackingCode": "KODE TRACKING: {{ticket}}",
+      "title": "Naskah Berhasil Diajukan ke Dewan Redaksi",
+      "description": "Terima kasih atas kepercayaan Anda kepada PT Cakrawala Magna Scientia. Naskah Anda telah masuk dalam antrean screening administratif dan peer-review akademik.",
+      "recap": {
+        "bookTitle": "Judul Naskah:",
+        "author": "Nama Penulis:",
+        "category": "Kategori:",
+        "manuscriptFile": "File Manuskrip:",
+        "submittedAt": "Waktu Pengajuan:"
+      },
+      "synopsisInline": "Ringkasan Langsung pada Formulir",
+      "manuscriptViaForm": "Terkirim via Formulir Digital",
+      "nextStepsTitle": "Langkah Selanjutnya:",
+      "nextStepsDescription": "Tim Redaksi Ilmiah akan mengirimkan lembar evaluasi awal dan Peer-Review Matrix ke WhatsApp/Email Anda dalam 3-5 hari kerja.",
+      "whatsappCta": "Konfirmasi via WhatsApp Redaksi",
+      "whatsappMessage": "Halo Dewan Redaksi CakraNexa, saya telah mengajukan naskah dengan Kode Tracking {{ticket}}. Mohon informasi tahapan selanjutnya.",
+      "submitAnother": "Ajukan Naskah Lain"
+    }
+  },
+  "guidelines": {
+    "eyebrow": "Standar Selingkung Resmi",
+    "title": "Panduan & Format Penulisan Naskah",
+    "description": "Pedoman format pengetikan, struktur bab, gaya sitasi, serta standar integritas ilmiah untuk pengajuan buku monografi dan buku teks.",
+    "downloadTemplate": "Unduh Template Naskah (.DOCX)",
+    "layout": {
+      "title": "1. Ukuran Kertas, Font & Spasi",
+      "items": [
+        { "label": "Ukuran Kertas:", "value": "UNESCO B5 (15.5 x 23 cm) atau A4 standar." },
+        { "label": "Batas Margin:", "value": "Kiri 3.0 cm, Kanan 2.5 cm, Atas 2.5 cm, Bawah 2.5 cm." },
+        { "label": "Jenis Huruf:", "value": "Times New Roman atau Palatino Linotype 12 pt." },
+        { "label": "Spasi & Indent:", "value": "1.5 spasi baris, indentasi alinea pertama 1.27 cm." },
+        { "label": "Tebal Naskah:", "value": "Minimal 150 halaman untuk monografi ilmiah." }
+      ]
+    },
+    "citation": {
+      "title": "2. Gaya Sitasi & Reference Manager",
+      "items": [
+        { "label": "Standar Sitasi:", "value": "APA Style 7th Edition (Ekonomi & Bisnis, Akuntansi)." },
+        { "label": "Bidang Hukum:", "value": "Chicago Manual of Style (Footnote / Catatan Kaki)." },
+        { "label": "Software Wajib:", "value": "Mendeley, Zotero, atau EndNote untuk konsistensi meta data." },
+        { "label": "Sumber Pustaka:", "value": "Minimal 80% rujukan bersumber dari jurnal bereputasi 10 tahun terakhir." }
+      ]
+    },
+    "structure": {
+      "title": "3. Struktur Anatomi Buku Lengkap",
+      "items": [
+        { "label": "Bagian Awal:", "value": "Halaman Judul Dalam, Halaman Hak Cipta, Prakata, Daftar Isi, Daftar Tabel & Gambar." },
+        { "label": "Bagian Isi:", "value": "Bab I (Pendahuluan & Konteks Riset), Bab Telaah Teoretis, Bab Pembahasan & Analisis Kritis, Bab Kesimpulan & Arah Kebijakan." },
+        { "label": "Bagian Akhir:", "value": "Glosarium Istilah Kunci, Daftar Pustaka Lengkap, Indeks Subjek/Nama, Biodata Ringkas Penulis." }
+      ]
+    },
+    "plagiarism": {
+      "title": "4. Kebijakan Anti-Plagiarisme & Turnitin",
+      "thresholdTitle": "Ambang Batas Turnitin < 20%",
+      "thresholdDescription": "Naskah wajib memiliki skor kesamaan (similarity index) maksimal 20% dengan filter Turnitin resmi: <em>Exclude Bibliography On</em> dan <em>Exclude Matches &lt; 3 Words</em>.",
+      "note": "Bebas dari fabrikasi data penelitian, falsifikasi temuan, dan self-plagiarism tanpa penyebutan sitasi sumber karya terdahulu yang sah."
+    },
+    "cta": {
+      "title": "Naskah Anda Sudah Sesuai Panduan?",
+      "description": "Ajukan sekarang melalui portal online untuk evaluasi langsung oleh Dewan Redaksi.",
+      "button": "Kirim Naskah Sekarang"
+    }
+  },
+  "process": {
+    "eyebrow": "Alur Kerja Baku",
+    "title": "5 Tahap Alur Proses Penerbitan",
+    "description": "Transparan, terukur, berstandar akademik tinggi, dan didampingi tim editorial profesional.",
+    "outputLabel": "Output Tahap Ini:",
+    "cta": "Mulai Tahap 1: Ajukan Naskah Anda",
+    "steps": [
+      {
+        "title": "Pengajuan & Peer Review",
+        "badge": "7 - 14 Hari Kerja",
+        "description": "Penulis mengirimkan draf lengkap dan sinopsis melalui portal resmi. Tim in-house melakukan verifikasi administratif dan uji plagiarisme Turnitin, dilanjutkan penelaahan substantif oleh Dewan Mitra Bestari untuk memastikan bobot keilmuan.",
+        "deliverables": ["Lembar Evaluasi Naskah", "Peer-Review Matrix", "Catatan Perbaikan Substantif"]
+      },
+      {
+        "title": "Kontrak & HAKI",
+        "badge": "2 - 3 Hari Kerja",
+        "description": "Penandatanganan Perjanjian Penerbitan Buku resmi antara penulis dan PT Cakrawala Magna Scientia. Penetapan skema royalti (10-15%) atau hibah institusional, serta pendaftaran Surat Pencatatan Ciptaan ke e-Hakcipta DJKI Kemenkumham.",
+        "deliverables": ["Surat Perjanjian Penerbitan Formal", "Pendaftaran e-Hakcipta DJKI", "Perlindungan Hak Moral Penulis"]
+      },
+      {
+        "title": "Editorial & Layout",
+        "badge": "5 - 7 Hari Kerja",
+        "description": "Editor ahli melaksanakan penyuntingan kebahasaan baku PUEBI, pengecekan istilah hukum dan perpajakan, serta typesetting format buku standar UNESCO B5. Tim grafis merancang desain cover 3D editorial berwibawa.",
+        "deliverables": ["Draf Layout Final (B5)", "Desain Cover 3D Hardcover/Softcover", "Author Proofing Approval"]
+      },
+      {
+        "title": "Pengurusan ISBN & Metadata",
+        "badge": "3 - 7 Hari Kerja",
+        "description": "Pengajuan nomor registrasi ISBN resmi dan Barcode EAN ke Perpustakaan Nasional RI (Perpusnas). Pendaftaran Katalog Dalam Terbitan (KDT) dan metadata nasional sebagai bukti legalitas karya ilmiah terakreditasi.",
+        "deliverables": ["Nomor ISBN & Barcode Resmi", "Katalog Dalam Terbitan (KDT)", "Surat Keterangan Penerbitan"]
+      },
+      {
+        "title": "Cetak & Digital Distro",
+        "badge": "4 - 7 Hari Kerja",
+        "description": "Produksi cetak fisik menggunakan kertas bookpaper premium 72 gsm dan jilid lux hardcover/softcover doff. Penyerahan 2 eksemplar wajib simpan ke Perpusnas sesuai UU No. 13/2018, serta peluncuran distribusi nasional.",
+        "deliverables": ["Buku Fisik Mutu Percetakan Tinggi", "Versi E-Book Digital Ber-DRM", "Distribusi CakraNexa Store & Toko Buku"]
+      }
+    ]
+  },
+  "faq": {
+    "eyebrow": "Tanya Jawab",
+    "title": "Frequently Asked Questions",
+    "description": "Pertanyaan umum seputar ISBN, royalti, durasi penerbitan, dan hak cipta karya ilmiah.",
+    "items": [
+      {
+        "question": "Apakah seluruh buku terbitan CakraNexa mendapatkan ISBN resmi dari Perpusnas RI?",
+        "answer": "Ya. Sebagai penerbit resmi anggota IKAPI (Ikatan Penerbit Indonesia) dan tercatat di Perpustakaan Nasional Republik Indonesia, setiap judul buku yang lolos uji kelayakan redaksi diterbitkan dengan nomor ISBN dan Barcode EAN resmi. Data bibliografi buku juga didaftarkan pada Katalog Dalam Terbitan (KDT) Perpusnas RI."
+      },
+      {
+        "question": "Berapa lama estimasi waktu proses dari naskah diserahkan hingga buku terbit?",
+        "answer": "Durasi standar penerbitan berkisar antara 14 hingga 30 hari kerja setelah naskah dinyatakan lengkap dan disetujui. Rinciannya: proses peer-review substantif (7-14 hari), penyuntingan tata bahasa & perwajahan layout B5 (5-7 hari), pengurusan ISBN resmi Perpusnas (3-7 hari kerja), serta produksi cetak dan katalogisasi digital."
+      },
+      {
+        "question": "Bagaimana sistem royalti dan hak cipta buku bagi penulis?",
+        "answer": "Hak Cipta (Copyright) dan Hak Moral atas karya ilmiah tetap sepenuhnya menjadi milik penulis. Royalti diberikan secara transparan sebesar 10% hingga 15% dari harga jual buku bersih dengan laporan berkala setiap semester. Untuk institusi atau korporasi, tersedia pula skema penerbitan beli putus (outright purchase) sesuai kesepakatan tertulis."
+      },
+      {
+        "question": "Apakah CakraNexa melayani penerbitan buku konversi dari Disertasi atau Tesis S2/S3?",
+        "answer": "Ya, kami menyediakan pendampingan konversi disertasi/tesis menjadi buku monografi berangka kredit (KUM BKD) DIKTI. Tim \"Book Doctors\" dan editor spesialis kami akan membantu merestrukturisasi bahasa laporan kaku menjadi monografi ilmiah yang mengalir, komunikatif, dan berbobot akademis tinggi."
+      },
+      {
+        "question": "Berapa jumlah minimal eksemplar cetak (oplah) yang bisa dipesan?",
+        "answer": "Kami mengadopsi teknologi Print-on-Demand (POD) modern sehingga penulis dapat mencetak mulai dari 10 eksemplar untuk kebutuhan terbatas (seperti sidang guru besar, promosi doktor, atau akreditasi prodi). Kami juga melayani cetak masal ribuan eksemplar menggunakan mesin cetak offset profesional."
+      },
+      {
+        "question": "Bagaimana jangkauan distribusi dan pemasaran buku yang telah diterbitkan?",
+        "answer": "Buku didistribusikan melalui portal resmi CakraNexa Store, saluran toko online resmi (marketplace), katalog perpustakaan perguruan tinggi, serta jaringan toko buku rekanan fisik di seluruh Indonesia. Kami juga mendistribusikan versi E-Book digital ber-DRM untuk pembaca global."
+      }
+    ],
+    "help": {
+      "title": "Punya Pertanyaan Spesifik Lainnya?",
+      "description": "Konsultasikan naskah atau kebutuhan kelembagaan Anda langsung dengan Redaksi Ilmiah.",
+      "whatsappCta": "Chat WhatsApp Redaksi",
+      "whatsappMessage": "Halo Redaksi CakraNexa, saya ingin berkonsultasi mengenai layanan penerbitan buku."
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "header": {
+    "eyebrow": "MAGNA SCIENTIA LAW & TAX COMMENTARY",
+    "title": "Telaah Kritis, Opini Pakar & Kabar Literasi Akademik",
+    "subtitle": "Artikel editorial mendalam yang membedah putusan pengadilan terbaru, reformasi regulasi fiskal, serta pemikiran mutakhir seputar akuntansi dan tata kelola korporasi."
+  },
+  "article": {
+    "readMore": "Baca Selengkapnya",
+    "openAlert": "Membuka artikel: \"{{title}}\""
+  }
+}

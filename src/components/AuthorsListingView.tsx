@@ -1,9 +1,9 @@
 import React from 'react';
 import { Author } from '../types';
 import { ExternalLink, GraduationCap, User } from 'lucide-react';
+import { Trans, useTranslation } from 'react-i18next';
 import { toTitleCase } from '../utils/formatters';
 import { resolveImageUrl } from '../utils/imageUtils';
-import { useLanguage } from '../i18n';
 
 export interface AuthorsListingViewProps {
   authors: Author[];
@@ -11,7 +11,7 @@ export interface AuthorsListingViewProps {
 }
 
 export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors, onSelectAuthor }) => {
-  const { t } = useLanguage();
+  const { t } = useTranslation(['author', 'common']);
   const safeAuthors = Array.isArray(authors) ? authors : [];
   const sliceAuthors = safeAuthors;
 
@@ -33,24 +33,31 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
               <GraduationCap className="w-6 h-6 text-[#DFBF64]" />
             </div>
             <div className="text-xs font-bold tracking-[0.25em] text-[#DFBF64] uppercase">
-              CakraNexa Knowledge Hub
+              {t('listing.eyebrow')}
             </div>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight max-w-4xl">
-            <span className="text-[#DFBF64]">{t('authors')}</span>
-            <br className="hidden sm:block" /> Monografi Ilmiah CakraNexa
+            <Trans
+              t={t}
+              i18nKey="listing.heroTitle"
+              components={{ highlight: <span className="text-[#DFBF64]" />, br: <br className="hidden sm:block" /> }}
+            />
           </h1>
           <p className="mt-5 text-sm sm:text-base lg:text-lg text-slate-200/85 max-w-3xl leading-relaxed">
-            Profil para akademisi, dosen, peneliti, dan praktisi ahli di bidang perpajakan, akuntansi, hukum,
-            ekonomi &amp; bisnis yang turut berkontribusi membangun ekosistem pengetahuan berkelanjutan CakraNexa.
+            {t('listing.heroDescription')}
           </p>
           <div className="mt-8 flex flex-wrap gap-3 text-xs sm:text-sm">
             <div className="px-4 py-2 rounded-full bg-white/8 border border-white/15 text-white/90 backdrop-blur-sm">
-              <span className="font-bold text-[#DFBF64]">{sliceAuthors.length}+</span> {t('authors')}
+              <Trans
+                t={t}
+                i18nKey="listing.authorCount"
+                values={{ total: sliceAuthors.length }}
+                components={{ num: <span className="font-bold text-[#DFBF64]" /> }}
+              />
             </div>
             <div className="px-4 py-2 rounded-full bg-white/5 border border-[#D4AF37]/30 text-white/85 backdrop-blur-sm">
               <User className="inline w-4 h-4 mr-1.5 -mt-0.5 text-[#D4AF37]" />
-              {t('authors')}
+              {t('common:authors')}
             </div>
           </div>
         </div>
@@ -61,13 +68,13 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
         <div className="flex items-end justify-between flex-wrap gap-4 mb-8 sm:mb-10">
           <div>
             <div className="text-xs font-bold tracking-[0.2em] text-[#9A7B00] uppercase mb-2">
-              {t('authors')}
+              {t('common:authors')}
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A]">
-              {t('authors')}
+              {t('common:authors')}
             </h2>
             <p className="mt-2 text-sm text-slate-600 max-w-xl">
-              {t('viewProfile')}
+              {t('common:viewProfile')}
             </p>
           </div>
         </div>
@@ -75,7 +82,7 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
         {sliceAuthors.length === 0 ? (
           <div className="py-20 text-center border border-dashed border-slate-300 rounded-2xl bg-white">
             <User className="w-14 h-14 mx-auto text-slate-300 mb-3" />
-            <div className="text-slate-500 text-sm">{t('noData')}</div>
+            <div className="text-slate-500 text-sm">{t('common:noData')}</div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 lg:gap-8">
@@ -93,9 +100,9 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
                     <div className="absolute left-1/2 top-[62%] -translate-x-1/2 -translate-y-1/2">
                       <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl border-2 border-[#D4AF37]/60 shadow-xl overflow-hidden bg-slate-100 ring-4 ring-white/20 group-hover:ring-[#D4AF37]/30 transition flex items-center justify-center">
                         {author.photo_url ? (
-                          <img src={resolveImageUrl(author.photo_url)} alt={`Foto ${author.name}`} className="w-full h-full object-cover" />
+                          <img src={resolveImageUrl(author.photo_url)} alt={t('photo.alt', { name: author.name })} className="w-full h-full object-cover" />
                         ) : (
-                          <User className="w-16 h-16 text-slate-300" aria-label="Foto belum diunggah" />
+                          <User className="w-16 h-16 text-slate-300" aria-label={t('photo.missing')} />
                         )}
                       </div>
                     </div>
@@ -113,7 +120,7 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
                       )}
                       {gelar && <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0F172A]/5 border border-[#0F172A]/10 text-[11px] sm:text-xs font-semibold text-[#0F172A]/80">
                         <GraduationCap className="w-3.5 h-3.5 text-[#A9850C]" />
-                        <span>{t('viewProfile')}</span>
+                        <span>{t('common:viewProfile')}</span>
                       </div>}
                     </div>
 
@@ -144,7 +151,7 @@ export const AuthorsListingView: React.FC<AuthorsListingViewProps> = ({ authors,
                         onClick={() => onSelectAuthor(author)}
                         className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm bg-[#0F172A] text-[#DFBF64] hover:bg-[#0B1120] hover:text-[#F4E4A0] active:scale-[0.98] transition shadow-sm border border-[#D4AF37]/25"
                       >
-                        {t('viewProfile')}
+                        {t('common:viewProfile')}
                         <ExternalLink className="w-4 h-4 -mr-0.5" />
                       </button>
                     </div>

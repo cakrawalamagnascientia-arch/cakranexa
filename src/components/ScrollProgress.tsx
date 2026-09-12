@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { motion, useScroll, useSpring } from 'motion/react';
 import { ArrowUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Modern luxury scroll progress indicator and smooth back-to-top trigger.
  * Hairline 2px gold accent progress bar and minimal floating action button.
  */
 export const ScrollProgress: React.FC = () => {
+  const { t } = useTranslation('common');
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -45,8 +47,8 @@ export const ScrollProgress: React.FC = () => {
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
           onClick={scrollToTop}
           className="fixed bottom-6 right-6 z-40 p-2.5 rounded-full bg-slate-900/90 hover:bg-slate-900 text-[#DFBF64] shadow-lg border border-slate-700/60 backdrop-blur-md transition-colors cursor-pointer group flex items-center justify-center text-xs font-semibold"
-          aria-label="Kembali ke atas"
-          title="Kembali ke atas"
+          aria-label={t('actions.backToTop')}
+          title={t('actions.backToTop')}
         >
           <ArrowUp className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" />
         </motion.button>

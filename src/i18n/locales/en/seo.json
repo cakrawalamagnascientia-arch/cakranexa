@@ -1,0 +1,78 @@
+{
+  "siteName": "CakraNexa Publishing",
+  "home": {
+    "title": "CakraNexa — ISBN-Registered Academic & Professional Book Publisher",
+    "description": "The official platform for ISBN-registered academic books on taxation, law, and economics by PT Cakrawala Magna Scientia. Professional publishing services, official ISBNs from the National Library of Indonesia (Perpusnas), and nationwide distribution.",
+    "keywords": "academic book publisher, isbn publishing, taxation books, law monographs, unesco book printing, scholarly journals, cakrawala magna scientia",
+    "imageAlt": "CakraNexa Academic Publisher"
+  },
+  "bookDetail": {
+    "title": "{{title}} — {{author}} | CakraNexa",
+    "description": "Buy the academic book \"{{title}}\" by {{author}}. ISBN: {{isbn}}. Price {{price}}.",
+    "imageAlt": "Book cover of {{title}}",
+    "keyword": "academic monograph",
+    "schemaDescription": "ISBN-registered academic book {{title}} (ISBN {{isbn}})."
+  },
+  "pages": {
+    "catalog": {
+      "title": "Catalog of Academic Books & ISBN-Registered Monographs — CakraNexa",
+      "description": "Explore a collection of 21+ academic monographs and textbooks on law, taxation, accounting, and economics, registered with official ISBNs from the National Library of Indonesia. Published by PT Cakrawala Magna Scientia.",
+      "keywords": "book catalog, taxation books, law books, accounting, unesco books",
+      "imageAlt": "CakraNexa Book Catalog"
+    },
+    "publishing": {
+      "title": "Academic Book Publishing & Official ISBN Services — CakraNexa",
+      "description": "Publishing of ISBN-registered monographs, textbooks, and edited scholarly volumes through Perpusnas. Copyediting, UNESCO-format layout, quality printing, and intellectual property (HKI) certificate services.",
+      "keywords": "book publishing, submit manuscript, perpusnas isbn, lecturer book printing, intellectual property",
+      "imageAlt": "CakraNexa Publishing Services"
+    },
+    "training": {
+      "title": "Writing Training & Academic Workshops — CakraNexa",
+      "description": "Expert-led workshops on academic monograph writing, research methodology, and strategies for publishing in indexed outlets.",
+      "keywords": "writing training, journal workshop, research methodology",
+      "imageAlt": "CakraNexa Training"
+    },
+    "journal": {
+      "title": "Scholarly Journals & Call for Papers — CakraNexa",
+      "description": "Scholarly journals published by CakraNexa on fiscal law, forensic accounting, and digital tax policy, with call-for-papers and manuscript submission information.",
+      "keywords": "scholarly journals, call for papers, tax law journal, forensic accounting",
+      "imageAlt": "CakraNexa Scholarly Journals"
+    },
+    "about": {
+      "title": "About PT Cakrawala Magna Scientia — CakraNexa",
+      "description": "Company profile, vision and mission, team, and legal credentials of PT Cakrawala Magna Scientia, an ISBN-registered academic and professional book publisher in Indonesia.",
+      "keywords": "publisher profile, pt cakrawala magna scientia, ikapi member publisher, publisher credentials",
+      "imageAlt": "About CakraNexa"
+    },
+    "blog": {
+      "title": "Blog & Fiscal Law Insights — CakraNexa",
+      "description": "Articles on tax analysis, forensic accounting, and tax procedure law from CakraNexa's research team and authors.",
+      "keywords": "taxation articles, tax law analysis, forensic accounting",
+      "imageAlt": "CakraNexa Blog"
+    },
+    "career": {
+      "title": "Careers at PT Cakrawala Magna Scientia — CakraNexa",
+      "description": "Job openings in academic book publishing, marketing, and printing at PT Cakrawala Magna Scientia.",
+      "keywords": "publisher jobs, publishing careers, cakranexa jobs",
+      "imageAlt": "CakraNexa Careers"
+    },
+    "contact": {
+      "title": "Contact & Publishing Consultation — CakraNexa",
+      "description": "Contact the CakraNexa editorial team for manuscript publishing consultations, book orders, and institutional partnerships.",
+      "keywords": "publisher contact, publishing consultation, contact cakranexa",
+      "imageAlt": "Contact CakraNexa"
+    },
+    "authors": {
+      "title": "Authors & Contributors — CakraNexa",
+      "description": "Profiles of the academics, practitioners, and researchers who write the monographs and reference books published by CakraNexa.",
+      "keywords": "academic book authors, cakranexa contributors, author profiles",
+      "imageAlt": "CakraNexa Authors & Contributors"
+    },
+    "checkout": {
+      "title": "Order Checkout — CakraNexa",
+      "description": "Complete your CakraNexa academic book order with secure payment and delivery across Indonesia.",
+      "keywords": "buy academic books, cakranexa checkout",
+      "imageAlt": "CakraNexa Checkout"
+    }
+  }
+}

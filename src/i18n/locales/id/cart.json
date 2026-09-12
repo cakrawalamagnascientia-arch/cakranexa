@@ -1,0 +1,11 @@
+{
+  "drawer": {
+    "itemTypes_other": "{{count}} ragam publikasi buku",
+    "emptyDescription": "Jelajahi koleksi buku referensi akademik kami dan tambahkan naskah yang Anda butuhkan.",
+    "remove": "Hapus",
+    "totalProducts": "Total Produk",
+    "bookCount_other": "{{count}} buku",
+    "subtotal": "Subtotal",
+    "secureTransaction": "Transaksi dijamin aman dengan Enkripsi SSL 256-bit"
+  }
+}

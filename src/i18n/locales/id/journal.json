@@ -1,0 +1,43 @@
+{
+  "header": {
+    "eyebrow": "PUBLIKASI ILMIAH BERKALA",
+    "title": "Jurnal Ilmiah Peer-Reviewed Terindeks Nasional",
+    "subtitle": "Menyediakan wadah diseminasi riset ilmiah orisinal berstandar OJS (Open Journal Systems) bagi akademisi, peneliti, dan praktisi di bidang perpajakan, audit forensik, serta hukum bisnis."
+  },
+  "cfp": {
+    "badge": "CALL FOR PAPERS 2026 - 2025",
+    "title": "Menerima Naskah Artikel Ilmiah untuk Edisi Mendatang",
+    "note": "Bebas biaya submit naskah (Fast-Track Peer-Review & DOI Crossref resmi).",
+    "submit": "Submit Artikel (OJS)",
+    "submitAlert": "Formulir pengajuan naskah artikel jurnal dialihkan ke sistem OJS PT Cakrawala Magna Scientia."
+  },
+  "card": {
+    "scope": "<strong>Fokus & Cakupan:</strong> {{scope}}",
+    "frequency": "Frekuensi: {{frequency}}",
+    "indexing": "Pengindeks: <strong>{{indexing}}</strong>",
+    "viewArchive": "Lihat Arsip Terbitan",
+    "archiveAlert": "Membuka arsip {{title}}...",
+    "authorGuidelines": "Author Guidelines",
+    "guidelinesAlert": "Pedoman penulis naskah artikel untuk {{title}} siap diunduh."
+  },
+  "journals": {
+    "fiscalLaw": {
+      "volume": "Vol. 4 No. 2 (Juli - Desember 2026)",
+      "scope": "Hukum Acara Pengadilan Pajak, Sengketa Transfer Pricing, Tindak Pidana Fiskal",
+      "frequency": "Dua kali setahun (Bilingual: ID & EN)",
+      "indexing": "Garuda, Google Scholar, SINTA S2 Accreditation Process"
+    },
+    "forensicAccounting": {
+      "volume": "Vol. 3 No. 1 (Januari - Juni 2026)",
+      "scope": "Fraud Auditing, Penelusuran Aset TPPU, Audit Investigasi Sektor Publik",
+      "frequency": "Tiga kali setahun",
+      "indexing": "Crossref (DOI), Garuda, Dimensions, Google Scholar"
+    },
+    "digitalTax": {
+      "volume": "Vol. 2 No. 2 (Agustus 2026)",
+      "scope": "Pillar One & Pillar Two OECD, PPN PMSE Lintas Batas, Tax Treaties (P3B)",
+      "frequency": "Dua kali setahun",
+      "indexing": "Directory of Open Access Journals (DOAJ Candidate), SINTA"
+    }
+  }
+}

@@ -5,6 +5,7 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["node", "vite/client"],
     "skipLibCheck": true,
+    "strictNullChecks": true,
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "moduleDetection": "force",

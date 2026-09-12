@@ -48,9 +48,11 @@ import {
   Building2,
   Award,
   Mail,
-  Linkedin
+  Linkedin,
+  Languages
 } from 'lucide-react';
 import { Book as BookType, BookCategory, Order, OrderStatus, SeoSettings, SiteContentSettings, Author } from '../types';
+import i18n from '../i18n/index';
 import { apiClient } from '../services/apiClient';
 import { notificationService } from '../services/NotificationService';
 import { resolveImageUrl, handleImageError } from '../utils/imageUtils';
@@ -68,6 +70,79 @@ import { getStoredSeoSettings, saveStoredSeoSettings, DEFAULT_SEO_SETTINGS } fro
 import { getStoredSiteContent, saveStoredSiteContent, resetSiteContentToDefault } from '../services/siteContentService';
 import { INITIAL_BOOKS } from '../data/booksData';
 import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, authorNameKey } from '../data/authorsData';
+import type { ContentTranslations, TranslatableLanguage } from '../i18n/localized';
+
+// ---------- TERJEMAHAN KONTEN (EN / ZH) ----------
+// Field terjemahan yang kosong tidak disimpan: situs publik lalu menampilkan versi Bahasa Indonesia.
+type TranslationLang = TranslatableLanguage;
+type Translations<F extends string, V = string> = ContentTranslations<F, V>;
+
+const TRANSLATION_META: Record<TranslationLang, { label: string; suffix: string; languageName: string; htmlLang: string }> = {
+  en: { label: 'English (EN)', suffix: '(EN)', languageName: 'Inggris', htmlLang: 'en' },
+  zh: { label: '中文 (ZH)', suffix: '(中文)', languageName: 'Mandarin', htmlLang: 'zh-CN' }
+};
+const TRANSLATION_LANGUAGES = Object.keys(TRANSLATION_META) as TranslationLang[];
+
+type BookTranslationField = 'name' | 'subtitle' | 'sinopsis';
+type AuthorBioField = 'profile_education' | 'work_experience' | 'organization_seminar' | 'publications';
+type BookTranslations = Translations<BookTranslationField>;
+type AuthorBioTranslations = Translations<AuthorBioField>;
+
+const AUTHOR_BIO_TRANSLATION_FIELDS: { field: AuthorBioField; label: string }[] = [
+  { field: 'profile_education', label: 'Pendidikan' },
+  { field: 'work_experience', label: 'Pengalaman Kerja' },
+  { field: 'organization_seminar', label: 'Organisasi & Seminar' },
+  { field: 'publications', label: 'Publikasi' }
+];
+
+/** Salin terjemahan lewat `normalize`; field bernilai undefined dan bahasa tanpa isi dibuang. */
+const compactTranslations = <F extends string, In, Out>(
+  source: Translations<F, In> | undefined,
+  normalize: (value: In) => Out | undefined
+): Translations<F, Out> => {
+  const result: Translations<F, Out> = {};
+  TRANSLATION_LANGUAGES.forEach((lang) => {
+    const fields: Partial<Record<F, Out>> = {};
+    (Object.entries(source?.[lang] ?? {}) as [F, In | undefined][]).forEach(([field, value]) => {
+      if (value === undefined) return;
+      const normalized = normalize(value);
+      if (normalized !== undefined) fields[field] = normalized;
+    });
+    if (Object.keys(fields).length > 0) result[lang] = fields;
+  });
+  return result;
+};
+
+const trimTranslation = (value: string): string | undefined => value.trim() || undefined;
+const bioToText = (value: string | string[]): string | undefined =>
+  (Array.isArray(value) ? value.join('\n') : value) || undefined;
+
+const hasTranslationContent = (fields: Record<string, unknown> | undefined): boolean =>
+  Object.values(fields ?? {}).some((value) =>
+    Array.isArray(value) ? value.some((item) => String(item).trim() !== '') : typeof value === 'string' && value.trim() !== ''
+  );
+
+const TranslationLanguageSwitch: React.FC<{
+  value: TranslationLang;
+  onChange: (lang: TranslationLang) => void;
+  translations: Partial<Record<TranslationLang, Record<string, unknown>>> | undefined;
+}> = ({ value, onChange, translations }) => (
+  <div className="inline-flex rounded-lg border border-slate-300 bg-white p-0.5 shrink-0">
+    {TRANSLATION_LANGUAGES.map((lang) => (
+      <button
+        key={lang}
+        type="button"
+        onClick={() => onChange(lang)}
+        className={`px-3 py-1.5 rounded-md text-[11px] font-semibold cursor-pointer transition-colors flex items-center gap-1 ${value === lang ? 'bg-[#0F172A] text-[#DFBF64]' : 'text-slate-600 hover:bg-slate-100'}`}
+      >
+        {TRANSLATION_META[lang].label}
+        {hasTranslationContent(translations?.[lang]) && (
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Sudah ada terjemahan" />
+        )}
+      </button>
+    ))}
+  </div>
+);
 
 interface AdminDashboardProps {
   books: BookType[];
@@ -135,6 +210,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [backendHealth, setBackendHealth] = useState<{ supabaseConnected?: boolean } | null>(null);
   React.useEffect(() => {
     apiClient.health().then(setBackendHealth);
+  }, []);
+
+  // Pesan WhatsApp pelanggan (NotificationService.formatCustomerWhatsAppMessage) dibuat dalam bahasa
+  // pelanggan lewat i18n.getFixedT, yang membutuhkan terjemahan en/zh sudah dimuat.
+  React.useEffect(() => {
+    void i18n.loadLanguages(['en', 'zh']);
   }, []);
 
   /** Hasil disampaikan oleh CmsDashboardManager: pesan error server, atau null bila tersimpan. */
@@ -206,6 +287,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     work_experience: string;
     organization_seminar: string;
     publications: string;
+    /** Terjemahan bio per bahasa, format teks sama dengan field Indonesia (1 poin = 1 baris). */
+    i18n: AuthorBioTranslations;
   }>({
     name: '',
     academic_titles: '',
@@ -217,8 +300,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     profile_education: '',
     work_experience: '',
     organization_seminar: '',
-    publications: ''
+    publications: '',
+    i18n: {}
   });
+  const [authorTranslationLang, setAuthorTranslationLang] = useState<TranslationLang>('en');
+
+  const updateAuthorTranslation = (lang: TranslationLang, field: AuthorBioField, value: string) => {
+    setAuthorForm((prev) => {
+      const translations: AuthorBioTranslations = { ...prev.i18n };
+      const fields = { ...translations[lang] };
+      fields[field] = value;
+      translations[lang] = fields;
+      return { ...prev, i18n: translations };
+    });
+  };
 
   // Orders Management state
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
@@ -330,6 +425,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     coverBuku: '',
     stock: 50
   });
+  const [bookTranslationLang, setBookTranslationLang] = useState<TranslationLang>('en');
+  const bookTranslations = (formData.i18n ?? {}) as BookTranslations;
+
+  const updateBookTranslation = (lang: TranslationLang, field: BookTranslationField, value: string) => {
+    setFormData((prev) => {
+      const translations: BookTranslations = { ...(prev.i18n as BookTranslations | undefined) };
+      const fields = { ...translations[lang] };
+      fields[field] = value;
+      translations[lang] = fields;
+      return { ...prev, i18n: translations };
+    });
+  };
 
   const categories: BookCategory[] = [
     'Perpajakan', 
@@ -385,7 +492,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       bukuTerbaru: true,
       penerbit: 'PT Scientia Integritas Utama',
       coverBuku: '',
-      stock: 50
+      stock: 50,
+      i18n: {}
     });
     setIsFormModalOpen(true);
   };
@@ -411,7 +519,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       profile_education: '',
       work_experience: '',
       organization_seminar: '',
-      publications: ''
+      publications: '',
+      i18n: {}
     });
     setTempAuthorPhotoPreview(null);
     setSelectedAuthorBookIds(new Set());
@@ -433,7 +542,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       profile_education: Array.isArray(author.profile_education) ? author.profile_education.join('\n') : author.profile_education || '',
       work_experience: Array.isArray(author.work_experience) ? author.work_experience.join('\n') : author.work_experience || '',
       organization_seminar: Array.isArray(author.organization_seminar) ? author.organization_seminar.join('\n') : author.organization_seminar || '',
-      publications: Array.isArray(author.publications) ? author.publications.join('\n') : author.publications || ''
+      publications: Array.isArray(author.publications) ? author.publications.join('\n') : author.publications || '',
+      i18n: compactTranslations<AuthorBioField, string | string[], string>(author.i18n, bioToText)
     });
     setTempAuthorPhotoPreview(author.photo_url || null);
     const existingIds = new Set<string>();
@@ -520,7 +630,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       profile_education: parseBio(authorForm.profile_education) as any,
       work_experience: parseBio(authorForm.work_experience) as any,
       organization_seminar: parseBio(authorForm.organization_seminar) as any,
-      publications: parseBio(authorForm.publications) as any
+      publications: parseBio(authorForm.publications) as any,
+      // Selalu dikirim (bisa {}), agar terjemahan yang dikosongkan admin ikut terhapus di server.
+      i18n: compactTranslations(authorForm.i18n, (raw: string) => {
+        const parsed = parseBio(raw);
+        return parsed === '' ? undefined : parsed;
+      })
     };
     const payload: Author = editingAuthor
       ? { ...editingAuthor, ...profile }
@@ -594,6 +709,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     // ISBN boleh kosong (buku Segera Terbit); harga 0 = "Harga menyusul".
     const isbn = (formData.isbn || '').trim();
     const harga = Math.max(0, Number(formData.harga) || 0);
+    // Hanya terjemahan yang terisi; {} bila tidak ada (situs memakai versi Bahasa Indonesia).
+    const bookI18n = compactTranslations<BookTranslationField, string, string>(formData.i18n, trimTranslation);
 
     if (editingBook) {
       const updated: BookType = {
@@ -617,7 +734,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         linkPembelian: formData.linkPembelian || editingBook.linkPembelian || '#',
         bukuTerbaru: Boolean(formData.bukuTerbaru),
         penerbit: formData.penerbit || 'PT Scientia Integritas Utama',
-        coverBuku: formData.coverBuku || editingBook.coverBuku || ''
+        coverBuku: formData.coverBuku || editingBook.coverBuku || '',
+        i18n: bookI18n
       };
       setIsSavingBook(true);
       const error = await onUpdateBook(updated);
@@ -651,7 +769,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         coverBuku: formData.coverBuku || '',
         stock: formData.stock !== undefined && formData.stock !== null && String(formData.stock) !== '' ? Number(formData.stock) : undefined,
         rating: 5.0,
-        reviewsCount: 1
+        reviewsCount: 1,
+        i18n: bookI18n
       };
       setIsSavingBook(true);
       const error = await onAddBook(newBook);
@@ -1992,7 +2111,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {/* Judul Buku */}
               <div>
                 <label className="font-semibold text-slate-700 block mb-1">
-                  Judul Lengkap Buku (Format Title Case Otomatis) *
+                  Judul Lengkap Buku (ID) (Format Title Case Otomatis) *
                 </label>
                 <input
                   type="text"
@@ -2018,7 +2137,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {/* Author & Kategori */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Subjudul (Opsional)</label>
+                  <label className="font-semibold text-slate-700 block mb-1">Subjudul (ID) (Opsional)</label>
                   <input
                     type="text"
                     value={formData.subtitle || ''}
@@ -2220,7 +2339,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {/* Sinopsis */}
               <div>
                 <label className="font-semibold text-slate-700 block mb-1">
-                  Sinopsis & Deskripsi Ilmiah Monografi
+                  Sinopsis & Deskripsi Ilmiah Monografi (ID)
                 </label>
                 <textarea
                   rows={4}
@@ -2229,6 +2348,61 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   placeholder="Uraikan intisari naskah, latar belakang hukum, signifikansi riset..."
                   className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-slate-800"
                 />
+              </div>
+
+              {/* Terjemahan Konten (EN / ZH) — field kosong tidak disimpan */}
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <span className="font-semibold text-slate-800 flex items-center gap-1.5">
+                      <Languages className="w-3.5 h-3.5 text-slate-600" />
+                      Terjemahan Konten
+                    </span>
+                    <span className="text-slate-500 text-[11px] font-medium">
+                      Kosongkan jika belum ada terjemahan — situs akan menampilkan versi Bahasa Indonesia.
+                    </span>
+                  </div>
+                  <TranslationLanguageSwitch value={bookTranslationLang} onChange={setBookTranslationLang} translations={bookTranslations} />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                    Judul Buku {TRANSLATION_META[bookTranslationLang].suffix}
+                  </label>
+                  <input
+                    type="text"
+                    lang={TRANSLATION_META[bookTranslationLang].htmlLang}
+                    value={bookTranslations[bookTranslationLang]?.name || ''}
+                    onChange={(e) => updateBookTranslation(bookTranslationLang, 'name', e.target.value)}
+                    placeholder={`Judul buku dalam bahasa ${TRANSLATION_META[bookTranslationLang].languageName}`}
+                    className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-slate-800 bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                    Subjudul {TRANSLATION_META[bookTranslationLang].suffix}
+                  </label>
+                  <input
+                    type="text"
+                    lang={TRANSLATION_META[bookTranslationLang].htmlLang}
+                    value={bookTranslations[bookTranslationLang]?.subtitle || ''}
+                    onChange={(e) => updateBookTranslation(bookTranslationLang, 'subtitle', e.target.value)}
+                    placeholder={`Subjudul dalam bahasa ${TRANSLATION_META[bookTranslationLang].languageName} (opsional)`}
+                    className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-slate-800 bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                    Sinopsis {TRANSLATION_META[bookTranslationLang].suffix}
+                  </label>
+                  <textarea
+                    rows={4}
+                    lang={TRANSLATION_META[bookTranslationLang].htmlLang}
+                    value={bookTranslations[bookTranslationLang]?.sinopsis || ''}
+                    onChange={(e) => updateBookTranslation(bookTranslationLang, 'sinopsis', e.target.value)}
+                    placeholder={`Sinopsis dalam bahasa ${TRANSLATION_META[bookTranslationLang].languageName}`}
+                    className="w-full p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-slate-800 bg-white"
+                  />
+                </div>
               </div>
 
               {/* Toggle Buku Terbaru */}
@@ -2561,7 +2735,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-4">
                     <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5 pb-1 border-b border-slate-100">
                       <GraduationCap className="w-3.5 h-3.5 text-[#DFBF64]" />
-                      4 Bagian Biografi Detail <span className="text-[10px] font-normal normal-case text-slate-400 ml-auto">(1 poin = 1 baris, pisahkan dengan enter)</span>
+                      4 Bagian Biografi Detail (ID) <span className="text-[10px] font-normal normal-case text-slate-400 ml-auto">(1 poin = 1 baris, pisahkan dengan enter)</span>
                     </h4>
 
                     <div>
@@ -2619,6 +2793,37 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         className="w-full px-3 py-2.5 text-xs rounded-lg border border-slate-200 focus:border-emerald-700 focus:outline-none leading-relaxed"
                       />
                     </div>
+                  </div>
+
+                  {/* Terjemahan Bio (EN / ZH) — format sama (1 poin = 1 baris); field kosong tidak disimpan */}
+                  <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-4">
+                    <div className="flex flex-wrap items-start justify-between gap-2 pb-1 border-b border-slate-100">
+                      <div>
+                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                          <Languages className="w-3.5 h-3.5 text-[#DFBF64]" />
+                          Terjemahan Bio
+                        </h4>
+                        <p className="text-[10px] text-slate-400 mt-0.5">
+                          Kosongkan jika belum ada terjemahan — situs akan menampilkan versi Bahasa Indonesia.
+                        </p>
+                      </div>
+                      <TranslationLanguageSwitch value={authorTranslationLang} onChange={setAuthorTranslationLang} translations={authorForm.i18n} />
+                    </div>
+                    {AUTHOR_BIO_TRANSLATION_FIELDS.map(({ field, label }) => (
+                      <div key={field}>
+                        <label className="block text-[11px] font-bold text-slate-700 mb-1.5">
+                          {label} {TRANSLATION_META[authorTranslationLang].suffix}
+                        </label>
+                        <textarea
+                          rows={3}
+                          lang={TRANSLATION_META[authorTranslationLang].htmlLang}
+                          value={authorForm.i18n[authorTranslationLang]?.[field] || ''}
+                          onChange={(e) => updateAuthorTranslation(authorTranslationLang, field, e.target.value)}
+                          placeholder={`${label} dalam bahasa ${TRANSLATION_META[authorTranslationLang].languageName} (1 poin = 1 baris)`}
+                          className="w-full px-3 py-2.5 text-xs rounded-lg border border-slate-200 focus:border-slate-800 focus:outline-none leading-relaxed"
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

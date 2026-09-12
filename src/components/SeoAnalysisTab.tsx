@@ -35,7 +35,7 @@ export const SeoAnalysisTab: React.FC<SeoAnalysisTabProps> = ({
 }) => {
   // Preset audit target URLs
   const auditPresetOptions = useMemo(() => {
-    const list = [
+    const list: Array<{ label: string; path: string; page: ActivePage; book: Book | null }> = [
       { label: '/ (Halaman Beranda)', path: '/', page: 'beranda' as ActivePage, book: null },
       { label: '/katalog (Katalog 21+ Buku)', path: '/katalog', page: 'katalog' as ActivePage, book: null },
       { label: '/penerbitan (Layanan ISBN)', path: '/penerbitan', page: 'penerbitan' as ActivePage, book: null },

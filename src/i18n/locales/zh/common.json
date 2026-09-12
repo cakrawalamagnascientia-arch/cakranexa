@@ -1,0 +1,153 @@
+{
+  "language": "语言",
+  "indonesia": "印度尼西亚语",
+  "english": "英语",
+  "chinese": "中文",
+  "home": "首页",
+  "catalog": "目录",
+  "publishing": "出版服务",
+  "training": "培训",
+  "journal": "期刊",
+  "about": "关于我们",
+  "blog": "博客",
+  "career": "职业",
+  "contact": "联系",
+  "authors": "作者与贡献者",
+  "cart": "购物车",
+  "search": "搜索",
+  "paymentMethod": "支付方式",
+  "allBooks": "全部书籍",
+  "viewDetails": "查看详情",
+  "viewProfile": "查看简介与作品",
+  "officialSeller": "官方销售商",
+  "publisher": "主要出版社",
+  "priceComingSoon": "价格即将公布",
+  "latest": "最新",
+  "back": "返回",
+  "save": "保存更改",
+  "cancel": "取消",
+  "loading": "加载中...",
+  "noData": "暂无数据。",
+  "nav": {
+    "homeAriaLabel": "CakraNexa 首页",
+    "searchTitle": "搜索书名 / ISBN / 作者",
+    "cartTitle": "购物车",
+    "cartButton": "购物车（{{quantity}}）",
+    "catalogMenu": {
+      "bookCount_other": "{{count}} 本",
+      "latestBooks": "最新书籍",
+      "categoriesHeading": "图书分类"
+    },
+    "publishingMenu": {
+      "services": "出版服务",
+      "submitManuscript": "投稿",
+      "openBadge": "开放",
+      "authorGuide": "作者指南",
+      "process": "出版流程",
+      "faq": "出版常见问题"
+    },
+    "aboutMenu": {
+      "profile": "公司简介",
+      "visionMission": "愿景与使命",
+      "editorialTeam": "编辑委员会与团队",
+      "legality": "合法资质"
+    },
+    "mobile": {
+      "catalogAll": "目录（全部书籍）",
+      "publishingServices": "出版服务",
+      "submitManuscript": "提交书稿",
+      "authorGuide": "作者指南",
+      "process": "出版流程",
+      "faq": "出版常见问题"
+    }
+  },
+  "subheader": {
+    "backTitle": "返回上一页",
+    "backLabel": "返回上一页",
+    "sectionLabel": "目录：",
+    "authorDetail": "作者详情",
+    "bookDetail": "图书详情",
+    "contributingAuthors": "供稿作者",
+    "pages": {
+      "katalog": "目录",
+      "katalogDetail": "目录详情",
+      "penerbitan": "出版服务",
+      "pelatihan": "培训",
+      "jurnal": "期刊",
+      "tentangKami": "关于我们",
+      "blog": "博客",
+      "career": "招聘",
+      "karir": "招聘",
+      "checkout": "结算",
+      "kontak": "联系我们"
+    }
+  },
+  "toast": {
+    "forthcomingNoPrice": "《{{title}}》即将出版，价格尚未确定。",
+    "addedToCart": "《{{title}}》已加入购物车。",
+    "removedFromCart": "商品已从购物车中移除。",
+    "orderRecorded": "订单 #{{orderNumber}} 已成功记录。谢谢！",
+    "orderSyncFailed": "订单已保存在本地，但未能同步到服务器：{{reason}}",
+    "orderUpdateFailed": "在服务器上更新订单失败：{{message}}",
+    "orderUpdateOffline": "订单更新已保存在本地（后端离线）。",
+    "bookUpdateFailed": "在服务器上更新图书失败：{{message}}",
+    "authorSync": {
+      "createFailed": "在服务器上添加作者失败：{{message}}",
+      "createOffline": "作者仅已在本地添加（后端离线）。",
+      "updateFailed": "在服务器上更新作者失败：{{message}}",
+      "updateOffline": "作者仅已在本地更新（后端离线）。"
+    }
+  },
+  "actions": {
+    "addToCart": "加入购物车",
+    "addToCartShort": "+ 购物车",
+    "buyNow": "立即购买",
+    "detail": "详情",
+    "backToTop": "返回顶部"
+  },
+  "image": {
+    "defaultAlt": "图片"
+  },
+  "footer": {
+    "about": "PT CAKRAWALA MAGNA SCIENTIA - PT Cakrawala Magna Scientia 是一家知识型企业，致力于构建一个出版、更新、发展、传授、保护、授权并将知识传承给后代的生态系统。\n\n通过 CakraNexa，我们将作者、读者、学者、专业人士、机构、图书馆及合作伙伴连接于同一个知识生态系统之中，使其超越单一图书、单一形式、单一平台和单一世代而持续成长。",
+    "trust": {
+      "ikapiMember": "印度尼西亚出版商协会（IKAPI）会员出版社",
+      "isbnPerpusnas": "印度尼西亚国家图书馆官方ISBN",
+      "nationalCatalog": "已编入国家书目",
+      "paymentGateway": "官方支付网关",
+      "sslEncryption": "经验证的256位SSL加密",
+      "legalEntity": "正式注册的有限责任公司（PT）"
+    },
+    "catalogLinks": {
+      "taxation": "税务与财政图书",
+      "accounting": "会计与法务审计图书",
+      "law": "诉讼法与刑法图书",
+      "economics": "经济与企业管理"
+    },
+    "servicesHeading": "服务与研究",
+    "servicesLinks": {
+      "publishing": "图书出版服务",
+      "submit": "投稿 / 提交图书选题",
+      "guidelines": "写作与格式指南",
+      "taxWorkshop": "高管税务研修班",
+      "journal": "同行评审学术期刊",
+      "isbnFaq": "ISBN出版常见问题"
+    },
+    "companyHeading": "公司",
+    "companyLinks": {
+      "profile": "PT Cakrawala Magna 简介",
+      "visionMission": "愿景、使命与承诺",
+      "legality": "合法资质与法律与人权部批准文件",
+      "blog": "法律与税务评论（博客）",
+      "careers": "招聘与合作"
+    },
+    "legal": {
+      "privacy": "隐私政策",
+      "terms": "条款与条件",
+      "isbnVerification": "ISBN验证",
+      "editorialBoard": "编辑委员会"
+    },
+    "copyright": "版权所有，受法律保护。所有专著和教科书均已在印度尼西亚国家图书馆正式登记ISBN。",
+    "copyrightFallback": "© {{year}} PT CAKRAWALA MAGNA SCIENTIA (CakraNexa)。版权所有，受法律保护。"
+  }
+}
