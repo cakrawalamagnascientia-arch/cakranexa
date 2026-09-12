@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Book, ActivePage, SubSection, SeoSettings } from '../types';
+import { Book, ActivePage, SubSection, SeoSettings, DigitalProduct } from '../types';
 import { generatePageMetadata, generateJsonLdSchema, applyDocumentMetadata, getStoredSeoSettings } from '../services/seoService';
 import { useAppLanguage } from '../i18n/hooks';
 
@@ -8,6 +8,8 @@ interface UseSeoMetadataOptions {
   selectedBook?: Book | null;
   subSection?: SubSection;
   seoSettings?: SeoSettings;
+  /** Produk digital yang sedang dibuka (halaman detail atau sampel). */
+  digitalEntry?: { product: DigitalProduct; book: Book } | null;
 }
 
 /**
@@ -19,7 +21,8 @@ export const useSeoMetadata = ({
   activePage,
   selectedBook,
   subSection,
-  seoSettings
+  seoSettings,
+  digitalEntry
 }: UseSeoMetadataOptions) => {
   const language = useAppLanguage();
 
@@ -29,11 +32,13 @@ export const useSeoMetadata = ({
       book: selectedBook,
       subSection,
       settings: currentSettings,
-      language
+      language,
+      digital: digitalEntry
     });
 
-    const schema = generateJsonLdSchema(activePage, selectedBook, currentSettings, language);
+    // Schema buku digital hanya untuk halaman detail, bukan halaman sampel.
+    const schema = generateJsonLdSchema(activePage, selectedBook, currentSettings, language, subSection === 'sample' ? null : digitalEntry);
 
     applyDocumentMetadata(metadata, schema, currentSettings);
-  }, [activePage, selectedBook, subSection, seoSettings, language]);
+  }, [activePage, selectedBook, subSection, seoSettings, language, digitalEntry]);
 };

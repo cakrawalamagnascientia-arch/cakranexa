@@ -14,6 +14,48 @@
     "schemaDescription": "ISBN-registered academic book {{title}} (ISBN {{isbn}})."
   },
   "pages": {
+    "digitalEbook": {
+      "title": "Academic E-Books with ISBN — CakraNexa",
+      "description": "E-book editions of CakraNexa monographs and academic references in taxation, accounting, law, economics, philosophy, and theology. Read a free sample before you buy.",
+      "keywords": "academic e-books, taxation e-book, law e-book, isbn digital books, cakranexa",
+      "imageAlt": "CakraNexa E-Books"
+    },
+    "digitalAudiobook": {
+      "title": "Academic Audiobooks — CakraNexa",
+      "description": "Selected CakraNexa monographs read by a narrator. Listen to a free sample and get access through membership.",
+      "keywords": "academic audiobooks, indonesian audiobooks, taxation audiobook, cakranexa",
+      "imageAlt": "CakraNexa Audiobooks"
+    },
+    "digitalDetail": {
+      "title": "{{title}} ({{format}}) — {{author}} | CakraNexa",
+      "description": "{{format}} edition of \"{{title}}\" by {{author}}. {{price}}. Read a free sample and get access with a CakraNexa membership.",
+      "keywords": "digital edition, academic monograph",
+      "imageAlt": "{{format}} cover of {{title}}"
+    },
+    "digitalSample": {
+      "title": "{{title}} Sample — CakraNexa",
+      "description": "Free preview of the {{format}} \"{{title}}\" by {{author}}.",
+      "keywords": "e-book sample, book preview",
+      "imageAlt": "Sample of {{title}}"
+    },
+    "membership": {
+      "title": "CakraNexa Membership — Free Circle to Author Guild",
+      "description": "Choose a CakraNexa membership plan: Free Circle, Reader Circle, Professional & Academic Society with Digital Reading Shelf access, and Author Guild. Save 2 months with annual billing.",
+      "keywords": "cakranexa membership, academic e-book subscription, digital reading shelf, author guild",
+      "imageAlt": "CakraNexa Membership"
+    },
+    "institutions": {
+      "title": "Institution & Library Network — Digital Access for Universities & Libraries | CakraNexa",
+      "description": "CakraNexa e-books and audiobooks for universities, libraries, and agencies on an annual contract with an acquisition wallet. Request a quote tailored to your institution.",
+      "keywords": "university library e-books, institutional subscription, library digital access, cakranexa",
+      "imageAlt": "CakraNexa Institution & Library Network"
+    },
+    "library": {
+      "title": "My Library — CakraNexa",
+      "description": "Your CakraNexa e-book and audiobook collection.",
+      "keywords": "my library, digital collection",
+      "imageAlt": "CakraNexa My Library"
+    },
     "catalog": {
       "title": "Catalog of Academic Books & ISBN-Registered Monographs — CakraNexa",
       "description": "Explore a collection of 21+ academic monographs and textbooks on law, taxation, accounting, and economics, registered with official ISBNs from the National Library of Indonesia. Published by PT Cakrawala Magna Scientia.",

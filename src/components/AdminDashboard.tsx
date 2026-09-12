@@ -64,6 +64,9 @@ import { SeoAnalysisTab } from './SeoAnalysisTab';
 import { ExecutiveAnalyticsDashboard } from './ExecutiveAnalyticsDashboard';
 import { ShippingManagementTab } from './ShippingManagementTab';
 import { PaymentManagementTab } from './PaymentManagementTab';
+import { DigitalProductsTab } from './DigitalProductsTab';
+import { InstitutionInquiriesTab } from './InstitutionInquiriesTab';
+import { TabletSmartphone as DigitalProductsIcon, Building2 as InstitutionIcon } from 'lucide-react';
 import { CmsDashboardManager } from './CmsDashboardManager';
 import { ShippingLabelModal } from './ShippingLabelModal';
 import { getStoredSeoSettings, saveStoredSeoSettings, DEFAULT_SEO_SETTINGS } from '../services/seoService';
@@ -188,7 +191,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onNavigateHome,
   onGoBack
 }) => {
-  const [activeTab, setActiveTab] = useState<'analytics' | 'inventory' | 'orders' | 'shipping' | 'payments' | 'cms' | 'seo-settings' | 'seo-analysis' | 'authors'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'inventory' | 'orders' | 'shipping' | 'payments' | 'cms' | 'seo-settings' | 'seo-analysis' | 'authors' | 'digital-products' | 'institution-inquiries'>('analytics');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -978,6 +981,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </button>
 
           <div className="pt-4 px-2 pb-2 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+            Produk Digital
+          </div>
+
+          {/* Produk Digital (E-Book & Audiobook) */}
+          <button
+            id="sidebar-btn-digital-products"
+            onClick={() => { setActiveTab('digital-products'); setIsMobileSidebarOpen(false); }}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+              activeTab === 'digital-products'
+                ? 'bg-slate-800 text-[#DFBF64] font-semibold'
+                : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <DigitalProductsIcon className={`w-4 h-4 ${activeTab === 'digital-products' ? 'text-[#DFBF64]' : 'text-slate-400'}`} />
+              <span>Produk Digital</span>
+            </div>
+          </button>
+
+          {/* Permintaan Institusi (/institutions) */}
+          <button
+            id="sidebar-btn-institution-inquiries"
+            onClick={() => { setActiveTab('institution-inquiries'); setIsMobileSidebarOpen(false); }}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+              activeTab === 'institution-inquiries'
+                ? 'bg-slate-800 text-[#DFBF64] font-semibold'
+                : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <InstitutionIcon className={`w-4 h-4 ${activeTab === 'institution-inquiries' ? 'text-[#DFBF64]' : 'text-slate-400'}`} />
+              <span>Permintaan Institusi</span>
+            </div>
+          </button>
+
+          <div className="pt-4 px-2 pb-2 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
             Optimasi & SEO
           </div>
 
@@ -1070,6 +1109,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {activeTab === 'cms' && 'Konten & Menu (CMS)'}
             {activeTab === 'seo-settings' && 'SEO / Meta Settings'}
             {activeTab === 'seo-analysis' && 'Audit SEO & Analytics'}
+            {activeTab === 'digital-products' && 'Produk Digital'}
+            {activeTab === 'institution-inquiries' && 'Permintaan Institusi'}
           </div>
           <button
             onClick={onNavigateHome}
@@ -1119,6 +1160,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {activeTab === 'cms' && 'Manajemen Konten & Menu (CMS Beranda & Ticker)'}
               {activeTab === 'seo-settings' && 'Pengaturan SEO & Meta Tags Google'}
               {activeTab === 'seo-analysis' && 'Audit Checklist On-Page SEO'}
+              {activeTab === 'digital-products' && 'Produk Digital: E-Book & Audiobook'}
+              {activeTab === 'institution-inquiries' && 'Permintaan Institution & Library Network'}
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
               {activeTab === 'analytics' && 'Laporan eksekutif metrik penjualan, tren volume, dan performa redaksi.'}
@@ -1130,6 +1173,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {activeTab === 'cms' && 'Kustomisasi Best Seller running ticker, hero banner, menu navigasi, kontak footer, dan semua section secara dinamis & real-time.'}
               {activeTab === 'seo-settings' && 'Kustomisasi title tag, meta description, Open Graph, dan Google Search preview.'}
               {activeTab === 'seo-analysis' && 'Audit kepatuhan SEO on-page, skor kesehatan, dan rekomendasi optimasi web.'}
+              {activeTab === 'digital-products' && 'Kelola harga satuan, status, tanggal masuk Digital Reading Shelf, dan file sampel e-book & audiobook.'}
+              {activeTab === 'institution-inquiries' && 'Daftar permintaan penawaran dari halaman /institutions beserta status tindak lanjutnya.'}
             </p>
           </div>
 
@@ -2080,6 +2125,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           onUpdateBook={onUpdateBook}
           onNavigateHome={onNavigateHome}
         />
+      )}
+
+      {/* PRODUK DIGITAL (E-BOOK & AUDIOBOOK) */}
+      {activeTab === 'digital-products' && (
+        <DigitalProductsTab books={books} />
+      )}
+
+      {/* PERMINTAAN INSTITUSI (/institutions) */}
+      {activeTab === 'institution-inquiries' && (
+        <InstitutionInquiriesTab />
       )}
 
       </main>

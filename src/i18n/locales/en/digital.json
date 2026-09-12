@@ -1,0 +1,341 @@
+{
+  "nav": {
+    "menu": "Digital",
+    "ebook": "E-Book",
+    "audiobook": "Audiobook",
+    "membershipHeading": "Membership",
+    "membershipPlans": "Membership Plans",
+    "myLibrary": "My Library",
+    "signInForLibrary": "Sign in for My Library",
+    "availableCount_one": "{{count}} title",
+    "availableCount_other": "{{count}} titles",
+    "comingSoonBadge": "Soon",
+    "categoryHasEbook": "E-book edition available",
+    "categoryHasAudiobook": "Audiobook edition available"
+  },
+  "formats": {
+    "print": "Print",
+    "ebook": "E-Book",
+    "audiobook": "Audiobook"
+  },
+  "status": {
+    "available": "Available",
+    "comingSoon": "Soon",
+    "unavailable": "Not available"
+  },
+  "common": {
+    "priceTbd": "Price to be announced",
+    "unitPrice": "Single-copy price",
+    "comingSoonPhase2": "Coming soon",
+    "buyFormat": "Buy {{format}}",
+    "buyComingSoonTitle": "{{format}} purchases are coming soon",
+    "readSample": "Read sample",
+    "listenSample": "Listen to sample",
+    "shelfEntry": "On the digital shelf: {{date}}",
+    "comingSoonLabel": "Coming soon",
+    "narratedBy": "Narrated by {{name}}",
+    "durationHoursMinutes": "{{hours}} h {{minutes}} min",
+    "durationMinutes": "{{minutes}} min",
+    "pages_one": "{{count}} page",
+    "pages_other": "{{count}} pages",
+    "coverAlt": "Cover of {{title}}",
+    "viewDetails": "View details"
+  },
+  "formatIcons": {
+    "print": "Print book",
+    "ebook": "E-book",
+    "ebookSoon": "E-book (coming soon)",
+    "audiobook": "Audiobook",
+    "audiobookSoon": "Audiobook (coming soon)"
+  },
+  "listing": {
+    "ebook": {
+      "badge": "Academic E-Books",
+      "title": "CakraNexa E-Books",
+      "subtitle": "ISBN-registered monographs and reference books in digital format. Read anywhere, and try a free sample before you buy."
+    },
+    "audiobook": {
+      "badge": "Academic Audiobooks",
+      "title": "CakraNexa Audiobooks",
+      "subtitle": "Listen to selected monographs read by a narrator. Not every title is available as audio."
+    },
+    "membershipHint": "Full access to e-books and audiobooks comes with the Professional & Academic Society membership.",
+    "membershipLink": "See membership plans",
+    "formatSwitch": "Choose a format",
+    "filters": {
+      "category": "Category",
+      "allCategories": "All categories",
+      "availability": "Availability",
+      "all": "All",
+      "available": "Available",
+      "comingSoon": "Coming soon",
+      "searchLabel": "Search digital titles",
+      "searchPlaceholder": "Search by title or author…",
+      "reset": "Reset filters"
+    },
+    "resultCount_one": "{{count}} title",
+    "resultCount_other": "{{count}} titles",
+    "empty": {
+      "title": "No matching titles yet",
+      "description": "Try a different filter or search term.",
+      "noAudiobooks": "Our first audiobooks are in production. In the meantime, explore our e-books.",
+      "browseEbooks": "Browse e-books"
+    }
+  },
+  "detail": {
+    "backToListing": "Back to {{format}} list",
+    "description": "Description",
+    "formatInfo": "Format details",
+    "format": "Format",
+    "pageCount": "Pages",
+    "duration": "Length",
+    "narrator": "Narrator",
+    "sampleRange": "Sample pages",
+    "sampleRangeValue": "pp. {{start}}–{{end}}",
+    "sampleAudio": "Audio sample",
+    "sampleAudioValue": "First {{minutes}} minutes",
+    "shelfDate": "Joins the Digital Reading Shelf",
+    "notSet": "Not set yet",
+    "howToGet": {
+      "title": "How to get it",
+      "buyTitle": "Buy a single copy",
+      "buyDescription": "Pay once, then read or listen any time from My Library.",
+      "membershipTitle": "Included with membership",
+      "membershipDescription": "No extra charge through the Digital Reading Shelf for members of:",
+      "institutionPlan": "Institution & Library Network (institutional access)",
+      "shelfScheduled": "New title: joins the Digital Reading Shelf on {{date}}. Until then it can only be bought as a single copy.",
+      "shelfOnShelf": "Already on the Digital Reading Shelf.",
+      "shelfUnscheduled": "The Digital Reading Shelf date will be announced. New titles usually join the shelf 90–180 days after release.",
+      "viewPlans": "See membership plans"
+    },
+    "printVersion": "Print edition",
+    "printVersionDescription": "This title is also available as an ISBN-registered print book.",
+    "printVersionLink": "View print book",
+    "related": "Related {{format}} titles",
+    "notFound": {
+      "title": "Digital title not found",
+      "description": "This title is not available in digital format yet, or the link has changed.",
+      "back": "See all {{format}} titles"
+    }
+  },
+  "sample": {
+    "badge": "Free sample",
+    "titleEbook": "E-book sample",
+    "titleAudiobook": "Audiobook sample",
+    "backToDetail": "Back to details",
+    "pageAlt": "Sample page {{number}}: {{title}}",
+    "pageLabel": "Sample page {{number}}",
+    "placeholderNote": "This is an example preview. The real sample pages appear once the publisher uploads them.",
+    "rangeNote": "The sample covers pages {{start}}–{{end}} of {{total}}.",
+    "audioNote": "Listen to the first {{minutes}} minutes of this audiobook.",
+    "audioUnsupported": "Your browser does not support the audio player.",
+    "audioUnavailable": "An audio sample is not available for this title yet.",
+    "ctaTitle": "Want to keep reading?",
+    "ctaDescription": "Buy a single copy, or read it with a Professional & Academic Society membership.",
+    "notFound": "Sample not found."
+  },
+  "formatSelector": {
+    "label": "Choose a format",
+    "digitalPrice": "{{format}} price",
+    "digitalNote": "Digital editions are bought separately from the print book.",
+    "viewDigitalDetail": "View {{format}} details"
+  },
+  "membership": {
+    "badge": "CakraNexa Membership",
+    "title": "Choose how you read and create",
+    "subtitle": "From general readers to academics and authors, each plan offers different benefits. Full access to e-books and audiobooks comes with Professional & Academic Society.",
+    "billing": {
+      "label": "Billing period",
+      "monthly": "Monthly",
+      "annual": "Annual",
+      "save": "Save 2 months"
+    },
+    "free": "Free",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "annualEquivalent": "equivalent to {{price}}/month",
+    "recommended": "Recommended",
+    "foundingMember": "Founding Member",
+    "includesShelf": "Includes the Digital Reading Shelf",
+    "choosePlan": "Choose plan",
+    "joinFree": "Join for free",
+    "phase2Note": "Membership sign-up is being prepared and will open soon.",
+    "plans": {
+      "freeCircle": {
+        "name": "Free Circle",
+        "tagline": "Get to know CakraNexa at no cost."
+      },
+      "readerCircle": {
+        "name": "Reader Circle",
+        "tagline": "For readers who buy books regularly."
+      },
+      "professionalSociety": {
+        "name": "Professional & Academic Society",
+        "tagline": "Full e-book and audiobook access for academics and practitioners."
+      },
+      "authorGuild": {
+        "name": "Author Guild",
+        "tagline": "For authors who want to publish with CakraNexa."
+      }
+    },
+    "benefits": {
+      "samples": "Access to every e-book and audiobook sample",
+      "newsletter": "Monthly release and insight newsletter",
+      "publicEvents": "Invitations to webinars and public events",
+      "memberDiscount": "Member prices on single e-books and audiobooks",
+      "printDiscount": "Member discount on print books",
+      "earlyNews": "Early news about upcoming titles",
+      "digitalShelf": "Full Digital Reading Shelf access (e-books and audiobooks)",
+      "frontlistDiscount": "Special prices on new titles before they join the shelf",
+      "webinars": "Members-only webinars and professional classes",
+      "manuscriptReview": "Manuscript consultation with the editorial team",
+      "publishingDiscount": "Discount on publishing services",
+      "authorCommunity": "Author community and writing classes"
+    },
+    "frontlist": {
+      "title": "When do new titles join the Digital Reading Shelf?",
+      "body": "New titles are released first as print books and single-copy e-books. After 90–180 days they join the Digital Reading Shelf, so Professional & Academic Society members can read them at no extra cost. The shelf date is shown on every digital product page.",
+      "step1": "At release: print book and single-copy e-book",
+      "step2": "90–180 days later: joins the Digital Reading Shelf",
+      "step3": "After that: still available as a single copy"
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "items": {
+        "shelf": {
+          "q": "What is the Digital Reading Shelf?",
+          "a": "A digital reading shelf of CakraNexa e-books and audiobooks that Professional & Academic Society and Author Guild members can access without buying each title."
+        },
+        "frontlist": {
+          "q": "Why don't new titles join the shelf right away?",
+          "a": "New titles are sold as single copies first so authors are paid fairly. After 90–180 days a title joins the shelf, and the date is shown on its product page."
+        },
+        "unitPurchase": {
+          "q": "Can I buy an e-book without a membership?",
+          "a": "Yes. Every available e-book and audiobook can be bought as a single copy and stays in My Library."
+        },
+        "billing": {
+          "q": "What is the difference between monthly and annual billing?",
+          "a": "Annual billing is paid once a year at the price of 10 months, so you save 2 months compared with monthly billing."
+        },
+        "cancel": {
+          "q": "Can I cancel at any time?",
+          "a": "Yes. You can cancel at any time and your membership stays active until the end of the period you paid for. Titles bought as single copies remain yours."
+        },
+        "institutions": {
+          "q": "I represent a university or library. Which plan fits?",
+          "a": "Institution & Library Network: shared access for many users on an annual contract. Request a quote on the institutions page."
+        }
+      }
+    },
+    "institutionsCta": {
+      "title": "For universities, libraries, and agencies",
+      "description": "Institution & Library Network gives many users Digital Reading Shelf access at once on an annual contract.",
+      "link": "Explore Institution & Library Network"
+    }
+  },
+  "institutions": {
+    "badge": "Institution & Library Network",
+    "title": "CakraNexa digital access for your institution",
+    "subtitle": "One annual contract for your whole community: students, lecturers, researchers, and staff can read CakraNexa e-books and listen to audiobooks.",
+    "pricingNote": "Pricing depends on the size of the institution and the number of titles.",
+    "tiersTitle": "Service tiers",
+    "concurrentUsers_one": "Up to {{count}} concurrent user",
+    "concurrentUsers_other": "Up to {{count}} concurrent users",
+    "concurrentUsersCustom": "More than 100 concurrent users, tailored",
+    "concurrentExplainer": "Concurrent users are the number of people who can read at the same time.",
+    "requestQuote": "Request a quote",
+    "tiers": {
+      "starter": {
+        "name": "Starter",
+        "description": "For study programs, research institutes, or small libraries."
+      },
+      "campus": {
+        "name": "Campus",
+        "description": "For a single campus or library with many active readers."
+      },
+      "network": {
+        "name": "Network",
+        "description": "For consortia, multi-campus institutions, or library networks."
+      }
+    },
+    "features": {
+      "shelfAccess": "Digital Reading Shelf access (e-books and audiobooks)",
+      "usageReports": "Regular usage reports",
+      "acquisitionWallet": "Acquisition wallet for permanent title purchases",
+      "ipAccess": "Automatic access from the campus network (IP)",
+      "marcRecords": "MARC catalog records for library systems",
+      "multiCampus": "One contract for several campuses or branches",
+      "accountManager": "Dedicated account manager"
+    },
+    "wallet": {
+      "title": "What is an acquisition wallet?",
+      "body": "Part of the annual contract value is kept as an acquisition balance. It is used to buy selected titles permanently, so the collection stays with the institution even if the contract is not renewed.",
+      "point1": "Choose the titles read most often",
+      "point2": "Purchased titles stay accessible afterwards",
+      "point3": "Balance use is recorded in the annual report"
+    },
+    "form": {
+      "title": "Request a quote",
+      "description": "Fill in this form and our team will contact you.",
+      "institutionName": "Institution name",
+      "institutionType": "Institution type",
+      "selectType": "Choose an institution type",
+      "types": {
+        "university": "University or college",
+        "library": "Library",
+        "government": "Government agency",
+        "company": "Company",
+        "other": "Other"
+      },
+      "userCount": "Estimated number of users",
+      "userCountHint": "The number of students, staff, or members who will use the access.",
+      "email": "Work email",
+      "contactName": "Contact name (optional)",
+      "phone": "Phone/WhatsApp (optional)",
+      "message": "Message (optional)",
+      "messagePlaceholder": "Tell us about your collection needs or priority subject areas.",
+      "honeypot": "Website",
+      "submit": "Send request",
+      "submitting": "Sending…",
+      "privacy": "Your details are only used to prepare the quote.",
+      "success": {
+        "title": "Request sent",
+        "body": "Thank you. Our team will contact you at {{email}}."
+      },
+      "sendAnother": "Send another request",
+      "errors": {
+        "institutionName": "Enter the institution name (at least 2 characters).",
+        "institutionType": "Choose an institution type.",
+        "userCount": "Enter a number of users of 1 or more.",
+        "email": "Enter a valid email address.",
+        "rateLimited": "Too many requests. Please try again in 1 hour.",
+        "generic": "The request could not be sent. Check your connection and try again."
+      }
+    }
+  },
+  "library": {
+    "badge": "My Library",
+    "title": "My Library",
+    "subtitle": "E-books and audiobooks you buy or access through membership will appear here.",
+    "signInTitle": "Sign in to your member account",
+    "signInDescription": "CakraNexa member accounts are being prepared. Once available, you can sign in to open your digital collection on any device.",
+    "signInButton": "Sign in",
+    "emptyTitle": "No digital titles yet",
+    "emptyDescription": "Buy a single e-book or audiobook, or join a membership to fill your library.",
+    "browseEbooks": "Browse e-books",
+    "browseAudiobooks": "Browse audiobooks",
+    "promoTitle": "Read more with a membership",
+    "promoDescription": "Professional & Academic Society unlocks the whole Digital Reading Shelf: e-books and audiobooks without buying each one.",
+    "promoCta": "See membership plans"
+  },
+  "subheader": {
+    "ebook": "E-Book",
+    "audiobook": "Audiobook",
+    "sample": "Sample",
+    "digitalDetail": "Digital details",
+    "membership": "Membership",
+    "institutions": "Institutions",
+    "library": "My Library"
+  }
+}

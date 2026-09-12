@@ -14,6 +14,48 @@
     "schemaDescription": "已获ISBN的学术图书《{{title}}》（ISBN {{isbn}}）。"
   },
   "pages": {
+    "digitalEbook": {
+      "title": "拥有 ISBN 的学术电子书 — CakraNexa",
+      "description": "CakraNexa 出版的学术专著与参考书电子版，涵盖税务、会计、法律、经济、哲学和神学。购买前可免费试读。",
+      "keywords": "学术电子书, 税务电子书, 法律电子书, ISBN 数字图书, cakranexa",
+      "imageAlt": "CakraNexa 电子书"
+    },
+    "digitalAudiobook": {
+      "title": "学术有声书 — CakraNexa",
+      "description": "由朗读者演绎的 CakraNexa 精选学术专著。免费试听，并可通过会员获取访问权限。",
+      "keywords": "学术有声书, 印尼有声书, 税务有声书, cakranexa",
+      "imageAlt": "CakraNexa 有声书"
+    },
+    "digitalDetail": {
+      "title": "{{title}}（{{format}}）— {{author}} | CakraNexa",
+      "description": "{{author}} 所著《{{title}}》{{format}}版本。{{price}}。免费试读，并可通过 CakraNexa 会员访问。",
+      "keywords": "数字版, 学术专著",
+      "imageAlt": "《{{title}}》{{format}}封面"
+    },
+    "digitalSample": {
+      "title": "《{{title}}》试读 — CakraNexa",
+      "description": "{{author}} 所著{{format}}《{{title}}》的免费预览。",
+      "keywords": "电子书试读, 图书预览",
+      "imageAlt": "《{{title}}》试读"
+    },
+    "membership": {
+      "title": "CakraNexa 会员 — 从 Free Circle 到 Author Guild",
+      "description": "选择 CakraNexa 会员方案：Free Circle、Reader Circle、包含 Digital Reading Shelf 访问的 Professional & Academic Society，以及 Author Guild。按年计费可省 2 个月。",
+      "keywords": "cakranexa 会员, 学术电子书订阅, digital reading shelf, author guild",
+      "imageAlt": "CakraNexa 会员"
+    },
+    "institutions": {
+      "title": "Institution & Library Network — 面向大学和图书馆的数字访问 | CakraNexa",
+      "description": "以年度合同和采购账户为大学、图书馆和机构提供 CakraNexa 电子书和有声书。根据机构规模申请报价。",
+      "keywords": "高校图书馆电子书, 机构订阅, 图书馆数字访问, cakranexa",
+      "imageAlt": "CakraNexa Institution & Library Network"
+    },
+    "library": {
+      "title": "我的书库 — CakraNexa",
+      "description": "您的 CakraNexa 电子书和有声书馆藏。",
+      "keywords": "我的书库, 数字馆藏",
+      "imageAlt": "CakraNexa 我的书库"
+    },
     "catalog": {
       "title": "学术图书与已获ISBN专著目录 — CakraNexa",
       "description": "浏览21余种法律、税务、会计与经济领域的学术专著和教科书，均已获印度尼西亚国家图书馆正式ISBN。由 PT Cakrawala Magna Scientia 出版。",

@@ -1,4 +1,4 @@
-import { Book, ActivePage, SubSection, SeoSettings, SeoAuditResult, SeoAuditCheck } from '../types';
+import { Book, ActivePage, SubSection, SeoSettings, SeoAuditResult, SeoAuditCheck, DigitalProduct } from '../types';
 import { toTitleCase } from '../utils/formatters';
 import { apiClient } from './apiClient';
 import i18n, { DEFAULT_LANGUAGE, HTML_LANG, SUPPORTED_LANGUAGES, getCurrentLanguage, type AppLanguage } from '../i18n/index';
@@ -129,7 +129,8 @@ export interface NextMetadata {
 }
 
 /** Kunci halaman di seo:pages.* dan path-nya (tanpa prefix bahasa). */
-type SeoPageKey = 'catalog' | 'publishing' | 'training' | 'journal' | 'about' | 'blog' | 'career' | 'contact' | 'authors' | 'checkout';
+type SeoPageKey = 'catalog' | 'publishing' | 'training' | 'journal' | 'about' | 'blog' | 'career' | 'contact' | 'authors' | 'checkout'
+  | 'membership' | 'institutions' | 'library';
 const SEO_PAGES: Partial<Record<ActivePage, { key: SeoPageKey; path: string }>> = {
   katalog: { key: 'catalog', path: '/katalog' },
   penerbitan: { key: 'publishing', path: '/penerbitan' },
@@ -140,8 +141,15 @@ const SEO_PAGES: Partial<Record<ActivePage, { key: SeoPageKey; path: string }>> 
   karir: { key: 'career', path: '/karir' },
   career: { key: 'career', path: '/karir' },
   kontak: { key: 'contact', path: '/kontak' },
-  checkout: { key: 'checkout', path: '/checkout' }
+  checkout: { key: 'checkout', path: '/checkout' },
+  membership: { key: 'membership', path: '/membership' },
+  institutions: { key: 'institutions', path: '/institutions' },
+  library: { key: 'library', path: '/library' }
 };
+
+/** Halaman yang tidak diindeks mesin pencari: Pustaka Saya (personal) dan pratinjau sampel digital. */
+const isNoIndexPage = (page: ActivePage, subSection?: SubSection): boolean =>
+  page === 'library' || (page === 'digital' && subSection === 'sample');
 
 const OG_LOCALE: Record<AppLanguage, string> = { id: 'id_ID', en: 'en_US', zh: 'zh_CN' };
 
@@ -149,6 +157,8 @@ const OG_LOCALE: Record<AppLanguage, string> = { id: 'id_ID', en: 'en_US', zh: '
  * Dynamic Next.js-style generateMetadata() implementation for public pages, per bahasa:
  * - `/` (Beranda), `/katalog`, `/katalog/[slug]` (Detail Buku), `/katalog/penulis`, `/penerbitan`,
  *   `/pelatihan`, `/jurnal`, `/tentang-kami`, `/blog`, `/karir`, `/kontak`, `/checkout`
+ * - Produk digital: `/digital/ebook`, `/digital/audiobook`, `/digital/[format]/[slug]`, `/digital/sample/[id]` (noindex),
+ *   serta `/membership`, `/institutions`, `/library` (noindex)
  * - Judul & deskripsi dari namespace terjemahan `seo`; URL berprefiks /en, /zh untuk bahasa lain,
  *   dengan canonical per bahasa dan tautan hreflang ke semua versi bahasa.
  */
@@ -161,13 +171,15 @@ export const generatePageMetadata = (
     customUrl?: string;
     /** Bahasa halaman; default bahasa aktif. */
     language?: AppLanguage;
+    /** Produk digital yang dibuka (halaman detail atau sampel). */
+    digital?: { product: DigitalProduct; book: Book } | null;
   } = {}
 ): NextMetadata => {
   const settings = options.settings || getStoredSeoSettings();
   const lang = options.language || getCurrentLanguage();
   const t = i18n.getFixedT(lang, 'seo');
   const siteUrl = settings.siteUrl.replace(/\/$/, '');
-  const isNoIndex = settings.noindex;
+  const isNoIndex = settings.noindex || isNoIndexPage(page, options.subSection);
 
   const baseRobots = {
     index: !isNoIndex,
@@ -271,7 +283,44 @@ export const generatePageMetadata = (
     });
   }
 
-  // 2. HALAMAN LAIN DENGAN METADATA SENDIRI
+  // 2. PRODUK DIGITAL: daftar (`/digital/ebook|audiobook`), detail (`/digital/[format]/[slug]`), sampel (`/digital/sample/[id]`)
+  if (page === 'digital') {
+    const td = i18n.getFixedT(lang, 'digital');
+    const entry = options.digital;
+    if (entry) {
+      const { product, book } = entry;
+      const translatedName = getLocalized(book, 'name', lang);
+      const formattedTitle = translatedName !== book.name ? translatedName : toTitleCase(book.title || book.name);
+      const vars = { title: formattedTitle, author: book.author, format: td(`formats.${product.format}`) };
+      const isSample = options.subSection === 'sample';
+      const key = isSample ? 'digitalSample' : 'digitalDetail';
+      return build({
+        path: isSample ? `/digital/sample/${product.id}` : `/digital/${product.format}/${book.slug || book.id}`,
+        title: t(`pages.${key}.title`, vars),
+        description: t(`pages.${key}.description`, {
+          ...vars,
+          price: product.price > 0 ? formatCurrency(product.price, lang) : td('common.priceTbd')
+        }),
+        keywords: [...parsedKeywords, book.name, book.author, book.category, vars.format, ...splitKeywords(t(`pages.${key}.keywords`))],
+        image: book.coverBuku || settings.ogImage,
+        imageAlt: t(`pages.${key}.imageAlt`, vars),
+        imageWidth: 800,
+        imageHeight: 1200,
+        type: 'book'
+      });
+    }
+    const listingKey = options.subSection === 'audiobook' ? 'digitalAudiobook' : 'digitalEbook';
+    return build({
+      path: options.subSection === 'audiobook' ? '/digital/audiobook' : '/digital/ebook',
+      title: t(`pages.${listingKey}.title`),
+      description: t(`pages.${listingKey}.description`),
+      keywords: [...parsedKeywords, ...splitKeywords(t(`pages.${listingKey}.keywords`))],
+      image: settings.ogImage,
+      imageAlt: t(`pages.${listingKey}.imageAlt`)
+    });
+  }
+
+  // 3. HALAMAN LAIN DENGAN METADATA SENDIRI
   const seoPage = page === 'katalog' && options.subSection === 'penulis'
     ? { key: 'authors' as const, path: '/katalog/penulis' }
     : SEO_PAGES[page];
@@ -286,7 +335,7 @@ export const generatePageMetadata = (
     });
   }
 
-  // 3. DEFAULT / BERANDA (`/`) — judul & deskripsi dari pengaturan SEO admin; nilai bawaan diterjemahkan.
+  // 4. DEFAULT / BERANDA (`/`) — judul & deskripsi dari pengaturan SEO admin; nilai bawaan diterjemahkan.
   return build({
     path: '/',
     title: localizeCmsDefault(settings.siteTitle, DEFAULT_SEO_SETTINGS.siteTitle, t('home.title'), lang),
@@ -300,15 +349,43 @@ export const generatePageMetadata = (
 /**
  * Generates JSON-LD Structured Data Schema.
  * For `/katalog/[slug]`, produces `@type: "Book"` schema with title, ISBN, author, price, and cover.
+ * For `/digital/[format]/[slug]`, produces `@type: "Book"` (e-book) atau `"Audiobook"` tanpa `offers`
+ * (pembelian digital baru tersedia di fase 2).
  * For other pages, produces `@type: "Organization"` or `@type: "WebSite"`.
  */
 export const generateJsonLdSchema = (
   page: ActivePage,
   book?: Book | null,
   settings: SeoSettings = getStoredSeoSettings(),
-  lang: AppLanguage = getCurrentLanguage()
+  lang: AppLanguage = getCurrentLanguage(),
+  digital?: { product: DigitalProduct; book: Book } | null
 ): object => {
   const siteUrl = settings.siteUrl.replace(/\/$/, '');
+
+  if (page === 'digital' && digital) {
+    const { product, book: digitalBook } = digital;
+    const isAudiobook = product.format === 'audiobook';
+    const seconds = product.durationSeconds || 0;
+    return {
+      '@context': 'https://schema.org',
+      '@type': isAudiobook ? 'Audiobook' : 'Book',
+      name: toTitleCase(digitalBook.title || digitalBook.name),
+      author: { '@type': 'Person', name: digitalBook.author },
+      publisher: {
+        '@type': 'Organization',
+        name: digitalBook.penerbit || 'PT Cakrawala Magna Scientia',
+        url: siteUrl
+      },
+      bookFormat: isAudiobook ? 'https://schema.org/AudiobookFormat' : 'https://schema.org/EBook',
+      inLanguage: 'id',
+      image: digitalBook.coverBuku,
+      url: `${siteUrl}${withLanguagePrefix(`/digital/${product.format}/${digitalBook.slug || digitalBook.id}`, lang)}`,
+      description: getLocalized(digitalBook, 'sinopsis', lang),
+      ...(!isAudiobook && product.pageCount ? { numberOfPages: product.pageCount } : {}),
+      ...(isAudiobook && product.narrator ? { readBy: { '@type': 'Person', name: product.narrator } } : {}),
+      ...(isAudiobook && seconds ? { duration: `PT${Math.floor(seconds / 3600)}H${Math.floor((seconds % 3600) / 60)}M` } : {})
+    };
+  }
 
   if (page === 'katalog' && book) {
     const formattedTitle = toTitleCase(book.title || book.name);

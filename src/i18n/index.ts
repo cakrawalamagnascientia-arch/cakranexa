@@ -16,7 +16,7 @@ export const DEFAULT_LANGUAGE: AppLanguage = 'id';
 
 export const NAMESPACES = [
   'common', 'home', 'catalog', 'book', 'author', 'blog', 'cart', 'checkout', 'auth', 'admin',
-  'errors', 'seo', 'publishing', 'training', 'about', 'career', 'journal', 'contact'
+  'errors', 'seo', 'publishing', 'training', 'about', 'career', 'journal', 'contact', 'digital'
 ] as const;
 
 export const LANGUAGE_STORAGE_KEY = 'cakranexa_lang';

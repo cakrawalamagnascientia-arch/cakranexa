@@ -6,7 +6,30 @@ import dotenv from 'dotenv';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { INITIAL_BOOKS, normalizeBookAuthors } from './src/data/booksData';
 import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthorProfile, authorNameKey } from './src/data/authorsData';
-import type { Book, Author, Book as BookType } from './src/types';
+import type {
+  Book,
+  Author,
+  Book as BookType,
+  BookFormatOption,
+  DigitalAvailability,
+  DigitalFormat,
+  DigitalProduct,
+  InstitutionInquiry,
+  InstitutionInquiryStatus,
+  InstitutionType,
+  PublicDigitalProduct
+} from './src/types';
+import {
+  INITIAL_DIGITAL_PRODUCTS,
+  DIGITAL_FORMATS,
+  DIGITAL_AVAILABILITIES,
+  DIGITAL_SAMPLE_LIMITS,
+  digitalProductKey,
+  normalizeDigitalProduct,
+  seedDigitalProductId,
+  validateDigitalProduct
+} from './src/data/digitalProducts';
+import { INSTITUTION_TYPES, INSTITUTION_INQUIRY_STATUSES, INSTITUTION_INQUIRY_LIMITS } from './src/data/membership';
 
 // Load environment variables
 dotenv.config();
@@ -36,6 +59,16 @@ const ORDER_NOTIFICATION_EMAILS = Array.from(new Set((process.env.ORDER_NOTIFICA
   'info@cakranexa.com'
 ].join(',')).split(',').map((email) => email.trim().toLowerCase()).filter((email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))));
 const EMAIL_FROM = process.env.EMAIL_FROM || 'CakraNexa <info@cakranexa.com>';
+// Bucket Supabase Storage PUBLIK khusus file sampel produk digital (bukan file utuh).
+const DIGITAL_SAMPLES_BUCKET = process.env.DIGITAL_SAMPLES_BUCKET || 'digital-samples';
+// Penerima email permintaan penawaran institusi; default sama dengan penerima notifikasi pesanan.
+const INSTITUTION_INQUIRY_EMAILS = (() => {
+  const configured = (process.env.INSTITUTION_INQUIRY_EMAILS || '')
+    .split(',')
+    .map((email) => email.trim().toLowerCase())
+    .filter((email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+  return configured.length > 0 ? Array.from(new Set(configured)) : ORDER_NOTIFICATION_EMAILS;
+})();
 
 if (IS_PRODUCTION && !ADMIN_PASSWORD) {
   console.warn('⚠️  ADMIN_PASSWORD belum di-set. Login Admin akan selalu ditolak di production.');
@@ -73,9 +106,13 @@ let inMemoryBookAuthors: Array<{ id?: string; book_id: string; author_id: string
 
 // Konten CMS (singleton site_content id=1). Field deletedRecords menyimpan buku/penulis bawaan
 // (seed) yang sudah dihapus admin, agar tidak muncul lagi saat katalog Supabase digabung dengan seed.
-type DeletedRecords = { books: string[]; authors: string[] };
+type DeletedRecords = { books: string[]; authors: string[]; digitalProducts: string[] };
 let inMemorySiteContent: any = null;
-let deletedRecords: DeletedRecords = { books: [], authors: [] };
+let deletedRecords: DeletedRecords = { books: [], authors: [], digitalProducts: [] };
+
+// Produk digital (seed: src/data/digitalProducts.ts) & permintaan penawaran institusi.
+let inMemoryDigitalProducts: DigitalProduct[] = INITIAL_DIGITAL_PRODUCTS.map((p) => ({ ...p, sampleImageUrls: [...p.sampleImageUrls] }));
+let inMemoryInquiries: InstitutionInquiry[] = [];
 
 const isUuid = (value: string): boolean => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 
@@ -87,7 +124,8 @@ async function loadSiteContent(): Promise<any | null> {
   const stored = inMemorySiteContent?.deletedRecords;
   deletedRecords = {
     books: Array.isArray(stored?.books) ? stored.books : [],
-    authors: Array.isArray(stored?.authors) ? stored.authors : []
+    authors: Array.isArray(stored?.authors) ? stored.authors : [],
+    digitalProducts: Array.isArray(stored?.digitalProducts) ? stored.digitalProducts : []
   };
   return inMemorySiteContent;
 }
@@ -210,6 +248,234 @@ async function loadBooks(): Promise<Book[]> {
   }
   return inMemoryBooks;
 }
+
+// ============================================================================
+// DIGITAL PRODUCTS HELPERS (E-Book & Audiobook)
+// ============================================================================
+const rowToDigital = (row: any): DigitalProduct => normalizeDigitalProduct({
+  id: row.id,
+  bookId: row.book_id,
+  format: row.format,
+  price: row.price,
+  isActive: row.is_active,
+  availabilityStatus: row.availability_status,
+  shelfEntryDate: row.shelf_entry_date,
+  pageCount: row.page_count,
+  durationSeconds: row.duration_seconds,
+  narrator: row.narrator,
+  samplePageStart: row.sample_page_start,
+  samplePageEnd: row.sample_page_end,
+  sampleAudioSeconds: row.sample_audio_seconds,
+  sampleImageUrls: Array.isArray(row.sample_image_urls) ? row.sample_image_urls : [],
+  sampleAudioUrl: row.sample_audio_url,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at
+});
+
+const digitalToRow = (p: DigitalProduct) => ({
+  id: p.id,
+  book_id: p.bookId,
+  format: p.format,
+  price: p.price,
+  is_active: p.isActive,
+  availability_status: p.availabilityStatus,
+  shelf_entry_date: p.shelfEntryDate,
+  page_count: p.pageCount,
+  duration_seconds: p.durationSeconds,
+  narrator: p.narrator,
+  sample_page_start: p.samplePageStart,
+  sample_page_end: p.samplePageEnd,
+  sample_audio_seconds: p.sampleAudioSeconds,
+  sample_image_urls: p.sampleImageUrls,
+  sample_audio_url: p.sampleAudioUrl,
+  updated_at: new Date().toISOString()
+});
+
+let digitalTableWarned = false;
+
+/** Produk dari Supabase digabung dengan seed yang belum pernah disimpan, kecuali yang sudah dihapus admin. */
+async function loadDigitalProducts(): Promise<DigitalProduct[]> {
+  if (supabaseAdmin) {
+    const { data, error } = await supabaseAdmin.from('digital_products').select('*');
+    if (!error && data) {
+      await loadSiteContent();
+      const remote = data.map(rowToDigital);
+      const remoteKeys = new Set(remote.map(digitalProductKey));
+      const deletedKeys = new Set(deletedRecords.digitalProducts);
+      inMemoryDigitalProducts = [
+        ...remote,
+        ...INITIAL_DIGITAL_PRODUCTS.filter((p) => !remoteKeys.has(digitalProductKey(p)) && !deletedKeys.has(digitalProductKey(p)))
+      ];
+    } else if (error && !digitalTableWarned) {
+      digitalTableWarned = true;
+      console.warn('Tabel digital_products belum tersedia (jalankan src/db/digital_products_migration.sql):', error.message);
+    }
+  }
+  return inMemoryDigitalProducts;
+}
+
+/** Awalan URL publik bucket sampel; null bila Supabase belum dikonfigurasi. */
+const sampleUrlPrefix = (): string | null =>
+  supabaseAdmin && supabaseUrl ? `${supabaseUrl.replace(/\/+$/, '')}/storage/v1/object/public/${DIGITAL_SAMPLES_BUCKET}/` : null;
+
+/** Hanya URL publik bucket sampel yang boleh disimpan dan dikirim ke browser — tidak pernah lokasi file utuh. */
+const isPublicSampleUrl = (url: string): boolean => {
+  const prefix = sampleUrlPrefix();
+  return Boolean(prefix && typeof url === 'string' && url.startsWith(prefix) && !url.includes('..') && !url.includes('?'));
+};
+
+const sampleUrlsOf = (p: DigitalProduct): string[] => [...p.sampleImageUrls, ...(p.sampleAudioUrl ? [p.sampleAudioUrl] : [])];
+
+/** Hapus file sampel dari bucket (best effort). */
+async function removeSampleFiles(urls: string[]): Promise<void> {
+  const prefix = sampleUrlPrefix();
+  if (!supabaseAdmin || !prefix) return;
+  const paths = urls.filter(isPublicSampleUrl).map((url) => decodeURIComponent(url.slice(prefix.length)));
+  if (paths.length === 0) return;
+  const { error } = await supabaseAdmin.storage.from(DIGITAL_SAMPLES_BUCKET).remove(paths);
+  if (error) console.warn('Hapus file sampel gagal:', error.message);
+}
+
+/**
+ * Bentuk publik produk digital: daftar field eksplisit (allowlist) agar kolom baru di fase 2
+ * (mis. lokasi file utuh) tidak pernah ikut terkirim. URL sampel hanya dari bucket publik.
+ */
+const toPublicDigital = (p: DigitalProduct, book: Book): PublicDigitalProduct => ({
+  id: p.id,
+  bookId: p.bookId,
+  format: p.format,
+  price: p.price,
+  isActive: p.isActive,
+  availabilityStatus: p.availabilityStatus,
+  shelfEntryDate: p.shelfEntryDate,
+  pageCount: p.pageCount,
+  durationSeconds: p.durationSeconds,
+  narrator: p.narrator,
+  samplePageStart: p.samplePageStart,
+  samplePageEnd: p.samplePageEnd,
+  sampleAudioSeconds: p.sampleAudioSeconds,
+  sampleImageUrls: p.sampleImageUrls.filter(isPublicSampleUrl),
+  sampleAudioUrl: p.sampleAudioUrl && isPublicSampleUrl(p.sampleAudioUrl) ? p.sampleAudioUrl : null,
+  updatedAt: p.updatedAt,
+  book: {
+    id: book.id,
+    slug: book.slug,
+    name: book.name,
+    title: book.title,
+    author: book.author,
+    category: book.category,
+    coverBuku: book.coverBuku,
+    i18n: book.i18n
+  }
+});
+
+/** Katalog digital publik: produk aktif yang bukunya masih ada di katalog. */
+async function loadPublicDigitalCatalog(): Promise<PublicDigitalProduct[]> {
+  const [products, books] = await Promise.all([loadDigitalProducts(), loadBooks()]);
+  const bookById = new Map(books.map((b) => [b.id, b]));
+  return products.flatMap((p) => {
+    const book = bookById.get(p.bookId);
+    return p.isActive && book ? [toPublicDigital(p, book)] : [];
+  });
+}
+
+// ============================================================================
+// INSTITUTION INQUIRIES HELPERS (/institutions)
+// ============================================================================
+const rowToInquiry = (row: any): InstitutionInquiry => ({
+  id: row.id,
+  institutionName: row.institution_name,
+  institutionType: row.institution_type,
+  userCount: Number(row.user_count) || 0,
+  email: row.email,
+  contactName: row.contact_name || undefined,
+  phone: row.phone || undefined,
+  message: row.message || undefined,
+  language: row.language || 'id',
+  status: row.status,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at || undefined
+});
+
+const inquiryToRow = (q: InstitutionInquiry) => ({
+  id: q.id,
+  institution_name: q.institutionName,
+  institution_type: q.institutionType,
+  user_count: q.userCount,
+  email: q.email,
+  contact_name: q.contactName ?? null,
+  phone: q.phone ?? null,
+  message: q.message ?? null,
+  language: q.language,
+  status: q.status,
+  created_at: q.createdAt
+});
+
+async function loadInquiries(): Promise<InstitutionInquiry[]> {
+  if (supabaseAdmin) {
+    const { data, error } = await supabaseAdmin.from('institution_inquiries').select('*').order('created_at', { ascending: false });
+    if (!error && data) {
+      const remote = data.map(rowToInquiry);
+      const remoteIds = new Set(remote.map((q) => q.id));
+      // Permintaan yang gagal tersimpan ke Supabase tetap ditampilkan dari memori.
+      inMemoryInquiries = [...remote, ...inMemoryInquiries.filter((q) => !remoteIds.has(q.id))];
+    }
+  }
+  return [...inMemoryInquiries].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+async function sendInstitutionInquiryEmail(q: InstitutionInquiry): Promise<void> {
+  if (!RESEND_API_KEY || INSTITUTION_INQUIRY_EMAILS.length === 0) {
+    console.warn(`Inquiry email skipped: ${!RESEND_API_KEY ? 'RESEND_API_KEY belum dikonfigurasi' : 'tidak ada penerima email yang valid'}.`);
+    return;
+  }
+  const html = `
+    <h2>Permintaan Penawaran Institution &amp; Library Network</h2>
+    <p><strong>Institusi:</strong> ${escapeHtml(q.institutionName)}</p>
+    <p><strong>Jenis:</strong> ${escapeHtml(q.institutionType)}</p>
+    <p><strong>Jumlah pengguna:</strong> ${q.userCount}</p>
+    <p><strong>Email:</strong> ${escapeHtml(q.email)}</p>
+    ${q.contactName ? `<p><strong>Kontak:</strong> ${escapeHtml(q.contactName)}</p>` : ''}
+    ${q.phone ? `<p><strong>Telepon:</strong> ${escapeHtml(q.phone)}</p>` : ''}
+    ${q.message ? `<p><strong>Pesan:</strong><br/>${escapeHtml(q.message).replace(/\n/g, '<br/>')}</p>` : ''}
+    <p><strong>Bahasa formulir:</strong> ${escapeHtml(q.language)}</p>
+    <p>Kelola status di Dashboard Admin &rarr; Permintaan Institusi.</p>
+  `;
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: EMAIL_FROM,
+      to: INSTITUTION_INQUIRY_EMAILS,
+      reply_to: q.email,
+      subject: `[Permintaan Institusi] ${q.institutionName}`,
+      html
+    })
+  });
+  if (!response.ok) {
+    throw new Error(`Resend email failed (${response.status}): ${await response.text()}`);
+  }
+}
+
+// ---- Batas kiriman form institusi (per IP, 5 kiriman / jam) ------------------
+const inquiryAttempts = new Map<string, { count: number; resetAt: number }>();
+const inquiryRateLimit = (req: Request, res: Response, next: NextFunction) => {
+  const ip = req.ip || 'unknown';
+  const now = Date.now();
+  const entry = inquiryAttempts.get(ip);
+  if (entry && entry.resetAt > now && entry.count >= 5) {
+    return res.status(429).json({ error: 'Terlalu banyak permintaan. Coba lagi dalam 1 jam.' });
+  }
+  if (!entry || entry.resetAt <= now) {
+    inquiryAttempts.set(ip, { count: 1, resetAt: now + 60 * 60 * 1000 });
+  } else {
+    entry.count += 1;
+  }
+  return next();
+};
 
 // ============================================================================
 // AUTHORS HELPERS (Mapping Snake ↔ Camel + Load from Supabase)
@@ -1154,6 +1420,293 @@ async function startServer() {
   });
 
   // ==========================================================================
+  // PRODUK DIGITAL (E-BOOK & AUDIOBOOK)
+  // Endpoint publik read-only: hanya field katalog + URL sampel publik, tidak pernah path/URL file utuh.
+  // ==========================================================================
+  // GET /api/digital/products?format=ebook|audiobook&category=<kategori>&availability=coming_soon|available
+  app.get('/api/digital/products', async (req, res) => {
+    const format = String(req.query.format || '');
+    const category = String(req.query.category || '');
+    const availability = String(req.query.availability || '');
+    if (format && !DIGITAL_FORMATS.includes(format as DigitalFormat)) {
+      return res.status(400).json({ error: 'Parameter format harus ebook atau audiobook.' });
+    }
+    if (availability && !DIGITAL_AVAILABILITIES.includes(availability as DigitalAvailability)) {
+      return res.status(400).json({ error: 'Parameter availability harus coming_soon atau available.' });
+    }
+    try {
+      const items = (await loadPublicDigitalCatalog()).filter((p) =>
+        (!format || p.format === format)
+        && (!category || p.book.category === category)
+        && (!availability || p.availabilityStatus === availability)
+      );
+      return res.json(items);
+    } catch (err) {
+      console.error('Error fetching digital products:', err);
+      return res.status(500).json({ error: 'Gagal memuat produk digital.' });
+    }
+  });
+
+  // GET /api/digital/products/:id — id produk (UUID), atau slug/id buku bersama ?format=ebook|audiobook
+  app.get('/api/digital/products/:id', async (req, res) => {
+    const { id } = req.params;
+    const format = String(req.query.format || '');
+    try {
+      const items = await loadPublicDigitalCatalog();
+      const product = items.find((p) => p.id === id)
+        || (format ? items.find((p) => p.format === format && (p.book.slug === id || p.book.id === id)) : undefined);
+      if (!product) return res.status(404).json({ error: 'Produk digital tidak ditemukan.' });
+      return res.json(product);
+    } catch (err) {
+      console.error('Error fetching digital product:', err);
+      return res.status(500).json({ error: 'Gagal memuat produk digital.' });
+    }
+  });
+
+  // GET /api/books/:id/formats — format cetak + digital untuk satu buku
+  app.get('/api/books/:id/formats', async (req, res) => {
+    const { id } = req.params;
+    try {
+      const book = (await loadBooks()).find((b) => b.id === id || b.slug === id);
+      if (!book) return res.status(404).json({ error: 'Buku tidak ditemukan' });
+      const products = (await loadDigitalProducts()).filter((p) => p.bookId === book.id && p.isActive);
+      const formats: BookFormatOption[] = [
+        { format: 'print', status: Number(book.harga) > 0 ? 'available' : 'coming_soon', price: Number(book.harga) || 0 },
+        ...DIGITAL_FORMATS.map((format): BookFormatOption => {
+          const product = products.find((p) => p.format === format);
+          return product
+            ? { format, status: product.availabilityStatus, price: product.price, productId: product.id, shelfEntryDate: product.shelfEntryDate }
+            : { format, status: 'unavailable', price: 0 };
+        })
+      ];
+      return res.json({ bookId: book.id, slug: book.slug, formats });
+    } catch (err) {
+      console.error('Error fetching book formats:', err);
+      return res.status(500).json({ error: 'Gagal memuat format buku.' });
+    }
+  });
+
+  // GET /api/admin/digital/products (Admin) — semua produk, termasuk nonaktif
+  app.get('/api/admin/digital/products', requireAdmin, async (_req, res) => {
+    try {
+      const products = await loadDigitalProducts();
+      return res.json({ products, persistent: Boolean(supabaseAdmin), storageEnabled: Boolean(supabaseAdmin) });
+    } catch (err: any) {
+      return res.status(500).json({ error: err?.message || 'Gagal memuat produk digital.' });
+    }
+  });
+
+  // POST /api/admin/digital/products (Admin) — buat / perbarui (unik per buku × format)
+  app.post('/api/admin/digital/products', requireAdmin, async (req, res) => {
+    try {
+      const input = normalizeDigitalProduct(req.body);
+      const book = (await loadBooks()).find((b) => b.id === input.bookId);
+      if (!book) return res.status(400).json({ error: 'Buku tidak ditemukan di katalog.' });
+      const existing = (await loadDigitalProducts()).find((p) => digitalProductKey(p) === digitalProductKey(input));
+      const now = new Date().toISOString();
+      const product: DigitalProduct = {
+        ...input,
+        id: existing?.id || (isUuid(input.id) ? input.id : seedDigitalProductId(input.bookId, input.format)),
+        createdAt: existing?.createdAt || now,
+        updatedAt: now
+      };
+      const validationError = validateDigitalProduct(product, isPublicSampleUrl);
+      if (validationError) return res.status(400).json({ error: validationError });
+
+      if (supabaseAdmin) {
+        // digital_products.book_id -> books(id): buku bawaan yang belum pernah disimpan ke Supabase disimpan dulu.
+        const { data: bookRow, error: bookError } = await supabaseAdmin.from('books').select('id').eq('id', book.id).maybeSingle();
+        if (bookError) return res.status(500).json({ error: `Supabase: ${bookError.message}` });
+        if (!bookRow) {
+          const { error: upsertBookError } = await supabaseAdmin.from('books').upsert(bookToRow(book));
+          if (upsertBookError) return res.status(500).json({ error: `Supabase: ${upsertBookError.message}` });
+        }
+        const { error: saveError } = await supabaseAdmin.from('digital_products').upsert(digitalToRow(product), { onConflict: 'book_id,format' });
+        if (saveError) return res.status(500).json({ error: `Supabase: ${saveError.message}` });
+        await markSeedDeleted('digitalProducts', digitalProductKey(product), false);
+      }
+      inMemoryDigitalProducts = [
+        ...inMemoryDigitalProducts.filter((p) => digitalProductKey(p) !== digitalProductKey(product)),
+        product
+      ];
+      // File sampel yang dilepas dari produk dihapus dari bucket.
+      if (existing) {
+        const kept = new Set(sampleUrlsOf(product));
+        await removeSampleFiles(sampleUrlsOf(existing).filter((url) => !kept.has(url)));
+      }
+      return res.status(201).json({ success: true, product });
+    } catch (err: any) {
+      return res.status(500).json({ error: err?.message || 'Gagal menyimpan produk digital.' });
+    }
+  });
+
+  // DELETE /api/admin/digital/products/:id (Admin)
+  app.delete('/api/admin/digital/products/:id', requireAdmin, async (req, res) => {
+    try {
+      const product = (await loadDigitalProducts()).find((p) => p.id === req.params.id);
+      if (!product) return res.status(404).json({ error: 'Produk digital tidak ditemukan.' });
+      if (supabaseAdmin) {
+        const { error } = await supabaseAdmin.from('digital_products').delete().eq('id', product.id);
+        if (error) return res.status(500).json({ error: `Supabase: ${error.message}` });
+        await markSeedDeleted('digitalProducts', digitalProductKey(product), true);
+      }
+      inMemoryDigitalProducts = inMemoryDigitalProducts.filter((p) => p.id !== product.id);
+      await removeSampleFiles(sampleUrlsOf(product));
+      return res.json({ success: true });
+    } catch (err: any) {
+      return res.status(500).json({ error: err?.message || 'Gagal menghapus produk digital.' });
+    }
+  });
+
+  // POST /api/admin/digital/sample-upload (Admin) — signed upload URL untuk SATU file sampel.
+  // Validasi di sini + batas ukuran/tipe bucket di Supabase; file utuh tidak pernah melewati jalur ini.
+  const SAMPLE_EXTENSIONS: Record<string, string> = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'audio/mpeg': 'mp3',
+    'audio/mp4': 'm4a',
+    'audio/x-m4a': 'm4a',
+    'audio/aac': 'aac',
+    'audio/ogg': 'ogg'
+  };
+  app.post('/api/admin/digital/sample-upload', requireAdmin, async (req, res) => {
+    if (!supabaseAdmin) {
+      return res.status(503).json({ error: 'Unggah sampel memerlukan Supabase Storage. Hubungkan Supabase lalu jalankan src/db/digital_products_migration.sql.' });
+    }
+    try {
+      const { bookId, format, kind, contentType, size, durationSeconds, existingCount } = req.body || {};
+      const limits = DIGITAL_SAMPLE_LIMITS;
+      const book = (await loadBooks()).find((b) => b.id === String(bookId));
+      if (!book) return res.status(400).json({ error: 'Buku tidak ditemukan di katalog.' });
+      if (!DIGITAL_FORMATS.includes(format)) return res.status(400).json({ error: 'Format harus ebook atau audiobook.' });
+      const bytes = Number(size);
+      if (kind === 'image') {
+        if (format !== 'ebook') return res.status(400).json({ error: 'Gambar halaman sampel hanya untuk e-book.' });
+        if (!limits.imageTypes.includes(String(contentType))) return res.status(400).json({ error: 'Gambar sampel harus JPG, PNG, atau WebP.' });
+        if (!(bytes > 0 && bytes <= limits.maxImageBytes)) {
+          return res.status(400).json({ error: `Ukuran gambar sampel maksimal ${limits.maxImageBytes / 1024 / 1024} MB.` });
+        }
+        if ((Number(existingCount) || 0) + 1 > limits.maxImages) {
+          return res.status(400).json({ error: `Maksimal ${limits.maxImages} halaman sampel per e-book.` });
+        }
+      } else if (kind === 'audio') {
+        if (format !== 'audiobook') return res.status(400).json({ error: 'Audio sampel hanya untuk audiobook.' });
+        if (!limits.audioTypes.includes(String(contentType))) return res.status(400).json({ error: 'Audio sampel harus MP3, M4A, AAC, atau OGG.' });
+        if (!(bytes > 0 && bytes <= limits.maxAudioBytes)) {
+          return res.status(400).json({ error: `Ukuran audio sampel maksimal ${limits.maxAudioBytes / 1024 / 1024} MB.` });
+        }
+        const seconds = Number(durationSeconds);
+        if (!(seconds > 0 && seconds <= limits.maxAudioSeconds)) {
+          return res.status(400).json({ error: `Audio sampel maksimal ${limits.maxAudioSeconds / 60} menit.` });
+        }
+      } else {
+        return res.status(400).json({ error: 'Jenis file sampel tidak dikenal.' });
+      }
+      const safeBookId = book.id.replace(/[^a-zA-Z0-9_-]/g, '-');
+      const objectPath = `${safeBookId}/${format}/${kind}-${Date.now()}-${crypto.randomBytes(4).toString('hex')}.${SAMPLE_EXTENSIONS[String(contentType)]}`;
+      const bucket = supabaseAdmin.storage.from(DIGITAL_SAMPLES_BUCKET);
+      const { data, error } = await bucket.createSignedUploadUrl(objectPath);
+      if (error || !data) {
+        return res.status(500).json({ error: `Supabase Storage: ${error?.message || 'gagal membuat URL unggah'}. Pastikan bucket ${DIGITAL_SAMPLES_BUCKET} sudah dibuat.` });
+      }
+      const { data: publicData } = bucket.getPublicUrl(objectPath);
+      return res.json({ uploadUrl: data.signedUrl, publicUrl: publicData.publicUrl });
+    } catch (err: any) {
+      return res.status(500).json({ error: err?.message || 'Gagal menyiapkan unggahan sampel.' });
+    }
+  });
+
+  // DELETE /api/admin/digital/sample (Admin) — hapus file sampel yang batal dipakai; file yang masih dipakai tidak dihapus.
+  app.delete('/api/admin/digital/sample', requireAdmin, async (req, res) => {
+    const url = String(req.body?.url || '');
+    if (!isPublicSampleUrl(url)) return res.status(400).json({ error: 'URL bukan file sampel publik.' });
+    try {
+      const inUse = (await loadDigitalProducts()).some((p) => sampleUrlsOf(p).includes(url));
+      if (!inUse) await removeSampleFiles([url]);
+      return res.json({ success: true, removed: !inUse });
+    } catch (err: any) {
+      return res.status(500).json({ error: err?.message || 'Gagal menghapus file sampel.' });
+    }
+  });
+
+  // ==========================================================================
+  // INSTITUTION & LIBRARY NETWORK — permintaan penawaran
+  // ==========================================================================
+  app.post('/api/institutions/inquiry', inquiryRateLimit, async (req, res) => {
+    const body = req.body || {};
+    // Honeypot: bot mengisi field tersembunyi "website"; balas sukses tanpa menyimpan.
+    if (String(body.website || '').trim()) return res.status(201).json({ success: true });
+    const limits = INSTITUTION_INQUIRY_LIMITS;
+    const text = (value: unknown, max: number): string => String(value ?? '').trim().slice(0, max);
+    const institutionName = text(body.institutionName, limits.nameMax);
+    const institutionType = String(body.institutionType || '') as InstitutionType;
+    const userCount = Number(body.userCount);
+    const email = text(body.email, 254).toLowerCase();
+    if (institutionName.length < 2) return res.status(400).json({ error: 'Nama institusi wajib diisi.', field: 'institutionName' });
+    if (!INSTITUTION_TYPES.includes(institutionType)) return res.status(400).json({ error: 'Jenis institusi tidak valid.', field: 'institutionType' });
+    if (!Number.isInteger(userCount) || userCount < 1 || userCount > limits.maxUsers) {
+      return res.status(400).json({ error: 'Jumlah pengguna tidak valid.', field: 'userCount' });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Email tidak valid.', field: 'email' });
+
+    const inquiry: InstitutionInquiry = {
+      id: crypto.randomUUID(),
+      institutionName,
+      institutionType,
+      userCount,
+      email,
+      contactName: text(body.contactName, limits.contactMax) || undefined,
+      phone: text(body.phone, limits.phoneMax) || undefined,
+      message: text(body.message, limits.messageMax) || undefined,
+      language: (['id', 'en', 'zh'] as const).find((lang) => lang === body.language) ?? 'id',
+      status: 'new',
+      createdAt: new Date().toISOString()
+    };
+    inMemoryInquiries.unshift(inquiry);
+    if (inMemoryInquiries.length > 1000) inMemoryInquiries.length = 1000;
+    if (supabaseAdmin) {
+      const { error } = await supabaseAdmin.from('institution_inquiries').insert(inquiryToRow(inquiry));
+      if (error) console.warn('Supabase institution_inquiries insert warning:', error.message);
+    }
+    try {
+      await sendInstitutionInquiryEmail(inquiry);
+    } catch (err) {
+      console.warn('Email permintaan institusi gagal dikirim:', err);
+    }
+    return res.status(201).json({ success: true });
+  });
+
+  // GET /api/admin/institutions/inquiries (Admin) — berisi data kontak
+  app.get('/api/admin/institutions/inquiries', requireAdmin, async (_req, res) => {
+    try {
+      return res.json(await loadInquiries());
+    } catch (err: any) {
+      return res.status(500).json({ error: err?.message || 'Gagal memuat permintaan institusi.' });
+    }
+  });
+
+  // PATCH /api/admin/institutions/inquiries/:id (Admin) — { status: new | contacted | done }
+  app.patch('/api/admin/institutions/inquiries/:id', requireAdmin, async (req, res) => {
+    const status = String(req.body?.status || '') as InstitutionInquiryStatus;
+    if (!INSTITUTION_INQUIRY_STATUSES.includes(status)) return res.status(400).json({ error: 'Status tidak valid.' });
+    try {
+      await loadInquiries();
+      const inquiry = inMemoryInquiries.find((q) => q.id === req.params.id);
+      if (!inquiry) return res.status(404).json({ error: 'Permintaan tidak ditemukan.' });
+      if (supabaseAdmin) {
+        const { error } = await supabaseAdmin.from('institution_inquiries').update({ status }).eq('id', inquiry.id);
+        if (error) return res.status(500).json({ error: `Supabase: ${error.message}` });
+      }
+      inquiry.status = status;
+      inquiry.updatedAt = new Date().toISOString();
+      return res.json({ success: true, inquiry });
+    } catch (err: any) {
+      return res.status(500).json({ error: err?.message || 'Gagal memperbarui status.' });
+    }
+  });
+
+  // ==========================================================================
   // SITEMAP & ROBOTS (dinamis, mengikuti katalog aktual & pengaturan SEO)
   // ==========================================================================
   const escapeXml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -1171,9 +1724,15 @@ async function startServer() {
       { path: '/tentang-kami', freq: 'monthly', prio: '0.7' },
       { path: '/blog', freq: 'weekly', prio: '0.75' },
       { path: '/karir', freq: 'weekly', prio: '0.6' },
-      { path: '/kontak', freq: 'monthly', prio: '0.6' }
+      { path: '/kontak', freq: 'monthly', prio: '0.6' },
+      { path: '/digital/ebook', freq: 'weekly', prio: '0.8' },
+      { path: '/digital/audiobook', freq: 'weekly', prio: '0.75' },
+      { path: '/membership', freq: 'monthly', prio: '0.7' },
+      { path: '/institutions', freq: 'monthly', prio: '0.65' }
     ];
     const books = await loadBooks();
+    // Detail produk digital aktif (/digital/<format>/<slug>); halaman sampel & Pustaka Saya sengaja tidak dimasukkan (noindex).
+    const digitalProducts = await loadPublicDigitalCatalog();
     // Setiap halaman dalam 3 bahasa (Indonesia tanpa prefix, /en, /zh) beserta tautan hreflang antarbahasa.
     const languages = [
       { hreflang: 'id', prefix: '' },
@@ -1191,7 +1750,8 @@ async function startServer() {
     };
     const urls = [
       ...staticPages.map((p) => entry(p.path, p.freq, p.prio)),
-      ...books.map((b) => entry(`/katalog/${b.slug || b.id}`, 'weekly', '0.80'))
+      ...books.map((b) => entry(`/katalog/${b.slug || b.id}`, 'weekly', '0.80')),
+      ...digitalProducts.map((p) => entry(`/digital/${p.format}/${p.book.slug || p.book.id}`, 'weekly', '0.70'))
     ];
     res.header('Content-Type', 'application/xml');
     return res.send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls.join('\n')}\n</urlset>`);

@@ -5,6 +5,7 @@ import { Book } from '../types';
 import { resolveImageUrl, handleImageError } from '../utils/imageUtils';
 import { toTitleCase } from '../utils/formatters';
 import { useBookText, useCategoryLabel, useFormatters } from '../i18n/hooks';
+import { BookFormatIcons } from './digital/BookFormatIcons';
 
 interface BookCardProps {
   book: Book;
@@ -83,6 +84,11 @@ export const BookCard: React.FC<BookCardProps> = ({
         <p className="min-h-4 text-xs text-slate-500 mb-2 font-normal line-clamp-1">
           {book?.author || '-'}
         </p>
+
+        {/* Format tersedia (cetak / e-book / audiobook) */}
+        <div className="-mt-1 mb-2 flex">
+          <BookFormatIcons bookId={book.id} />
+        </div>
 
         {/* Rating (hanya jika ada ulasan nyata) & Jumlah Halaman (hanya jika sudah diisi) */}
         <div className="flex min-h-[16px] items-center justify-between text-[11px] text-slate-400 mb-3 font-mono">

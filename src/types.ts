@@ -143,8 +143,12 @@ export type ActivePage =
   | 'career' 
   | 'karir'
   | 'checkout'
-  | 'kontak' 
-  | 'admin';
+  | 'kontak'
+  | 'admin'
+  | 'digital'
+  | 'membership'
+  | 'institutions'
+  | 'library';
 
 export type SubSection = 
   | 'all'
@@ -168,7 +172,10 @@ export type SubSection =
   | 'profil' 
   | 'visi-misi' 
   | 'tim' 
-  | 'legalitas' 
+  | 'legalitas'
+  | 'ebook'
+  | 'audiobook'
+  | 'sample'
   | null;
 
 export interface SeoSettings {
@@ -529,6 +536,88 @@ export interface SiteContentSettings {
   legalDocs: LegalDoc[];
   careers: CareerItem[];
   blogArticles: BlogArticleItem[];
+  updatedAt?: string;
+}
+
+// ============================================================================
+// PRODUK DIGITAL (E-BOOK & AUDIOBOOK) — FASE 1: KATALOG, HARGA SATUAN, SAMPEL PUBLIK
+// File utuh, lisensi, dan pembayaran digital menyusul di fase 2 dan tidak pernah ikut dalam tipe ini.
+// ============================================================================
+
+export type DigitalFormat = 'ebook' | 'audiobook';
+/** Format yang bisa dipilih di halaman buku: cetak (Book) atau digital (DigitalProduct). */
+export type BookFormat = 'print' | DigitalFormat;
+export type DigitalAvailability = 'coming_soon' | 'available';
+
+/** Satu baris tabel digital_products (satu per buku × format). */
+export interface DigitalProduct {
+  id: string;
+  bookId: string;
+  format: DigitalFormat;
+  /** Harga satuan (Rupiah); 0 = belum ditetapkan. */
+  price: number;
+  isActive: boolean;
+  availabilityStatus: DigitalAvailability;
+  /** Tanggal masuk Digital Reading Shelf (YYYY-MM-DD); null = belum ditetapkan. */
+  shelfEntryDate: string | null;
+  pageCount: number | null;
+  durationSeconds: number | null;
+  narrator: string | null;
+  /** Rentang halaman sampel (disarankan 10–15% dari jumlah halaman). */
+  samplePageStart: number | null;
+  samplePageEnd: number | null;
+  sampleAudioSeconds: number;
+  /** URL publik gambar halaman sampel di bucket digital-samples (maks. 10). */
+  sampleImageUrls: string[];
+  /** URL publik audio sampel di bucket digital-samples (maks. 6 menit). */
+  sampleAudioUrl: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/** Ringkasan buku yang ikut dalam respons API publik produk digital. */
+export interface DigitalBookSummary {
+  id: string;
+  slug: string;
+  name: string;
+  title?: string;
+  author: string;
+  category: BookCategory;
+  coverBuku: string;
+  i18n?: Book['i18n'];
+}
+
+/** Produk digital untuk API publik: field katalog + URL sampel publik saja. */
+export interface PublicDigitalProduct extends DigitalProduct {
+  book: DigitalBookSummary;
+}
+
+/** Ketersediaan satu format untuk sebuah buku (GET /api/books/:id/formats). */
+export interface BookFormatOption {
+  format: BookFormat;
+  /** available = bisa dibeli; coming_soon = produk ada tetapi belum tersedia; unavailable = tidak ada. */
+  status: 'available' | 'coming_soon' | 'unavailable';
+  price: number;
+  productId?: string;
+  shelfEntryDate?: string | null;
+}
+
+export type InstitutionType = 'university' | 'library' | 'government' | 'company' | 'other';
+export type InstitutionInquiryStatus = 'new' | 'contacted' | 'done';
+
+/** Permintaan penawaran dari halaman /institutions. */
+export interface InstitutionInquiry {
+  id: string;
+  institutionName: string;
+  institutionType: InstitutionType;
+  userCount: number;
+  email: string;
+  contactName?: string;
+  phone?: string;
+  message?: string;
+  language: AppLanguage;
+  status: InstitutionInquiryStatus;
+  createdAt: string;
   updatedAt?: string;
 }
 

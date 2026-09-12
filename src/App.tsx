@@ -41,6 +41,13 @@ import { ScrollProgress } from './components/ScrollProgress';
 import { isAdminAuthenticated } from './services/adminAuth';
 import i18n, { changeAppLanguage, getCurrentLanguage, isAppLanguage } from './i18n/index';
 import { useBookText, useCategoryLabel, useCmsText } from './i18n/hooks';
+import { buildDigitalCatalog, DigitalCatalogContext, useDigitalProducts, type DigitalEntry } from './hooks/useDigitalCatalog';
+import { DigitalListingView } from './components/digital/DigitalListingView';
+import { DigitalDetailView } from './components/digital/DigitalDetailView';
+import { DigitalSampleView } from './components/digital/DigitalSampleView';
+import { MembershipView } from './components/digital/MembershipView';
+import { InstitutionsView } from './components/digital/InstitutionsView';
+import { LibraryView } from './components/digital/LibraryView';
 
 // Label halaman pada sub-header (common:subheader.pages.*); halaman lain memakai slug apa adanya.
 type SubheaderPageKey = 'katalog' | 'katalogDetail' | 'penerbitan' | 'pelatihan' | 'jurnal' | 'tentangKami' | 'blog' | 'career' | 'karir' | 'checkout' | 'kontak';
@@ -343,6 +350,18 @@ export default function App() {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   // Slug buku dari URL (/katalog/<slug>) yang belum bisa di-resolve sebelum katalog termuat
   const [pendingBookSlug, setPendingBookSlug] = useState<string | null>(initialRoute.bookSlug || null);
+  // Halaman digital: slug buku (/digital/<format>/<slug>) atau id produk (/digital/sample/<id>).
+  const [digitalItem, setDigitalItem] = useState<string | null>(initialRoute.digitalItem ?? null);
+
+  // Katalog produk digital (e-book & audiobook), dibagikan ke navbar, kartu buku, dan halaman digital.
+  const digitalProducts = useDigitalProducts();
+  const digitalCatalog = React.useMemo(() => buildDigitalCatalog(books, digitalProducts), [books, digitalProducts]);
+  const digitalFormat = activeSubSection === 'audiobook' ? 'audiobook' : 'ebook';
+  const activeDigitalEntry: DigitalEntry | undefined = activePage !== 'digital' || !digitalItem
+    ? undefined
+    : activeSubSection === 'sample'
+      ? digitalCatalog.findById(digitalItem)
+      : digitalCatalog.findByBook(digitalFormat, digitalItem);
 
   // Pulihkan detail penulis dari URL saat halaman dibuka langsung atau di-refresh.
   useEffect(() => {
@@ -362,6 +381,7 @@ export default function App() {
     selectedAuthorId?: string | null;
     catalogCategory?: string;
     catalogSearch?: string;
+    digitalItem?: string | null;
   }>>([]);
 
   // 5. Catalog Search & Filter State
@@ -400,9 +420,10 @@ export default function App() {
       bookSlug: activePage === 'katalog' && selectedBook ? selectedBook.slug || selectedBook.id : null,
       selectedAuthorId: activePage === 'katalog' && selectedAuthor ? selectedAuthor.id : null,
       category: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogCategory : undefined,
-      search: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogSearch : undefined
+      search: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogSearch : undefined,
+      digitalItem: activePage === 'digital' ? digitalItem : null
     }, activePage === 'katalog' && !selectedBook && !selectedAuthor && (catalogSearch !== '' || catalogCategory !== 'all'));
-  }, [activePage, activeSubSection, selectedBook, selectedAuthor, catalogCategory, catalogSearch, pendingBookSlug]);
+  }, [activePage, activeSubSection, selectedBook, selectedAuthor, catalogCategory, catalogSearch, pendingBookSlug, digitalItem]);
 
   // Tombol Back/Forward browser
   useEffect(() => {
@@ -415,6 +436,7 @@ export default function App() {
       setActiveSubSection(route.subSection ?? null);
       setCatalogCategory(route.category || 'all');
       setCatalogSearch(route.search || '');
+      setDigitalItem(route.digitalItem ?? null);
       if (route.selectedAuthorId) {
         const foundA = authors.find((a) => a.id === route.selectedAuthorId);
         if (foundA) {
@@ -444,11 +466,19 @@ export default function App() {
 
   // Universal Back 1 Step handler across all views
   const handleGoBack = () => {
+    if (navHistory.length === 0 && activePage === 'digital' && digitalItem) {
+      // Detail/sampel digital dibuka langsung dari URL: kembali ke daftar format yang sama.
+      setActiveSubSection(activeDigitalEntry?.product.format ?? digitalFormat);
+      setDigitalItem(null);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     if (navHistory.length > 0) {
       const prev = navHistory[navHistory.length - 1];
       setNavHistory((prevHistory) => prevHistory.slice(0, -1));
       setActivePage(prev.page);
       setActiveSubSection(prev.subSection ?? null);
+      setDigitalItem(prev.digitalItem ?? null);
       if (prev.selectedAuthorId) {
         const foundA = authors.find((a) => a.id === prev.selectedAuthorId);
         setSelectedAuthor(foundA || null);
@@ -560,7 +590,8 @@ export default function App() {
     activePage,
     selectedBook,
     subSection: activeSubSection,
-    seoSettings
+    seoSettings,
+    digitalEntry: activeDigitalEntry
   });
 
   // Global Notification Toast
@@ -573,7 +604,8 @@ export default function App() {
 
   // Scroll to top upon page navigation
   const navigateTo = (page: ActivePage, subSection?: SubSection, categoryFilter?: BookCategory) => {
-    if (page !== activePage || subSection !== activeSubSection || selectedBook !== null || selectedAuthor !== null) {
+    const hasDigitalItem = activePage === 'digital' && digitalItem !== null;
+    if (page !== activePage || subSection !== activeSubSection || selectedBook !== null || selectedAuthor !== null || hasDigitalItem) {
       setNavHistory((prev) => [
         ...prev,
         {
@@ -582,12 +614,14 @@ export default function App() {
           selectedBookId: selectedBook ? selectedBook.id : null,
           selectedAuthorId: selectedAuthor ? selectedAuthor.id : null,
           catalogCategory,
-          catalogSearch
+          catalogSearch,
+          digitalItem: hasDigitalItem ? digitalItem : null
         }
       ]);
     }
     setActivePage(page);
     setActiveSubSection(subSection ?? null);
+    setDigitalItem(null);
     if (page !== 'katalog') {
       setSelectedBook(null);
       setSelectedAuthor(null);
@@ -842,7 +876,8 @@ export default function App() {
         selectedBookId: selectedBook ? selectedBook.id : null,
         selectedAuthorId: selectedAuthor ? selectedAuthor.id : null,
         catalogCategory,
-        catalogSearch
+        catalogSearch,
+        digitalItem: activePage === 'digital' ? digitalItem : null
       }
     ]);
     const normalized: Book = {
@@ -852,15 +887,50 @@ export default function App() {
     };
     setSelectedBook(normalized);
     setSelectedAuthor(null);
+    if (activePage === 'digital') setActiveSubSection(null); // dari halaman digital ke versi cetak
     setActivePage('katalog');
     trackViewContent(normalized);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Halaman produk digital: detail (/digital/<format>/<slug-buku>) dan sampel (/digital/sample/<id-produk>).
+  const openDigitalView = (subSection: SubSection, item: string) => {
+    setNavHistory((prev) => [
+      ...prev,
+      {
+        page: activePage,
+        subSection: activeSubSection,
+        selectedBookId: selectedBook ? selectedBook.id : null,
+        selectedAuthorId: selectedAuthor ? selectedAuthor.id : null,
+        catalogCategory,
+        catalogSearch,
+        digitalItem: activePage === 'digital' ? digitalItem : null
+      }
+    ]);
+    setActivePage('digital');
+    setActiveSubSection(subSection);
+    setDigitalItem(item);
+    setSelectedBook(null);
+    setSelectedAuthor(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  const openDigitalProduct = (entry: DigitalEntry) => openDigitalView(entry.product.format, entry.book.slug || entry.book.id);
+  const openDigitalSample = (entry: DigitalEntry) => openDigitalView('sample', entry.product.id);
+
   const cartTotalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
+  const { t: tDigital } = useTranslation('digital');
   const subheaderPageKey = SUBHEADER_PAGE_KEYS[activePage];
-  const subheaderPageLabel = subheaderPageKey ? t(`subheader.pages.${subheaderPageKey}` as const) : activePage.replace('-', ' ');
+  // Halaman digital & keanggotaan: label sub-header dari namespace digital.
+  const digitalSubheaderLabel = activePage === 'digital'
+    ? activeSubSection === 'sample'
+      ? tDigital('subheader.sample')
+      : digitalItem ? tDigital('subheader.digitalDetail') : tDigital(`subheader.${digitalFormat}`)
+    : activePage === 'membership' || activePage === 'institutions' || activePage === 'library'
+      ? tDigital(`subheader.${activePage}`)
+      : null;
+  const subheaderPageLabel = digitalSubheaderLabel
+    ?? (subheaderPageKey ? t(`subheader.pages.${subheaderPageKey}` as const) : activePage.replace('-', ' '));
 
   // Teks section beranda dari CMS; nilai kosong jatuh ke teks bawaan (terjemahan home:sections.*).
   const homeSectionText = (sectionId: string, field: 'badge' | 'title' | 'subtitle', translated: string): string =>
@@ -871,6 +941,7 @@ export default function App() {
     );
 
   return (
+    <DigitalCatalogContext.Provider value={digitalCatalog}>
     <div className="min-h-screen bg-[#F8FAFC] text-[#1E293B] flex flex-col font-sans selection:bg-[#DFBF64] selection:text-[#0F172A]">
       
       {/* Editorial Hairline Scroll Progress Bar & Minimal Back-To-Top Button */}
@@ -1080,6 +1151,10 @@ export default function App() {
                 onBuyNow={handleBuyNow}
                 relatedBooks={books.filter(b => b.category === selectedBook.category && b.id !== selectedBook.id).slice(0, 4)}
                 onSelectRelatedBook={handleSelectBook}
+                onOpenDigital={(product) => {
+                  const entry = digitalCatalog.findById(product.id);
+                  if (entry) openDigitalProduct(entry);
+                }}
               />
             ) : activeSubSection === 'penulis' ? (
               <AuthorsListingView
@@ -1141,6 +1216,39 @@ export default function App() {
         {activePage === 'kontak' && (
           <KontakView />
         )}
+
+        {/* VIEW 12: PRODUK DIGITAL (DAFTAR, DETAIL, SAMPEL) */}
+        {activePage === 'digital' && (
+          activeSubSection === 'sample' ? (
+            <DigitalSampleView
+              entry={activeDigitalEntry}
+              onNavigate={navigateTo}
+              onBackToDetail={openDigitalProduct}
+            />
+          ) : digitalItem ? (
+            <DigitalDetailView
+              entry={activeDigitalEntry}
+              format={digitalFormat}
+              onNavigate={navigateTo}
+              onOpenProduct={openDigitalProduct}
+              onOpenSample={openDigitalSample}
+              onOpenPrintBook={handleSelectBook}
+            />
+          ) : (
+            <DigitalListingView
+              key={digitalFormat}
+              format={digitalFormat}
+              onNavigate={navigateTo}
+              onOpenProduct={openDigitalProduct}
+              onOpenSample={openDigitalSample}
+            />
+          )
+        )}
+
+        {/* VIEW 13: KEANGGOTAAN, INSTITUSI, PUSTAKA SAYA */}
+        {activePage === 'membership' && <MembershipView onNavigate={navigateTo} />}
+        {activePage === 'institutions' && <InstitutionsView />}
+        {activePage === 'library' && <LibraryView onNavigate={navigateTo} />}
 
         {/* VIEW 10: ADMIN DASHBOARD (CRUD & DEDICATED SIDEBAR) */}
         {activePage === 'admin' && (
@@ -1224,5 +1332,6 @@ export default function App() {
       {activePage !== 'admin' && <Footer onNavigate={navigateTo} siteContent={siteContent} />}
 
     </div>
+    </DigitalCatalogContext.Provider>
   );
 }

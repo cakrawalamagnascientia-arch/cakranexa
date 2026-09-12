@@ -15,10 +15,17 @@ import {
   Building2,
   Briefcase,
 } from 'lucide-react';
-import { ActivePage, SubSection, BookCategory } from '../types';
+import { ActivePage, SubSection, BookCategory, DigitalFormat } from '../types';
 import { CakraNexaLogo } from './CakraNexaLogo';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { FormatIcon } from './digital/FormatIcon';
 import { useCategoryLabel } from '../i18n/hooks';
+import { useDigitalCatalog } from '../hooks/useDigitalCatalog';
+import { useMemberSession } from '../services/memberSession';
+import { DIGITAL_FORMATS } from '../data/digitalProducts';
+
+/** Halaman yang termasuk menu "Digital" (untuk garis aktif di navbar). */
+const DIGITAL_PAGES: ActivePage[] = ['digital', 'membership', 'institutions', 'library'];
 
 interface NavbarProps {
   activePage: ActivePage;
@@ -37,8 +44,33 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCart,
   onOpenSearch
 }) => {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation(['common', 'digital']);
   const categoryLabel = useCategoryLabel();
+  const digitalCatalog = useDigitalCatalog();
+  const memberSession = useMemberSession();
+  const isDigitalActive = DIGITAL_PAGES.includes(activePage);
+  const libraryLabel = memberSession.isLoggedIn ? t('digital:nav.myLibrary') : t('digital:nav.signInForLibrary');
+  const digitalBadge = (format: DigitalFormat): string => {
+    const count = digitalCatalog.availableCount(format);
+    return count > 0 ? t('digital:nav.availableCount', { count }) : t('digital:nav.comingSoonBadge');
+  };
+  /** Ikon kecil e-book/audiobook di samping kategori yang punya produk digital. */
+  const categoryFormatIcons = (category: BookCategory) => {
+    const formats = digitalCatalog.categoryFormats(category);
+    if (formats.length === 0) return null;
+    return (
+      <span className="flex shrink-0 items-center gap-1 text-[#D4AF37]/80">
+        {formats.map((format) => (
+          <FormatIcon
+            key={format}
+            format={format}
+            className="w-3 h-3"
+            label={format === 'ebook' ? t('digital:nav.categoryHasEbook') : t('digital:nav.categoryHasAudiobook')}
+          />
+        ))}
+      </span>
+    );
+  };
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -105,7 +137,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Desktop Nav Items with Artistic Flair */}
-          <nav className="hidden lg:flex flex-1 min-w-0 items-center justify-center gap-3 xl:gap-4 text-[10px] xl:text-[11px] uppercase tracking-wider font-semibold px-3">
+          <nav className="hidden lg:flex flex-1 min-w-0 items-center justify-center gap-2 xl:gap-4 text-[10px] xl:text-[11px] uppercase tracking-wide xl:tracking-wider font-semibold px-1 xl:px-3">
 
             {/* 1. Home */}
             <button
@@ -192,6 +224,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           className="w-full text-left px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-[#D4AF37] transition-colors flex items-center justify-between"
                         >
                           <span>{categoryLabel(cat)}</span>
+                          {categoryFormatIcons(cat)}
                         </button>
                       ))}
                     </div>
@@ -206,6 +239,82 @@ export const Navbar: React.FC<NavbarProps> = ({
                       className="w-full text-left px-3 py-2 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-[#D4AF37] transition-colors"
                     >
                       {t('authors')}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Digital (Dropdown): E-Book, Audiobook, Keanggotaan */}
+            <div
+              className="relative"
+              onMouseEnter={() => handleMouseEnter('digital')}
+              onMouseLeave={handleMouseLeave}
+            >
+              <button
+                id="nav-link-digital"
+                onClick={() => onNavigate('digital', 'ebook')}
+                className={`relative py-1 flex items-center gap-1 transition-opacity ${
+                  isDigitalActive
+                    ? 'text-white opacity-100'
+                    : 'text-white opacity-60 hover:opacity-100'
+                }`}
+              >
+                <span className="whitespace-nowrap">{t('digital:nav.menu')}</span>
+                <ChevronDown className="w-3 h-3 text-[#D4AF37]" />
+                {isDigitalActive && (
+                  <div className="absolute h-[1.5px] w-full bg-[#D4AF37] bottom-[-2px] left-0"></div>
+                )}
+              </button>
+
+              {openDropdown === 'digital' && (
+                <div
+                  onMouseEnter={() => handleMouseEnter('digital')}
+                  onMouseLeave={handleMouseLeave}
+                  className="absolute left-0 top-full pt-1.5 w-64 z-50 animate-in fade-in duration-150"
+                >
+                  <div className="rounded-xl bg-[#0F172A] border border-slate-700/80 shadow-2xl p-2">
+                    {DIGITAL_FORMATS.map((format) => (
+                      <button
+                        key={format}
+                        id={`dropdown-digital-${format}`}
+                        onClick={() => {
+                          onNavigate('digital', format);
+                          setOpenDropdown(null);
+                        }}
+                        className="w-full text-left px-3 py-2 rounded-lg text-xs text-white hover:bg-slate-800 hover:text-[#D4AF37] transition-colors flex items-center justify-between gap-2"
+                      >
+                        <span className="flex items-center gap-2 font-semibold tracking-wider">
+                          <FormatIcon format={format} className="w-3.5 h-3.5 text-[#D4AF37]" />
+                          {t(`digital:nav.${format}`)}
+                        </span>
+                        <span className="text-[10px] text-[#D4AF37] bg-white/10 px-1.5 py-0.5 rounded font-mono">{digitalBadge(format)}</span>
+                      </button>
+                    ))}
+
+                    <div className="my-1 border-t border-white/10"></div>
+                    <div className="px-3 py-1 text-[9px] font-bold tracking-widest text-[#D4AF37] uppercase">
+                      {t('digital:nav.membershipHeading')}
+                    </div>
+                    <button
+                      id="dropdown-digital-membership"
+                      onClick={() => {
+                        onNavigate('membership');
+                        setOpenDropdown(null);
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-[#D4AF37] transition-colors"
+                    >
+                      {t('digital:nav.membershipPlans')}
+                    </button>
+                    <button
+                      id="dropdown-digital-library"
+                      onClick={() => {
+                        onNavigate('library');
+                        setOpenDropdown(null);
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-[#D4AF37] transition-colors"
+                    >
+                      {libraryLabel}
                     </button>
                   </div>
                 </div>
@@ -470,9 +579,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               aria-label={t('nav.cartButton', { quantity: cartCount })}
             >
               <ShoppingBag className="w-3.5 h-3.5" />
-              {/* Layar kecil: ikon + jumlah saja agar tombol menu tetap muat */}
-              <span className="hidden sm:inline">{t('nav.cartButton', { quantity: cartCount })}</span>
-              <span className="sm:hidden">{cartCount}</span>
+              {/* Di bawah 1280px: ikon + jumlah saja agar tombol menu mobile & semua menu desktop (lg) tetap muat */}
+              <span className="hidden xl:inline">{t('nav.cartButton', { quantity: cartCount })}</span>
+              <span className="xl:hidden">{cartCount}</span>
             </button>
 
             {/* Mobile Hamburger Toggle */}
@@ -537,9 +646,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                       onNavigate('katalog', 'kategori', cat);
                       setMobileMenuOpen(false);
                     }}
-                    className="block w-full text-left py-1 text-xs text-slate-400 hover:text-white"
+                    className="flex w-full items-center justify-between gap-2 text-left py-1 text-xs text-slate-400 hover:text-white"
                   >
-                    • {categoryLabel(cat)}
+                    <span>• {categoryLabel(cat)}</span>
+                    {categoryFormatIcons(cat)}
                   </button>
                 ))}
                 <button
@@ -551,6 +661,63 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className="block w-full text-left py-1 text-xs text-slate-300 hover:text-white"
                 >
                   • {t('authors')}
+                </button>
+              </div>
+            </div>
+
+            {/* Digital Section Mobile */}
+            <div className="border-t border-white/10 pt-2">
+              <button
+                id="mobile-digital-menu"
+                onClick={() => {
+                  onNavigate('digital', 'ebook');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left px-3 py-1 text-xs font-semibold text-[#DFBF64]"
+              >
+                {t('digital:nav.menu')}
+              </button>
+              <div className="pl-4 space-y-1 mt-1">
+                {DIGITAL_FORMATS.map((format) => (
+                  <button
+                    key={format}
+                    id={`mobile-digital-${format}`}
+                    onClick={() => {
+                      onNavigate('digital', format);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex w-full items-center justify-between gap-2 text-left py-1 text-xs text-slate-300 hover:text-white"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <span>•</span>
+                      <FormatIcon format={format} className="w-3.5 h-3.5 text-[#D4AF37]" />
+                      <span>{t(`digital:nav.${format}`)}</span>
+                    </span>
+                    <span className="text-[10px] text-[#D4AF37] bg-white/10 px-1.5 py-0.5 rounded font-mono">{digitalBadge(format)}</span>
+                  </button>
+                ))}
+                <div className="pt-1 text-[10px] font-bold uppercase tracking-widest text-[#D4AF37]/80">
+                  {t('digital:nav.membershipHeading')}
+                </div>
+                <button
+                  id="mobile-digital-membership"
+                  onClick={() => {
+                    onNavigate('membership');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left py-1 text-xs text-slate-300 hover:text-white"
+                >
+                  • {t('digital:nav.membershipPlans')}
+                </button>
+                <button
+                  id="mobile-digital-library"
+                  onClick={() => {
+                    onNavigate('library');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left py-1 text-xs text-slate-300 hover:text-white"
+                >
+                  • {libraryLabel}
                 </button>
               </div>
             </div>

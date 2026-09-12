@@ -13,11 +13,13 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Book } from '../types';
+import { Book, BookFormat, DigitalProduct } from '../types';
 import { trackViewContent } from '../services/trackingService';
 import { resolveImageUrl, handleImageError } from '../utils/imageUtils';
 import { toTitleCase } from '../utils/formatters';
 import { useBookText, useCategoryLabel, useFormatters, useLocalized } from '../i18n/hooks';
+import { useDigitalCatalog } from '../hooks/useDigitalCatalog';
+import { FormatSelector, DigitalFormatPanel } from './digital/FormatSelector';
 
 interface BookDetailViewProps {
   book: Book;
@@ -27,6 +29,8 @@ interface BookDetailViewProps {
   onBuyNow?: (book: Book) => void;
   relatedBooks?: Book[];
   onSelectRelatedBook?: (book: Book) => void;
+  /** Buka halaman detail produk digital (dari pemilih format). */
+  onOpenDigital?: (product: DigitalProduct) => void;
 }
 
 export const BookDetailView: React.FC<BookDetailViewProps> = ({
@@ -36,7 +40,8 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
   onQuickBuy,
   onBuyNow,
   relatedBooks = [],
-  onSelectRelatedBook
+  onSelectRelatedBook,
+  onOpenDigital
 }) => {
   const { t } = useTranslation(['book', 'common']);
   const { currency } = useFormatters();
@@ -48,6 +53,11 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
   const hasReviews = Boolean(book?.rating && book?.reviewsCount);
   const [activeTab, setActiveTab] = useState<'sinopsis' | 'penulis' | 'daftar-isi' | 'review'>('sinopsis');
   const [copied, setCopied] = useState(false);
+  // Pemilih format: cetak (alur pembelian lama) atau e-book/audiobook yang sudah tersedia.
+  const digitalProducts = useDigitalCatalog().forBook(book?.id ?? '');
+  const [selectedFormat, setSelectedFormat] = useState<BookFormat>('print');
+  useEffect(() => setSelectedFormat('print'), [book?.id]);
+  const selectedDigital = selectedFormat === 'print' ? undefined : digitalProducts[selectedFormat];
 
   useEffect(() => {
     if (book) {
@@ -250,6 +260,12 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
 
           {/* Pricing & CTA Card */}
           <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 text-white border border-slate-800 shadow-sm space-y-4">
+            <FormatSelector bookId={book.id} selected={selectedFormat} onSelect={setSelectedFormat} />
+
+            {selectedDigital ? (
+              <DigitalFormatPanel product={selectedDigital} onViewDetail={() => onOpenDigital?.(selectedDigital)} />
+            ) : (
+            <>
             <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
               <div>
                 <div className="flex items-center gap-2">
@@ -317,6 +333,9 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
                   <span>{t('actions.notifyOnRelease')}</span>
                 </a>
               </div>
+            )}
+
+            </>
             )}
 
             <p className="text-[11px] text-slate-400 text-center sm:text-left flex items-center gap-1.5 justify-center sm:justify-start font-medium">

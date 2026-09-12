@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="848" viewBox="0 0 600 848" role="img" aria-hidden="true">
+  <!-- Placeholder halaman sampel e-book (fase 1). Diganti gambar halaman asli dari bucket digital-samples. -->
+  <rect width="600" height="848" fill="#ffffff"/>
+  <rect x="0.5" y="0.5" width="599" height="847" fill="none" stroke="#e2e8f0"/>
+  <rect x="64" y="72" width="220" height="14" rx="3" fill="#cbd5e1"/>
+  <rect x="64" y="104" width="340" height="22" rx="4" fill="#94a3b8"/>
+  <rect x="64" y="140" width="140" height="3" fill="#d4af37"/>
+  <g fill="#e2e8f0">
+    <rect x="64" y="180" width="472" height="10" rx="3"/>
+    <rect x="64" y="202" width="472" height="10" rx="3"/>
+    <rect x="64" y="224" width="452" height="10" rx="3"/>
+    <rect x="64" y="246" width="472" height="10" rx="3"/>
+    <rect x="64" y="268" width="398" height="10" rx="3"/>
+    <rect x="64" y="310" width="472" height="10" rx="3"/>
+    <rect x="64" y="332" width="462" height="10" rx="3"/>
+    <rect x="64" y="354" width="472" height="10" rx="3"/>
+    <rect x="64" y="376" width="430" height="10" rx="3"/>
+    <rect x="64" y="398" width="472" height="10" rx="3"/>
+    <rect x="64" y="420" width="310" height="10" rx="3"/>
+    <rect x="64" y="462" width="472" height="10" rx="3"/>
+    <rect x="64" y="484" width="472" height="10" rx="3"/>
+    <rect x="64" y="506" width="445" height="10" rx="3"/>
+    <rect x="64" y="528" width="472" height="10" rx="3"/>
+    <rect x="64" y="550" width="466" height="10" rx="3"/>
+    <rect x="64" y="572" width="380" height="10" rx="3"/>
+    <rect x="64" y="614" width="472" height="10" rx="3"/>
+    <rect x="64" y="636" width="458" height="10" rx="3"/>
+    <rect x="64" y="658" width="472" height="10" rx="3"/>
+    <rect x="64" y="680" width="260" height="10" rx="3"/>
+  </g>
+  <rect x="280" y="772" width="40" height="10" rx="3" fill="#cbd5e1"/>
+</svg>

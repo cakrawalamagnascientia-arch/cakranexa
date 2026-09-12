@@ -1,0 +1,337 @@
+{
+  "nav": {
+    "menu": "Digital",
+    "ebook": "E-Book",
+    "audiobook": "Audiobook",
+    "membershipHeading": "Keanggotaan",
+    "membershipPlans": "Paket Keanggotaan",
+    "myLibrary": "Pustaka Saya",
+    "signInForLibrary": "Masuk untuk Pustaka Saya",
+    "availableCount_other": "{{count}} judul",
+    "comingSoonBadge": "Segera",
+    "categoryHasEbook": "Ada versi e-book",
+    "categoryHasAudiobook": "Ada versi audiobook"
+  },
+  "formats": {
+    "print": "Cetak",
+    "ebook": "E-Book",
+    "audiobook": "Audiobook"
+  },
+  "status": {
+    "available": "Tersedia",
+    "comingSoon": "Segera",
+    "unavailable": "Tidak tersedia"
+  },
+  "common": {
+    "priceTbd": "Harga menyusul",
+    "unitPrice": "Harga satuan",
+    "comingSoonPhase2": "Segera hadir",
+    "buyFormat": "Beli {{format}}",
+    "buyComingSoonTitle": "Pembelian {{format}} segera hadir",
+    "readSample": "Baca sampel",
+    "listenSample": "Dengar sampel",
+    "shelfEntry": "Masuk rak digital: {{date}}",
+    "comingSoonLabel": "Segera tersedia",
+    "narratedBy": "Narator: {{name}}",
+    "durationHoursMinutes": "{{hours}} j {{minutes}} m",
+    "durationMinutes": "{{minutes}} menit",
+    "pages_other": "{{count}} halaman",
+    "coverAlt": "Sampul {{title}}",
+    "viewDetails": "Lihat detail"
+  },
+  "formatIcons": {
+    "print": "Buku cetak",
+    "ebook": "E-book",
+    "ebookSoon": "E-book (segera)",
+    "audiobook": "Audiobook",
+    "audiobookSoon": "Audiobook (segera)"
+  },
+  "listing": {
+    "ebook": {
+      "badge": "E-Book Akademik",
+      "title": "E-Book CakraNexa",
+      "subtitle": "Monografi dan buku referensi ber-ISBN dalam format digital. Baca di mana saja, dan coba sampel gratis sebelum membeli."
+    },
+    "audiobook": {
+      "badge": "Audiobook Akademik",
+      "title": "Audiobook CakraNexa",
+      "subtitle": "Dengarkan monografi pilihan yang dibacakan narator. Tidak semua judul tersedia dalam format audio."
+    },
+    "membershipHint": "Akses penuh e-book dan audiobook tersedia melalui keanggotaan Professional & Academic Society.",
+    "membershipLink": "Lihat paket keanggotaan",
+    "formatSwitch": "Pilih format",
+    "filters": {
+      "category": "Kategori",
+      "allCategories": "Semua kategori",
+      "availability": "Ketersediaan",
+      "all": "Semua",
+      "available": "Tersedia",
+      "comingSoon": "Segera",
+      "searchLabel": "Cari produk digital",
+      "searchPlaceholder": "Cari judul atau penulis…",
+      "reset": "Atur ulang filter"
+    },
+    "resultCount_other": "{{count}} judul",
+    "empty": {
+      "title": "Belum ada judul yang cocok",
+      "description": "Coba ubah filter atau kata kunci pencarian.",
+      "noAudiobooks": "Audiobook pertama sedang diproduksi. Sementara itu, jelajahi e-book kami.",
+      "browseEbooks": "Lihat e-book"
+    }
+  },
+  "detail": {
+    "backToListing": "Kembali ke daftar {{format}}",
+    "description": "Deskripsi",
+    "formatInfo": "Informasi format",
+    "format": "Format",
+    "pageCount": "Jumlah halaman",
+    "duration": "Durasi",
+    "narrator": "Narator",
+    "sampleRange": "Halaman sampel",
+    "sampleRangeValue": "Hlm. {{start}}–{{end}}",
+    "sampleAudio": "Sampel audio",
+    "sampleAudioValue": "{{minutes}} menit pertama",
+    "shelfDate": "Masuk Digital Reading Shelf",
+    "notSet": "Belum ditetapkan",
+    "howToGet": {
+      "title": "Cara mendapatkan",
+      "buyTitle": "Beli satuan",
+      "buyDescription": "Bayar sekali, lalu baca atau dengarkan kapan saja dari Pustaka Saya.",
+      "membershipTitle": "Termasuk keanggotaan",
+      "membershipDescription": "Akses tanpa biaya tambahan melalui Digital Reading Shelf untuk anggota:",
+      "institutionPlan": "Institution & Library Network (akses institusi)",
+      "shelfScheduled": "Judul baru: masuk Digital Reading Shelf pada {{date}}. Sebelum tanggal itu, judul ini hanya bisa dibeli satuan.",
+      "shelfOnShelf": "Sudah tersedia di Digital Reading Shelf.",
+      "shelfUnscheduled": "Tanggal masuk Digital Reading Shelf akan diumumkan. Judul baru biasanya masuk rak 90–180 hari setelah terbit.",
+      "viewPlans": "Lihat paket keanggotaan"
+    },
+    "printVersion": "Versi cetak",
+    "printVersionDescription": "Judul ini juga tersedia sebagai buku cetak ber-ISBN.",
+    "printVersionLink": "Lihat buku cetak",
+    "related": "{{format}} terkait",
+    "notFound": {
+      "title": "Produk digital tidak ditemukan",
+      "description": "Judul ini belum tersedia dalam format digital atau tautannya sudah berubah.",
+      "back": "Lihat semua {{format}}"
+    }
+  },
+  "sample": {
+    "badge": "Sampel gratis",
+    "titleEbook": "Sampel e-book",
+    "titleAudiobook": "Sampel audiobook",
+    "backToDetail": "Kembali ke detail",
+    "pageAlt": "Halaman sampel {{number}}: {{title}}",
+    "pageLabel": "Halaman sampel {{number}}",
+    "placeholderNote": "Ini pratinjau contoh. Halaman sampel asli tampil setelah diunggah penerbit.",
+    "rangeNote": "Sampel mencakup halaman {{start}}–{{end}} dari {{total}} halaman.",
+    "audioNote": "Dengarkan {{minutes}} menit pertama audiobook ini.",
+    "audioUnsupported": "Browser Anda tidak mendukung pemutar audio.",
+    "audioUnavailable": "Sampel audio belum tersedia untuk judul ini.",
+    "ctaTitle": "Tertarik membaca selengkapnya?",
+    "ctaDescription": "Beli satuan, atau baca lewat keanggotaan Professional & Academic Society.",
+    "notFound": "Sampel tidak ditemukan."
+  },
+  "formatSelector": {
+    "label": "Pilih format",
+    "digitalPrice": "Harga {{format}}",
+    "digitalNote": "Versi digital dibeli terpisah dari buku cetak.",
+    "viewDigitalDetail": "Lihat detail {{format}}"
+  },
+  "membership": {
+    "badge": "Keanggotaan CakraNexa",
+    "title": "Pilih cara Anda membaca dan berkarya",
+    "subtitle": "Dari pembaca umum hingga akademisi dan penulis, setiap paket memberi manfaat berbeda. Akses penuh e-book dan audiobook ada di Professional & Academic Society.",
+    "billing": {
+      "label": "Periode tagihan",
+      "monthly": "Bulanan",
+      "annual": "Tahunan",
+      "save": "Hemat 2 bulan"
+    },
+    "free": "Gratis",
+    "perMonth": "/bulan",
+    "perYear": "/tahun",
+    "annualEquivalent": "setara {{price}}/bulan",
+    "recommended": "Rekomendasi",
+    "foundingMember": "Founding Member",
+    "includesShelf": "Termasuk Digital Reading Shelf",
+    "choosePlan": "Pilih paket",
+    "joinFree": "Daftar gratis",
+    "phase2Note": "Pendaftaran keanggotaan sedang disiapkan dan akan segera dibuka.",
+    "plans": {
+      "freeCircle": {
+        "name": "Free Circle",
+        "tagline": "Kenali karya CakraNexa tanpa biaya."
+      },
+      "readerCircle": {
+        "name": "Reader Circle",
+        "tagline": "Untuk pembaca yang rutin membeli buku."
+      },
+      "professionalSociety": {
+        "name": "Professional & Academic Society",
+        "tagline": "Akses penuh e-book dan audiobook untuk akademisi dan praktisi."
+      },
+      "authorGuild": {
+        "name": "Author Guild",
+        "tagline": "Untuk penulis yang ingin berkarya bersama CakraNexa."
+      }
+    },
+    "benefits": {
+      "samples": "Akses semua sampel e-book dan audiobook",
+      "newsletter": "Buletin rilis dan wawasan bulanan",
+      "publicEvents": "Undangan webinar dan acara publik",
+      "memberDiscount": "Harga anggota untuk e-book dan audiobook satuan",
+      "printDiscount": "Diskon anggota untuk buku cetak",
+      "earlyNews": "Info prarilis judul baru lebih awal",
+      "digitalShelf": "Akses penuh Digital Reading Shelf (e-book dan audiobook)",
+      "frontlistDiscount": "Harga khusus judul baru sebelum masuk rak digital",
+      "webinars": "Webinar dan kelas profesional khusus anggota",
+      "manuscriptReview": "Konsultasi naskah bersama tim redaksi",
+      "publishingDiscount": "Potongan biaya layanan penerbitan",
+      "authorCommunity": "Komunitas dan kelas penulis"
+    },
+    "frontlist": {
+      "title": "Kapan judul baru masuk Digital Reading Shelf?",
+      "body": "Judul baru terbit lebih dulu sebagai buku cetak dan e-book satuan. Setelah 90–180 hari, judul tersebut masuk Digital Reading Shelf sehingga anggota Professional & Academic Society dapat membacanya tanpa biaya tambahan. Tanggal masuk rak tercantum di setiap halaman produk digital.",
+      "step1": "Saat terbit: buku cetak dan e-book satuan",
+      "step2": "90–180 hari kemudian: masuk Digital Reading Shelf",
+      "step3": "Seterusnya: tetap bisa dibeli satuan"
+    },
+    "faq": {
+      "title": "Pertanyaan yang sering diajukan",
+      "items": {
+        "shelf": {
+          "q": "Apa itu Digital Reading Shelf?",
+          "a": "Rak baca digital berisi e-book dan audiobook CakraNexa yang bisa diakses anggota Professional & Academic Society dan Author Guild tanpa membeli judul satu per satu."
+        },
+        "frontlist": {
+          "q": "Mengapa judul baru tidak langsung masuk rak?",
+          "a": "Judul baru dijual satuan lebih dulu agar penulis mendapat imbalan yang adil. Setelah 90–180 hari judul masuk rak, dan tanggalnya tercantum di halaman produk."
+        },
+        "unitPurchase": {
+          "q": "Bisakah saya membeli e-book tanpa berlangganan?",
+          "a": "Bisa. Setiap e-book dan audiobook yang tersedia dapat dibeli satuan dan tersimpan di Pustaka Saya."
+        },
+        "billing": {
+          "q": "Apa bedanya tagihan bulanan dan tahunan?",
+          "a": "Tagihan tahunan dibayar sekali setahun seharga 10 bulan, jadi Anda hemat 2 bulan dibanding tagihan bulanan."
+        },
+        "cancel": {
+          "q": "Bisakah saya berhenti kapan saja?",
+          "a": "Ya. Keanggotaan dapat dihentikan kapan saja dan tetap aktif sampai akhir periode yang sudah dibayar. Judul yang dibeli satuan tetap milik Anda."
+        },
+        "institutions": {
+          "q": "Saya mewakili kampus atau perpustakaan. Paket mana yang cocok?",
+          "a": "Institution & Library Network: akses bersama untuk banyak pengguna dengan kontrak tahunan. Ajukan penawaran di halaman institusi."
+        }
+      }
+    },
+    "institutionsCta": {
+      "title": "Untuk kampus, perpustakaan, dan instansi",
+      "description": "Institution & Library Network memberi akses Digital Reading Shelf untuk banyak pengguna sekaligus dengan kontrak tahunan.",
+      "link": "Pelajari Institution & Library Network"
+    }
+  },
+  "institutions": {
+    "badge": "Institution & Library Network",
+    "title": "Akses digital CakraNexa untuk institusi Anda",
+    "subtitle": "Satu kontrak tahunan untuk seluruh sivitas: mahasiswa, dosen, peneliti, dan staf dapat membaca e-book dan mendengarkan audiobook CakraNexa.",
+    "pricingNote": "Harga disesuaikan dengan ukuran institusi dan jumlah judul.",
+    "tiersTitle": "Tingkat layanan",
+    "concurrentUsers_other": "Hingga {{count}} pengguna bersamaan",
+    "concurrentUsersCustom": "Di atas 100 pengguna bersamaan, disesuaikan",
+    "concurrentExplainer": "Pengguna bersamaan adalah jumlah orang yang dapat membaca pada waktu yang sama.",
+    "requestQuote": "Minta penawaran",
+    "tiers": {
+      "starter": {
+        "name": "Starter",
+        "description": "Untuk program studi, lembaga riset, atau perpustakaan kecil."
+      },
+      "campus": {
+        "name": "Campus",
+        "description": "Untuk satu kampus atau perpustakaan dengan banyak pembaca aktif."
+      },
+      "network": {
+        "name": "Network",
+        "description": "Untuk konsorsium, multi-kampus, atau jaringan perpustakaan."
+      }
+    },
+    "features": {
+      "shelfAccess": "Akses Digital Reading Shelf (e-book dan audiobook)",
+      "usageReports": "Laporan pemakaian berkala",
+      "acquisitionWallet": "Acquisition wallet untuk pembelian judul permanen",
+      "ipAccess": "Akses otomatis dari jaringan kampus (IP)",
+      "marcRecords": "Data katalog MARC untuk sistem perpustakaan",
+      "multiCampus": "Satu kontrak untuk beberapa kampus atau cabang",
+      "accountManager": "Manajer akun khusus"
+    },
+    "wallet": {
+      "title": "Apa itu acquisition wallet?",
+      "body": "Sebagian nilai kontrak tahunan disimpan sebagai saldo akuisisi. Saldo ini dipakai untuk membeli judul pilihan secara permanen, sehingga koleksi tetap menjadi milik institusi walaupun kontrak tidak diperpanjang.",
+      "point1": "Pilih judul yang paling sering dibaca",
+      "point2": "Judul yang dibeli tetap dapat diakses seterusnya",
+      "point3": "Pemakaian saldo tercatat di laporan tahunan"
+    },
+    "form": {
+      "title": "Minta penawaran",
+      "description": "Isi formulir ini dan tim kami akan menghubungi Anda.",
+      "institutionName": "Nama institusi",
+      "institutionType": "Jenis institusi",
+      "selectType": "Pilih jenis institusi",
+      "types": {
+        "university": "Perguruan tinggi",
+        "library": "Perpustakaan",
+        "government": "Instansi pemerintah",
+        "company": "Perusahaan",
+        "other": "Lainnya"
+      },
+      "userCount": "Perkiraan jumlah pengguna",
+      "userCountHint": "Jumlah sivitas atau anggota yang akan memakai akses.",
+      "email": "Email kantor",
+      "contactName": "Nama kontak (opsional)",
+      "phone": "Telepon/WhatsApp (opsional)",
+      "message": "Pesan (opsional)",
+      "messagePlaceholder": "Ceritakan kebutuhan koleksi atau bidang ilmu yang diprioritaskan.",
+      "honeypot": "Situs web",
+      "submit": "Kirim permintaan",
+      "submitting": "Mengirim…",
+      "privacy": "Data Anda hanya dipakai untuk menyiapkan penawaran.",
+      "success": {
+        "title": "Permintaan terkirim",
+        "body": "Terima kasih. Tim kami akan menghubungi Anda melalui {{email}}."
+      },
+      "sendAnother": "Kirim permintaan lain",
+      "errors": {
+        "institutionName": "Isi nama institusi (minimal 2 karakter).",
+        "institutionType": "Pilih jenis institusi.",
+        "userCount": "Isi jumlah pengguna dengan angka 1 atau lebih.",
+        "email": "Isi alamat email yang valid.",
+        "rateLimited": "Terlalu banyak permintaan. Coba lagi dalam 1 jam.",
+        "generic": "Permintaan gagal dikirim. Periksa koneksi Anda lalu coba lagi."
+      }
+    }
+  },
+  "library": {
+    "badge": "Pustaka Saya",
+    "title": "Pustaka Saya",
+    "subtitle": "E-book dan audiobook yang Anda beli atau akses lewat keanggotaan akan tampil di sini.",
+    "signInTitle": "Masuk ke akun anggota",
+    "signInDescription": "Akun anggota CakraNexa sedang disiapkan. Setelah tersedia, Anda dapat masuk untuk membuka koleksi digital di perangkat mana pun.",
+    "signInButton": "Masuk",
+    "emptyTitle": "Belum ada produk digital",
+    "emptyDescription": "Beli e-book atau audiobook satuan, atau bergabung dengan keanggotaan untuk mengisi pustaka Anda.",
+    "browseEbooks": "Jelajahi e-book",
+    "browseAudiobooks": "Jelajahi audiobook",
+    "promoTitle": "Baca lebih banyak dengan keanggotaan",
+    "promoDescription": "Professional & Academic Society membuka seluruh Digital Reading Shelf: e-book dan audiobook tanpa membeli satu per satu.",
+    "promoCta": "Lihat paket keanggotaan"
+  },
+  "subheader": {
+    "ebook": "E-Book",
+    "audiobook": "Audiobook",
+    "sample": "Sampel",
+    "digitalDetail": "Detail digital",
+    "membership": "Keanggotaan",
+    "institutions": "Institusi",
+    "library": "Pustaka Saya"
+  }
+}

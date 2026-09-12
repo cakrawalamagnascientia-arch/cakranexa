@@ -1,4 +1,15 @@
-import { Book, Order, OrderStatus, Author } from '../types';
+import {
+  Book,
+  Order,
+  OrderStatus,
+  Author,
+  DigitalFormat,
+  DigitalProduct,
+  PublicDigitalProduct,
+  InstitutionInquiry,
+  InstitutionInquiryStatus,
+  InstitutionType
+} from '../types';
 import { INITIAL_BOOKS, normalizeBookAuthors } from '../data/booksData';
 import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthorProfile, authorNameKey } from '../data/authorsData';
 import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
@@ -479,5 +490,138 @@ export const apiClient = {
     }, ADMIN_WRITE_TIMEOUT_MS);
     if (!res.ok) throw await parseError(res);
     return true;
+  },
+
+  // ==========================================================================
+  // PRODUK DIGITAL (E-BOOK & AUDIOBOOK)
+  // ==========================================================================
+  /** Katalog digital publik (produk aktif + ringkasan buku). null bila server tidak terjangkau. */
+  async getDigitalProducts(): Promise<PublicDigitalProduct[] | null> {
+    try {
+      const res = await fetchWithTimeout(apiUrl('/api/digital/products'), { headers: jsonHeaders() }, CATALOG_SYNC_TIMEOUT_MS);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) return data as PublicDigitalProduct[];
+      }
+    } catch (err) {
+      console.warn('Katalog digital tidak tersedia:', err);
+    }
+    return null;
+  },
+
+  /** Admin: semua produk digital (termasuk nonaktif) + status penyimpanan server. */
+  async getAdminDigitalProducts(): Promise<AdminDigitalCatalog> {
+    const res = await fetchWithTimeout(apiUrl('/api/admin/digital/products'), { headers: adminHeaders() }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    return res.json();
+  },
+
+  /** Admin: buat / perbarui produk digital (unik per buku × format). */
+  async saveDigitalProduct(product: DigitalProduct): Promise<DigitalProduct> {
+    const res = await fetchWithTimeout(apiUrl('/api/admin/digital/products'), {
+      method: 'POST',
+      headers: adminHeaders(),
+      body: JSON.stringify(product)
+    }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    const data = await res.json();
+    return data.product as DigitalProduct;
+  },
+
+  async deleteDigitalProduct(id: string): Promise<void> {
+    const res = await fetchWithTimeout(apiUrl(`/api/admin/digital/products/${encodeURIComponent(id)}`), {
+      method: 'DELETE',
+      headers: adminHeaders()
+    }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+  },
+
+  /**
+   * Admin: unggah file SAMPEL ke bucket publik. Server memvalidasi jenis, ukuran, durasi, dan jumlah file,
+   * lalu memberi signed upload URL; file dikirim langsung ke Supabase Storage. Mengembalikan URL publik file.
+   */
+  async uploadDigitalSample(params: {
+    bookId: string;
+    format: DigitalFormat;
+    kind: 'image' | 'audio';
+    file: File;
+    durationSeconds?: number;
+    existingCount?: number;
+  }): Promise<string> {
+    const { file, ...meta } = params;
+    const res = await fetchWithTimeout(apiUrl('/api/admin/digital/sample-upload'), {
+      method: 'POST',
+      headers: adminHeaders(),
+      body: JSON.stringify({ ...meta, contentType: file.type, size: file.size })
+    }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    const { uploadUrl, publicUrl } = await res.json();
+    // Format yang sama dengan supabase-js uploadToSignedUrl.
+    const form = new FormData();
+    form.append('cacheControl', '3600');
+    form.append('', file);
+    const upload = await fetchWithTimeout(uploadUrl, { method: 'PUT', headers: { 'x-upsert': 'false' }, body: form }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!upload.ok) throw new ApiError(`Unggah ke Supabase Storage gagal (HTTP ${upload.status}).`, upload.status);
+    return publicUrl as string;
+  },
+
+  /** Admin: hapus file sampel yang diunggah tetapi batal disimpan (server menolak file yang masih dipakai). */
+  async deleteDigitalSample(url: string): Promise<void> {
+    const res = await fetchWithTimeout(apiUrl('/api/admin/digital/sample'), {
+      method: 'DELETE',
+      headers: adminHeaders(),
+      body: JSON.stringify({ url })
+    }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+  },
+
+  // ==========================================================================
+  // INSTITUTION & LIBRARY NETWORK
+  // ==========================================================================
+  /** Publik: kirim permintaan penawaran institusi. */
+  async submitInstitutionInquiry(inquiry: InstitutionInquiryInput): Promise<void> {
+    const res = await fetchWithTimeout(apiUrl('/api/institutions/inquiry'), {
+      method: 'POST',
+      headers: jsonHeaders(),
+      body: JSON.stringify(inquiry)
+    }, 30000);
+    if (!res.ok) throw await parseError(res);
+  },
+
+  /** Admin: daftar permintaan penawaran, terbaru lebih dulu. */
+  async getInstitutionInquiries(): Promise<InstitutionInquiry[]> {
+    const res = await fetchWithTimeout(apiUrl('/api/admin/institutions/inquiries'), { headers: adminHeaders() }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    return res.json();
+  },
+
+  async updateInstitutionInquiryStatus(id: string, status: InstitutionInquiryStatus): Promise<void> {
+    const res = await fetchWithTimeout(apiUrl(`/api/admin/institutions/inquiries/${encodeURIComponent(id)}`), {
+      method: 'PATCH',
+      headers: adminHeaders(),
+      body: JSON.stringify({ status })
+    }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
   }
 };
+
+export interface AdminDigitalCatalog {
+  products: DigitalProduct[];
+  /** Supabase terhubung: perubahan tersimpan permanen. false = hanya di memori server sampai restart. */
+  persistent: boolean;
+  /** Unggah sampel ke Supabase Storage tersedia. */
+  storageEnabled: boolean;
+}
+
+export interface InstitutionInquiryInput {
+  institutionName: string;
+  institutionType: InstitutionType;
+  userCount: number;
+  email: string;
+  contactName?: string;
+  phone?: string;
+  message?: string;
+  language: string;
+  /** Honeypot anti-spam; harus kosong. */
+  website?: string;
+}

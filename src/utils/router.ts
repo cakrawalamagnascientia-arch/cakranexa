@@ -8,6 +8,9 @@ import { DEFAULT_LANGUAGE, getCurrentLanguage, isAppLanguage, type AppLanguage }
  *
  * Bahasa ditentukan oleh prefix URL: tanpa prefix = Bahasa Indonesia, /en = English, /zh = Mandarin
  * (mis. /katalog, /en/katalog, /zh/katalog). Dashboard admin selalu tanpa prefix.
+ *
+ * Produk digital: /digital/ebook, /digital/audiobook (daftar), /digital/<format>/<slug-buku> (detail),
+ * /digital/sample/<id-produk> (sampel). Keanggotaan: /membership, /institutions, /library.
  */
 export interface RouteState {
   page: ActivePage;
@@ -16,6 +19,8 @@ export interface RouteState {
   category?: string;
   search?: string;
   selectedAuthorId?: string | null;
+  /** Halaman digital: slug buku (/digital/<format>/<slug>) atau id produk (/digital/sample/<id>). */
+  digitalItem?: string | null;
 }
 
 const PAGE_PATHS: Record<string, ActivePage> = {
@@ -32,7 +37,11 @@ const PAGE_PATHS: Record<string, ActivePage> = {
   career: 'karir',
   kontak: 'kontak',
   admin: 'admin',
-  checkout: 'checkout'
+  checkout: 'checkout',
+  digital: 'digital',
+  membership: 'membership',
+  institutions: 'institutions',
+  library: 'library'
 };
 
 const VALID_SUBSECTIONS = new Set<string>([
@@ -86,6 +95,15 @@ export const parseLocation = (pathname: string = window.location.pathname, searc
     if (kategori && CATEGORIES.has(kategori)) state.category = kategori;
     const q = params.get('q');
     if (q) state.search = q;
+  } else if (page === 'digital') {
+    const section = segments[1];
+    if (section === 'sample' && segments[2]) {
+      state.subSection = 'sample';
+      state.digitalItem = segments[2];
+    } else {
+      state.subSection = section === 'audiobook' ? 'audiobook' : 'ebook';
+      if ((section === 'ebook' || section === 'audiobook') && segments[2]) state.digitalItem = segments[2];
+    }
   } else if (segments[1] && VALID_SUBSECTIONS.has(segments[1])) {
     state.subSection = segments[1] as SubSection;
   }
@@ -94,7 +112,7 @@ export const parseLocation = (pathname: string = window.location.pathname, searc
 
 /** Path tanpa prefix bahasa untuk sebuah state halaman. */
 const buildBasePath = (state: RouteState): string => {
-  const { page, subSection, bookSlug, selectedAuthorId, category, search } = state;
+  const { page, subSection, bookSlug, selectedAuthorId, category, search, digitalItem } = state;
   if (page === 'beranda' || page === 'home') return '/';
   const base = page === 'career' ? '/karir' : `/${page}`;
 
@@ -111,6 +129,11 @@ const buildBasePath = (state: RouteState): string => {
     if (search) params.set('q', search);
     const qs = params.toString();
     return qs ? `${base}?${qs}` : base;
+  }
+  if (page === 'digital') {
+    if (subSection === 'sample' && digitalItem) return `${base}/sample/${encodeURIComponent(digitalItem)}`;
+    const format = subSection === 'audiobook' ? 'audiobook' : 'ebook';
+    return digitalItem ? `${base}/${format}/${encodeURIComponent(digitalItem)}` : `${base}/${format}`;
   }
   if (subSection && VALID_SUBSECTIONS.has(subSection)) return `${base}/${subSection}`;
   return base;

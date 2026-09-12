@@ -17,6 +17,7 @@ import type about from './locales/id/about.json';
 import type career from './locales/id/career.json';
 import type journal from './locales/id/journal.json';
 import type contact from './locales/id/contact.json';
+import type digital from './locales/id/digital.json';
 
 // Kunci terjemahan diketik dari file Bahasa Indonesia: kunci yang salah ketik gagal saat compile.
 declare module 'i18next' {
@@ -41,6 +42,7 @@ declare module 'i18next' {
       career: typeof career;
       journal: typeof journal;
       contact: typeof contact;
+      digital: typeof digital;
     };
   }
 }

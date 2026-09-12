@@ -1,0 +1,337 @@
+{
+  "nav": {
+    "menu": "数字",
+    "ebook": "电子书",
+    "audiobook": "有声书",
+    "membershipHeading": "会员",
+    "membershipPlans": "会员方案",
+    "myLibrary": "我的书库",
+    "signInForLibrary": "登录查看我的书库",
+    "availableCount_other": "{{count}} 种",
+    "comingSoonBadge": "即将推出",
+    "categoryHasEbook": "有电子书版本",
+    "categoryHasAudiobook": "有有声书版本"
+  },
+  "formats": {
+    "print": "纸质书",
+    "ebook": "电子书",
+    "audiobook": "有声书"
+  },
+  "status": {
+    "available": "可购买",
+    "comingSoon": "即将推出",
+    "unavailable": "暂无"
+  },
+  "common": {
+    "priceTbd": "价格待定",
+    "unitPrice": "单本价格",
+    "comingSoonPhase2": "即将推出",
+    "buyFormat": "购买{{format}}",
+    "buyComingSoonTitle": "{{format}}购买功能即将推出",
+    "readSample": "阅读试读",
+    "listenSample": "试听",
+    "shelfEntry": "上架数字书架：{{date}}",
+    "comingSoonLabel": "即将推出",
+    "narratedBy": "朗读：{{name}}",
+    "durationHoursMinutes": "{{hours}} 小时 {{minutes}} 分钟",
+    "durationMinutes": "{{minutes}} 分钟",
+    "pages_other": "{{count}} 页",
+    "coverAlt": "{{title}} 封面",
+    "viewDetails": "查看详情"
+  },
+  "formatIcons": {
+    "print": "纸质书",
+    "ebook": "电子书",
+    "ebookSoon": "电子书（即将推出）",
+    "audiobook": "有声书",
+    "audiobookSoon": "有声书（即将推出）"
+  },
+  "listing": {
+    "ebook": {
+      "badge": "学术电子书",
+      "title": "CakraNexa 电子书",
+      "subtitle": "拥有 ISBN 的学术专著与参考书的数字版本。随时随地阅读，购买前可免费试读。"
+    },
+    "audiobook": {
+      "badge": "学术有声书",
+      "title": "CakraNexa 有声书",
+      "subtitle": "收听由朗读者演绎的精选学术专著。并非所有书目都有有声版本。"
+    },
+    "membershipHint": "Professional & Academic Society 会员可完整访问电子书和有声书。",
+    "membershipLink": "查看会员方案",
+    "formatSwitch": "选择格式",
+    "filters": {
+      "category": "类别",
+      "allCategories": "全部类别",
+      "availability": "供应状态",
+      "all": "全部",
+      "available": "可购买",
+      "comingSoon": "即将推出",
+      "searchLabel": "搜索数字书目",
+      "searchPlaceholder": "按书名或作者搜索…",
+      "reset": "重置筛选"
+    },
+    "resultCount_other": "{{count}} 种书目",
+    "empty": {
+      "title": "暂无符合条件的书目",
+      "description": "请尝试更换筛选条件或搜索关键词。",
+      "noAudiobooks": "首批有声书正在制作中。您可以先浏览我们的电子书。",
+      "browseEbooks": "浏览电子书"
+    }
+  },
+  "detail": {
+    "backToListing": "返回{{format}}列表",
+    "description": "简介",
+    "formatInfo": "格式信息",
+    "format": "格式",
+    "pageCount": "页数",
+    "duration": "时长",
+    "narrator": "朗读者",
+    "sampleRange": "试读页",
+    "sampleRangeValue": "第 {{start}}–{{end}} 页",
+    "sampleAudio": "试听片段",
+    "sampleAudioValue": "前 {{minutes}} 分钟",
+    "shelfDate": "上架数字阅读书架（Digital Reading Shelf）",
+    "notSet": "尚未确定",
+    "howToGet": {
+      "title": "获取方式",
+      "buyTitle": "单本购买",
+      "buyDescription": "一次付款，随时在“我的书库”中阅读或收听。",
+      "membershipTitle": "会员包含",
+      "membershipDescription": "以下会员可通过 Digital Reading Shelf 免费访问：",
+      "institutionPlan": "Institution & Library Network（机构访问）",
+      "shelfScheduled": "新书：将于 {{date}} 上架 Digital Reading Shelf。在此之前只能单本购买。",
+      "shelfOnShelf": "已上架 Digital Reading Shelf。",
+      "shelfUnscheduled": "上架 Digital Reading Shelf 的日期将另行公布。新书通常在出版后 90–180 天上架。",
+      "viewPlans": "查看会员方案"
+    },
+    "printVersion": "纸质版",
+    "printVersionDescription": "本书也有拥有 ISBN 的纸质版。",
+    "printVersionLink": "查看纸质书",
+    "related": "相关{{format}}",
+    "notFound": {
+      "title": "未找到该数字产品",
+      "description": "该书目尚无数字版本，或链接已更改。",
+      "back": "查看全部{{format}}"
+    }
+  },
+  "sample": {
+    "badge": "免费试读",
+    "titleEbook": "电子书试读",
+    "titleAudiobook": "有声书试听",
+    "backToDetail": "返回详情",
+    "pageAlt": "试读第 {{number}} 页：{{title}}",
+    "pageLabel": "试读第 {{number}} 页",
+    "placeholderNote": "此为示例预览。出版方上传后将显示真实的试读页面。",
+    "rangeNote": "试读内容为全书 {{total}} 页中的第 {{start}}–{{end}} 页。",
+    "audioNote": "收听本有声书的前 {{minutes}} 分钟。",
+    "audioUnsupported": "您的浏览器不支持音频播放器。",
+    "audioUnavailable": "该书目暂无试听片段。",
+    "ctaTitle": "想继续阅读吗？",
+    "ctaDescription": "单本购买，或通过 Professional & Academic Society 会员阅读。",
+    "notFound": "未找到试读内容。"
+  },
+  "formatSelector": {
+    "label": "选择格式",
+    "digitalPrice": "{{format}}价格",
+    "digitalNote": "数字版与纸质书分开购买。",
+    "viewDigitalDetail": "查看{{format}}详情"
+  },
+  "membership": {
+    "badge": "CakraNexa 会员",
+    "title": "选择适合您的阅读与创作方式",
+    "subtitle": "从普通读者到学者和作者，每种方案提供不同的权益。Professional & Academic Society 可完整访问电子书和有声书。",
+    "billing": {
+      "label": "计费周期",
+      "monthly": "按月",
+      "annual": "按年",
+      "save": "省 2 个月"
+    },
+    "free": "免费",
+    "perMonth": "/月",
+    "perYear": "/年",
+    "annualEquivalent": "相当于每月 {{price}}",
+    "recommended": "推荐",
+    "foundingMember": "Founding Member",
+    "includesShelf": "包含 Digital Reading Shelf",
+    "choosePlan": "选择方案",
+    "joinFree": "免费加入",
+    "phase2Note": "会员注册正在准备中，即将开放。",
+    "plans": {
+      "freeCircle": {
+        "name": "Free Circle",
+        "tagline": "免费了解 CakraNexa 的作品。"
+      },
+      "readerCircle": {
+        "name": "Reader Circle",
+        "tagline": "适合经常购书的读者。"
+      },
+      "professionalSociety": {
+        "name": "Professional & Academic Society",
+        "tagline": "为学者和从业者提供完整的电子书与有声书访问。"
+      },
+      "authorGuild": {
+        "name": "Author Guild",
+        "tagline": "适合希望与 CakraNexa 合作出版的作者。"
+      }
+    },
+    "benefits": {
+      "samples": "访问所有电子书和有声书试读/试听",
+      "newsletter": "每月新书与观点简报",
+      "publicEvents": "网络研讨会和公开活动邀请",
+      "memberDiscount": "单本电子书和有声书会员价",
+      "printDiscount": "纸质书会员折扣",
+      "earlyNews": "提前获知新书预告",
+      "digitalShelf": "完整访问 Digital Reading Shelf（电子书和有声书）",
+      "frontlistDiscount": "新书上架数字书架前的特别价格",
+      "webinars": "会员专属网络研讨会和专业课程",
+      "manuscriptReview": "与编辑团队进行书稿咨询",
+      "publishingDiscount": "出版服务费用优惠",
+      "authorCommunity": "作者社群与写作课程"
+    },
+    "frontlist": {
+      "title": "新书何时上架 Digital Reading Shelf？",
+      "body": "新书首先以纸质书和单本电子书形式发行。90–180 天后，新书将上架 Digital Reading Shelf，Professional & Academic Society 会员即可免费阅读。每个数字产品页面都会注明上架日期。",
+      "step1": "出版时：纸质书和单本电子书",
+      "step2": "90–180 天后：上架 Digital Reading Shelf",
+      "step3": "此后：仍可单本购买"
+    },
+    "faq": {
+      "title": "常见问题",
+      "items": {
+        "shelf": {
+          "q": "什么是 Digital Reading Shelf？",
+          "a": "收录 CakraNexa 电子书和有声书的数字阅读书架，Professional & Academic Society 和 Author Guild 会员无需逐本购买即可访问。"
+        },
+        "frontlist": {
+          "q": "为什么新书不会立即上架？",
+          "a": "新书先以单本形式销售，以保障作者获得公平回报。90–180 天后上架，日期会在产品页面注明。"
+        },
+        "unitPurchase": {
+          "q": "不订阅会员可以购买电子书吗？",
+          "a": "可以。所有可购买的电子书和有声书都能单本购买，并保存在“我的书库”中。"
+        },
+        "billing": {
+          "q": "按月和按年计费有什么区别？",
+          "a": "按年计费每年付款一次，价格相当于 10 个月，比按月计费节省 2 个月。"
+        },
+        "cancel": {
+          "q": "可以随时取消吗？",
+          "a": "可以。会员可随时取消，并在已付费周期结束前保持有效。单本购买的书目仍归您所有。"
+        },
+        "institutions": {
+          "q": "我代表大学或图书馆，哪个方案合适？",
+          "a": "Institution & Library Network：以年度合同为多位用户提供共享访问。请在机构页面申请报价。"
+        }
+      }
+    },
+    "institutionsCta": {
+      "title": "面向大学、图书馆和机构",
+      "description": "Institution & Library Network 以年度合同为多位用户同时提供 Digital Reading Shelf 访问。",
+      "link": "了解 Institution & Library Network"
+    }
+  },
+  "institutions": {
+    "badge": "Institution & Library Network",
+    "title": "为您的机构提供 CakraNexa 数字访问",
+    "subtitle": "一份年度合同覆盖全体成员：学生、教师、研究人员和员工均可阅读 CakraNexa 电子书、收听有声书。",
+    "pricingNote": "价格根据机构规模和书目数量确定。",
+    "tiersTitle": "服务等级",
+    "concurrentUsers_other": "最多 {{count}} 位并发用户",
+    "concurrentUsersCustom": "超过 100 位并发用户，按需定制",
+    "concurrentExplainer": "并发用户指可同时阅读的人数。",
+    "requestQuote": "申请报价",
+    "tiers": {
+      "starter": {
+        "name": "Starter",
+        "description": "适合学科项目、研究机构或小型图书馆。"
+      },
+      "campus": {
+        "name": "Campus",
+        "description": "适合拥有大量活跃读者的单一校区或图书馆。"
+      },
+      "network": {
+        "name": "Network",
+        "description": "适合联盟、多校区机构或图书馆网络。"
+      }
+    },
+    "features": {
+      "shelfAccess": "访问 Digital Reading Shelf（电子书和有声书）",
+      "usageReports": "定期使用报告",
+      "acquisitionWallet": "用于永久购书的采购账户（acquisition wallet）",
+      "ipAccess": "校园网络（IP）自动访问",
+      "marcRecords": "供图书馆系统使用的 MARC 编目数据",
+      "multiCampus": "一份合同覆盖多个校区或分馆",
+      "accountManager": "专属客户经理"
+    },
+    "wallet": {
+      "title": "什么是采购账户（acquisition wallet）？",
+      "body": "年度合同金额的一部分将作为采购余额保留，用于永久购买选定书目。即使合同未续签，这些馆藏仍归机构所有。",
+      "point1": "选择阅读量最高的书目",
+      "point2": "已购书目此后仍可访问",
+      "point3": "余额使用情况记录在年度报告中"
+    },
+    "form": {
+      "title": "申请报价",
+      "description": "请填写此表格，我们的团队将与您联系。",
+      "institutionName": "机构名称",
+      "institutionType": "机构类型",
+      "selectType": "选择机构类型",
+      "types": {
+        "university": "高等院校",
+        "library": "图书馆",
+        "government": "政府机构",
+        "company": "企业",
+        "other": "其他"
+      },
+      "userCount": "预计用户人数",
+      "userCountHint": "将使用访问权限的师生或成员人数。",
+      "email": "工作邮箱",
+      "contactName": "联系人姓名（选填）",
+      "phone": "电话/WhatsApp（选填）",
+      "message": "留言（选填）",
+      "messagePlaceholder": "请介绍您的馆藏需求或优先学科领域。",
+      "honeypot": "网站",
+      "submit": "发送申请",
+      "submitting": "正在发送…",
+      "privacy": "您的信息仅用于准备报价。",
+      "success": {
+        "title": "申请已发送",
+        "body": "感谢您的申请。我们的团队将通过 {{email}} 与您联系。"
+      },
+      "sendAnother": "发送新的申请",
+      "errors": {
+        "institutionName": "请输入机构名称（至少 2 个字符）。",
+        "institutionType": "请选择机构类型。",
+        "userCount": "请输入 1 或以上的用户人数。",
+        "email": "请输入有效的电子邮箱。",
+        "rateLimited": "申请过于频繁，请 1 小时后再试。",
+        "generic": "申请发送失败。请检查网络连接后重试。"
+      }
+    }
+  },
+  "library": {
+    "badge": "我的书库",
+    "title": "我的书库",
+    "subtitle": "您购买或通过会员访问的电子书和有声书将显示在这里。",
+    "signInTitle": "登录会员账户",
+    "signInDescription": "CakraNexa 会员账户正在准备中。开通后，您可以登录并在任何设备上打开您的数字馆藏。",
+    "signInButton": "登录",
+    "emptyTitle": "暂无数字产品",
+    "emptyDescription": "单本购买电子书或有声书，或加入会员来充实您的书库。",
+    "browseEbooks": "浏览电子书",
+    "browseAudiobooks": "浏览有声书",
+    "promoTitle": "加入会员，阅读更多",
+    "promoDescription": "Professional & Academic Society 开放完整的 Digital Reading Shelf：无需逐本购买即可阅读电子书和收听有声书。",
+    "promoCta": "查看会员方案"
+  },
+  "subheader": {
+    "ebook": "电子书",
+    "audiobook": "有声书",
+    "sample": "试读",
+    "digitalDetail": "数字详情",
+    "membership": "会员",
+    "institutions": "机构",
+    "library": "我的书库"
+  }
+}

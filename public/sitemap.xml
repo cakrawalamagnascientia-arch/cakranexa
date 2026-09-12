@@ -720,4 +720,124 @@
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
+  <url>
+    <loc>https://cakranexa.com/digital/ebook</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="https://cakranexa.com/digital/ebook"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cakranexa.com/en/digital/ebook"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://cakranexa.com/zh/digital/ebook"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cakranexa.com/digital/ebook"/>
+    <lastmod>2026-09-13T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://cakranexa.com/en/digital/ebook</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="https://cakranexa.com/digital/ebook"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cakranexa.com/en/digital/ebook"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://cakranexa.com/zh/digital/ebook"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cakranexa.com/digital/ebook"/>
+    <lastmod>2026-09-13T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://cakranexa.com/zh/digital/ebook</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="https://cakranexa.com/digital/ebook"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cakranexa.com/en/digital/ebook"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://cakranexa.com/zh/digital/ebook"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cakranexa.com/digital/ebook"/>
+    <lastmod>2026-09-13T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://cakranexa.com/digital/audiobook</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="https://cakranexa.com/digital/audiobook"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cakranexa.com/en/digital/audiobook"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://cakranexa.com/zh/digital/audiobook"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cakranexa.com/digital/audiobook"/>
+    <lastmod>2026-09-13T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://cakranexa.com/en/digital/audiobook</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="https://cakranexa.com/digital/audiobook"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cakranexa.com/en/digital/audiobook"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://cakranexa.com/zh/digital/audiobook"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cakranexa.com/digital/audiobook"/>
+    <lastmod>2026-09-13T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://cakranexa.com/zh/digital/audiobook</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="https://cakranexa.com/digital/audiobook"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cakranexa.com/en/digital/audiobook"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://cakranexa.com/zh/digital/audiobook"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cakranexa.com/digital/audiobook"/>
+    <lastmod>2026-09-13T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://cakranexa.com/membership</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="https://cakranexa.com/membership"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cakranexa.com/en/membership"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://cakranexa.com/zh/membership"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cakranexa.com/membership"/>
+    <lastmod>2026-09-13T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://cakranexa.com/en/membership</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="https://cakranexa.com/membership"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cakranexa.com/en/membership"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://cakranexa.com/zh/membership"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cakranexa.com/membership"/>
+    <lastmod>2026-09-13T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://cakranexa.com/zh/membership</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="https://cakranexa.com/membership"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cakranexa.com/en/membership"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://cakranexa.com/zh/membership"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cakranexa.com/membership"/>
+    <lastmod>2026-09-13T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://cakranexa.com/institutions</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="https://cakranexa.com/institutions"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cakranexa.com/en/institutions"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://cakranexa.com/zh/institutions"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cakranexa.com/institutions"/>
+    <lastmod>2026-09-13T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://cakranexa.com/en/institutions</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="https://cakranexa.com/institutions"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cakranexa.com/en/institutions"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://cakranexa.com/zh/institutions"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cakranexa.com/institutions"/>
+    <lastmod>2026-09-13T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://cakranexa.com/zh/institutions</loc>
+    <xhtml:link rel="alternate" hreflang="id" href="https://cakranexa.com/institutions"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://cakranexa.com/en/institutions"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://cakranexa.com/zh/institutions"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://cakranexa.com/institutions"/>
+    <lastmod>2026-09-13T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
 </urlset>

@@ -14,6 +14,48 @@
     "schemaDescription": "Buku akademik {{title}} ber-ISBN {{isbn}}."
   },
   "pages": {
+    "digitalEbook": {
+      "title": "E-Book Akademik Ber-ISBN — CakraNexa",
+      "description": "E-book monografi dan buku referensi akademik terbitan CakraNexa: perpajakan, akuntansi, hukum, ekonomi, filsafat, dan teologia. Baca sampel gratis sebelum membeli.",
+      "keywords": "e-book akademik, ebook perpajakan, ebook hukum, buku digital ber-isbn, cakranexa",
+      "imageAlt": "E-Book CakraNexa"
+    },
+    "digitalAudiobook": {
+      "title": "Audiobook Akademik — CakraNexa",
+      "description": "Audiobook monografi pilihan terbitan CakraNexa yang dibacakan narator. Dengarkan sampel gratis dan dapatkan akses lewat keanggotaan.",
+      "keywords": "audiobook akademik, audiobook indonesia, buku audio perpajakan, cakranexa",
+      "imageAlt": "Audiobook CakraNexa"
+    },
+    "digitalDetail": {
+      "title": "{{title}} ({{format}}) — {{author}} | CakraNexa",
+      "description": "{{format}} \"{{title}}\" karya {{author}}. {{price}}. Baca sampel gratis dan akses lewat keanggotaan CakraNexa.",
+      "keywords": "edisi digital, monografi akademik",
+      "imageAlt": "Sampul {{format}} {{title}}"
+    },
+    "digitalSample": {
+      "title": "Sampel {{title}} — CakraNexa",
+      "description": "Pratinjau gratis {{format}} \"{{title}}\" karya {{author}}.",
+      "keywords": "sampel ebook, pratinjau buku",
+      "imageAlt": "Sampel {{title}}"
+    },
+    "membership": {
+      "title": "Keanggotaan CakraNexa — Free Circle hingga Author Guild",
+      "description": "Pilih paket keanggotaan CakraNexa: Free Circle, Reader Circle, Professional & Academic Society dengan akses Digital Reading Shelf, dan Author Guild. Hemat 2 bulan dengan tagihan tahunan.",
+      "keywords": "keanggotaan cakranexa, langganan ebook akademik, digital reading shelf, author guild",
+      "imageAlt": "Keanggotaan CakraNexa"
+    },
+    "institutions": {
+      "title": "Institution & Library Network — Akses Digital untuk Kampus & Perpustakaan | CakraNexa",
+      "description": "Akses e-book dan audiobook CakraNexa untuk perguruan tinggi, perpustakaan, dan instansi dengan kontrak tahunan dan acquisition wallet. Minta penawaran sesuai ukuran institusi.",
+      "keywords": "ebook perpustakaan kampus, langganan institusi, akses digital perpustakaan, cakranexa",
+      "imageAlt": "Institution & Library Network CakraNexa"
+    },
+    "library": {
+      "title": "Pustaka Saya — CakraNexa",
+      "description": "Koleksi e-book dan audiobook CakraNexa milik Anda.",
+      "keywords": "pustaka saya, koleksi digital",
+      "imageAlt": "Pustaka Saya CakraNexa"
+    },
     "catalog": {
       "title": "Katalog Buku Akademik & Monografi Ber-ISBN — CakraNexa",
       "description": "Jelajahi koleksi 21+ monografi akademik, buku teks hukum, perpajakan, akuntansi, dan ekonomi ber-ISBN resmi Perpustakaan Nasional. Diterbitkan oleh PT Cakrawala Magna Scientia.",
