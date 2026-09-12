@@ -152,7 +152,7 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
                   </span>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white text-xs sm:text-sm line-clamp-3 leading-snug">
+                  <h3 className="font-semibold text-white text-[11px] sm:text-xs line-clamp-4 leading-snug">
                     {displayTitle}
                   </h3>
                   <p className="text-[10px] text-slate-300 mt-1 font-medium">{book?.author}</p>
@@ -592,7 +592,7 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
                   <span className="text-[9px] uppercase tracking-wider font-bold text-slate-600 block">
                     {categoryLabel(relBook?.category ?? '')}
                   </span>
-                  <h4 className="font-semibold text-xs text-slate-900 line-clamp-2 group-hover:text-[#9A7B38] transition-colors">
+                  <h4 className="font-semibold text-[11px] leading-snug text-slate-900 [overflow-wrap:anywhere] group-hover:text-[#9A7B38] transition-colors">
                     {/* Tanpa toTitleCase seperti sebelumnya: nama asli (Indonesia) atau terjemahannya. */}
                     {relBook && localized(relBook, 'name')}
                   </h4>

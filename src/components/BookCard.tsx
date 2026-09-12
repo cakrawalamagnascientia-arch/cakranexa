@@ -73,7 +73,7 @@ export const BookCard: React.FC<BookCardProps> = ({
         {/* Title */}
         <h4
           onClick={() => onSelectBook(book)}
-          className="h-[5.5rem] line-clamp-4 text-xs sm:text-sm font-semibold leading-snug text-slate-900 group-hover:text-[#9A7B38] transition-colors mb-1 cursor-pointer [overflow-wrap:anywhere]"
+          className="text-[11px] sm:text-[13px] font-semibold leading-snug text-slate-900 group-hover:text-[#9A7B38] transition-colors mb-1 cursor-pointer [overflow-wrap:anywhere]"
           title={displayTitle}
         >
           {displayTitle || t('card.titleFallback')}

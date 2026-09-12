@@ -338,7 +338,7 @@ export const AuthorDetailView: React.FC<AuthorDetailViewProps> = ({ author, allB
                               <div className="text-[10px] sm:text-[11px] font-bold tracking-widest uppercase text-[#A9850C] mb-1.5">
                                 {categoryLabel(book.category)}
                               </div>
-                              <div className="text-sm sm:text-base font-extrabold text-[#0F172A] line-clamp-2 leading-snug group-hover:text-[#0B1120]">
+                              <div className="text-xs sm:text-[13px] font-extrabold text-[#0F172A] leading-snug [overflow-wrap:anywhere] group-hover:text-[#0B1120]">
                                 {toTitleCase(bookText.title(book))}
                               </div>
                               <div className="mt-2 text-[11px] sm:text-xs text-slate-500 line-clamp-2">

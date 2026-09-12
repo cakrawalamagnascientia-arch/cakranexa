@@ -116,7 +116,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                      <h4 className="font-semibold text-xs text-slate-900 line-clamp-2 leading-snug">
+                      <h4 className="font-semibold text-[11px] text-slate-900 leading-snug [overflow-wrap:anywhere]">
                         {toTitleCase(bookText.title(item.book))}
                       </h4>
                     </div>

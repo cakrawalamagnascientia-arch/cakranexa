@@ -210,7 +210,7 @@ export const BestSellerTicker: React.FC<BestSellerTickerProps> = ({
                       {/* Info & Meta */}
                       <div className="flex-1 min-w-0 flex flex-col justify-between text-left">
                         <div>
-                          <h3 className="font-semibold text-xs sm:text-sm text-white line-clamp-2 leading-snug group-hover/card:text-[#DFBF64] transition-colors [overflow-wrap:anywhere]">
+                          <h3 className="font-semibold text-[11px] sm:text-xs text-white leading-snug group-hover/card:text-[#DFBF64] transition-colors [overflow-wrap:anywhere]">
                             {toTitleCase(bookTitle)}
                           </h3>
                           <p className="text-[11px] text-slate-400 line-clamp-1 mt-1 font-normal">
