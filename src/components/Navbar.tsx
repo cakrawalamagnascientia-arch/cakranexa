@@ -542,6 +542,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                     • {categoryLabel(cat)}
                   </button>
                 ))}
+                <button
+                  id="mobile-katalog-penulis"
+                  onClick={() => {
+                    onNavigate('katalog', 'penulis');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left py-1 text-xs text-slate-300 hover:text-white"
+                >
+                  • {t('authors')}
+                </button>
               </div>
             </div>
 
@@ -616,15 +626,60 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 {t('journal')}
               </button>
+            </div>
+
+            {/* Tentang Kami Section Mobile */}
+            <div className="border-t border-white/10 pt-2">
               <button
                 onClick={() => {
                   onNavigate('tentang-kami');
                   setMobileMenuOpen(false);
                 }}
-                className="text-left px-3 py-1.5 text-sm text-slate-200"
+                className="w-full text-left px-3 py-1 text-xs font-semibold text-[#DFBF64]"
               >
                 {t('about')}
               </button>
+              <div className="pl-4 space-y-1 mt-1">
+                <button
+                  onClick={() => {
+                    onNavigate('tentang-kami', 'profil');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left py-1 text-xs text-slate-300"
+                >
+                  • {t('nav.aboutMenu.profile')}
+                </button>
+                <button
+                  onClick={() => {
+                    onNavigate('tentang-kami', 'visi-misi');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left py-1 text-xs text-slate-300"
+                >
+                  • {t('nav.aboutMenu.visionMission')}
+                </button>
+                <button
+                  onClick={() => {
+                    onNavigate('tentang-kami', 'tim');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left py-1 text-xs text-slate-300"
+                >
+                  • {t('nav.aboutMenu.editorialTeam')}
+                </button>
+                <button
+                  onClick={() => {
+                    onNavigate('tentang-kami', 'legalitas');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left py-1 text-xs text-slate-300"
+                >
+                  • {t('nav.aboutMenu.legality')}
+                </button>
+              </div>
+            </div>
+
+            <div className="border-t border-white/10 pt-2 flex flex-col space-y-1">
               <button
                 onClick={() => {
                   onNavigate('blog');
