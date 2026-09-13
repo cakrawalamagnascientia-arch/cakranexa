@@ -65,21 +65,19 @@ Setiap kali mengubah `VITE_*` di Render, **deploy ulang**, karena nilainya dibak
 
 Fase 2 diuji langsung di produksi, tanpa staging. Pengamannya:
 
-- **`DIGITAL_ENABLED=false`** (default). Yang disembunyikan:
-  - menu Digital;
-  - halaman `/digital/*`, `/membership`, `/institutions`, dan `/library` (dialihkan ke beranda);
-  - pemilih format di halaman buku dan ikon digital di kartu buku.
-
-  Endpoint pembeli digital menjawab `404 digital_disabled`. Checkout buku cetak tidak berubah. Sitemap server tidak memuat URL digital.
+- **`DIGITAL_ENABLED=false`** (default): situs tampil seperti fase 1.
+  - **Tetap tampil:** menu Digital, daftar/detail/sampel e-book dan audiobook, `/membership`, `/institutions`, pemilih format di halaman buku, dan ikon format di kartu buku.
+  - **Diganti placeholder "Segera hadir":** tombol beli dan tombol masuk di Pustaka Saya.
+  - **Dialihkan:** `/digital/checkout` ke daftar e-book, dan `/library/read|listen/*` ke Pustaka Saya.
+  - Endpoint pembeli digital menjawab `404 digital_disabled`. Checkout buku cetak tidak berubah.
 - **`DIGITAL_BETA_EMAILS`**:
-  - Email penguji tetap melihat dan memakai semua fitur digital walaupun flag `false`.
-  - Caranya: masuk lewat `https://www.cakranexa.com/account/login` (halaman akun tidak terkena flag); setelah itu menu Digital muncul.
+  - Email penguji tetap bisa membeli, membaca, dan mendengarkan walaupun flag `false`.
+  - Caranya: masuk lewat `https://www.cakranexa.com/account/login` (halaman akun tidak terkena flag); setelah itu tombol beli aktif.
 - **Status flag dibaca frontend dari `GET /api/digital/status`.** Mengubah flag cukup di env Render lalu deploy ulang Render; Vercel tidak perlu di-build ulang.
 - **Pesanan uji.** Pesanan dari email beta ditandai `is_test = true` dan tidak dihitung di ringkasan penjualan admin (Admin → Produk Digital → *Penjualan digital*).
   - Tombol **Hapus pesanan uji** menghapus semua pesanan uji beserta hak aksesnya.
   - Pembayaran uji di produksi memakai uang sungguhan. Lakukan refund di dashboard Midtrans **sebelum** menghapus, karena tombol ini tidak membatalkan transaksi Midtrans.
 - **Tidak terkena flag:** admin, webhook Midtrans, dan pemrosesan file master. Katalog bisa disiapkan sebelum peluncuran.
-- **Diketahui:** `public/sitemap.xml` statis (disajikan Vercel) masih memuat URL digital fase 1. Isinya tidak mengikuti flag.
 - **Peluncuran:** set `DIGITAL_ENABLED=true` di Render, lalu deploy ulang.
 
 ---
@@ -211,7 +209,7 @@ dari Pustaka Saya.
 ## 7. Checklist uji ujung-ke-ujung (produksi, email beta)
 
 1. Migration dijalankan; `digital-assets` privat.
-2. Env Render dan Vercel terisi (`DIGITAL_ENABLED=false`, `DIGITAL_BETA_EMAILS` berisi email penguji), lalu keduanya di-deploy ulang. Pengunjung biasa tidak melihat menu Digital.
+2. Env Render dan Vercel terisi (`DIGITAL_ENABLED=false`, `DIGITAL_BETA_EMAILS` berisi email penguji), lalu keduanya di-deploy ulang. Pengunjung biasa tetap melihat katalog digital, tetapi tombol beli berlabel "Segera hadir".
 3. `/api/health` sesuai bagian 6.
 4. Admin → Produk Digital: set e-book **Tersedia** dengan harga > 0. Di panel **File master**, unggah PDF dan tunggu status **Siap**.
 5. Dengan email yang ada di `DIGITAL_BETA_EMAILS`: daftar di `/account/register`, konfirmasi lewat email, lalu masuk. Menu Digital muncul.

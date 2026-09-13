@@ -1796,19 +1796,15 @@ async function startServer() {
       { path: '/blog', freq: 'weekly', prio: '0.75' },
       { path: '/karir', freq: 'weekly', prio: '0.6' },
       { path: '/kontak', freq: 'monthly', prio: '0.6' },
-      // Halaman digital hanya dimasukkan bila flag DIGITAL_ENABLED aktif.
-      ...(digitalPhase2.feature.enabled
-        ? [
-          { path: '/digital/ebook', freq: 'weekly', prio: '0.8' },
-          { path: '/digital/audiobook', freq: 'weekly', prio: '0.75' },
-          { path: '/membership', freq: 'monthly', prio: '0.7' },
-          { path: '/institutions', freq: 'monthly', prio: '0.65' }
-        ]
-        : [])
+      // Katalog digital fase 1 selalu publik; flag DIGITAL_ENABLED hanya mengatur pembelian & akses (fase 2).
+      { path: '/digital/ebook', freq: 'weekly', prio: '0.8' },
+      { path: '/digital/audiobook', freq: 'weekly', prio: '0.75' },
+      { path: '/membership', freq: 'monthly', prio: '0.7' },
+      { path: '/institutions', freq: 'monthly', prio: '0.65' }
     ];
     const books = await loadBooks();
     // Detail produk digital aktif (/digital/<format>/<slug>); halaman sampel & Pustaka Saya sengaja tidak dimasukkan (noindex).
-    const digitalProducts = digitalPhase2.feature.enabled ? await loadPublicDigitalCatalog() : [];
+    const digitalProducts = await loadPublicDigitalCatalog();
     // Setiap halaman dalam 3 bahasa (Indonesia tanpa prefix, /en, /zh) beserta tautan hreflang antarbahasa.
     const languages = [
       { hreflang: 'id', prefix: '' },

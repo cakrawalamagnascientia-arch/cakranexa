@@ -245,8 +245,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </div>
 
-            {/* Digital (Dropdown): E-Book, Audiobook, Keanggotaan — hanya bila flag fitur digital aktif */}
-            {digitalCatalog.enabled && (
+            {/* Digital (Dropdown): E-Book, Audiobook, Keanggotaan */}
             <div
               className="relative"
               onMouseEnter={() => handleMouseEnter('digital')}
@@ -333,7 +332,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </div>
               )}
             </div>
-            )}
 
             {/* 3. Penerbitan (Dropdown) */}
             <div
@@ -679,8 +677,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             </div>
 
-            {/* Digital Section Mobile — hanya bila flag fitur digital aktif */}
-            {digitalCatalog.enabled && (
+            {/* Digital Section Mobile */}
             <div className="border-t border-white/10 pt-2">
               <button
                 id="mobile-digital-menu"
@@ -748,7 +745,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 )}
               </div>
             </div>
-            )}
 
             {/* Penerbitan Section Mobile */}
             <div className="border-t border-white/10 pt-2">

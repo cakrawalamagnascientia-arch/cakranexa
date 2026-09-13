@@ -82,7 +82,7 @@ export const DigitalFormatPanel: React.FC<DigitalFormatPanelProps> = ({ product,
         <p className="mt-1 text-[11px] text-slate-400">{t('formatSelector.digitalNote')}</p>
       </div>
       <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2">
-        <BuyDigitalButton id="btn-detail-buy-digital" size="md" product={product} />
+        <BuyDigitalButton id="btn-detail-buy-digital" size="md" tone="dark" product={product} />
         <button
           type="button"
           id="btn-detail-view-digital"

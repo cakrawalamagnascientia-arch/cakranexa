@@ -19,6 +19,7 @@ import { useBookText, useFormatters } from '../../i18n/hooks';
 import { resolveImageUrl } from '../../utils/imageUtils';
 import { toTitleCase } from '../../utils/formatters';
 import { FormatIcon } from './FormatIcon';
+import { ComingSoonButton } from './ComingSoonButton';
 import { useDigitalFormatters } from './useDigitalFormatters';
 
 type NavigateFn = (page: ActivePage, subSection?: SubSection) => void;
@@ -229,6 +230,9 @@ interface LibraryViewProps {
 export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
   const { t } = useTranslation('digital');
   const member = useMemberSession();
+  // Flag fase 2 mati (DIGITAL_ENABLED, bukan email beta): halaman tampil seperti fase 1 dengan placeholder "Segera hadir".
+  const digitalEnabled = useDigitalCatalog().enabled;
+  const showMember = member.isLoggedIn && digitalEnabled;
   const [items, setItems] = useState<LibraryItem[] | null>(null);
   const [loadError, setLoadError] = useState(false);
 
@@ -242,9 +246,25 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
   }, []);
 
   useEffect(() => {
-    if (member.isLoggedIn) void load();
+    if (showMember) void load();
     else setItems(null);
-  }, [member.isLoggedIn, member.userId, load]);
+  }, [showMember, member.userId, load]);
+
+  const emptyState = (
+    <div id="library-empty" className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
+      <Library className="mx-auto h-10 w-10 text-slate-300" aria-hidden="true" />
+      <h2 className="mt-3 text-base font-bold text-slate-900">{t('library.emptyTitle')}</h2>
+      <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">{t('library.emptyDescription')}</p>
+      <div className="mt-5 flex flex-wrap justify-center gap-2">
+        <button type="button" onClick={() => onNavigate('digital', 'ebook')} className="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800 cursor-pointer">
+          {t('library.browseEbooks')}
+        </button>
+        <button type="button" onClick={() => onNavigate('digital', 'audiobook')} className="rounded-lg border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer">
+          {t('library.browseAudiobooks')}
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div id="library-page" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 text-left">
@@ -257,7 +277,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
         <p className="mt-2 text-sm text-slate-600 sm:text-base">{t('library.subtitle')}</p>
       </header>
 
-      {!member.isLoggedIn && !member.isLoading && (
+      {!showMember && !member.isLoading && (
         <section className="mt-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-start gap-3">
             <LogIn className="mt-0.5 h-5 w-5 shrink-0 text-[#9A7B38]" aria-hidden="true" />
@@ -267,27 +287,38 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
             </div>
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-56 sm:shrink-0">
-            <button
-              type="button"
-              id="btn-library-sign-in"
-              onClick={() => onNavigate('account', 'login')}
-              className="rounded-lg bg-[#D4AF37] px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-[#c5a059] cursor-pointer"
-            >
-              {t('account.loginCta')}
-            </button>
-            <button
-              type="button"
-              id="btn-library-register"
-              onClick={() => onNavigate('account', 'register')}
-              className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 transition-colors hover:bg-slate-50 cursor-pointer"
-            >
-              {t('account.registerCta')}
-            </button>
+            {digitalEnabled ? (
+              <>
+                <button
+                  type="button"
+                  id="btn-library-sign-in"
+                  onClick={() => onNavigate('account', 'login')}
+                  className="rounded-lg bg-[#D4AF37] px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-[#c5a059] cursor-pointer"
+                >
+                  {t('account.loginCta')}
+                </button>
+                <button
+                  type="button"
+                  id="btn-library-register"
+                  onClick={() => onNavigate('account', 'register')}
+                  className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 transition-colors hover:bg-slate-50 cursor-pointer"
+                >
+                  {t('account.registerCta')}
+                </button>
+              </>
+            ) : (
+              <>
+                <ComingSoonButton id="btn-library-sign-in" label={t('account.loginCta')} size="md" />
+                <ComingSoonButton id="btn-library-register" label={t('account.registerCta')} size="md" />
+              </>
+            )}
           </div>
         </section>
       )}
 
-      {member.isLoggedIn && (
+      {!showMember && <section className="mt-6">{emptyState}</section>}
+
+      {showMember && (
         <section className="mt-6" aria-live="polite">
           {loadError ? (
             <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700">
@@ -297,19 +328,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
           ) : items === null ? (
             <p role="status" className="text-sm text-slate-500">{t('myLibrary.loading')}</p>
           ) : items.length === 0 ? (
-            <div id="library-empty" className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
-              <Library className="mx-auto h-10 w-10 text-slate-300" aria-hidden="true" />
-              <h2 className="mt-3 text-base font-bold text-slate-900">{t('library.emptyTitle')}</h2>
-              <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">{t('library.emptyDescription')}</p>
-              <div className="mt-5 flex flex-wrap justify-center gap-2">
-                <button type="button" onClick={() => onNavigate('digital', 'ebook')} className="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800 cursor-pointer">
-                  {t('library.browseEbooks')}
-                </button>
-                <button type="button" onClick={() => onNavigate('digital', 'audiobook')} className="rounded-lg border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer">
-                  {t('library.browseAudiobooks')}
-                </button>
-              </div>
-            </div>
+            emptyState
           ) : (
             <ul id="library-items" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {items.map((item) => <LibraryCard key={item.productId} item={item} />)}
@@ -318,7 +337,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
         </section>
       )}
 
-      {member.isLoggedIn && (
+      {showMember && (
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           <DevicesPanel />
           <OrdersPanel />

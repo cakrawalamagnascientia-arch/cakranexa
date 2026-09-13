@@ -6,10 +6,7 @@ import { FormatIcon } from './FormatIcon';
 /** Ikon format (cetak / e-book / audiobook) untuk baris metadata kartu buku. Format "Segera" tampil pudar. */
 export const BookFormatIcons: React.FC<{ bookId: string }> = ({ bookId }) => {
   const { t } = useTranslation('digital');
-  const catalog = useDigitalCatalog();
-  // Flag fitur digital mati: kartu buku tampil seperti sebelum fase digital.
-  if (!catalog.enabled) return null;
-  const { ebook, audiobook } = catalog.forBook(bookId);
+  const { ebook, audiobook } = useDigitalCatalog().forBook(bookId);
 
   return (
     <span className="flex shrink-0 items-center gap-1 text-slate-500">

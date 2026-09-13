@@ -193,7 +193,7 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
                 <p className="mt-2 flex-1 text-xs text-slate-300">{t('detail.howToGet.buyDescription')}</p>
                 <div className="mt-4">
                   {isAvailable ? (
-                    <BuyDigitalButton id="btn-digital-buy" size="md" product={product} />
+                    <BuyDigitalButton id="btn-digital-buy" size="md" tone="dark" product={product} />
                   ) : (
                     <p className="rounded-lg bg-slate-800 px-3 py-2 text-center text-xs text-slate-300">{t('common.comingSoonLabel')}</p>
                   )}

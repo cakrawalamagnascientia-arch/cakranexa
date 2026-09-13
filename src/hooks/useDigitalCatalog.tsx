@@ -10,7 +10,10 @@ export interface DigitalEntry {
 }
 
 export interface DigitalCatalog {
-  /** Flag fitur digital (server). false = menu, pemilih format, dan ikon digital disembunyikan. */
+  /**
+   * Flag fitur digital fase 2 dari server (DIGITAL_ENABLED / email beta). Katalog fase 1 (menu, daftar, detail, sampel)
+   * selalu tampil; false = pembelian, reader/player, dan isi Pustaka Saya diganti placeholder "Segera hadir".
+   */
   enabled: boolean;
   /** Produk aktif yang bukunya ada di katalog. */
   entries: DigitalEntry[];
@@ -26,12 +29,10 @@ export interface DigitalCatalog {
 
 export const buildDigitalCatalog = (books: Book[], products: DigitalProduct[], enabled = true): DigitalCatalog => {
   const bookById = new Map(books.map((book) => [book.id, book]));
-  const entries = enabled
-    ? products.flatMap((product) => {
-      const book = bookById.get(product.bookId);
-      return product.isActive && book ? [{ product, book }] : [];
-    })
-    : [];
+  const entries = products.flatMap((product) => {
+    const book = bookById.get(product.bookId);
+    return product.isActive && book ? [{ product, book }] : [];
+  });
   return {
     enabled,
     entries,

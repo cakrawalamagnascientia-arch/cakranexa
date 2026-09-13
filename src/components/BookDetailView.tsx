@@ -261,7 +261,7 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
 
           {/* Pricing & CTA Card */}
           <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 text-white border border-slate-800 shadow-sm space-y-4">
-            {digitalCatalog.enabled && <FormatSelector bookId={book.id} selected={selectedFormat} onSelect={setSelectedFormat} />}
+            <FormatSelector bookId={book.id} selected={selectedFormat} onSelect={setSelectedFormat} />
 
             {selectedDigital ? (
               <DigitalFormatPanel product={selectedDigital} onViewDetail={() => onOpenDigital?.(selectedDigital)} />

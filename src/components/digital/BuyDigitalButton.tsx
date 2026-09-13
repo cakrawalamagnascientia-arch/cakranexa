@@ -3,22 +3,31 @@ import { useTranslation } from 'react-i18next';
 import { ShoppingCart } from 'lucide-react';
 import type { DigitalProduct } from '../../types';
 import { goToDigitalCheckout } from '../../services/digitalNavigation';
+import { useDigitalCatalog } from '../../hooks/useDigitalCatalog';
+import { ComingSoonButton } from './ComingSoonButton';
 import { useDigitalFormatters } from './useDigitalFormatters';
 
 interface BuyDigitalButtonProps {
   product: Pick<DigitalProduct, 'id' | 'format' | 'price'>;
   id?: string;
   size?: 'sm' | 'md';
+  /** Latar tempat tombol berada (dipakai placeholder "Segera hadir"). */
+  tone?: 'light' | 'dark';
   className?: string;
 }
 
 /**
- * Tombol "Beli E-Book/Audiobook" -> halaman checkout digital (pengganti placeholder fase 1).
+ * Tombol "Beli E-Book/Audiobook" -> halaman checkout digital.
+ * Flag fase 2 mati (DIGITAL_ENABLED, bukan email beta): tampil seperti fase 1, "Segera hadir".
  * Harga 0 ("Harga menyusul") belum bisa dibeli; server juga menolaknya.
  */
-export const BuyDigitalButton: React.FC<BuyDigitalButtonProps> = ({ product, id, size = 'sm', className = '' }) => {
+export const BuyDigitalButton: React.FC<BuyDigitalButtonProps> = ({ product, id, size = 'sm', tone = 'light', className = '' }) => {
   const { t } = useTranslation('digital');
   const fmt = useDigitalFormatters();
+  const { enabled } = useDigitalCatalog();
+  const label = t('common.buyFormat', { format: fmt.formatLabel(product.format) });
+  if (!enabled) return <ComingSoonButton id={id} label={label} tone={tone} size={size} className={className} />;
+
   const sizeClass = size === 'md' ? 'min-h-11 px-4 py-2 text-sm' : 'min-h-8.5 px-2 py-1.5 text-[11px] sm:text-xs';
   const purchasable = product.price > 0;
   return (
@@ -30,7 +39,7 @@ export const BuyDigitalButton: React.FC<BuyDigitalButtonProps> = ({ product, id,
       className={`inline-flex w-full flex-wrap items-center justify-center gap-1.5 rounded-lg bg-[#D4AF37] font-bold text-slate-950 shadow-xs transition-colors hover:bg-[#c5a059] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer ${sizeClass} ${className}`}
     >
       <ShoppingCart className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-      <span className="[overflow-wrap:anywhere]">{t('common.buyFormat', { format: fmt.formatLabel(product.format) })}</span>
+      <span className="[overflow-wrap:anywhere]">{label}</span>
     </button>
   );
 };

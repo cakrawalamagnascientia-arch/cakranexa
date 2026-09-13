@@ -379,14 +379,17 @@ export default function App() {
     () => buildDigitalCatalog(books, digitalProducts, digitalFeature.enabled),
     [books, digitalProducts, digitalFeature.enabled]
   );
-  // Flag mati: halaman digital (dibuka lewat URL langsung) dialihkan ke beranda. Halaman akun tetap terbuka untuk penguji beta.
+  // Flag fase 2 mati: katalog digital fase 1 tetap tampil, tetapi checkout dan reader/player (dibuka lewat URL langsung)
+  // dialihkan: checkout -> daftar e-book, reader/player -> Pustaka Saya. Halaman akun tetap terbuka untuk penguji beta.
   useEffect(() => {
-    if (digitalFeature.known && !digitalFeature.enabled && ['digital', 'membership', 'institutions', 'library'].includes(activePage)) {
-      setActivePage('beranda');
+    if (!digitalFeature.known || digitalFeature.enabled) return;
+    if (activePage === 'digital' && activeSubSection === 'checkout') {
+      setActiveSubSection('ebook');
+    } else if (activePage === 'library' && (activeSubSection === 'read' || activeSubSection === 'listen')) {
       setActiveSubSection(null);
       setDigitalItem(null);
     }
-  }, [digitalFeature.known, digitalFeature.enabled, activePage]);
+  }, [digitalFeature.known, digitalFeature.enabled, activePage, activeSubSection]);
   const digitalFormat = activeSubSection === 'audiobook' ? 'audiobook' : 'ebook';
   const activeDigitalEntry: DigitalEntry | undefined = activePage !== 'digital' || !digitalItem
     ? undefined
@@ -1256,9 +1259,9 @@ export default function App() {
         )}
 
         {/* VIEW 12: PRODUK DIGITAL (DAFTAR, DETAIL, SAMPEL) */}
-        {activePage === 'digital' && digitalCatalog.enabled && (
+        {activePage === 'digital' && (
           activeSubSection === 'checkout' ? (
-            <DigitalCheckoutView query={routeQuery} />
+            digitalCatalog.enabled ? <DigitalCheckoutView query={routeQuery} /> : null
           ) : activeSubSection === 'sample' ? (
             <DigitalSampleView
               entry={activeDigitalEntry}
@@ -1286,12 +1289,12 @@ export default function App() {
         )}
 
         {/* VIEW 13: KEANGGOTAAN, INSTITUSI, PUSTAKA SAYA */}
-        {activePage === 'membership' && digitalCatalog.enabled && <MembershipView onNavigate={navigateTo} />}
-        {activePage === 'institutions' && digitalCatalog.enabled && <InstitutionsView />}
-        {activePage === 'library' && digitalCatalog.enabled && (
-          activeSubSection === 'read' && digitalItem
+        {activePage === 'membership' && <MembershipView onNavigate={navigateTo} />}
+        {activePage === 'institutions' && <InstitutionsView />}
+        {activePage === 'library' && (
+          digitalCatalog.enabled && activeSubSection === 'read' && digitalItem
             ? <ReaderView key={digitalItem} productId={digitalItem} onExit={() => navigateTo('library')} />
-            : activeSubSection === 'listen' && digitalItem
+            : digitalCatalog.enabled && activeSubSection === 'listen' && digitalItem
               ? <PlayerView key={digitalItem} productId={digitalItem} onExit={() => navigateTo('library')} />
               : <LibraryView onNavigate={navigateTo} />
         )}
