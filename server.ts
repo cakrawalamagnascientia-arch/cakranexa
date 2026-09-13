@@ -81,13 +81,16 @@ const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 let supabaseAdmin: SupabaseClient | null = null;
+// Env terisi tetapi klien gagal dibuat (mis. Node < 22 tanpa WebSocket bawaan): dilaporkan oleh pemeriksaan start.
+let supabaseInitError: string | null = null;
 if (supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project') && !supabaseKey.includes('your-service-role')) {
   try {
     supabaseAdmin = createClient(supabaseUrl, supabaseKey, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
     console.log('✅ Supabase Admin Client initialized.');
-  } catch (err) {
+  } catch (err: any) {
+    supabaseInitError = String(err?.message || err).split('\n')[0];
     console.warn('⚠️ Supabase init warning:', err);
   }
 } else {
@@ -1883,7 +1886,7 @@ async function startServer() {
       pdftoppm: process.env.PDFTOPPM_PATH || 'pdftoppm',
       pdftotext: process.env.PDFTOTEXT_PATH || 'pdftotext'
     });
-    const startup = evaluateStartup(process.env, Boolean(supabaseAdmin), supabaseStatus);
+    const startup = evaluateStartup(process.env, Boolean(supabaseAdmin), supabaseStatus, supabaseInitError);
     for (const problem of startup.problems) console[startup.required ? 'error' : 'warn'](`${startup.required ? '❌' : '⚠️ '} ${problem}`);
     if (startup.fatal) {
       console.error('❌ Server dihentikan: di Render, Supabase wajib terhubung dengan skema lengkap. Lihat docs/DEPLOY-SUPABASE.md.');

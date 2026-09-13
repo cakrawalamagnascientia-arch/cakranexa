@@ -5,7 +5,7 @@
 #   fonts-dejavu  : font watermark halaman e-book (sharp/librsvg)
 
 # ---- Build -----------------------------------------------------------------
-FROM node:20-bookworm-slim AS build
+FROM node:22-bookworm-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --include=dev
@@ -23,7 +23,7 @@ ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
 RUN npm run build && npm prune --omit=dev
 
 # ---- Runtime ---------------------------------------------------------------
-FROM node:20-bookworm-slim
+FROM node:22-bookworm-slim
 RUN apt-get update \
  && apt-get install -y --no-install-recommends ffmpeg poppler-utils fonts-dejavu-core ca-certificates \
  && rm -rf /var/lib/apt/lists/*

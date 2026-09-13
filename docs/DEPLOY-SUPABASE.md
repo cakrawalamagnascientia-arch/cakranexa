@@ -136,6 +136,8 @@ Variabel `VITE_*` dibakar saat build, jadi perubahan nilainya memerlukan **build
    - `❌ Skema belum lengkap — jalankan src/db/digital_phase2_migration.sql (belum ada: entitlements, …)`
    - `❌ Supabase tidak dapat dihubungi: books: Invalid API key`
    - `❌ SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY belum di-set.`
+   - `❌ Klien Supabase gagal dibuat (env sudah terisi): Node.js detected but native WebSocket not found. — jalankan Node 22 atau lebih baru.`
+     `@supabase/supabase-js` 2.115 butuh Node 22+. Versi Node Render mengikuti `engines` di `package.json` (sekarang `22.x`). Bila di Environment Render ada `NODE_VERSION`, hapus atau ganti ke `22`, karena variabel itu menimpa `engines`.
 3. **Jika berhasil**, log memuat `✅ Supabase terhubung, skema lengkap.` dan `📚 Produk digital fase 2 aktif (penyimpanan: supabase)`.
 4. Periksa `GET https://cakranexa.onrender.com/api/health`. Hasil yang diharapkan:
 

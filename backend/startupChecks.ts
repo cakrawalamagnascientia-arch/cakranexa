@@ -108,11 +108,15 @@ export interface StartupEvaluation {
 export const evaluateStartup = (
   env: NodeJS.ProcessEnv,
   supabaseConfigured: boolean,
-  check: SupabaseCheckResult | null
+  check: SupabaseCheckResult | null,
+  /** Env terisi tetapi createClient melempar error (mis. Node < 22 tanpa WebSocket bawaan). */
+  initError: string | null = null
 ): StartupEvaluation => {
   const required = Boolean(env.RENDER) && env.VERCEL !== '1' && env.ALLOW_START_WITHOUT_SUPABASE !== 'true';
   const problems: string[] = [];
-  if (!supabaseConfigured) {
+  if (!supabaseConfigured && initError) {
+    problems.push(`Klien Supabase gagal dibuat (env sudah terisi): ${initError}${/WebSocket/i.test(initError) ? ' — jalankan Node 22 atau lebih baru.' : ''}`);
+  } else if (!supabaseConfigured) {
     problems.push('SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY belum di-set.');
   } else if (check && !check.connected) {
     problems.push(`Supabase tidak dapat dihubungi: ${check.error}`);

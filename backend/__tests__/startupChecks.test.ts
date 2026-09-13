@@ -78,6 +78,14 @@ describe('evaluateStartup', () => {
     expect(evaluation.problems).toEqual(['Skema belum lengkap — jalankan src/db/digital_phase2_migration.sql (belum ada: entitlements, digital_orders.is_test).']);
   });
 
+  it('env terisi tetapi klien gagal dibuat (Node 20) -> berhenti dengan error asli, bukan "belum di-set"', () => {
+    const evaluation = evaluateStartup({ RENDER: 'true' }, false, null, 'Node.js detected but native WebSocket not found.');
+    expect(evaluation.fatal).toBe(true);
+    expect(evaluation.problems).toEqual([
+      'Klien Supabase gagal dibuat (env sudah terisi): Node.js detected but native WebSocket not found. — jalankan Node 22 atau lebih baru.'
+    ]);
+  });
+
   it('Render dengan Supabase lengkap -> jalan', () => {
     expect(evaluateStartup({ RENDER: 'true' }, true, ok)).toEqual({ required: true, problems: [], fatal: false });
   });
