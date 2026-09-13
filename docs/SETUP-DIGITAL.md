@@ -151,11 +151,11 @@ dari Pustaka Saya.
 ## 5. Supabase
 
 ### 5.1 Migration (manual, tidak otomatis)
-1. Pastikan migration produk digital fase 1 (di `src/db/`) sudah dijalankan.
-2. Buka **SQL Editor**, tempel isi `src/db/digital_phase2_migration.sql`, lalu jalankan.
-   Isinya: tabel pesanan digital, entitlement, perangkat, sesi, log akses, progres, catatan, anomali, fungsi pencarian dan
-   deteksi anomali, kebijakan RLS, serta bucket privat `digital-assets`. Script memakai `IF NOT EXISTS` / `DROP POLICY IF EXISTS`.
-3. Jalankan di proyek **staging/uji** dulu bila ada.
+Ikuti [DEPLOY-SUPABASE.md](DEPLOY-SUPABASE.md):
+
+1. Jalankan kueri pemeriksaan `src/db/check_schema.sql` (hanya membaca).
+2. Jalankan migration yang belum lengkap, berurutan. Fase 2 = `src/db/digital_phase2_migration.sql`: tabel pesanan digital, entitlement, perangkat, sesi, log akses, progres, catatan, anomali, fungsi pencarian dan deteksi anomali, kebijakan RLS, serta bucket privat `digital-assets`.
+3. Jalankan ulang pemeriksaan sampai semua baris `ada = true`.
 
 ### 5.2 Storage
 - `digital-assets` harus **Private** (Public: off). Jangan tambahkan policy untuk `anon`/`authenticated`; hanya server (service role) yang membaca/menulis.
@@ -195,8 +195,11 @@ dari Pustaka Saya.
   - `runtime: docker`, `plan: starter`, `region: singapore`, `healthCheckPath: /api/health`
   - `Dockerfile` memasang `ffmpeg`, `poppler-utils`, dan font DejaVu (watermark)
   - `Dockerfile` mendeklarasikan `ARG VITE_*`, yang diisi Render dari env layanan saat build
+- **Pemeriksaan start:** di Render, server menolak start bila Supabase belum di-set, tidak terhubung, atau skemanya belum lengkap. Deploy ditandai gagal dan versi sebelumnya tetap berjalan; log menyebut migration yang kurang. Lihat [DEPLOY-SUPABASE.md](DEPLOY-SUPABASE.md) bagian 6.
 - Setelah deploy, cek `GET https://<API-Render>/api/health`. Hasil yang diharapkan:
-  - `supabaseConnected: true`
+  - `supabaseConnected: true` dan `supabaseSchemaReady: true`
+  - `digitalStore: "supabase"`
+  - `processingTools` bernilai `true` semua (runtime Docker)
   - `midtransEnabled: true`
   - `midtransMode: "sandbox"` selama uji
 - Log start yang benar memuat `📚 Produk digital fase 2 aktif (penyimpanan: supabase)`.

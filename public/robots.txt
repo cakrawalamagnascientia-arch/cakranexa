@@ -1,10 +1,20 @@
 User-agent: *
 Allow: /
+Disallow: /api/
 Disallow: /admin
 Disallow: /checkout
+Disallow: /digital/checkout
+Disallow: /library
+Disallow: /account
 Disallow: /en/admin
 Disallow: /en/checkout
+Disallow: /en/digital/checkout
+Disallow: /en/library
+Disallow: /en/account
 Disallow: /zh/admin
 Disallow: /zh/checkout
+Disallow: /zh/digital/checkout
+Disallow: /zh/library
+Disallow: /zh/account
 
 Sitemap: https://cakranexa.com/sitemap.xml

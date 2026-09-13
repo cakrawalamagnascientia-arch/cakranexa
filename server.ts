@@ -31,6 +31,7 @@ import {
 } from './src/data/digitalProducts';
 import { INSTITUTION_TYPES, INSTITUTION_INQUIRY_STATUSES, INSTITUTION_INQUIRY_LIMITS } from './src/data/membership';
 import { createDigitalPhase2 } from './backend/digital';
+import { checkProcessingTools, checkSupabase, evaluateStartup, type SupabaseCheckResult } from './backend/startupChecks';
 
 // Load environment variables
 dotenv.config();
@@ -92,6 +93,10 @@ if (supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project') && !supa
 } else {
   console.log('ℹ️  Supabase belum dikonfigurasi (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY). Menggunakan penyimpanan in-memory.');
 }
+
+// Hasil pemeriksaan saat start (lihat backend/startupChecks.ts); dilaporkan di /api/health.
+let supabaseStatus: SupabaseCheckResult | null = null;
+let processingTools: Record<string, boolean> | null = null;
 
 // ============================================================================
 // IN-MEMORY FALLBACK STORE (single source of truth = src/data/booksData.ts)
@@ -871,7 +876,12 @@ async function startServer() {
       status: 'ok',
       service: 'PT CAKRAWALA MAGNA SCIENTIA (CakraNexa) Backend API',
       timestamp: new Date().toISOString(),
-      supabaseConnected: Boolean(supabaseAdmin),
+      // Koneksi dan kelengkapan skema dari pemeriksaan saat start (Vercel tidak memeriksa: cukup env terisi).
+      supabaseConnected: supabaseStatus ? supabaseStatus.connected : Boolean(supabaseAdmin),
+      supabaseSchemaReady: Boolean(supabaseStatus?.connected && supabaseStatus.missing.length === 0),
+      supabaseCheckedAt: supabaseStatus?.checkedAt ?? null,
+      digitalStore: digitalPhase2.context?.store.kind ?? 'unavailable',
+      processingTools,
       midtransEnabled: MIDTRANS_ENABLED,
       midtransMode: MIDTRANS_IS_PRODUCTION ? 'production' : 'sandbox',
       adminConfigured: Boolean(ADMIN_PASSWORD),
@@ -1834,7 +1844,9 @@ async function startServer() {
     const baseUrl = String(seo.siteUrl || 'https://cakranexa.com').replace(/\/$/, '');
     const body = seo.noindex
       ? `User-agent: *\nDisallow: /\n`
-      : `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /checkout\nDisallow: /en/admin\nDisallow: /en/checkout\nDisallow: /zh/admin\nDisallow: /zh/checkout\n`;
+      : `User-agent: *\nAllow: /\nDisallow: /api/\n${['', '/en', '/zh']
+        .flatMap((prefix) => ['/admin', '/checkout', '/digital/checkout', '/library', '/account'].map((path) => `Disallow: ${prefix}${path}`))
+        .join('\n')}\n`;
     res.header('Content-Type', 'text/plain');
     return res.send(`${body}\nSitemap: ${baseUrl}/sitemap.xml\n`);
   });
@@ -1861,6 +1873,27 @@ async function startServer() {
     console.error('Unhandled error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   });
+
+  // Pemeriksaan Supabase & skema. Di Render server berhenti bila gagal (jangan diam-diam jatuh ke memori):
+  // deploy ditandai gagal dan Render tetap menjalankan versi sebelumnya.
+  if (process.env.VERCEL !== '1') {
+    if (supabaseAdmin) supabaseStatus = await checkSupabase(supabaseAdmin);
+    processingTools = checkProcessingTools({
+      ffmpeg: process.env.FFMPEG_PATH || 'ffmpeg',
+      pdftoppm: process.env.PDFTOPPM_PATH || 'pdftoppm',
+      pdftotext: process.env.PDFTOTEXT_PATH || 'pdftotext'
+    });
+    const startup = evaluateStartup(process.env, Boolean(supabaseAdmin), supabaseStatus);
+    for (const problem of startup.problems) console[startup.required ? 'error' : 'warn'](`${startup.required ? '❌' : '⚠️ '} ${problem}`);
+    if (startup.fatal) {
+      console.error('❌ Server dihentikan: di Render, Supabase wajib terhubung dengan skema lengkap. Lihat docs/DEPLOY-SUPABASE.md.');
+      process.exit(1);
+    }
+    if (supabaseStatus?.connected && supabaseStatus.missing.length === 0) console.log('✅ Supabase terhubung, skema lengkap.');
+    if (process.env.RENDER && processingTools && Object.values(processingTools).some((ok) => !ok)) {
+      console.warn('⚠️  Alat pemrosesan tidak lengkap (runtime Docker belum aktif?):', JSON.stringify(processingTools));
+    }
+  }
 
   // Muat katalog awal dari Supabase (jika ada) agar in-memory selaras dengan DB
   try {
