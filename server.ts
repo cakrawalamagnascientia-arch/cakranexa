@@ -30,6 +30,7 @@ import {
   validateDigitalProduct
 } from './src/data/digitalProducts';
 import { INSTITUTION_TYPES, INSTITUTION_INQUIRY_STATUSES, INSTITUTION_INQUIRY_LIMITS } from './src/data/membership';
+import { createDigitalPhase2 } from './backend/digital';
 
 // Load environment variables
 dotenv.config();
@@ -806,12 +807,61 @@ async function startServer() {
       },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'X-Admin-Key']
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'X-Admin-Key', 'X-Session-Token']
     })
   );
 
   app.use(express.json({ limit: '5mb' }));
   app.use(express.urlencoded({ extended: true, limit: '5mb' }));
+
+  // ==========================================================================
+  // PRODUK DIGITAL FASE 2 (akun pembeli, entitlement, checkout, reader/player) — lihat backend/digital
+  // ==========================================================================
+  const sendResendEmail = async (message: { to: string[]; subject: string; html: string; replyTo?: string }): Promise<void> => {
+    if (!RESEND_API_KEY || message.to.length === 0) {
+      console.warn(`Email "${message.subject}" dilewati: ${!RESEND_API_KEY ? 'RESEND_API_KEY belum dikonfigurasi' : 'tanpa penerima'}.`);
+      return;
+    }
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: EMAIL_FROM,
+        to: message.to,
+        subject: message.subject,
+        html: message.html,
+        ...(message.replyTo ? { reply_to: message.replyTo } : {})
+      })
+    });
+    if (!response.ok) throw new Error(`Resend email failed (${response.status}): ${await response.text()}`);
+  };
+
+  const digitalPhase2 = createDigitalPhase2({
+    supabaseAdmin,
+    supabaseUrl,
+    requireAdmin,
+    getBook: async (bookId) => {
+      const book = (await loadBooks()).find((b) => b.id === bookId);
+      return book
+        ? { id: book.id, slug: book.slug || book.id, title: book.title || book.name, author: book.author, coverUrl: book.coverBuku }
+        : null;
+    },
+    listPhase1Products: async () => (await loadDigitalProducts()).map((p) => ({
+      id: p.id,
+      bookId: p.bookId,
+      format: p.format,
+      price: p.price,
+      isActive: p.isActive,
+      availabilityStatus: p.availabilityStatus,
+      pageCount: p.pageCount,
+      durationSeconds: p.durationSeconds
+    })),
+    mailer: { send: sendResendEmail },
+    adminEmails: ORDER_NOTIFICATION_EMAILS,
+    midtrans: { enabled: MIDTRANS_ENABLED, serverKey: MIDTRANS_SERVER_KEY, snapUrl: MIDTRANS_SNAP_URL, isProduction: MIDTRANS_IS_PRODUCTION }
+  });
+  app.use(digitalPhase2.router);
+  if (digitalPhase2.enabled) console.log(`📚 Produk digital fase 2 aktif (penyimpanan: ${digitalPhase2.context?.store.kind}).`);
 
   // ==========================================================================
   // HEALTH & AUTH
@@ -1102,6 +1152,20 @@ async function startServer() {
     if (!verifyMidtransSignature(n)) {
       console.warn('⚠️  Webhook Midtrans dengan signature tidak valid ditolak:', n.order_id);
       return res.status(403).json({ error: 'Invalid signature' });
+    }
+    // Pesanan produk digital (order_id "DIG-...") ditangani modul fase 2; alur buku cetak di bawah tidak berubah.
+    if (String(n.order_id).startsWith('DIG-')) {
+      if (!digitalPhase2.handleMidtransNotification) {
+        return res.status(503).json({ error: 'Modul produk digital tidak aktif di server ini.' });
+      }
+      try {
+        const result = await digitalPhase2.handleMidtransNotification(n);
+        return res.status(result.status).json(result.body);
+      } catch (err: any) {
+        // 500 -> Midtrans mengirim ulang notifikasi; handler idempoten sehingga aman diproses ulang.
+        console.error('[digital] webhook Midtrans gagal diproses:', n.order_id, err?.message || err);
+        return res.status(500).json({ error: 'Gagal memproses notifikasi.' });
+      }
     }
     const targetStatus = mapMidtransStatus(String(n.transaction_status), n.fraud_status);
     await updateOrderStatus(String(n.order_id), targetStatus);
@@ -1545,6 +1609,13 @@ async function startServer() {
     try {
       const product = (await loadDigitalProducts()).find((p) => p.id === req.params.id);
       if (!product) return res.status(404).json({ error: 'Produk digital tidak ditemukan.' });
+      // Produk yang sudah dimiliki pembeli tidak boleh dihapus (hak akses, progres, dan catatan ikut terhapus via FK).
+      if (await digitalPhase2.hasEntitlements?.(product.id)) {
+        return res.status(409).json({
+          error: 'Produk ini sudah dimiliki pembeli. Nonaktifkan produk (Aktif: tidak) alih-alih menghapusnya agar akses pembeli tetap berjalan.',
+          code: 'has_entitlements'
+        });
+      }
       if (supabaseAdmin) {
         const { error } = await supabaseAdmin.from('digital_products').delete().eq('id', product.id);
         if (error) return res.status(500).json({ error: `Supabase: ${error.message}` });
@@ -1725,14 +1796,19 @@ async function startServer() {
       { path: '/blog', freq: 'weekly', prio: '0.75' },
       { path: '/karir', freq: 'weekly', prio: '0.6' },
       { path: '/kontak', freq: 'monthly', prio: '0.6' },
-      { path: '/digital/ebook', freq: 'weekly', prio: '0.8' },
-      { path: '/digital/audiobook', freq: 'weekly', prio: '0.75' },
-      { path: '/membership', freq: 'monthly', prio: '0.7' },
-      { path: '/institutions', freq: 'monthly', prio: '0.65' }
+      // Halaman digital hanya dimasukkan bila flag DIGITAL_ENABLED aktif.
+      ...(digitalPhase2.feature.enabled
+        ? [
+          { path: '/digital/ebook', freq: 'weekly', prio: '0.8' },
+          { path: '/digital/audiobook', freq: 'weekly', prio: '0.75' },
+          { path: '/membership', freq: 'monthly', prio: '0.7' },
+          { path: '/institutions', freq: 'monthly', prio: '0.65' }
+        ]
+        : [])
     ];
     const books = await loadBooks();
     // Detail produk digital aktif (/digital/<format>/<slug>); halaman sampel & Pustaka Saya sengaja tidak dimasukkan (noindex).
-    const digitalProducts = await loadPublicDigitalCatalog();
+    const digitalProducts = digitalPhase2.feature.enabled ? await loadPublicDigitalCatalog() : [];
     // Setiap halaman dalam 3 bahasa (Indonesia tanpa prefix, /en, /zh) beserta tautan hreflang antarbahasa.
     const languages = [
       { hreflang: 'id', prefix: '' },
@@ -1800,6 +1876,8 @@ async function startServer() {
   }
 
   if (process.env.VERCEL !== '1') {
+    // Job produk digital (antrian pemrosesan aset) hanya di server yang selalu berjalan.
+    digitalPhase2.startJobs?.();
     app.listen(PORT, HOST, () => {
       console.log(`🚀 CakraNexa Express Server running on http://${HOST}:${PORT} [${IS_PRODUCTION ? 'production' : 'development'}]`);
       console.log(`🔐 Admin login: ${ADMIN_PASSWORD ? 'aktif' : 'NONAKTIF (set ADMIN_PASSWORD)'} | 💳 Midtrans: ${MIDTRANS_ENABLED ? (MIDTRANS_IS_PRODUCTION ? 'production' : 'sandbox') : 'tidak tersedia'}`);

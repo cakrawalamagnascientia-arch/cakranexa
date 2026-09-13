@@ -1,12 +1,13 @@
 services:
   - type: web
     name: cakranexa
-    runtime: node
-    plan: free
+    # Docker: image menyertakan ffmpeg & poppler-utils untuk pemrosesan e-book/audiobook (lihat Dockerfile).
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    # Starter: selalu aktif (job pemrosesan & deteksi anomali per jam berjalan di proses server).
+    plan: starter
     region: singapore
     branch: main
-    buildCommand: npm ci --include=dev && npm run build
-    startCommand: npm start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -14,6 +15,14 @@ services:
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      - key: VITE_MIDTRANS_CLIENT_KEY
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
@@ -27,3 +36,16 @@ services:
         sync: false
       - key: MIDTRANS_IS_PRODUCTION
         value: "true"
+      - key: RESEND_API_KEY
+        sync: false
+      - key: ACCESS_TOKEN_SECRET
+        generateValue: true
+      - key: CRON_SECRET
+        generateValue: true
+      - key: DIGITAL_ASSETS_BUCKET
+        value: digital-assets
+      # Flag fitur digital: "false" = tertutup untuk umum, hanya DIGITAL_BETA_EMAILS yang bisa memakai.
+      - key: DIGITAL_ENABLED
+        value: "false"
+      - key: DIGITAL_BETA_EMAILS
+        sync: false

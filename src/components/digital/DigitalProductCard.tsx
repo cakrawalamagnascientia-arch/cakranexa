@@ -7,7 +7,7 @@ import { resolveImageUrl, handleImageError } from '../../utils/imageUtils';
 import { toTitleCase } from '../../utils/formatters';
 import { getShelfStatus } from '../../data/digitalProducts';
 import { FormatIcon } from './FormatIcon';
-import { ComingSoonButton } from './ComingSoonButton';
+import { BuyDigitalButton } from './BuyDigitalButton';
 import { useDigitalFormatters } from './useDigitalFormatters';
 
 interface DigitalProductCardProps {
@@ -17,7 +17,7 @@ interface DigitalProductCardProps {
 }
 
 /**
- * Kartu produk digital. Produk "Tersedia": tombol beli (placeholder fase 2) + tautan sampel.
+ * Kartu produk digital. Produk "Tersedia": tombol beli (ke checkout digital) + tautan sampel.
  * Produk "Segera": label tanggal masuk rak digital (atau "Segera tersedia").
  */
 export const DigitalProductCard: React.FC<DigitalProductCardProps> = ({ entry, onOpen, onOpenSample }) => {
@@ -109,7 +109,7 @@ export const DigitalProductCard: React.FC<DigitalProductCardProps> = ({ entry, o
 
         {isAvailable ? (
           <>
-            <ComingSoonButton id={`btn-buy-digital-${product.id}`} label={t('common.buyFormat', { format: formatLabel })} />
+            <BuyDigitalButton id={`btn-buy-digital-${product.id}`} product={product} />
             {hasSample && (
               <button
                 type="button"

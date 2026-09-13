@@ -48,6 +48,12 @@ import { DigitalSampleView } from './components/digital/DigitalSampleView';
 import { MembershipView } from './components/digital/MembershipView';
 import { InstitutionsView } from './components/digital/InstitutionsView';
 import { LibraryView } from './components/digital/LibraryView';
+import { AuthView, type AuthMode } from './components/account/AuthView';
+import { DigitalCheckoutView } from './components/digital/DigitalCheckoutView';
+import { ReaderView } from './components/reader/ReaderView';
+import { PlayerView } from './components/player/PlayerView';
+import { refreshDigitalFeature, useDigitalFeature } from './services/digitalFeature';
+import { useMemberSession } from './services/memberSession';
 
 // Label halaman pada sub-header (common:subheader.pages.*); halaman lain memakai slug apa adanya.
 type SubheaderPageKey = 'katalog' | 'katalogDetail' | 'penerbitan' | 'pelatihan' | 'jurnal' | 'tentangKami' | 'blog' | 'career' | 'karir' | 'checkout' | 'kontak';
@@ -352,10 +358,35 @@ export default function App() {
   const [pendingBookSlug, setPendingBookSlug] = useState<string | null>(initialRoute.bookSlug || null);
   // Halaman digital: slug buku (/digital/<format>/<slug>) atau id produk (/digital/sample/<id>).
   const [digitalItem, setDigitalItem] = useState<string | null>(initialRoute.digitalItem ?? null);
+  // Query mentah halaman akun (?next=) dan checkout digital (?items=, ?order=).
+  const [routeQuery, setRouteQuery] = useState<string>(initialRoute.query ?? '');
+
+  /** Pindah ke path internal (mis. tujuan `next` setelah login) memakai logika Back/Forward yang sama. */
+  const navigateToPath = React.useCallback((path: string) => {
+    window.history.pushState(null, '', path);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }, []);
 
   // Katalog produk digital (e-book & audiobook), dibagikan ke navbar, kartu buku, dan halaman digital.
   const digitalProducts = useDigitalProducts();
-  const digitalCatalog = React.useMemo(() => buildDigitalCatalog(books, digitalProducts), [books, digitalProducts]);
+  // Flag fitur digital dari server (DIGITAL_ENABLED / DIGITAL_BETA_EMAILS), diambil ulang setiap kali pengguna masuk/keluar.
+  const digitalFeature = useDigitalFeature();
+  const memberSession = useMemberSession();
+  useEffect(() => {
+    if (!memberSession.isLoading) void refreshDigitalFeature();
+  }, [memberSession.isLoading, memberSession.userId]);
+  const digitalCatalog = React.useMemo(
+    () => buildDigitalCatalog(books, digitalProducts, digitalFeature.enabled),
+    [books, digitalProducts, digitalFeature.enabled]
+  );
+  // Flag mati: halaman digital (dibuka lewat URL langsung) dialihkan ke beranda. Halaman akun tetap terbuka untuk penguji beta.
+  useEffect(() => {
+    if (digitalFeature.known && !digitalFeature.enabled && ['digital', 'membership', 'institutions', 'library'].includes(activePage)) {
+      setActivePage('beranda');
+      setActiveSubSection(null);
+      setDigitalItem(null);
+    }
+  }, [digitalFeature.known, digitalFeature.enabled, activePage]);
   const digitalFormat = activeSubSection === 'audiobook' ? 'audiobook' : 'ebook';
   const activeDigitalEntry: DigitalEntry | undefined = activePage !== 'digital' || !digitalItem
     ? undefined
@@ -421,9 +452,10 @@ export default function App() {
       selectedAuthorId: activePage === 'katalog' && selectedAuthor ? selectedAuthor.id : null,
       category: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogCategory : undefined,
       search: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogSearch : undefined,
-      digitalItem: activePage === 'digital' ? digitalItem : null
+      digitalItem: activePage === 'digital' || activePage === 'library' ? digitalItem : null,
+      query: activePage === 'account' || (activePage === 'digital' && activeSubSection === 'checkout') ? routeQuery : undefined
     }, activePage === 'katalog' && !selectedBook && !selectedAuthor && (catalogSearch !== '' || catalogCategory !== 'all'));
-  }, [activePage, activeSubSection, selectedBook, selectedAuthor, catalogCategory, catalogSearch, pendingBookSlug, digitalItem]);
+  }, [activePage, activeSubSection, selectedBook, selectedAuthor, catalogCategory, catalogSearch, pendingBookSlug, digitalItem, routeQuery]);
 
   // Tombol Back/Forward browser
   useEffect(() => {
@@ -437,6 +469,7 @@ export default function App() {
       setCatalogCategory(route.category || 'all');
       setCatalogSearch(route.search || '');
       setDigitalItem(route.digitalItem ?? null);
+      setRouteQuery(route.query ?? '');
       if (route.selectedAuthorId) {
         const foundA = authors.find((a) => a.id === route.selectedAuthorId);
         if (foundA) {
@@ -622,6 +655,7 @@ export default function App() {
     setActivePage(page);
     setActiveSubSection(subSection ?? null);
     setDigitalItem(null);
+    setRouteQuery('');
     if (page !== 'katalog') {
       setSelectedBook(null);
       setSelectedAuthor(null);
@@ -923,12 +957,16 @@ export default function App() {
   const subheaderPageKey = SUBHEADER_PAGE_KEYS[activePage];
   // Halaman digital & keanggotaan: label sub-header dari namespace digital.
   const digitalSubheaderLabel = activePage === 'digital'
-    ? activeSubSection === 'sample'
+    ? activeSubSection === 'checkout'
+      ? tDigital('checkout.subheader')
+      : activeSubSection === 'sample'
       ? tDigital('subheader.sample')
       : digitalItem ? tDigital('subheader.digitalDetail') : tDigital(`subheader.${digitalFormat}`)
-    : activePage === 'membership' || activePage === 'institutions' || activePage === 'library'
-      ? tDigital(`subheader.${activePage}`)
-      : null;
+    : activePage === 'account'
+      ? tDigital('account.subheader')
+      : activePage === 'membership' || activePage === 'institutions' || activePage === 'library'
+        ? tDigital(`subheader.${activePage}`)
+        : null;
   const subheaderPageLabel = digitalSubheaderLabel
     ?? (subheaderPageKey ? t(`subheader.pages.${subheaderPageKey}` as const) : activePage.replace('-', ' '));
 
@@ -1218,8 +1256,10 @@ export default function App() {
         )}
 
         {/* VIEW 12: PRODUK DIGITAL (DAFTAR, DETAIL, SAMPEL) */}
-        {activePage === 'digital' && (
-          activeSubSection === 'sample' ? (
+        {activePage === 'digital' && digitalCatalog.enabled && (
+          activeSubSection === 'checkout' ? (
+            <DigitalCheckoutView query={routeQuery} />
+          ) : activeSubSection === 'sample' ? (
             <DigitalSampleView
               entry={activeDigitalEntry}
               onNavigate={navigateTo}
@@ -1246,9 +1286,28 @@ export default function App() {
         )}
 
         {/* VIEW 13: KEANGGOTAAN, INSTITUSI, PUSTAKA SAYA */}
-        {activePage === 'membership' && <MembershipView onNavigate={navigateTo} />}
-        {activePage === 'institutions' && <InstitutionsView />}
-        {activePage === 'library' && <LibraryView onNavigate={navigateTo} />}
+        {activePage === 'membership' && digitalCatalog.enabled && <MembershipView onNavigate={navigateTo} />}
+        {activePage === 'institutions' && digitalCatalog.enabled && <InstitutionsView />}
+        {activePage === 'library' && digitalCatalog.enabled && (
+          activeSubSection === 'read' && digitalItem
+            ? <ReaderView key={digitalItem} productId={digitalItem} onExit={() => navigateTo('library')} />
+            : activeSubSection === 'listen' && digitalItem
+              ? <PlayerView key={digitalItem} productId={digitalItem} onExit={() => navigateTo('library')} />
+              : <LibraryView onNavigate={navigateTo} />
+        )}
+
+        {/* VIEW 14: AKUN PEMBELI (MASUK, DAFTAR, ATUR ULANG KATA SANDI) */}
+        {activePage === 'account' && (
+          <AuthView
+            mode={(['login', 'register', 'reset', 'update-password'].includes(String(activeSubSection)) ? activeSubSection : 'login') as AuthMode}
+            query={routeQuery}
+            onChangeMode={(mode) => {
+              setActiveSubSection(mode);
+              window.scrollTo({ top: 0 });
+            }}
+            onNavigatePath={navigateToPath}
+          />
+        )}
 
         {/* VIEW 10: ADMIN DASHBOARD (CRUD & DEDICATED SIDEBAR) */}
         {activePage === 'admin' && (

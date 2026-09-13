@@ -602,8 +602,269 @@ export const apiClient = {
       body: JSON.stringify({ status })
     }, ADMIN_WRITE_TIMEOUT_MS);
     if (!res.ok) throw await parseError(res);
+  },
+
+  // ==========================================================================
+  // PRODUK DIGITAL FASE 2 — FILE MASTER & PEMROSESAN (admin)
+  // ==========================================================================
+  async listDigitalProcessingStates(): Promise<{ products: DigitalProcessingState[] }> {
+    const res = await fetchWithTimeout(apiUrl('/api/admin/digital/processing'), { headers: adminHeaders() }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    return res.json();
+  },
+
+  async getDigitalProcessingState(productId: string): Promise<DigitalProcessingState> {
+    const res = await fetchWithTimeout(apiUrl(`/api/admin/digital/processing/${encodeURIComponent(productId)}`), { headers: adminHeaders() }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    return res.json();
+  },
+
+  /** Unggah file master (PDF/audio) ke bucket privat lewat server; progres unggah dilaporkan 0..1. */
+  uploadDigitalMaster(productId: string, file: File, onProgress?: (fraction: number) => void): Promise<DigitalProcessingState> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', apiUrl(`/api/admin/digital/processing/${encodeURIComponent(productId)}/master`));
+      const token = getAdminToken();
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) onProgress?.(event.loaded / event.total);
+      };
+      xhr.onload = () => {
+        let body: any = null;
+        try {
+          body = JSON.parse(xhr.responseText);
+        } catch {
+          body = null;
+        }
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(body as DigitalProcessingState);
+          return;
+        }
+        if (xhr.status === 401) clearAdminToken();
+        reject(new ApiError(body?.error || `HTTP ${xhr.status}`, xhr.status));
+      };
+      xhr.onerror = () => reject(new ApiError('Unggahan gagal: server tidak terjangkau.', 0));
+      const form = new FormData();
+      form.append('file', file);
+      xhr.send(form);
+    });
+  },
+
+  async reprocessDigitalProduct(productId: string): Promise<DigitalProcessingState> {
+    const res = await fetchWithTimeout(apiUrl(`/api/admin/digital/processing/${encodeURIComponent(productId)}/reprocess`), {
+      method: 'POST',
+      headers: adminHeaders()
+    }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    return res.json();
+  },
+
+  async saveDigitalChapters(productId: string, text: string): Promise<{ chapters: DigitalChapter[]; skipped: number; errors: string[] }> {
+    const res = await fetchWithTimeout(apiUrl(`/api/admin/digital/processing/${encodeURIComponent(productId)}/chapters`), {
+      method: 'PUT',
+      headers: adminHeaders(),
+      body: JSON.stringify({ text })
+    }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    return res.json();
+  },
+
+  // ==========================================================================
+  // PRODUK DIGITAL FASE 2 — PENJUALAN (admin)
+  // ==========================================================================
+  /** Ringkasan penjualan digital; pesanan uji (email beta) dihitung terpisah. */
+  async getDigitalSalesSummary(): Promise<DigitalSalesSummary> {
+    const res = await fetchWithTimeout(apiUrl('/api/admin/digital-access/orders/summary'), { headers: adminHeaders() }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    return res.json();
+  },
+
+  /** Hapus SEMUA pesanan uji (is_test) beserta hak aksesnya. Pesanan asli tidak tersentuh. */
+  async deleteDigitalTestOrders(): Promise<{ ordersDeleted: number; entitlementsDeleted: number }> {
+    const res = await fetchWithTimeout(apiUrl('/api/admin/digital-access/test-orders'), {
+      method: 'DELETE',
+      headers: adminHeaders(),
+      body: JSON.stringify({ confirm: true })
+    }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    return res.json();
+  },
+
+  // ==========================================================================
+  // PRODUK DIGITAL FASE 2 — ENTITLEMENT, AKSES & ANOMALI (admin)
+  // ==========================================================================
+  async searchDigitalUsers(query: string): Promise<{ users: AdminDigitalUser[] }> {
+    const res = await fetchWithTimeout(apiUrl(`/api/admin/digital-access/users?q=${encodeURIComponent(query)}`), { headers: adminHeaders() }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    return res.json();
+  },
+
+  async getDigitalUserAccess(userId: string): Promise<AdminUserAccess> {
+    const res = await fetchWithTimeout(apiUrl(`/api/admin/digital-access/users/${encodeURIComponent(userId)}`), { headers: adminHeaders() }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    return res.json();
+  },
+
+  async grantDigitalEntitlement(input: { userId: string; productId: string; endsAt?: string | null; maxDevices?: number }): Promise<{ entitlement: AdminEntitlement }> {
+    const res = await fetchWithTimeout(apiUrl('/api/admin/digital-access/entitlements'), {
+      method: 'POST',
+      headers: adminHeaders(),
+      body: JSON.stringify(input)
+    }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    return res.json();
+  },
+
+  async setDigitalEntitlementStatus(id: string, status: 'active' | 'suspended' | 'revoked', reason?: string): Promise<void> {
+    const res = await fetchWithTimeout(apiUrl(`/api/admin/digital-access/entitlements/${encodeURIComponent(id)}`), {
+      method: 'PATCH',
+      headers: adminHeaders(),
+      body: JSON.stringify({ status, reason })
+    }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+  },
+
+  async releaseDigitalDeviceAsAdmin(deviceId: string): Promise<void> {
+    const res = await fetchWithTimeout(apiUrl(`/api/admin/digital-access/devices/${encodeURIComponent(deviceId)}/release`), {
+      method: 'POST',
+      headers: adminHeaders()
+    }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+  },
+
+  async endDigitalUserSessions(userId: string): Promise<{ sessionsEnded: number }> {
+    const res = await fetchWithTimeout(apiUrl(`/api/admin/digital-access/users/${encodeURIComponent(userId)}/end-sessions`), {
+      method: 'POST',
+      headers: adminHeaders()
+    }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    return res.json();
+  },
+
+  async listDigitalAnomalies(status: 'open' | 'resolved' | 'all'): Promise<{ anomalies: AdminAnomaly[] }> {
+    const res = await fetchWithTimeout(apiUrl(`/api/admin/digital-access/anomalies?status=${status}`), { headers: adminHeaders() }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    return res.json();
+  },
+
+  async resolveDigitalAnomaly(id: string, note: string, reactivate: boolean): Promise<void> {
+    const res = await fetchWithTimeout(apiUrl(`/api/admin/digital-access/anomalies/${encodeURIComponent(id)}/resolve`), {
+      method: 'POST',
+      headers: adminHeaders(),
+      body: JSON.stringify({ note, reactivate })
+    }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+  },
+
+  async scanDigitalAnomalies(): Promise<{ candidates: number; created: number }> {
+    const res = await fetchWithTimeout(apiUrl('/api/admin/digital-access/anomalies/scan'), { method: 'POST', headers: adminHeaders() }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    return res.json();
   }
 };
+
+export interface AdminDigitalUser {
+  id: string;
+  email: string;
+  fullName: string;
+  createdAt?: string;
+}
+
+export interface AdminProductRef {
+  id: string;
+  format: 'ebook' | 'audiobook';
+  bookId: string;
+  title: string;
+}
+
+export interface AdminEntitlement {
+  id: string;
+  userId: string;
+  productId: string;
+  source: 'purchase' | 'membership' | 'institution' | 'admin_grant' | 'author';
+  sourceRef: string | null;
+  status: 'active' | 'suspended' | 'revoked' | 'expired';
+  startsAt: string;
+  endsAt: string | null;
+  maxDevices: number;
+  revokedReason: string | null;
+  statusChangedAt: string | null;
+  statusChangedBy: string | null;
+  createdAt: string;
+  usable?: boolean;
+  product?: AdminProductRef | null;
+}
+
+export interface AdminAnomaly {
+  id: string;
+  userId: string;
+  user: AdminDigitalUser | null;
+  productId: string | null;
+  product: AdminProductRef | null;
+  rule: 'ip_spread' | 'device_limit_denials' | 'page_speed';
+  details: Record<string, unknown>;
+  actionTaken: 'flagged' | 'suspended';
+  suspendedEntitlementIds: string[];
+  detectedAt: string;
+  resolvedAt: string | null;
+  resolvedBy: string | null;
+  resolutionNote: string | null;
+}
+
+export interface AdminUserAccess {
+  user: AdminDigitalUser;
+  maxDevices: number;
+  entitlements: AdminEntitlement[];
+  devices: Array<{ id: string; label: string; userAgent: string | null; firstSeen: string; lastSeen: string; releasedAt: string | null; releasedBy: string | null }>;
+  sessions: Array<{ id: string; productId: string; product: AdminProductRef | null; deviceId: string | null; deviceLabel: string | null; ip: string | null; startedAt: string; lastHeartbeat: string; alive: boolean }>;
+  orders: AdminDigitalOrder[];
+  logs: Array<{ id: string; action: string; productId: string | null; product: AdminProductRef | null; ip: string | null; userAgent: string | null; meta: Record<string, unknown>; createdAt: string }>;
+  anomalies: AdminAnomaly[];
+}
+
+export interface AdminDigitalOrder {
+  orderNumber: string;
+  status: 'pending' | 'challenge' | 'paid' | 'failed' | 'cancelled' | 'expired' | 'refunded';
+  amount: number;
+  customerName: string;
+  customerEmail: string;
+  createdAt: string;
+  paidAt: string | null;
+  isTest: boolean;
+  items: Array<{ title: string; format: 'ebook' | 'audiobook'; unitPrice: number }>;
+}
+
+export interface DigitalSalesSummary {
+  featureEnabled: boolean;
+  betaEmailCount: number;
+  summary: { paidCount: number; revenue: number; itemsSold: number; pendingCount: number; refundedCount: number; refundedAmount: number };
+  recent: AdminDigitalOrder[];
+  test: { count: number; paidCount: number; paidAmount: number; orders: AdminDigitalOrder[] };
+}
+
+export interface DigitalChapter {
+  chapterNumber: number;
+  title: string;
+  startSeconds: number | null;
+  startPage: number | null;
+}
+
+/** Status file master & pemrosesan produk digital (tanpa path penyimpanan). */
+export interface DigitalProcessingState {
+  productId: string;
+  format: DigitalFormat;
+  processingStatus: 'none' | 'processing' | 'ready' | 'failed';
+  processingError: string | null;
+  processingStartedAt: string | null;
+  processedAt: string | null;
+  pageCount: number | null;
+  durationSeconds: number | null;
+  hasMaster: boolean;
+  masterContentType: string | null;
+  masterSizeBytes: number | null;
+  masterUploadedAt: string | null;
+  chapters?: DigitalChapter[];
+}
 
 export interface AdminDigitalCatalog {
   products: DigitalProduct[];

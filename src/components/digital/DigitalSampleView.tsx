@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ActivePage, SubSection } from '../../types';
 import type { DigitalEntry } from '../../hooks/useDigitalCatalog';
 import { useBookText } from '../../i18n/hooks';
 import { toTitleCase } from '../../utils/formatters';
 import { FormatIcon } from './FormatIcon';
-import { ComingSoonButton } from './ComingSoonButton';
+import { BuyDigitalButton } from './BuyDigitalButton';
 import { useDigitalFormatters } from './useDigitalFormatters';
+import { PageViewer } from '../reader/PageViewer';
+import { AudioPlayer } from '../player/AudioPlayer';
 
 /** Pratinjau statis selama halaman sampel asli belum diunggah ke bucket digital-samples. */
 const PLACEHOLDER_PAGES = [
@@ -22,11 +24,46 @@ interface DigitalSampleViewProps {
   onBackToDetail: (entry: DigitalEntry) => void;
 }
 
+/** Halaman sampel e-book memakai viewer canvas yang sama dengan reader berbayar (tanpa sesi & catatan). */
+const SamplePageViewer: React.FC<{ pages: string[]; title: string }> = ({ pages, title }) => {
+  const { t } = useTranslation('digital');
+  const [page, setPage] = useState(1);
+  const loadPage = useCallback(async (n: number) => pages[n - 1], [pages]);
+  const navButton = 'inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer';
+  return (
+    <div id="digital-sample-viewer" className="overflow-hidden rounded-xl border border-slate-200 bg-slate-100" onContextMenu={(event) => event.preventDefault()}>
+      <div className="flex items-center justify-between gap-2 border-b border-slate-200 bg-white px-2 py-1.5">
+        <button type="button" id="btn-sample-prev" className={navButton} onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} aria-label={t('reader.prev')}>
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <span className="text-xs font-semibold text-slate-700" aria-live="polite">{t('reader.pageOf', { page, total: pages.length })}</span>
+        <button type="button" id="btn-sample-next" className={navButton} onClick={() => setPage((p) => Math.min(pages.length, p + 1))} disabled={page >= pages.length} aria-label={t('reader.next')}>
+          <ChevronRight className="h-5 w-5" />
+        </button>
+      </div>
+      <div className="h-[70vh] min-h-[420px]">
+        <PageViewer
+          pageCount={pages.length}
+          page={page}
+          loadPage={loadPage}
+          maxPageWidth={720}
+          labels={{
+            pageAlt: (n) => t('sample.pageAlt', { number: n, title }),
+            loading: t('reader.pageLoading'),
+            error: t('reader.pageError'),
+            retry: t('reader.retryPage'),
+            slowDown: t('reader.slowDown')
+          }}
+        />
+      </div>
+    </div>
+  );
+};
+
 /**
- * Halaman /digital/sample/<id>: gambar halaman sampel e-book atau pemutar audio sampel (maks. 5–6 menit).
- *
- * TODO: phase-2 — ganti pratinjau ini dengan reader/player terproteksi (streaming bertoken, tanpa URL file
- * langsung) untuk pemilik lisensi. Halaman ini hanya boleh memuat file SAMPEL dari bucket publik.
+ * Halaman /digital/sample/<id>: halaman sampel e-book (viewer canvas yang sama dengan reader) atau pemutar audio
+ * sampel (maks. 5–6 menit). Halaman ini hanya memuat file SAMPEL dari bucket publik; produk berbayar dibuka di
+ * /library/read|listen lewat API bertoken.
  */
 export const DigitalSampleView: React.FC<DigitalSampleViewProps> = ({ entry, onNavigate, onBackToDetail }) => {
   const { t } = useTranslation('digital');
@@ -91,35 +128,23 @@ export const DigitalSampleView: React.FC<DigitalSampleViewProps> = ({ entry, onN
               {t('sample.rangeNote', { start: product.samplePageStart, end: product.samplePageEnd, total: product.pageCount })}
             </p>
           )}
-          <div className="space-y-6">
-            {pages.map((src, index) => (
-              <figure key={`${src}-${index}`} className="mx-auto max-w-2xl">
-                <img
-                  src={src}
-                  alt={t('sample.pageAlt', { number: index + 1, title })}
-                  loading="lazy"
-                  className="w-full rounded-lg border border-slate-200 bg-white shadow-sm"
-                />
-                <figcaption className="mt-2 text-center text-xs text-slate-500">{t('sample.pageLabel', { number: index + 1 })}</figcaption>
-              </figure>
-            ))}
-          </div>
+          <SamplePageViewer pages={pages} title={title} />
         </section>
       ) : (
         <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-6 text-white">
           {product.sampleAudioUrl ? (
             <>
               <p className="text-sm text-slate-300">{t('sample.audioNote', { minutes: Math.round(product.sampleAudioSeconds / 60) })}</p>
-              <audio
-                id="digital-sample-audio"
-                className="mt-4 w-full"
-                controls
-                preload="none"
-                controlsList="nodownload"
-                src={product.sampleAudioUrl}
-              >
-                {t('sample.audioUnsupported')}
-              </audio>
+              <div className="mt-4">
+                <AudioPlayer
+                  source={{ kind: 'file', url: product.sampleAudioUrl }}
+                  title={title}
+                  subtitle={book.author}
+                  duration={product.sampleAudioSeconds}
+                  audioId="digital-sample-audio"
+                  compact
+                />
+              </div>
             </>
           ) : (
             <p className="text-sm text-slate-300">{t('sample.audioUnavailable')}</p>
@@ -134,7 +159,7 @@ export const DigitalSampleView: React.FC<DigitalSampleViewProps> = ({ entry, onN
         </div>
         <div className="flex w-full flex-col gap-2 sm:w-64 sm:shrink-0">
           {product.availabilityStatus === 'available' && (
-            <ComingSoonButton id="btn-sample-buy" label={t('common.buyFormat', { format: formatLabel })} size="md" />
+            <BuyDigitalButton id="btn-sample-buy" size="md" product={product} />
           )}
           <button
             type="button"

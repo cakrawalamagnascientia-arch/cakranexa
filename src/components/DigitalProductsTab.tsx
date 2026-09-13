@@ -28,6 +28,8 @@ import {
   validateDigitalProduct
 } from '../data/digitalProducts';
 import { toTitleCase } from '../utils/formatters';
+import { DigitalMasterPanel } from './DigitalMasterPanel';
+import { DigitalSalesPanel } from './DigitalSalesPanel';
 
 /**
  * Tab admin "Produk Digital": tabel semua buku × format (e-book, audiobook) dan form buat/edit
@@ -348,6 +350,7 @@ export const DigitalProductsTab: React.FC<DigitalProductsTabProps> = ({ books })
 
   return (
     <div id="admin-digital-products" className="space-y-4">
+      <DigitalSalesPanel />
       {toast && (
         <div className="fixed top-5 right-5 z-50 px-4 py-3 rounded-lg bg-slate-900 text-[#DFBF64] border border-[#D4AF37]/40 shadow-2xl text-xs font-semibold">
           {toast}
@@ -743,6 +746,9 @@ export const DigitalProductsTab: React.FC<DigitalProductsTabProps> = ({ books })
                   </>
                 )}
               </div>
+
+              {/* Fase 2: file master privat, pemrosesan, dan bab */}
+              <DigitalMasterPanel productId={form.id} format={form.format} isNew={isNew} />
 
               {formError && (
                 <div role="alert" className="flex items-start gap-2 p-3 rounded-lg border border-rose-200 bg-rose-50 text-rose-700">

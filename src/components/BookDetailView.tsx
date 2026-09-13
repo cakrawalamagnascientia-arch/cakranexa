@@ -54,7 +54,8 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
   const [activeTab, setActiveTab] = useState<'sinopsis' | 'penulis' | 'daftar-isi' | 'review'>('sinopsis');
   const [copied, setCopied] = useState(false);
   // Pemilih format: cetak (alur pembelian lama) atau e-book/audiobook yang sudah tersedia.
-  const digitalProducts = useDigitalCatalog().forBook(book?.id ?? '');
+  const digitalCatalog = useDigitalCatalog();
+  const digitalProducts = digitalCatalog.forBook(book?.id ?? '');
   const [selectedFormat, setSelectedFormat] = useState<BookFormat>('print');
   useEffect(() => setSelectedFormat('print'), [book?.id]);
   const selectedDigital = selectedFormat === 'print' ? undefined : digitalProducts[selectedFormat];
@@ -260,7 +261,7 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
 
           {/* Pricing & CTA Card */}
           <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 text-white border border-slate-800 shadow-sm space-y-4">
-            <FormatSelector bookId={book.id} selected={selectedFormat} onSelect={setSelectedFormat} />
+            {digitalCatalog.enabled && <FormatSelector bookId={book.id} selected={selectedFormat} onSelect={setSelectedFormat} />}
 
             {selectedDigital ? (
               <DigitalFormatPanel product={selectedDigital} onViewDetail={() => onOpenDigital?.(selectedDigital)} />

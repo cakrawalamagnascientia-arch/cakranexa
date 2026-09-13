@@ -10,7 +10,9 @@ import { DEFAULT_LANGUAGE, getCurrentLanguage, isAppLanguage, type AppLanguage }
  * (mis. /katalog, /en/katalog, /zh/katalog). Dashboard admin selalu tanpa prefix.
  *
  * Produk digital: /digital/ebook, /digital/audiobook (daftar), /digital/<format>/<slug-buku> (detail),
- * /digital/sample/<id-produk> (sampel). Keanggotaan: /membership, /institutions, /library.
+ * /digital/sample/<id-produk> (sampel), /digital/checkout?items=... (checkout). Keanggotaan: /membership,
+ * /institutions, /library (Pustaka Saya), /library/read/<id-produk>, /library/listen/<id-produk>.
+ * Akun pembeli: /account/login|register|reset|update-password (?next=<path>).
  */
 export interface RouteState {
   page: ActivePage;
@@ -19,8 +21,10 @@ export interface RouteState {
   category?: string;
   search?: string;
   selectedAuthorId?: string | null;
-  /** Halaman digital: slug buku (/digital/<format>/<slug>) atau id produk (/digital/sample/<id>). */
+  /** Halaman digital: slug buku, id produk (sampel), atau id produk (reader/player). */
   digitalItem?: string | null;
+  /** Query mentah (tanpa '?') yang dipertahankan untuk halaman akun dan checkout digital. */
+  query?: string;
 }
 
 const PAGE_PATHS: Record<string, ActivePage> = {
@@ -41,13 +45,16 @@ const PAGE_PATHS: Record<string, ActivePage> = {
   digital: 'digital',
   membership: 'membership',
   institutions: 'institutions',
-  library: 'library'
+  library: 'library',
+  account: 'account'
 };
 
 const VALID_SUBSECTIONS = new Set<string>([
   'all', 'terbaru', 'kategori', 'penulis', 'layanan', 'kirim-naskah', 'panduan', 'panduan-penulis',
   'proses', 'faq', 'profil', 'visi-misi', 'tim', 'legalitas'
 ]);
+
+const ACCOUNT_SUBSECTIONS = new Set<string>(['login', 'register', 'reset', 'update-password']);
 
 const CATEGORIES = new Set(['Perpajakan', 'Akuntansi', 'Hukum', 'Ekonomi & Bisnis', 'Filsafat', 'Teologia']);
 
@@ -77,6 +84,7 @@ export const parseLocation = (pathname: string = window.location.pathname, searc
   const { path } = splitLanguagePrefix(pathname);
   const segments = path.replace(/^\/+|\/+$/g, '').split('/').map(decodeURIComponent);
   const params = new URLSearchParams(search);
+  const rawQuery = search.replace(/^\?/, '');
   const page = PAGE_PATHS[segments[0] || ''] || 'beranda';
   const state: RouteState = { page };
 
@@ -97,13 +105,24 @@ export const parseLocation = (pathname: string = window.location.pathname, searc
     if (q) state.search = q;
   } else if (page === 'digital') {
     const section = segments[1];
-    if (section === 'sample' && segments[2]) {
+    if (section === 'checkout') {
+      state.subSection = 'checkout';
+      state.query = rawQuery;
+    } else if (section === 'sample' && segments[2]) {
       state.subSection = 'sample';
       state.digitalItem = segments[2];
     } else {
       state.subSection = section === 'audiobook' ? 'audiobook' : 'ebook';
       if ((section === 'ebook' || section === 'audiobook') && segments[2]) state.digitalItem = segments[2];
     }
+  } else if (page === 'library') {
+    if ((segments[1] === 'read' || segments[1] === 'listen') && segments[2]) {
+      state.subSection = segments[1];
+      state.digitalItem = segments[2];
+    }
+  } else if (page === 'account') {
+    state.subSection = (ACCOUNT_SUBSECTIONS.has(segments[1]) ? segments[1] : 'login') as SubSection;
+    state.query = rawQuery;
   } else if (segments[1] && VALID_SUBSECTIONS.has(segments[1])) {
     state.subSection = segments[1] as SubSection;
   }
@@ -112,9 +131,10 @@ export const parseLocation = (pathname: string = window.location.pathname, searc
 
 /** Path tanpa prefix bahasa untuk sebuah state halaman. */
 const buildBasePath = (state: RouteState): string => {
-  const { page, subSection, bookSlug, selectedAuthorId, category, search, digitalItem } = state;
+  const { page, subSection, bookSlug, selectedAuthorId, category, search, digitalItem, query } = state;
   if (page === 'beranda' || page === 'home') return '/';
   const base = page === 'career' ? '/karir' : `/${page}`;
+  const withQuery = (path: string) => (query ? `${path}?${query}` : path);
 
   if (page === 'katalog') {
     if (bookSlug) return `${base}/${encodeURIComponent(bookSlug)}`;
@@ -131,9 +151,18 @@ const buildBasePath = (state: RouteState): string => {
     return qs ? `${base}?${qs}` : base;
   }
   if (page === 'digital') {
+    if (subSection === 'checkout') return withQuery(`${base}/checkout`);
     if (subSection === 'sample' && digitalItem) return `${base}/sample/${encodeURIComponent(digitalItem)}`;
     const format = subSection === 'audiobook' ? 'audiobook' : 'ebook';
     return digitalItem ? `${base}/${format}/${encodeURIComponent(digitalItem)}` : `${base}/${format}`;
+  }
+  if (page === 'library') {
+    if ((subSection === 'read' || subSection === 'listen') && digitalItem) return `${base}/${subSection}/${encodeURIComponent(digitalItem)}`;
+    return base;
+  }
+  if (page === 'account') {
+    const section = subSection && ACCOUNT_SUBSECTIONS.has(subSection) ? subSection : 'login';
+    return withQuery(`${base}/${section}`);
   }
   if (subSection && VALID_SUBSECTIONS.has(subSection)) return `${base}/${subSection}`;
   return base;

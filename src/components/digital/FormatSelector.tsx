@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import type { BookFormat, DigitalProduct } from '../../types';
 import { useDigitalCatalog } from '../../hooks/useDigitalCatalog';
 import { FormatIcon } from './FormatIcon';
-import { ComingSoonButton } from './ComingSoonButton';
+import { BuyDigitalButton } from './BuyDigitalButton';
 import { useDigitalFormatters } from './useDigitalFormatters';
 
 const FORMAT_ORDER: BookFormat[] = ['print', 'ebook', 'audiobook'];
@@ -82,7 +82,7 @@ export const DigitalFormatPanel: React.FC<DigitalFormatPanelProps> = ({ product,
         <p className="mt-1 text-[11px] text-slate-400">{t('formatSelector.digitalNote')}</p>
       </div>
       <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2">
-        <ComingSoonButton id="btn-detail-buy-digital" tone="dark" size="md" label={t('common.buyFormat', { format: formatLabel })} />
+        <BuyDigitalButton id="btn-detail-buy-digital" size="md" product={product} />
         <button
           type="button"
           id="btn-detail-view-digital"

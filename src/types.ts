@@ -148,7 +148,8 @@ export type ActivePage =
   | 'digital'
   | 'membership'
   | 'institutions'
-  | 'library';
+  | 'library'
+  | 'account';
 
 export type SubSection = 
   | 'all'
@@ -176,6 +177,13 @@ export type SubSection =
   | 'ebook'
   | 'audiobook'
   | 'sample'
+  | 'checkout'
+  | 'read'
+  | 'listen'
+  | 'login'
+  | 'register'
+  | 'reset'
+  | 'update-password'
   | null;
 
 export interface SeoSettings {

@@ -17,6 +17,7 @@
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "i18n:check": "node scripts/i18n-check.mjs",
     "i18n:find": "node scripts/i18n-find-hardcoded.mjs",
     "i18n:screenshots": "node scripts/i18n-screenshots.mjs"
@@ -26,14 +27,18 @@
     "@tailwindcss/vite": "^4.1.14",
     "@vercel/node": "^12.0.1",
     "@vitejs/plugin-react": "^5.0.4",
+    "busboy": "^1.6.0",
     "cors": "^2.8.6",
     "cross-env": "^7.0.3",
     "dotenv": "^17.2.3",
     "esbuild": "^0.25.0",
     "express": "^4.21.2",
+    "express-rate-limit": "^8.7.0",
+    "hls.js": "^1.7.3",
     "html2canvas": "^1.4.1",
     "i18next": "^26.4.2",
     "i18next-browser-languagedetector": "^8.2.1",
+    "jose": "^5.10.0",
     "jsbarcode": "^3.12.3",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.546.0",
@@ -43,10 +48,12 @@
     "react-dom": "^19.0.1",
     "react-i18next": "^17.0.13",
     "recharts": "^3.10.1",
+    "sharp": "^0.35.4",
     "tailwindcss": "^4.1.14",
     "vite": "^6.2.3"
   },
   "devDependencies": {
+    "@types/busboy": "^1.5.4",
     "@types/cors": "^2.8.19",
     "@types/express": "^4.17.21",
     "@types/jsbarcode": "^3.11.4",
@@ -54,9 +61,12 @@
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/supertest": "^7.2.1",
     "pdf-parse": "^2.4.5",
     "playwright": "^1.63.0",
+    "supertest": "^7.2.2",
     "tsx": "^4.21.0",
-    "typescript": "~5.8.2"
+    "typescript": "~5.8.2",
+    "vitest": "^5.0.0"
   }
 }

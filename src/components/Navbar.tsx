@@ -21,7 +21,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { FormatIcon } from './digital/FormatIcon';
 import { useCategoryLabel } from '../i18n/hooks';
 import { useDigitalCatalog } from '../hooks/useDigitalCatalog';
-import { useMemberSession } from '../services/memberSession';
+import { signOut, useMemberSession } from '../services/memberSession';
 import { DIGITAL_FORMATS } from '../data/digitalProducts';
 
 /** Halaman yang termasuk menu "Digital" (untuk garis aktif di navbar). */
@@ -245,7 +245,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </div>
 
-            {/* Digital (Dropdown): E-Book, Audiobook, Keanggotaan */}
+            {/* Digital (Dropdown): E-Book, Audiobook, Keanggotaan — hanya bila flag fitur digital aktif */}
+            {digitalCatalog.enabled && (
             <div
               className="relative"
               onMouseEnter={() => handleMouseEnter('digital')}
@@ -316,10 +317,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                     >
                       {libraryLabel}
                     </button>
+                    {memberSession.isLoggedIn && (
+                      <button
+                        id="dropdown-digital-signout"
+                        onClick={() => {
+                          void signOut();
+                          setOpenDropdown(null);
+                        }}
+                        className="w-full text-left px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-[#D4AF37] transition-colors"
+                      >
+                        {t('digital:account.signOut')}
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
             </div>
+            )}
 
             {/* 3. Penerbitan (Dropdown) */}
             <div
@@ -665,7 +679,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             </div>
 
-            {/* Digital Section Mobile */}
+            {/* Digital Section Mobile — hanya bila flag fitur digital aktif */}
+            {digitalCatalog.enabled && (
             <div className="border-t border-white/10 pt-2">
               <button
                 id="mobile-digital-menu"
@@ -719,8 +734,21 @@ export const Navbar: React.FC<NavbarProps> = ({
                 >
                   • {libraryLabel}
                 </button>
+                {memberSession.isLoggedIn && (
+                  <button
+                    id="mobile-digital-signout"
+                    onClick={() => {
+                      void signOut();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block w-full text-left py-1 text-xs text-slate-400 hover:text-white"
+                  >
+                    • {t('digital:account.signOut')}
+                  </button>
+                )}
               </div>
             </div>
+            )}
 
             {/* Penerbitan Section Mobile */}
             <div className="border-t border-white/10 pt-2">

@@ -9,7 +9,7 @@ import { toTitleCase } from '../../utils/formatters';
 import { getShelfStatus } from '../../data/digitalProducts';
 import { DIGITAL_SHELF_PLANS } from '../../data/membership';
 import { FormatIcon } from './FormatIcon';
-import { ComingSoonButton } from './ComingSoonButton';
+import { BuyDigitalButton } from './BuyDigitalButton';
 import { DigitalProductCard } from './DigitalProductCard';
 import { useDigitalFormatters } from './useDigitalFormatters';
 
@@ -193,7 +193,7 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
                 <p className="mt-2 flex-1 text-xs text-slate-300">{t('detail.howToGet.buyDescription')}</p>
                 <div className="mt-4">
                   {isAvailable ? (
-                    <ComingSoonButton id="btn-digital-buy" tone="dark" size="md" label={t('common.buyFormat', { format: formatLabel })} />
+                    <BuyDigitalButton id="btn-digital-buy" size="md" product={product} />
                   ) : (
                     <p className="rounded-lg bg-slate-800 px-3 py-2 text-center text-xs text-slate-300">{t('common.comingSoonLabel')}</p>
                   )}
