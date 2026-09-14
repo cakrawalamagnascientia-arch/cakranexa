@@ -26,6 +26,7 @@ import {
   resetDefaultPaymentSettings,
   DEFAULT_BANK_ACCOUNTS
 } from '../services/paymentService';
+import { getServerBankAccounts, saveServerBankAccounts } from '../services/institutionAdminApi';
 
 interface PaymentManagementTabProps {
   onPaymentSettingsUpdated?: (settings: PaymentSettings) => void;
@@ -60,13 +61,46 @@ export const PaymentManagementTab: React.FC<PaymentManagementTabProps> = ({
     setTimeout(() => setNotification(null), 3500);
   };
 
+  // Rekening juga disimpan ke database (tabel admin_bank_accounts): sumber rekening pada invoice institusi.
+  // Rekening yang dihapus di sini dinonaktifkan di server, tidak dihapus.
+  const syncBankAccounts = (accounts: AdminBankAccount[]) => {
+    saveServerBankAccounts(accounts)
+      .then((res) => {
+        if (res.deactivated > 0) showToast(`Rekening tersinkron ke server; ${res.deactivated} rekening lama dinonaktifkan.`);
+      })
+      .catch((err: any) => showToast(`Tersimpan di browser ini, tetapi gagal sinkron ke server: ${err?.message || 'server tidak terjangkau'}.`));
+  };
+
   const persistSettings = (newSettings: PaymentSettings) => {
+    const bankChanged = JSON.stringify(newSettings.bankAccounts) !== JSON.stringify(settings.bankAccounts);
     setSettings(newSettings);
     saveStoredPaymentSettings(newSettings);
     if (onPaymentSettingsUpdated) {
       onPaymentSettingsUpdated(newSettings);
     }
+    if (bankChanged) syncBankAccounts(newSettings.bankAccounts);
   };
+
+  // Daftar rekening di server menggantikan salinan browser ini; bila server masih kosong, salinan browser dikirim.
+  React.useEffect(() => {
+    let active = true;
+    getServerBankAccounts()
+      .then((res) => {
+        if (!active || !res.persisted) return;
+        if (res.accounts.length === 0) {
+          syncBankAccounts(getStoredPaymentSettings().bankAccounts);
+          return;
+        }
+        const next = { ...getStoredPaymentSettings(), bankAccounts: res.accounts };
+        saveStoredPaymentSettings(next);
+        setSettings(next);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Toggle Payment Method switches
   const handleToggleMethod = (key: keyof Pick<PaymentSettings, 'enableManualTransfer' | 'enableMidtransVA' | 'enableQris' | 'enableEWallet' | 'enableCreditCard'>) => {

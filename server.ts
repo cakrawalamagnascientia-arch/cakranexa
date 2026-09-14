@@ -30,7 +30,7 @@ import {
   validateDigitalProduct
 } from './src/data/digitalProducts';
 import { INSTITUTION_TYPES, INSTITUTION_INQUIRY_STATUSES, INSTITUTION_INQUIRY_LIMITS } from './src/data/membership';
-import { createDigitalPhase2, isMembershipNotification, memberPrintPrice } from './backend/digital';
+import { createDigitalPhase2, isInstitutionNotification, isMembershipNotification, memberPrintPrice } from './backend/digital';
 import { loadPrintRoyaltyConfig, printOrderRoyaltyFields } from './backend/printOrderRoyalty';
 import { checkProcessingTools, checkSupabase, evaluateStartup, type SupabaseCheckResult } from './backend/startupChecks';
 
@@ -854,7 +854,37 @@ async function startServer() {
     getBook: async (bookId) => {
       const book = (await loadBooks()).find((b) => b.id === bookId);
       return book
-        ? { id: book.id, slug: book.slug || book.id, title: book.title || book.name, author: book.author, coverUrl: book.coverBuku }
+        ? { id: book.id, slug: book.slug || book.id, title: book.title || book.name, author: book.author, coverUrl: book.coverBuku, category: book.category }
+        : null;
+    },
+    // Fase 4 (invoice institusi): rekening aktif dari CMS dan identitas penerbit dari konten CMS.
+    listBankAccounts: async () => {
+      if (!supabaseAdmin) return [];
+      const { data, error } = await supabaseAdmin.from('admin_bank_accounts').select('*').eq('is_active', true)
+        .order('is_default', { ascending: false }).order('created_at', { ascending: true });
+      if (error) throw new Error(`Supabase admin_bank_accounts: ${error.message}`);
+      return (data || []).map((row: any) => ({
+        bankName: String(row.bank_name),
+        accountNumber: String(row.account_number),
+        accountHolder: String(row.account_holder),
+        branch: row.branch ? String(row.branch) : null
+      }));
+    },
+    getCompanyProfile: async () => {
+      const content = (await loadSiteContent().catch(() => null)) || {};
+      const footer = content.footer || {};
+      return {
+        name: String(content.companyFullName || 'PT CAKRAWALA MAGNA SCIENTIA'),
+        address: String(footer.address || ''),
+        phone: String(footer.phone || ''),
+        email: String(footer.email || 'info@cakranexa.com'),
+        npwp: String(content.companyCredentials?.npwp || '')
+      };
+    },
+    getInquiry: async (id) => {
+      const inquiry = (await loadInquiries()).find((q) => q.id === id);
+      return inquiry
+        ? { id: inquiry.id, institutionName: inquiry.institutionName, institutionType: inquiry.institutionType, email: inquiry.email, contactName: inquiry.contactName ?? null, phone: inquiry.phone ?? null, language: inquiry.language }
         : null;
     },
     listPhase1Products: async () => (await loadDigitalProducts()).map((p) => ({
@@ -870,6 +900,7 @@ async function startServer() {
     })),
     mailer: { send: sendResendEmail },
     adminEmails: ORDER_NOTIFICATION_EMAILS,
+    institutionAdminEmails: INSTITUTION_INQUIRY_EMAILS,
     midtrans: { enabled: MIDTRANS_ENABLED, serverKey: MIDTRANS_SERVER_KEY, snapUrl: MIDTRANS_SNAP_URL, isProduction: MIDTRANS_IS_PRODUCTION }
   });
   app.use(digitalPhase2.router);
@@ -1197,6 +1228,20 @@ async function startServer() {
       } catch (err: any) {
         // 500 -> Midtrans mengirim ulang; handler idempoten.
         console.error('[membership] webhook Midtrans gagal diproses:', n.order_id, err?.message || err);
+        return res.status(500).json({ error: 'Gagal memproses notifikasi.' });
+      }
+    }
+    // Invoice institusi fase 4 (order_id "INST-..."): handler memverifikasi signature dan nominal sendiri.
+    if (isInstitutionNotification(n)) {
+      if (!digitalPhase2.handleInstitutionNotification) {
+        return res.status(503).json({ error: 'Modul institusi tidak aktif di server ini.' });
+      }
+      try {
+        const result = await digitalPhase2.handleInstitutionNotification(n);
+        return res.status(result.status).json(result.body);
+      } catch (err: any) {
+        // 500 -> Midtrans mengirim ulang; handler idempoten.
+        console.error('[institution] webhook Midtrans gagal diproses:', n.order_id, err?.message || err);
         return res.status(500).json({ error: 'Gagal memproses notifikasi.' });
       }
     }
@@ -1797,6 +1842,70 @@ async function startServer() {
       console.warn('Email permintaan institusi gagal dikirim:', err);
     }
     return res.status(201).json({ success: true });
+  });
+
+  // ==========================================================================
+  // REKENING BANK PERUSAHAAN (CMS tab Pembayaran) — juga sumber rekening pada invoice institusi fase 4
+  // ==========================================================================
+  type BankAccountRow = { id: string; bank_name: string; bank_code: string; account_number: string; account_holder: string; branch: string | null; is_active: boolean; is_default: boolean };
+  const BANK_ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
+  const rowToBankAccount = (row: any) => ({
+    id: row.id,
+    bankName: row.bank_name,
+    bankCode: row.bank_code,
+    accountNumber: row.account_number,
+    accountHolder: row.account_holder,
+    branch: row.branch || undefined,
+    isActive: row.is_active !== false,
+    isDefault: Boolean(row.is_default)
+  });
+
+  app.get('/api/admin/bank-accounts', requireAdmin, async (_req, res) => {
+    if (!supabaseAdmin) return res.json({ accounts: [], persisted: false });
+    const { data, error } = await supabaseAdmin.from('admin_bank_accounts').select('*')
+      .order('is_default', { ascending: false }).order('created_at', { ascending: true });
+    if (error) return res.status(500).json({ error: `Supabase: ${error.message}` });
+    return res.json({ accounts: (data || []).map(rowToBankAccount), persisted: true });
+  });
+
+  // PUT { accounts } — simpan daftar dari CMS. Rekening yang tidak ada lagi di daftar dinonaktifkan, tidak dihapus.
+  app.put('/api/admin/bank-accounts', requireAdmin, async (req, res) => {
+    if (!supabaseAdmin) return res.status(503).json({ error: 'Database belum terhubung: rekening hanya tersimpan di browser ini.' });
+    const list = Array.isArray(req.body?.accounts) ? req.body.accounts : null;
+    if (!list || list.length > 20) return res.status(400).json({ error: 'Daftar rekening tidak valid (maksimal 20).' });
+    const text = (value: unknown, max: number) => String(value ?? '').trim().slice(0, max);
+    const rows: BankAccountRow[] = [];
+    for (const account of list) {
+      const row: BankAccountRow = {
+        id: text(account?.id, 64),
+        bank_name: text(account?.bankName, 64),
+        bank_code: text(account?.bankCode, 32) || text(account?.bankName, 32).toUpperCase(),
+        account_number: text(account?.accountNumber, 64),
+        account_holder: text(account?.accountHolder, 128),
+        branch: text(account?.branch, 128) || null,
+        is_active: account?.isActive !== false,
+        is_default: account?.isDefault === true
+      };
+      if (!BANK_ID_RE.test(row.id) || !row.bank_name || !/^[0-9][0-9 .-]{3,63}$/.test(row.account_number) || !row.account_holder) {
+        return res.status(400).json({ error: `Rekening tidak valid: ${row.bank_name || row.id || '(tanpa nama)'}.` });
+      }
+      rows.push(row);
+    }
+    if (new Set(rows.map((r) => r.id)).size !== rows.length) return res.status(400).json({ error: 'ID rekening ganda.' });
+    if (rows.filter((r) => r.is_default).length > 1) return res.status(400).json({ error: 'Hanya satu rekening utama.' });
+    if (rows.length > 0) {
+      const { error } = await supabaseAdmin.from('admin_bank_accounts').upsert(rows, { onConflict: 'id' });
+      if (error) return res.status(500).json({ error: `Supabase: ${error.message}` });
+    }
+    const { data: existing, error: listError } = await supabaseAdmin.from('admin_bank_accounts').select('id');
+    if (listError) return res.status(500).json({ error: `Supabase: ${listError.message}` });
+    const keep = new Set(rows.map((r) => r.id));
+    const stale = (existing || []).map((r: any) => String(r.id)).filter((id) => !keep.has(id));
+    if (stale.length > 0) {
+      const { error } = await supabaseAdmin.from('admin_bank_accounts').update({ is_active: false, is_default: false }).in('id', stale);
+      if (error) return res.status(500).json({ error: `Supabase: ${error.message}` });
+    }
+    return res.json({ success: true, saved: rows.length, deactivated: stale.length });
   });
 
   // GET /api/admin/institutions/inquiries (Admin) — berisi data kontak

@@ -89,6 +89,8 @@ export const parseLocation = (pathname: string = window.location.pathname, searc
   const params = new URLSearchParams(search);
   const rawQuery = search.replace(/^\?/, '');
   const page = PAGE_PATHS[segments[0] || ''] || 'beranda';
+  // Tautan undangan institusi: halaman gabung menyusul (fase 4 Langkah 6); sementara ke Pustaka Saya.
+  if (page === 'institutions' && segments[1] === 'join') return { page: 'library' };
   const state: RouteState = { page };
 
   if (page === 'katalog') {
@@ -200,6 +202,17 @@ export const pushRoute = (state: RouteState, replace = false): void => {
   if (current === path) return;
   if (replace) window.history.replaceState(state, '', path);
   else window.history.pushState(state, '', path);
+};
+
+/**
+ * URL yang dialihkan parseLocation (sementara: tautan undangan /institutions/join/<slug> -> /library) diganti
+ * tanpa menambah riwayat, agar tombol Back tidak kembali ke alamat yang dialihkan.
+ */
+export const replaceRedirectedPath = (state: RouteState): void => {
+  if (typeof window === 'undefined') return;
+  const { language, path } = splitLanguagePrefix(window.location.pathname);
+  if (!/^\/institutions\/join(\/|$)/.test(path)) return;
+  window.history.replaceState(null, '', buildPath(state, language));
 };
 
 /**

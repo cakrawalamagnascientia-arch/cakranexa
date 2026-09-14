@@ -5,7 +5,7 @@ import { INITIAL_BOOKS, withLocalBookCover } from './data/booksData';
 import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthors, authorNameKey } from './data/authorsData';
 import { Book, CartItem, Order, ActivePage, SubSection, BookCategory, SeoSettings, SiteContentSettings, Author } from './types';
 import { apiClient, ApiError } from './services/apiClient';
-import { parseLocation, pushRoute, RouteState, languageFromLocation, replaceLanguageInUrl } from './utils/router';
+import { parseLocation, pushRoute, RouteState, languageFromLocation, replaceLanguageInUrl, replaceRedirectedPath } from './utils/router';
 import { AdminLoginGate } from './components/AdminLoginGate';
 import { useSeoMetadata } from './hooks/useSeoMetadata';
 import { getStoredSeoSettings, fetchSeoSettingsApi } from './services/seoService';
@@ -355,7 +355,12 @@ export default function App() {
   }, [orders]);
 
   // 4. Navigation & View Routing State
-  const initialRoute = React.useMemo<RouteState>(() => (typeof window !== 'undefined' ? parseLocation() : { page: 'beranda' }), []);
+  const initialRoute = React.useMemo<RouteState>(() => {
+    if (typeof window === 'undefined') return { page: 'beranda' };
+    const route = parseLocation();
+    replaceRedirectedPath(route);
+    return route;
+  }, []);
   const [activePage, setActivePage] = useState<ActivePage>(initialRoute.page);
   const [activeSubSection, setActiveSubSection] = useState<SubSection>(initialRoute.subSection ?? null);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);

@@ -108,6 +108,8 @@ export interface DigitalStore {
   // Pengguna (admin)
   findUsers(query: string, limit: number): Promise<UserProfile[]>;
   getUserProfiles(ids: string[]): Promise<UserProfile[]>;
+  /** Email akun dan status verifikasinya (auth.users.email_confirmed_at); null bila user tidak ada. */
+  getEmailVerification(userId: string): Promise<{ email: string; verified: boolean } | null>;
 
   // Pesanan digital
   getOrderByIdempotencyKey(key: string): Promise<OrderRecord | null>;
@@ -150,7 +152,7 @@ export interface DigitalStore {
   updateSession(id: string, patch: Partial<Pick<SessionRecord, 'lastHeartbeat' | 'lastEventAt'>>): Promise<void>;
   /** Mengakhiri sesi terbuka yang cocok; mengembalikan jumlahnya. */
   endSessions(filter: SessionFilter, reason: string): Promise<number>;
-  listOpenSessions(filter: { userId?: string }): Promise<SessionRecord[]>;
+  listOpenSessions(filter: { userId?: string; institutionId?: string }): Promise<SessionRecord[]>;
 
   // Log & verified reading
   insertAccessLog(row: AccessLogInput): Promise<void>;

@@ -279,7 +279,8 @@ export const createPlayerRouter = (ctx: DigitalContext): Router => {
         unit: 'second',
         unitStart: Math.floor(from),
         unitEnd: Math.ceil(to),
-        dwellMs: wallMs
+        dwellMs: wallMs,
+        institutionId: session.institutionId
       });
     }
     if (accepted.length > 0) {

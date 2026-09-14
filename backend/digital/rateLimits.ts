@@ -23,7 +23,10 @@ export const RATE_LIMITS = {
   playlist: 30,
   key: 30,
   membershipRead: 60,
-  membershipWrite: 10
+  membershipWrite: 10,
+  institutionRead: 60,
+  institutionJoin: 10,
+  institutionAdmin: 60
 } as const;
 
 export type RateLimitName = keyof typeof RATE_LIMITS;

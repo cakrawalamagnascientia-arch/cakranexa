@@ -114,7 +114,8 @@ const toSession = (r: any): SessionRecord => ({
   lastHeartbeat: r.last_heartbeat,
   lastEventAt: r.last_event_at ?? null,
   endedAt: r.ended_at ?? null,
-  endReason: r.end_reason ?? null
+  endReason: r.end_reason ?? null,
+  institutionId: r.institution_id ?? null
 });
 
 const toProgress = (r: any): ProgressRecord => ({
@@ -371,6 +372,16 @@ export class SupabaseDigitalStore implements DigitalStore {
     return ((data as any[]) || []).map(toProfile);
   }
 
+  async getEmailVerification(userId: string) {
+    const { data, error } = await this.db.auth.admin.getUserById(userId);
+    if (error) {
+      if (/not found/i.test(error.message)) return null;
+      throw new Error(`Supabase getEmailVerification: ${error.message}`);
+    }
+    const user = data?.user;
+    return user ? { email: String(user.email || ''), verified: Boolean(user.email_confirmed_at) } : null;
+  }
+
   // ---- pesanan
   async getOrderByIdempotencyKey(key: string) {
     const data = check(await this.db.from('digital_orders').select(ORDER_SELECT).eq('idempotency_key', key).maybeSingle(), 'getOrderByIdempotencyKey');
@@ -564,7 +575,8 @@ export class SupabaseDigitalStore implements DigitalStore {
       ip: row.ip,
       user_agent: row.userAgent,
       started_at: row.startedAt,
-      last_heartbeat: row.lastHeartbeat
+      last_heartbeat: row.lastHeartbeat,
+      institution_id: row.institutionId ?? null
     }).select('*').single(), 'insertSession');
     return toSession(data);
   }
@@ -583,9 +595,10 @@ export class SupabaseDigitalStore implements DigitalStore {
     return (data || []).length;
   }
 
-  async listOpenSessions(filter: { userId?: string }) {
+  async listOpenSessions(filter: { userId?: string; institutionId?: string }) {
     let query = this.db.from('access_sessions').select('*').is('ended_at', null);
     if (filter.userId) query = query.eq('user_id', filter.userId);
+    if (filter.institutionId) query = query.eq('institution_id', filter.institutionId);
     const data = check(await query.order('last_heartbeat', { ascending: false }).limit(500), 'listOpenSessions');
     return (data || []).map(toSession);
   }
@@ -630,7 +643,8 @@ export class SupabaseDigitalStore implements DigitalStore {
       unit: r.unit,
       unit_start: r.unitStart,
       unit_end: r.unitEnd,
-      dwell_ms: r.dwellMs
+      dwell_ms: r.dwellMs,
+      institution_id: r.institutionId ?? null
     }))), 'insertReadingEvents');
   }
 

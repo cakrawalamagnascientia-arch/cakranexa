@@ -61,6 +61,8 @@ export interface BookInfo {
   title: string;
   author: string;
   coverUrl: string;
+  /** Kategori katalog (pilih semua per kategori pada koleksi custom institusi). */
+  category?: string;
 }
 
 export interface EntitlementRecord {
@@ -121,6 +123,8 @@ export interface SessionRecord {
   lastEventAt: string | null;
   endedAt: string | null;
   endReason: string | null;
+  /** Sesi yang memakai hak institusi (dasar batas pengguna bersamaan & royalti pool institusi fase 5). */
+  institutionId: string | null;
 }
 
 export interface AccessLogInput {
@@ -157,6 +161,8 @@ export interface ReadingEventInput {
   unitStart: number;
   unitEnd: number;
   dwellMs: number;
+  /** Sesi memakai hak institusi (dasar Author Royalty Pool institusi fase 5). */
+  institutionId?: string | null;
 }
 
 export interface NoteRect {

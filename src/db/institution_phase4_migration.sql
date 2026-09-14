@@ -657,3 +657,26 @@ CREATE POLICY "institution_licenses_select_admin" ON institution_licenses FOR SE
 
 DROP POLICY IF EXISTS "institution_usage_daily_select_admin" ON institution_usage_daily;
 CREATE POLICY "institution_usage_daily_select_admin" ON institution_usage_daily FOR SELECT TO authenticated USING (is_institution_admin(institution_id));
+
+-- 16. TAMBAHAN LANGKAH 2 (alur kontrak) ------------------------------------------------------
+-- Hanya menambah kolom/indeks; aman bila bagian 1–15 sudah pernah dijalankan.
+-- Bahasa email & invoice institusi (ragam formal id/en).
+ALTER TABLE institutions ADD COLUMN IF NOT EXISTS language VARCHAR(5) NOT NULL DEFAULT 'id' CHECK (language IN ('id', 'en'));
+-- Halaman bayar Midtrans (Virtual Account sekali bayar) untuk invoice.
+ALTER TABLE institution_invoices ADD COLUMN IF NOT EXISTS snap_redirect_url TEXT;
+-- Paling banyak satu kontrak draf/terbit per institusi (perpanjangan yang sudah lunas menunggu di 'issued').
+CREATE UNIQUE INDEX IF NOT EXISTS institution_contracts_one_open
+    ON institution_contracts (institution_id) WHERE status IN ('draft', 'issued');
+-- Perpanjangan otomatis: pemberitahuan admin H-45, invoice terbit H-30, void bila belum dibayar 30 hari setelah
+-- periode sebelumnya berakhir. Founding = 30 institusi PERTAMA yang membayar (kumulatif, tidak dibuka lagi).
+INSERT INTO institution_config (key, value, description) VALUES
+    ('renewal_admin_notice_days', '45', 'Pemberitahuan ke admin CakraNexa sebelum invoice perpanjangan terbit otomatis (hari sebelum period_end)'),
+    ('renewal_invoice_days', '30', 'Invoice perpanjangan terbit otomatis (hari sebelum period_end)'),
+    ('renewal_void_days', '30', 'Invoice perpanjangan yang belum dibayar di-void sekian hari setelah period_end')
+ON CONFLICT (key) DO NOTHING;
+UPDATE institution_config
+   SET description = 'Kuota Founding: institusi pertama yang membayar kontrak Founding (kumulatif); kursi direservasi selama invoice Founding terbit dan belum jatuh tempo'
+ WHERE key = 'founding_cap' AND description LIKE '%active + grace%';
+-- Langkah 3: siapa yang menonaktifkan anggota. 'admin' tidak bisa bergabung ulang sendiri; 'member' = keluar sendiri.
+ALTER TABLE institution_members ADD COLUMN IF NOT EXISTS disabled_by TEXT
+    CHECK (disabled_by IS NULL OR disabled_by IN ('admin', 'member', 'system'));

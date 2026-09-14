@@ -258,19 +258,40 @@ export const createAccessRouter = (ctx: DigitalContext): Router => {
     }
 
     const sessionToken = newSessionToken();
+    const row = {
+      userId: user.id,
+      productId: product.id,
+      deviceId: device.id,
+      entitlementId: entitlement.id,
+      tokenHash: hashToken(sessionToken),
+      ip,
+      userAgent,
+      startedAt: now.toISOString(),
+      lastHeartbeat: now.toISOString(),
+      institutionId: null
+    };
     let session: SessionRecord;
     try {
-      session = await ctx.store.insertSession({
-        userId: user.id,
-        productId: product.id,
-        deviceId: device.id,
-        entitlementId: entitlement.id,
-        tokenHash: hashToken(sessionToken),
-        ip,
-        userAgent,
-        startedAt: now.toISOString(),
-        lastHeartbeat: now.toISOString()
-      });
+      // Hak institusi (fase 4): slot pengguna bersamaan diklaim atomik bersama pembuatan sesi.
+      const claim = entitlement.source === 'institution' && ctx.institution ? await ctx.institution.claimSession(entitlement, row) : null;
+      if (claim && 'busy' in claim) {
+        const { inUse, capacity, institutionId } = claim.busy;
+        ctx.log({
+          userId: user.id,
+          productId: product.id,
+          entitlementId: entitlement.id,
+          action: 'denied',
+          ip,
+          userAgent,
+          meta: { reason: 'institution_busy', institution_id: institutionId, in_use: inUse, capacity }
+        });
+        throw httpError(429, 'institution_busy', `Semua slot institusi sedang dipakai (${inUse}/${capacity}). Coba lagi sebentar atau beli akses individu.`, {
+          inUse,
+          capacity,
+          product: publicProduct(product)
+        });
+      }
+      session = claim ? claim.session : await ctx.store.insertSession(row);
     } catch (err) {
       if (!(err instanceof ConflictError)) throw err;
       // Perangkat lain memulai sesi pada saat yang sama.

@@ -13,6 +13,11 @@ export interface DigitalConfig {
   /** Rahasia endpoint cron (deteksi anomali). Kosong = endpoint nonaktif. */
   cronSecret: string;
   siteUrl: string;
+  /**
+   * URL publik API Render untuk tautan di email yang harus dilayani server ini (unduh invoice institusi).
+   * PUBLIC_API_URL, lalu RENDER_EXTERNAL_URL (diisi otomatis oleh Render), lalu SITE_URL.
+   */
+  publicApiUrl: string;
   /** Sesi dianggap hidup bila heartbeat terakhir lebih baru dari jendela ini. */
   heartbeatWindowMs: number;
   defaultMaxDevices: number;
@@ -31,6 +36,13 @@ export interface DigitalConfig {
   betaEmails: string[];
   membership: MembershipConfig;
   whatsapp: WhatsAppConfig;
+  institution: InstitutionFlags;
+}
+
+/** Akses institusi fase 4. Semua flag bawaan mati. */
+export interface InstitutionFlags {
+  /** ENABLE_IP_ACCESS: pengguna yang login dari IP jaringan institusi menjadi anggota tamu sementara. */
+  ipAccessEnabled: boolean;
 }
 
 /** Pengingat WhatsApp keanggotaan (backend/digital/membership/whatsapp.ts). Bawaan mati. */
@@ -94,6 +106,7 @@ export const loadDigitalConfig = (env: NodeJS.ProcessEnv = process.env): Digital
     accessTokenSecret,
     cronSecret: env.CRON_SECRET || '',
     siteUrl: String(env.SITE_URL || 'https://cakranexa.com').replace(/\/$/, ''),
+    publicApiUrl: String(env.PUBLIC_API_URL || env.RENDER_EXTERNAL_URL || env.SITE_URL || 'https://cakranexa.com').replace(/\/$/, ''),
     heartbeatWindowMs: 2 * 60 * 1000,
     defaultMaxDevices: 2,
     deviceReleaseCooldownDays: 30,
@@ -125,6 +138,9 @@ export const loadDigitalConfig = (env: NodeJS.ProcessEnv = process.env): Digital
       tokenKey: /^[0-9a-f]{64}$/i.test(env.PAYMENT_TOKEN_KEY || '')
         ? Buffer.from(String(env.PAYMENT_TOKEN_KEY), 'hex')
         : crypto.createHash('sha256').update(`cakranexa-payment-token:${accessTokenSecret}`).digest()
+    },
+    institution: {
+      ipAccessEnabled: envFlag(env.ENABLE_IP_ACCESS)
     },
     whatsapp: {
       provider: (['fonnte', 'cloud'] as const).find((p) => p === String(env.WHATSAPP_PROVIDER || '').trim().toLowerCase()) ?? 'off',

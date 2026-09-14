@@ -13,6 +13,7 @@ import type { MembershipGateway } from '../membership/gateway';
 import type { WhatsAppSender } from '../membership/whatsapp';
 import type { MailMessage, Mailer, MidtransSettings } from '../context';
 import type { BookInfo } from '../types';
+import type { CompanyBankAccount, CompanyProfile, InquiryRef } from '../institution/types';
 
 /** Harness tes backend fase 2: store memori, penyimpanan folder sementara, JWT HS256 nyata. */
 export const JWT_SECRET = 'rahasia-jwt-tes-minimal-32-karakter!!!';
@@ -28,9 +29,22 @@ export const TEST_PRODUCTS: Phase1ProductLike[] = [
 ];
 
 export const TEST_BOOKS: Record<string, BookInfo> = {
-  'book-3': { id: 'book-3', slug: 'reformulasi-mekanisme-ppn', title: 'Reformulasi Mekanisme PPN', author: 'Bonarsius Sipayung', coverUrl: '/images/books/b3.png' },
-  'book-24': { id: 'book-24', slug: 'audit-investigatif-kontemporer', title: 'Audit Investigatif Kontemporer', author: 'Yudha Pramana', coverUrl: '/images/books/b24.png' },
-  'book-25': { id: 'book-25', slug: 'telaah-kritis', title: 'Telaah Kritis Pemidanaan Pajak', author: 'Penulis Uji', coverUrl: '/images/books/b25.png' }
+  'book-3': { id: 'book-3', slug: 'reformulasi-mekanisme-ppn', title: 'Reformulasi Mekanisme PPN', author: 'Bonarsius Sipayung', coverUrl: '/images/books/b3.png', category: 'Perpajakan' },
+  'book-24': { id: 'book-24', slug: 'audit-investigatif-kontemporer', title: 'Audit Investigatif Kontemporer', author: 'Yudha Pramana', coverUrl: '/images/books/b24.png', category: 'Audit' },
+  'book-25': { id: 'book-25', slug: 'telaah-kritis', title: 'Telaah Kritis Pemidanaan Pajak', author: 'Penulis Uji', coverUrl: '/images/books/b25.png', category: 'Hukum' }
+};
+
+/** Rekening uji (bukan rekening asli) untuk invoice institusi. */
+export const TEST_BANK_ACCOUNTS: CompanyBankAccount[] = [
+  { bankName: 'Bank Uji', accountNumber: '000-00-0000000-0', accountHolder: 'PT UJI CAKRANEXA', branch: 'KC Uji' }
+];
+
+export const TEST_COMPANY: CompanyProfile = {
+  name: 'PT Cakrawala Magna Scientia',
+  address: 'Jl. Uji No. 1, Jakarta',
+  phone: '+62 21 0000 0000',
+  email: 'info@cakranexa.test',
+  npwp: '00.000.000.0-000.000'
 };
 
 export const mintUserToken = (user: { id: string; email: string; name: string }, claims: Record<string, unknown> = {}) =>
@@ -62,6 +76,10 @@ export interface TestAppOptions {
   membershipGateway?: MembershipGateway;
   /** Gateway WhatsApp tiruan (default: tanpa WhatsApp). */
   whatsappSender?: WhatsAppSender | null;
+  /** Institusi fase 4: rekening CMS (default TEST_BANK_ACCOUNTS), identitas penerbit, permintaan penawaran fase 1. */
+  bankAccounts?: CompanyBankAccount[];
+  companyProfile?: CompanyProfile;
+  inquiries?: InquiryRef[];
 }
 
 export const createTestApp = async (options: TestAppOptions = {}) => {
@@ -79,12 +97,16 @@ export const createTestApp = async (options: TestAppOptions = {}) => {
     mailer: options.mailer ?? { send: async (message) => { mails.push(message); } },
     adminEmails: ['admin@uji.id'],
     midtrans: options.midtrans ?? { enabled: true, serverKey: 'SB-Mid-server-UJI', snapUrl: 'https://midtrans.test/snap/v1/transactions', isProduction: false },
+    listBankAccounts: async () => options.bankAccounts ?? TEST_BANK_ACCOUNTS,
+    getCompanyProfile: async () => options.companyProfile ?? TEST_COMPANY,
+    getInquiry: async (id) => options.inquiries?.find((q) => q.id === id) ?? null,
     env: {
       NODE_ENV: 'test',
       DIGITAL_ENABLED: 'true',
       ACCESS_TOKEN_SECRET: 'rahasia-token-media-tes',
       CRON_SECRET: 'rahasia-cron-tes',
       SITE_URL: 'https://cakranexa.test',
+      PUBLIC_API_URL: 'https://api.cakranexa.test',
       DIGITAL_WORK_DIR: path.join(storageDir, 'work'),
       ...options.env
     },

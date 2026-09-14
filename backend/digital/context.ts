@@ -1,9 +1,9 @@
 import type { Request, RequestHandler } from 'express';
 import type { DigitalConfig } from './config';
-import type { DigitalStore } from './store';
+import type { DigitalStore, NewSession } from './store';
 import type { AssetStorage } from './storage';
 import type { TokenVerifier } from './auth';
-import type { AccessLogInput, BookInfo } from './types';
+import type { AccessLogInput, BookInfo, EntitlementRecord, ProductRecord, SessionRecord } from './types';
 
 export interface MailMessage {
   to: string[];
@@ -21,6 +21,22 @@ export interface MidtransSettings {
   serverKey: string;
   snapUrl: string;
   isProduction: boolean;
+}
+
+/**
+ * Aturan akses institusi fase 4 yang dipakai lapisan akses fase 2 (dipasang index.ts setelah modul institusi dibuat).
+ * Tanpa hook ini (mis. modul institusi tidak aktif) entitlement institusi diperlakukan seperti sumber lain.
+ */
+export interface InstitutionAccessHooks {
+  /** Entitlement institusi scope 'shelf' berlaku untuk produk ini? Kontrak berkoleksi custom hanya membuka judul terpilih. */
+  coversProduct(entitlement: EntitlementRecord, product: ProductRecord): Promise<boolean>;
+  /**
+   * Buka sesi untuk entitlement institusi dengan batas pengguna bersamaan (atomik). null = bukan sesi yang dibatasi
+   * (pakai insert biasa); busy = semua slot institusi sedang dipakai.
+   */
+  claimSession(entitlement: EntitlementRecord, row: NewSession): Promise<
+    { session: SessionRecord } | { busy: { inUse: number; capacity: number; institutionId: string } } | null
+  >;
 }
 
 /** Dependensi bersama semua modul fase 2 (dibangun sekali di index.ts). */
@@ -42,6 +58,8 @@ export interface DigitalContext {
   defer: (task: () => Promise<void>) => void;
   /** Flag fitur: `allows` = DIGITAL_ENABLED atau email beta; `isBeta` menandai pesanan uji. */
   feature: DigitalFeature;
+  /** Akses institusi fase 4 (koleksi custom, batas pengguna bersamaan). */
+  institution?: InstitutionAccessHooks;
 }
 
 export interface DigitalFeature {

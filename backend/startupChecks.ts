@@ -52,7 +52,18 @@ export const REQUIRED_SCHEMA: SchemaRequirement[] = [
   { migration: 'src/db/membership_phase3_migration.sql', table: 'digital_member_picks' },
   // Data royalti pesanan cetak: setiap pesanan baru menulis kolom ini (backend/printOrderRoyalty.ts).
   { migration: 'src/db/print_orders_royalty_migration.sql', table: 'orders', columns: ['channel', 'discount_amount', 'tax_amount', 'gateway_fee_estimate', 'refund_status', 'is_test'] },
-  { migration: 'src/db/print_orders_royalty_migration.sql', table: 'order_items', columns: ['hje_at_sale', 'discount_amount'] }
+  { migration: 'src/db/print_orders_royalty_migration.sql', table: 'order_items', columns: ['hje_at_sale', 'discount_amount'] },
+  // Akses institusi fase 4 (backend/digital/institution): admin kontrak, invoice, dan job per jam memakai tabel ini.
+  { migration: 'src/db/institution_phase4_migration.sql', table: 'institution_config' },
+  { migration: 'src/db/institution_phase4_migration.sql', table: 'institution_tiers' },
+  { migration: 'src/db/institution_phase4_migration.sql', table: 'institutions', columns: ['language'] },
+  { migration: 'src/db/institution_phase4_migration.sql', table: 'institution_contracts' },
+  { migration: 'src/db/institution_phase4_migration.sql', table: 'institution_contract_collections' },
+  { migration: 'src/db/institution_phase4_migration.sql', table: 'institution_invoices', columns: ['snap_redirect_url'] },
+  { migration: 'src/db/institution_phase4_migration.sql', table: 'institution_members', columns: ['disabled_by'] },
+  { migration: 'src/db/institution_phase4_migration.sql', table: 'institution_join_codes' },
+  { migration: 'src/db/institution_phase4_migration.sql', table: 'institution_events' },
+  { migration: 'src/db/institution_phase4_migration.sql', table: 'institution_usage_daily' }
 ];
 
 export interface MissingSchemaObject {

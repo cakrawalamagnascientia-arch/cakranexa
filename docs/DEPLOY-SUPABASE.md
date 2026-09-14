@@ -41,10 +41,11 @@ Akibatnya:
 
 1. Supabase → **SQL Editor** → **New query**.
 2. Tempel seluruh isi [`src/db/check_schema.sql`](../src/db/check_schema.sql), lalu klik **Run**.
-3. Hasilnya 45 baris dengan kolom `urutan`, `migration`, `object`, dan `ada`:
+3. Hasilnya 61 baris dengan kolom `urutan`, `migration`, `object`, dan `ada`:
    - 29 baris fase 1–2 (urutan 1–5);
    - 12 baris fase 3 (urutan 6);
-   - 4 baris data royalti pesanan cetak (urutan 7).
+   - 4 baris data royalti pesanan cetak (urutan 7);
+   - 16 baris akses institusi fase 4 (urutan 8).
 
    Baris dengan `ada = false` menunjukkan migration yang belum dijalankan.
 
@@ -65,7 +66,7 @@ Jalankan **satu file per kueri**. Buka file di GitHub → **Raw** → salin semu
 | 5 | `src/db/digital_phase2_migration.sql` (**fase 2**) | Ya | Ada baris urutan 5 yang false |
 | 6 | `src/db/membership_phase3_migration.sql` (**fase 3**, keanggotaan) | Ya | Ada baris urutan 6 yang false. Jalankan sebelum men-deploy kode fase 3 (bagian 8). |
 | 7 | `src/db/print_orders_royalty_migration.sql` (data royalti pesanan cetak) | Ya | Ada baris urutan 7 yang false. Jalankan sebelum men-deploy versi yang menulis kolom ini (bagian 9). |
-| 8 | `src/db/institution_phase4_migration.sql` (**fase 4**, institusi) | Ya | Belum diwajibkan server. Jalankan sebelum men-deploy kode fase 4 yang memakainya. |
+| 8 | `src/db/institution_phase4_migration.sql` (**fase 4**, institusi) | Ya | Ada baris urutan 8 yang false. Jalankan sebelum men-deploy kode fase 4 (server menolak start tanpanya). Panduan: [`docs/SETUP-INSTITUSI.md`](SETUP-INSTITUSI.md). |
 
 Semua file di urutan 2–5 memakai `IF NOT EXISTS` atau bentuk yang setara. Kelimanya sudah diuji di Postgres lokal: dijalankan berurutan, dijalankan ulang, lalu diperiksa dengan `check_schema.sql`.
 
@@ -84,7 +85,7 @@ File-file ini mengubah atau menambah data dan bukan syarat server.
 
 ## 4. Verifikasi
 
-- Jalankan ulang `check_schema.sql`. Semua baris harus `ada = true`: 29 sebelum fase 3, 41 setelah migration fase 3, dan 45 setelah migration data royalti cetak.
+- Jalankan ulang `check_schema.sql`. Semua baris harus `ada = true`: 29 sebelum fase 3, 41 setelah migration fase 3, 45 setelah migration data royalti cetak, dan 61 setelah migration fase 4.
 - Di **Storage**, bucket `digital-assets` harus **Private** dan `digital-samples` **Public**.
 
 ---
@@ -124,6 +125,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 | `DIGITAL_BETA_EMAILS` | opsional | `anda@contoh.com,penguji@contoh.com` | Email penguji fitur digital saat flag `false`. Pesanan cetak dari email ini juga ditandai `is_test`. |
 | `PPN_PERCENT` | opsional | `0` | PPN yang terkandung dalam harga buku cetak, dicatat untuk royalti. Biarkan 0 sampai status PKP dikonfirmasi. |
 | `GATEWAY_FEE_RATES` | opsional | `{"qris":{"pct":0.7,"flat":0}}` | Menimpa perkiraan fee payment gateway per metode (`backend/printOrderRoyalty.ts`). |
+| `PUBLIC_API_URL` | opsional | `https://api.cakranexa.com` | URL publik API Render untuk tautan unduh invoice institusi di email. Kosong = `RENDER_EXTERNAL_URL` (otomatis dari Render). |
 
 **Jangan diisi:**
 

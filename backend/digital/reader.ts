@@ -338,7 +338,7 @@ export const createReaderRouter = (ctx: DigitalContext): Router => {
       const dwellMs = Math.min(dwell, MAX_DWELL_MS);
       if (dwellMs > budget) continue;
       budget -= dwellMs;
-      accepted.push({ userId: user.id, productId: product.id, sessionId: session.id, entitlementId: entitlement.id, unit: 'page', unitStart: page, unitEnd: page, dwellMs });
+      accepted.push({ userId: user.id, productId: product.id, sessionId: session.id, entitlementId: entitlement.id, unit: 'page', unitStart: page, unitEnd: page, dwellMs, institutionId: session.institutionId });
     }
     if (accepted.length > 0) {
       await ctx.store.insertReadingEvents(accepted);

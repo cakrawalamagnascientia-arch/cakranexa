@@ -19,11 +19,21 @@ import { isMembershipNotification, memberPrintPrice, memberUnitPrice, Membership
 import { createMembershipRouter } from './membership/router';
 import { createMembershipAdminRouter } from './membership/admin';
 import { runMembershipJob, startMembershipJob, type MembershipJobResult } from './membership/jobs';
+import { MemoryInstitutionStore } from './institution/memoryStore';
+import { SupabaseInstitutionStore } from './institution/supabaseStore';
+import { DEFAULT_COMPANY_PROFILE, InstitutionService, isInstitutionNotification } from './institution/service';
+import { createInstitutionRouter } from './institution/router';
+import { createInstitutionAdminRouter } from './institution/admin';
+import { InstitutionMembers } from './institution/members';
+import { createInstitutionMemberRouter } from './institution/memberRouter';
+import { runInstitutionJob, startInstitutionJob, type InstitutionJobResult } from './institution/jobs';
+import type { InstitutionStore } from './institution/store';
+import type { CompanyBankAccount, CompanyProfile, InquiryRef } from './institution/types';
 import type { DigitalStore } from './store';
 import type { DigitalContext, DigitalFeature, Mailer, MidtransSettings } from './context';
 import type { BookInfo } from './types';
 
-export { isDigitalOrderId, isMembershipNotification, memberPrintPrice, memberUnitPrice };
+export { isDigitalOrderId, isInstitutionNotification, isMembershipNotification, memberPrintPrice, memberUnitPrice };
 
 export interface Phase2Deps {
   supabaseAdmin: SupabaseClient | null;
@@ -35,6 +45,14 @@ export interface Phase2Deps {
   mailer: Mailer;
   adminEmails: string[];
   midtrans: MidtransSettings;
+  /** Fase 4: rekening perusahaan aktif dari CMS (tabel admin_bank_accounts) untuk invoice institusi. */
+  listBankAccounts?: () => Promise<CompanyBankAccount[]>;
+  /** Fase 4: identitas penerbit di kepala invoice (konten CMS). */
+  getCompanyProfile?: () => Promise<CompanyProfile>;
+  /** Fase 4: permintaan penawaran fase 1 yang dikonversi menjadi institusi. */
+  getInquiry?: (id: string) => Promise<InquiryRef | null>;
+  /** Fase 4: penerima email internal institusi (mis. pemberitahuan perpanjangan H-45); bawaan adminEmails. */
+  institutionAdminEmails?: string[];
   env?: NodeJS.ProcessEnv;
   /** Pengganti untuk tes otomatis. */
   overrides?: Partial<{
@@ -48,6 +66,7 @@ export interface Phase2Deps {
     membershipGateway: MembershipGateway;
     /** null = tanpa WhatsApp (tes); tidak diisi = sesuai env WHATSAPP_PROVIDER. */
     whatsappSender: WhatsAppSender | null;
+    institutionStore: InstitutionStore;
   }>;
 }
 
@@ -74,6 +93,11 @@ export interface DigitalPhase2 {
   runMembershipJob?: () => Promise<MembershipJobResult>;
   /** Langkah 7: persen harga member buku cetak untuk pemilik token; null bila flag mati atau bukan anggota aktif. */
   memberPrintDiscount?: (authorization: string | undefined) => Promise<{ percent: number; planCode: string } | null>;
+  /** Akses institusi fase 4 (dipakai tes dan admin). */
+  institution?: InstitutionService;
+  /** Notifikasi Midtrans invoice institusi (order_id INST-...). */
+  handleInstitutionNotification?: (notification: Record<string, any>) => Promise<{ status: number; body: Record<string, unknown> }>;
+  runInstitutionJob?: () => Promise<InstitutionJobResult>;
 }
 
 /** Awalan rute fase 2 — dijawab 503 bila fitur tidak aktif di instance ini. */
@@ -90,6 +114,8 @@ export const PHASE2_ROUTE_PREFIXES = [
   '/api/admin/digital/processing',
   '/api/membership',
   '/api/admin/membership',
+  '/api/institution',
+  '/api/admin/institution',
   '/api/internal/cron'
 ];
 
@@ -228,6 +254,24 @@ export const createDigitalPhase2 = (deps: Phase2Deps): DigitalPhase2 => {
   router.use(createMembershipRouter(context, membership));
   router.use(createMembershipAdminRouter(context, membership));
 
+  // Akses institusi (fase 4): kontrak, invoice PDF, pelunasan, perpanjangan (Langkah 2).
+  const institutionStore = deps.overrides?.institutionStore
+    ?? (deps.supabaseAdmin && !deps.overrides?.store ? new SupabaseInstitutionStore(deps.supabaseAdmin) : new MemoryInstitutionStore());
+  const institution = new InstitutionService(context, {
+    store: institutionStore,
+    midtransClient,
+    listBankAccounts: deps.listBankAccounts ?? (async () => []),
+    getCompanyProfile: deps.getCompanyProfile ?? (async () => DEFAULT_COMPANY_PROFILE),
+    getInquiry: deps.getInquiry ?? (async () => null),
+    adminEmails: deps.institutionAdminEmails ?? deps.adminEmails
+  });
+  router.use(createInstitutionRouter(context, institution));
+  router.use(createInstitutionAdminRouter(context, institution));
+  // Anggota institusi (Langkah 3): bergabung, pengelolaan anggota, dan aturan akses (koleksi custom, pengguna bersamaan).
+  const institutionMembers = new InstitutionMembers(institution);
+  context.institution = institution.accessHooks();
+  router.use(createInstitutionMemberRouter(context, institution, institutionMembers));
+
   // Akses: sesi baca/dengar, perangkat, Pustaka Saya.
   router.use(createAccessRouter(context));
 
@@ -241,7 +285,10 @@ export const createDigitalPhase2 = (deps: Phase2Deps): DigitalPhase2 => {
   router.use(createAdminDigitalRouter(context));
 
   // Anomali: tab admin, pemeriksaan manual, dan endpoint cron.
-  router.use(createAnomalyRouter(context, { membership: () => runMembershipJob(membership) }));
+  router.use(createAnomalyRouter(context, {
+    membership: () => runMembershipJob(membership),
+    institution: () => runInstitutionJob(institution)
+  }));
 
   router.use(PHASE2_ROUTE_PREFIXES, digitalErrorHandler);
   return {
@@ -255,12 +302,16 @@ export const createDigitalPhase2 = (deps: Phase2Deps): DigitalPhase2 => {
       queue.start();
       startAnomalyJob(context);
       startMembershipJob(membership);
+      startInstitutionJob(institution);
     },
     handleMidtransNotification: (notification) => handleDigitalNotification(context, notification),
     membership,
     handleMembershipNotification: (notification) => membership.handleNotification(notification),
     runMembershipJob: () => runMembershipJob(membership),
     memberPrintDiscount: (authorization) => membership.memberPrintDiscount(authorization),
+    institution,
+    handleInstitutionNotification: (notification) => institution.handleNotification(notification),
+    runInstitutionJob: () => runInstitutionJob(institution),
     idle: async () => {
       while (pending.size > 0) await Promise.allSettled([...pending]);
     },

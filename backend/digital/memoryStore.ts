@@ -159,6 +159,14 @@ export class MemoryDigitalStore implements DigitalStore {
     return ids.map((id) => this.users.get(id)).filter((u): u is UserProfile => Boolean(u));
   }
 
+  /** Tes: pengguna yang emailnya belum diverifikasi (bawaan semua pengguna terverifikasi). */
+  readonly unverifiedUsers = new Set<string>();
+
+  async getEmailVerification(userId: string) {
+    const user = this.users.get(userId);
+    return user ? { email: user.email, verified: !this.unverifiedUsers.has(userId) } : null;
+  }
+
   // ---- pesanan
   async getOrderByIdempotencyKey(key: string) {
     const order = this.orders.find((o) => o.idempotencyKey === key);
@@ -353,8 +361,10 @@ export class MemoryDigitalStore implements DigitalStore {
     return count;
   }
 
-  async listOpenSessions(filter: { userId?: string }) {
-    return this.sessions.filter((s) => !s.endedAt && (!filter.userId || s.userId === filter.userId)).map((s) => ({ ...s }));
+  async listOpenSessions(filter: { userId?: string; institutionId?: string }) {
+    return this.sessions
+      .filter((s) => !s.endedAt && (!filter.userId || s.userId === filter.userId) && (!filter.institutionId || s.institutionId === filter.institutionId))
+      .map((s) => ({ ...s }));
   }
 
   // ---- log & event

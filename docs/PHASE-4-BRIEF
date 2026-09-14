@@ -1,0 +1,92 @@
+Ini FASE 4 dari pembangunan produk digital CakraNexa (Vite + React + TypeScript SPA, Express, Supabase, Midtrans, react-i18next, Vercel + Render). Fase 1–3 sudah selesai dan di-merge: entitlements (kolom scope 'product'|'shelf', source, source_ref, ends_at, max_devices), user_devices, access_sessions, reading_events, reader/player terproteksi, fungsi is_product_on_shelf(), keanggotaan individu (plans, subscriptions), halaman /institutions dengan form penawaran dan tabel inquiry, flag DIGITAL_ENABLED dan DIGITAL_BETA_EMAILS.
+
+Fase ini membangun akses institusional: kampus, perpustakaan, firma, perusahaan, lembaga penelitian. Sumber aturan: dokumen strategi keanggotaan perusahaan Bab VII (Institution & Library Network). Angka di bawah final.
+
+MODEL BISNIS INSTITUSI
+- Ditagih TAHUNAN lewat kontrak, bukan checkout mandiri. Pembayaran umumnya transfer bank/VA berdasarkan invoice; Midtrans opsional. Tidak ada paket bulanan.
+- Tingkat berdasarkan PENGGUNA BERSAMAAN (concurrent users), bukan jumlah akun terdaftar. Institusi boleh mendaftarkan lebih banyak pengguna; yang membaca/mendengar serentak dibatasi.
+  Starter: 5 bersamaan, harga penuh Rp9.900.000/tahun, 1 admin, laporan triwulanan, 2 webinar/tahun, diskon cetak 20%, min. bulk order 25, custom reading list 2/tahun.
+  Campus: 20 bersamaan, Rp24.900.000/tahun, 3 admin, laporan bulanan, 4 webinar, diskon cetak 25%, bulk 50, reading list 6/tahun.
+  Network: 50 bersamaan, Rp59.900.000/tahun, 10 admin, laporan bulanan + analisis, 8 webinar, diskon cetak 30%, bulk 100, reading list 12/tahun, account manager.
+  Consortium/Enterprise: >50, penawaran khusus (semua parameter diisi manual admin).
+- Skala harga menurut jumlah judul digital yang tersedia di rak saat kontrak dibuat: <50 judul → 40% harga penuh; 50–99 → 60%; 100–149 → 80%; ≥150 → 100%. Saat ini 23 judul → 40%. Harga kontrak DIKUNCI selama periode kontrak; skala baru berlaku saat perpanjangan dengan pemberitahuan.
+- Founding: diskon 15% tahun pertama untuk 30 institusi pertama.
+- Evidence-Based Acquisition (EBA) wallet: 40% biaya tahunan (dari harga yang benar-benar ditagih) menjadi kredit akuisisi pada AKHIR periode, dipakai membeli lisensi permanen judul (paling banyak digunakan, berdasarkan data) atau buku cetak. Kredit hangus 90 hari setelah periode berakhir jika tidak dipakai (konfirmasi angka ini dengan saya; jika belum diputuskan, buat konfigurabel).
+- Koleksi: default seluruh Digital Reading Shelf (mengikuti frontlist policy yang sama dengan individu); admin CakraNexa bisa membatasi ke subset kategori/judul per kontrak.
+- Author pool institusi 25% (fase 5) — fase ini hanya memastikan reading_events dari pengguna institusi tercatat dengan institution_id.
+
+LANGKAH 0 — AUDIT (JANGAN UBAH KODE DULU)
+1. Pelajari entitlements/requireEntitlement/access_sessions dari fase 2–3, cara sesi tunggal per user ditegakkan, dan tabel institution_inquiries dari fase 1.
+2. Pelajari sistem auth: apakah Supabase Auth mendukung domain-restricted signup/invite yang bisa dipakai untuk mengaitkan pengguna ke institusi. Cek ketersediaan SSO (SAML) di paket Supabase yang dipakai; jika tidak tersedia, SSO masuk daftar "nanti".
+3. Laporkan temuan dan rencana. TUNGGU persetujuan saya.
+
+LANGKAH 1 — DATABASE
+Migration SQL (jangan jalankan otomatis):
+- Tabel institutions: id, name, type enum('university','school','library','government','firm','company','research','nonprofit','training_center'), address, contact_name, contact_email, contact_phone, npwp text null, email_domains text[] (untuk auto-join, mis. {"ui.ac.id"}), ip_ranges cidr[] null (untuk akses berbasis IP, opsional), status enum('prospect','trial','active','grace','expired','suspended'), created_at.
+- Tabel institution_contracts: id, institution_id, tier enum('starter','campus','network','enterprise'), concurrent_users int, admin_seats int, full_price int, catalog_scale_pct int (40/60/80/100), catalog_title_count_at_signing int, founding_discount_pct int default 0, contracted_price int (hasil perhitungan, dikunci), eba_pct int default 40, eba_credit int (dihitung), period_start, period_end, grace_days int default 14, status enum('draft','issued','active','grace','expired','canceled'), collection_scope enum('full','custom'), notes text, signed_at, created_at. Hanya satu kontrak active per institusi.
+- Tabel institution_contract_collections: contract_id, digital_product_id (dipakai jika collection_scope='custom'); atau per kategori: contract_id, category. Pilih yang lebih sederhana untuk admin, jelaskan.
+- Tabel institution_invoices: id, contract_id, number text UNIQUE (format INV-INST-YYYY-NNNN), amount, tax_amount (PPN, konfigurabel; isi 0 jika belum diputuskan), total, due_at, status enum('draft','issued','paid','overdue','void'), payment_method enum('transfer','va','midtrans','other'), paid_at, proof_url null, pdf_path (bucket privat), created_at.
+- Tabel institution_members: id, institution_id, user_id FK auth.users, role enum('member','admin'), status enum('invited','active','disabled'), invited_email, invited_at, joined_at, group_label text null (mis. "Prodi Akuntansi 2026"). UNIQUE(institution_id, user_id).
+- Tabel institution_reading_lists: id, institution_id, contract_id, title, description, created_by, is_published, created_at; dan institution_reading_list_items: list_id, digital_product_id, sort_order, note.
+- Tabel institution_eba_ledger: id, contract_id, type enum('credit','debit'), amount, reference (order/lisensi permanen), created_at.
+- Tabel institution_usage_daily: (institution_id, date, digital_product_id) PK, sessions int, unique_users int, pages_read int, seconds_listened int, denied_concurrency int — diisi job harian dari access_logs/reading_events untuk laporan cepat.
+- Perluasan: access_sessions tambah institution_id null; reading_events tambah institution_id null; entitlements sudah punya source 'institution' (source_ref = contract_id, scope 'shelf').
+- RLS: institution admin membaca data institusinya (members, usage, invoices, reading lists); member biasa hanya melihat keanggotaannya; CakraNexa admin (service role) semua.
+
+LANGKAH 2 — ALUR KONTRAK (ADMIN CAKRANEXA)
+- Tab admin "Institusi": konversi inquiry (fase 1) → institution (prospect). Form kontrak: pilih tier → concurrent_users/admin_seats/full_price terisi otomatis dari tabel tier (bisa di-override untuk Enterprise); sistem menghitung catalog_title_count_at_signing (jumlah produk on-shelf hari ini), catalog_scale_pct, founding_discount_pct (jika jumlah institusi active+grace < 30 dan admin mencentang), contracted_price, eba_credit. Tampilkan rincian perhitungan sebelum simpan. Contoh yang harus dihasilkan: Starter, 23 judul → 40% × 9.900.000 = 3.960.000; Founding 15% → 3.366.000; EBA 40% → 1.346.400.
+- Terbitkan invoice PDF (pdf-lib atau template HTML→PDF yang sudah dipakai di repo jika ada) dengan nomor, rincian, rekening perusahaan (dari env), jatuh tempo 14 hari. Kirim email ke contact_email dengan tautan unduh terproteksi.
+- Tandai lunas (manual, dengan unggah bukti) atau via Midtrans (opsional: buat VA sekali bayar dengan order_id prefix INST-, webhook mengaktifkan). Saat lunas: contract active, institution active, buat entitlement source='institution', scope='shelf', source_ref=contract_id, starts_at=period_start, ends_at=period_end+grace_days, max_devices 2 — SATU entitlement per anggota institusi (dibuat saat anggota bergabung, lihat Langkah 3), bukan per produk.
+- Perpanjangan: 60 dan 30 hari sebelum period_end kirim email ke kontak + admin institusi dengan harga perpanjangan yang dihitung ulang dari jumlah judul saat itu (skala baru) dan laporan penggunaan ringkas; buat kontrak draft periode berikutnya. Jika belum lunas pada period_end → grace 14 hari, akses tetap; setelah itu expired, entitlement berakhir alami, anggota melihat pesan "akses institusi berakhir" + CTA keanggotaan individu.
+- Trial: admin dapat membuat kontrak trial 30 hari gratis (tier Starter, contracted_price 0, tanpa EBA) maksimal 1 kali per institusi.
+
+LANGKAH 3 — ANGGOTA INSTITUSI
+Cara bergabung (semua harus ada):
+a) Undangan: admin institusi mengunggah CSV email atau mengetik daftar; sistem mengirim undangan (Supabase invite atau magic link) → saat pengguna login dengan email itu, otomatis menjadi member.
+b) Domain email: jika email pengguna cocok dengan email_domains institusi aktif dan pengguna mengklik "Gabung sebagai anggota [institusi]" di /library atau /institutions/join/:slug, ia menjadi member setelah verifikasi email.
+c) Kode gabung: admin institusi membuat kode (mis. AKUN-2026) dengan batas waktu dan jumlah; pengguna memasukkan kode di /library.
+d) IP range (opsional, jika ip_ranges terisi): pengguna yang mengakses dari IP kampus melihat banner "Anda terhubung melalui jaringan [institusi]" dan dapat membaca tanpa login akun institusi, dengan akun tamu institusi sementara (sesi 4 jam, tetap dihitung dalam concurrent). Beri flag ENABLE_IP_ACCESS; default mati.
+- Saat menjadi member aktif: buat entitlement institusi untuk user tersebut (jika kontrak active). Saat dinonaktifkan/keluar: entitlement revoked. Satu user boleh sekaligus punya keanggotaan individu dan institusi; requireEntitlement memilih yang aktif mana saja.
+- Concurrent users: pada session/start, jika user memakai entitlement institusi (bukan individu), hitung sesi aktif (heartbeat < 2 menit) dari semua member institusi itu; jika ≥ concurrent_users kontrak → 429 institution_busy dengan pesan "Semua slot institusi sedang dipakai (20/20). Coba lagi sebentar atau beli akses individu." dan catat denied_concurrency. Sesi tunggal per user per produk dari fase 2 tetap berlaku. Jika user juga punya keanggotaan individu aktif, gunakan itu dulu agar tidak memakan slot institusi.
+- Batas perangkat untuk member institusi: 2 (seperti Professional).
+
+LANGKAH 4 — DASHBOARD ADMIN INSTITUSI (/institution/admin, hanya role admin)
+- Ringkasan: slot bersamaan terpakai saat ini (live), anggota aktif/undangan tertunda, periode kontrak, sisa hari, EBA credit yang akan diterima.
+- Anggota: daftar, undang, nonaktifkan, ubah role (maks admin_seats), label grup, ekspor CSV.
+- Penggunaan: grafik harian sesi/halaman/menit, judul terpopuler, per grup, penolakan concurrency (indikator perlu upgrade tier), unduh laporan PDF/CSV sesuai frekuensi tier (triwulanan/bulanan; untuk Network tambahkan analisis: tren, judul per prodi, rekomendasi akuisisi). Data agregat saja, tanpa aktivitas per individu (privasi), kecuali daftar anggota yang tidak pernah aktif.
+- Reading lists: buat daftar bacaan (kuota per tier), pilih dari koleksi, publikasikan ke anggota; anggota melihatnya di /library sebagai "Daftar bacaan [institusi]".
+- Course adoption: form permintaan (mata kuliah, judul, jumlah mahasiswa) → masuk ke admin CakraNexa sebagai tugas.
+- Invoice: lihat status dan unduh.
+- Diskon cetak institusi: kode/flag pada checkout cetak untuk pesanan yang dibuat oleh admin institusi, sesuai tier (20/25/30%) dengan minimum bulk order tier — di balik flag ENABLE_INSTITUTION_PRINT_DISCOUNT, mengikuti pola diskon member fase 3.
+
+LANGKAH 5 — EBA WALLET
+- Pada period_end (job harian): jika kontrak lunas dan bukan trial, kreditkan eba_credit ke ledger, kirim email dengan laporan "judul paling banyak digunakan" dan tautan ke halaman penukaran.
+- Halaman /institution/admin/acquisition: daftar judul dengan data penggunaan, harga lisensi permanen per judul (konfigurabel di admin CakraNexa, default = harga e-book satuan × 5 untuk lisensi 5 pengguna bersamaan permanen — konfirmasi dengan saya), dan opsi beli cetak (bulk). Penukaran membuat entitlement institusi scope='product' tanpa ends_at untuk judul itu (tetap tunduk concurrent) atau pesanan cetak, dan debit ledger. Kedaluwarsa kredit konfigurabel (default 90 hari).
+
+LANGKAH 6 — HALAMAN PUBLIK & ANGGOTA
+- Perbarui /institutions (fase 1): tetap tanpa harga publik; tambahkan penjelasan tier berbasis pengguna bersamaan, EBA wallet, cara bergabung untuk mahasiswa/staf ("Institusi Anda sudah berlangganan? Masuk dengan email kampus"), logo institusi mitra (jika diizinkan), dan form penawaran yang sudah ada.
+- /library untuk member institusi: banner institusi, koleksi sesuai kontrak, reading lists, indikator slot ("18/20 slot terpakai"), dan tombol "Beli akses individu" saat busy.
+- /institutions/join/:slug dan input kode gabung di /library.
+
+LANGKAH 7 — ADMIN CAKRANEXA (lanjutan)
+- Daftar institusi dengan status, kontrak, jumlah anggota, penggunaan 30 hari, tanggal berakhir, sisa kuota Founding (30 institusi).
+- Ubah collection_scope, concurrent_users (mis. tambahan sementara), grace, suspend (pelanggaran), catat account manager.
+- Tab tugas: course adoption, permintaan reading list, permintaan penawaran, perpanjangan mendekat.
+- Ekspor: kontrak, invoice, usage per institusi (CSV).
+
+LANGKAH 8 — I18N, EMAIL, SEO
+- digital.json (id & en) untuk semua teks; npm run i18n:check = 0 key hilang. Halaman institusi pakai ragam formal.
+- Email: undangan anggota, selamat datang, invoice terbit, pengingat jatuh tempo, lunas & aktif, perpanjangan 60/30 hari, grace, expired, laporan periodik, EBA credit tersedia.
+- /institutions indexable; /institution/admin/* noindex.
+
+LANGKAH 9 — VERIFIKASI
+1. Perhitungan harga: Starter 23 judul tanpa/dengan Founding menghasilkan 3.960.000 / 3.366.000 dan EBA 1.584.000 / 1.346.400; Campus 9.960.000; Network 23.960.000; skala 60/80/100 dengan jumlah judul di-mock. 2. Kontrak belum lunas → member tidak punya akses; setelah tandai lunas → semua member aktif mendapat entitlement dalam satu transaksi. 3. Concurrent: 5 member Starter membuka sesi → member ke-6 dapat 429 institution_busy; setelah satu sesi habis heartbeat (mock 2 menit) → member ke-6 masuk. 4. Member dengan keanggotaan individu aktif tidak memakan slot institusi. 5. Anggota dinonaktifkan → entitlement revoked, sesi berjalan diakhiri. 6. Domain-join dengan email domain lain → ditolak; kode gabung kedaluwarsa → ditolak. 7. period_end + grace → expired, akses ditutup, EBA credit dikreditkan sekali (job dijalankan dua kali tidak menggandakan). 8. Penukaran EBA melebihi saldo → ditolak. 9. Laporan usage tidak memuat aktivitas per individu. 10. Flag ENABLE_IP_ACCESS dan ENABLE_INSTITUTION_PRINT_DISCOUNT mati → tidak ada perubahan perilaku (snapshot). 11. Kuota Founding: institusi ke-31 tidak bisa dicentang Founding.
+- npm run build, lint, tes hijau. Uji dashboard admin institusi di mobile.
+- Jangan commit/push sampai saya review. Laporkan: file diubah, migration SQL, env baru (rekening perusahaan, PPN, EBA expiry, SMTP), template email, dan keputusan yang perlu saya ambil.
+
+ATURAN
+- Kerjakan per langkah, laporkan sebelum lanjut.
+- Jangan ubah perilaku keanggotaan individu dan pembelian satuan; institusi hanya menambah sumber entitlement dan aturan concurrent pada session/start.
+- Data penggunaan yang ditampilkan ke institusi harus agregat; jangan bocorkan riwayat baca individu.
+- Jangan menghapus data; jangan menjalankan migration otomatis.
+- Semua angka tier, skala, Founding, EBA mengikuti prompt ini; jika kode lama berbeda, laporkan.

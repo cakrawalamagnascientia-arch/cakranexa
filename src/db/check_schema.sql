@@ -52,7 +52,23 @@ WITH required (urutan, migration, object, kind) AS (
         (7, 'src/db/print_orders_royalty_migration.sql', 'orders.channel', 'column'),
         (7, 'src/db/print_orders_royalty_migration.sql', 'orders.gateway_fee_estimate', 'column'),
         (7, 'src/db/print_orders_royalty_migration.sql', 'orders.is_test', 'column'),
-        (7, 'src/db/print_orders_royalty_migration.sql', 'order_items.hje_at_sale', 'column')
+        (7, 'src/db/print_orders_royalty_migration.sql', 'order_items.hje_at_sale', 'column'),
+        (8, 'src/db/institution_phase4_migration.sql', 'institution_config', 'table'),
+        (8, 'src/db/institution_phase4_migration.sql', 'institution_tiers', 'table'),
+        (8, 'src/db/institution_phase4_migration.sql', 'institutions', 'table'),
+        (8, 'src/db/institution_phase4_migration.sql', 'institutions.language', 'column'),
+        (8, 'src/db/institution_phase4_migration.sql', 'institution_contracts', 'table'),
+        (8, 'src/db/institution_phase4_migration.sql', 'institution_contract_collections', 'table'),
+        (8, 'src/db/institution_phase4_migration.sql', 'institution_invoices', 'table'),
+        (8, 'src/db/institution_phase4_migration.sql', 'institution_invoices.snap_redirect_url', 'column'),
+        (8, 'src/db/institution_phase4_migration.sql', 'institution_members', 'table'),
+        (8, 'src/db/institution_phase4_migration.sql', 'institution_members.disabled_by', 'column'),
+        (8, 'src/db/institution_phase4_migration.sql', 'institution_events', 'table'),
+        (8, 'src/db/institution_phase4_migration.sql', 'institution_usage_daily', 'table'),
+        (8, 'src/db/institution_phase4_migration.sql', 'access_sessions.institution_id', 'column'),
+        (8, 'src/db/institution_phase4_migration.sql', 'reading_events.institution_id', 'column'),
+        (8, 'src/db/institution_phase4_migration.sql', 'next_institution_invoice_number', 'function'),
+        (8, 'src/db/institution_phase4_migration.sql', 'institution_claim_session', 'function')
 )
 SELECT
     urutan,
