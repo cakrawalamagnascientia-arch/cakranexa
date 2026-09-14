@@ -41,7 +41,12 @@ Akibatnya:
 
 1. Supabase → **SQL Editor** → **New query**.
 2. Tempel seluruh isi [`src/db/check_schema.sql`](../src/db/check_schema.sql), lalu klik **Run**.
-3. Hasilnya 41 baris dengan kolom `urutan`, `migration`, `object`, dan `ada`: 29 baris fase 1–2 (urutan 1–5) dan 12 baris fase 3 (urutan 6). Baris dengan `ada = false` menunjukkan migration yang belum dijalankan.
+3. Hasilnya 45 baris dengan kolom `urutan`, `migration`, `object`, dan `ada`:
+   - 29 baris fase 1–2 (urutan 1–5);
+   - 12 baris fase 3 (urutan 6);
+   - 4 baris data royalti pesanan cetak (urutan 7).
+
+   Baris dengan `ada = false` menunjukkan migration yang belum dijalankan.
 
 Kueri ini tidak mengubah apa pun dan aman dijalankan kapan saja.
 
@@ -59,6 +64,8 @@ Jalankan **satu file per kueri**. Buka file di GitHub → **Raw** → salin semu
 | 4 | `src/db/digital_products_migration.sql` (**fase 1**) | Ya | Ada baris urutan 4 yang false |
 | 5 | `src/db/digital_phase2_migration.sql` (**fase 2**) | Ya | Ada baris urutan 5 yang false |
 | 6 | `src/db/membership_phase3_migration.sql` (**fase 3**, keanggotaan) | Ya | Ada baris urutan 6 yang false. Jalankan sebelum men-deploy kode fase 3 (bagian 8). |
+| 7 | `src/db/print_orders_royalty_migration.sql` (data royalti pesanan cetak) | Ya | Ada baris urutan 7 yang false. Jalankan sebelum men-deploy versi yang menulis kolom ini (bagian 9). |
+| 8 | `src/db/institution_phase4_migration.sql` (**fase 4**, institusi) | Ya | Belum diwajibkan server. Jalankan sebelum men-deploy kode fase 4 yang memakainya. |
 
 Semua file di urutan 2–5 memakai `IF NOT EXISTS` atau bentuk yang setara. Kelimanya sudah diuji di Postgres lokal: dijalankan berurutan, dijalankan ulang, lalu diperiksa dengan `check_schema.sql`.
 
@@ -77,7 +84,7 @@ File-file ini mengubah atau menambah data dan bukan syarat server.
 
 ## 4. Verifikasi
 
-- Jalankan ulang `check_schema.sql`. Semua baris harus `ada = true` (29 sebelum fase 3, 41 setelah migration fase 3).
+- Jalankan ulang `check_schema.sql`. Semua baris harus `ada = true`: 29 sebelum fase 3, 41 setelah migration fase 3, dan 45 setelah migration data royalti cetak.
 - Di **Storage**, bucket `digital-assets` harus **Private** dan `digital-samples` **Public**.
 
 ---
@@ -114,7 +121,9 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 | `DIGITAL_ASSETS_BUCKET` | opsional | `digital-assets` | Bucket privat (fase 2). |
 | `DIGITAL_SAMPLES_BUCKET` | opsional | `digital-samples` | Bucket publik sampel (fase 1). |
 | `DIGITAL_ENABLED` | ya | `false` | Tetap `false` sampai uji beta selesai. |
-| `DIGITAL_BETA_EMAILS` | opsional | `anda@contoh.com,penguji@contoh.com` | Email penguji fitur digital saat flag `false`. |
+| `DIGITAL_BETA_EMAILS` | opsional | `anda@contoh.com,penguji@contoh.com` | Email penguji fitur digital saat flag `false`. Pesanan cetak dari email ini juga ditandai `is_test`. |
+| `PPN_PERCENT` | opsional | `0` | PPN yang terkandung dalam harga buku cetak, dicatat untuk royalti. Biarkan 0 sampai status PKP dikonfirmasi. |
+| `GATEWAY_FEE_RATES` | opsional | `{"qris":{"pct":0.7,"flat":0}}` | Menimpa perkiraan fee payment gateway per metode (`backend/printOrderRoyalty.ts`). |
 
 **Jangan diisi:**
 
@@ -177,3 +186,59 @@ Variabel `VITE_*` dibakar saat build, jadi perubahan nilainya memerlukan **build
 3. Jalankan ulang `check_schema.sql`: 41 baris `ada = true`.
 4. Baru setelah itu deploy kode fase 3. Tanpa migration, server menolak start dengan pesan `Skema belum lengkap — jalankan src/db/membership_phase3_migration.sql`, dan Render tetap menjalankan versi sebelumnya.
 5. Env, cron, dan Midtrans: [`docs/SETUP-KEANGGOTAAN.md`](SETUP-KEANGGOTAAN.md).
+
+---
+
+## 9. Data royalti pesanan cetak (sebelum fase 5)
+
+1. Jalankan `src/db/print_orders_royalty_migration.sql`. Migration ini hanya menambah kolom ber-default; data lama tidak diubah.
+2. Jalankan ulang `check_schema.sql`: 45 baris `ada = true`.
+3. Deploy. Sejak versi ini, setiap pesanan cetak baru juga menyimpan:
+   - kanal (`direct` / `member`);
+   - harga jual eceran per judul saat transaksi;
+   - diskon nyata (promo + harga member);
+   - PPN terkandung (`PPN_PERCENT`, default 0);
+   - perkiraan fee gateway;
+   - status refund;
+   - penanda pesanan uji.
+
+   Harga, total, respons checkout, dan pembayaran tidak berubah.
+4. Tanggal migration ini adalah **tanggal cutover** untuk fase 5. Pesanan sebelumnya (`order_items.hje_at_sale` kosong) dihitung dengan harga buku saat ini bertanda perkiraan, dan statement periode pembukaan ditinjau manual.
+
+---
+
+## 10. Email: Resend untuk aplikasi dan SMTP Supabase
+
+**Email aplikasi** dikirim server lewat API Resend:
+- notifikasi pesanan;
+- permintaan penawaran institusi;
+- konfirmasi pembelian digital;
+- email keanggotaan;
+- peringatan anomali;
+- undangan anggota institusi (fase 4).
+
+| Env Render | Wajib | Nilai | Catatan |
+|---|---|---|---|
+| `RESEND_API_KEY` | ya | *(API key Resend, akses "Sending")* | **Rahasia.** Tanpa ini email hanya dicatat di log. |
+| `EMAIL_FROM` | opsional | `CakraNexa <info@cakranexa.com>` | Alamat pengirim; ini juga nilai bawaan di kode. Domainnya harus terverifikasi di Resend. |
+| `ORDER_NOTIFICATION_EMAILS` | opsional | `info@cakranexa.com,admin@contoh.com` | Penerima notifikasi pesanan dan anomali. Kosong = daftar bawaan di `server.ts` (enam alamat, termasuk `info@cakranexa.com`). |
+| `INSTITUTION_INQUIRY_EMAILS` | opsional | `institusi@contoh.com` | Kosong = sama dengan `ORDER_NOTIFICATION_EMAILS`. |
+| `SITE_URL` | ya | `https://www.cakranexa.com` | Dasar semua tautan di email. |
+
+**Email login Supabase** (konfirmasi pendaftaran, reset kata sandi, magic link): SMTP bawaan Supabase hanya mengirim ke anggota tim proyek (maksimal 2 email/jam), jadi wajib memakai SMTP Resend. Atur di Supabase → **Authentication → Emails → SMTP Settings**:
+
+| Isian | Nilai |
+|---|---|
+| Host | `smtp.resend.com` |
+| Port | `465` (SSL) atau `587` (STARTTLS) |
+| Username | `resend` |
+| Password | API key Resend (sebaiknya key terpisah khusus Supabase, akses "Sending", dibatasi ke domain `cakranexa.com`) |
+| Sender email | `info@cakranexa.com` (sama dengan `EMAIL_FROM`) |
+| Sender name | `CakraNexa` |
+
+Setelah itu:
+- **Resend → Domains:** verifikasi `cakranexa.com` dengan menambahkan record DNS yang diberikan (SPF, DKIM, dan disarankan DMARC).
+- **Supabase → Authentication → Rate Limits:** naikkan batas email sesuai kebutuhan. Setelah SMTP sendiri aktif, batasnya bisa diatur.
+- **Supabase → Authentication → URL Configuration:**
+  - Site URL `https://www.cakranexa.com`;
+  - Redirect URLs `https://www.cakranexa.com/**` dan `https://cakranexa.com/**`, agar tautan konfirmasi dan reset (termasuk `/en` dan `/zh`) diterima.

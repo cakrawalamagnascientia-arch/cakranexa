@@ -8,7 +8,7 @@ Spesifikasi yang berlaku: [`docs/PHASE-3-BRIEF.md`](PHASE-3-BRIEF.md). Laporan i
 ## 1. Urutan peluncuran yang aman
 
 1. **Migration dulu, baru deploy.** Jalankan [`src/db/membership_phase3_migration.sql`](../src/db/membership_phase3_migration.sql) di Supabase SQL Editor (satu kueri, aman diulang). Server Render menolak start bila tabel fase 3 belum ada, sehingga deploy sebelum migration akan gagal dan Render tetap menjalankan versi lama.
-2. Jalankan [`src/db/check_schema.sql`](../src/db/check_schema.sql). Semua **41 baris** harus `ada = true` (12 baris urutan 6 = fase 3).
+2. Jalankan [`src/db/check_schema.sql`](../src/db/check_schema.sql). Semua baris urutan 1–6 (41 baris; 12 baris urutan 6 = fase 3) harus `ada = true`. Baris urutan 7 (data royalti cetak) wajib sebelum men-deploy versi yang menulisnya; lihat DEPLOY-SUPABASE bagian 9.
 3. Isi env Render (bagian 2). Semua flag fase 3 default **mati**.
 4. Deploy. `/api/health` harus tetap `supabaseConnected: true`, `supabaseSchemaReady: true`.
 5. Uji dengan email di `DIGITAL_BETA_EMAILS` (keanggotaan ikut flag `DIGITAL_ENABLED`, sama seperti pembelian satuan). Pendaftaran penguji ditandai `is_test` dan tidak masuk ringkasan admin.

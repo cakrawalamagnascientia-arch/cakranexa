@@ -49,7 +49,10 @@ export const REQUIRED_SCHEMA: SchemaRequirement[] = [
   { migration: 'src/db/membership_phase3_migration.sql', table: 'subscriptions' },
   { migration: 'src/db/membership_phase3_migration.sql', table: 'subscription_invoices' },
   { migration: 'src/db/membership_phase3_migration.sql', table: 'subscription_events' },
-  { migration: 'src/db/membership_phase3_migration.sql', table: 'digital_member_picks' }
+  { migration: 'src/db/membership_phase3_migration.sql', table: 'digital_member_picks' },
+  // Data royalti pesanan cetak: setiap pesanan baru menulis kolom ini (backend/printOrderRoyalty.ts).
+  { migration: 'src/db/print_orders_royalty_migration.sql', table: 'orders', columns: ['channel', 'discount_amount', 'tax_amount', 'gateway_fee_estimate', 'refund_status', 'is_test'] },
+  { migration: 'src/db/print_orders_royalty_migration.sql', table: 'order_items', columns: ['hje_at_sale', 'discount_amount'] }
 ];
 
 export interface MissingSchemaObject {

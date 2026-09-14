@@ -48,7 +48,11 @@ WITH required (urutan, migration, object, kind) AS (
         (6, 'src/db/membership_phase3_migration.sql', 'digital_member_picks', 'table'),
         (6, 'src/db/membership_phase3_migration.sql', 'is_product_on_shelf', 'function'),
         (6, 'src/db/membership_phase3_migration.sql', 'membership_claim_founding', 'function'),
-        (6, 'src/db/membership_phase3_migration.sql', 'membership_release_founding', 'function')
+        (6, 'src/db/membership_phase3_migration.sql', 'membership_release_founding', 'function'),
+        (7, 'src/db/print_orders_royalty_migration.sql', 'orders.channel', 'column'),
+        (7, 'src/db/print_orders_royalty_migration.sql', 'orders.gateway_fee_estimate', 'column'),
+        (7, 'src/db/print_orders_royalty_migration.sql', 'orders.is_test', 'column'),
+        (7, 'src/db/print_orders_royalty_migration.sql', 'order_items.hje_at_sale', 'column')
 )
 SELECT
     urutan,

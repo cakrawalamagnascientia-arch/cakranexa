@@ -31,6 +31,7 @@ import {
 } from './src/data/digitalProducts';
 import { INSTITUTION_TYPES, INSTITUTION_INQUIRY_STATUSES, INSTITUTION_INQUIRY_LIMITS } from './src/data/membership';
 import { createDigitalPhase2, isMembershipNotification, memberPrintPrice } from './backend/digital';
+import { loadPrintRoyaltyConfig, printOrderRoyaltyFields } from './backend/printOrderRoyalty';
 import { checkProcessingTools, checkSupabase, evaluateStartup, type SupabaseCheckResult } from './backend/startupChecks';
 
 // Load environment variables
@@ -61,6 +62,8 @@ const ORDER_NOTIFICATION_EMAILS = Array.from(new Set((process.env.ORDER_NOTIFICA
   'info@cakranexa.com'
 ].join(',')).split(',').map((email) => email.trim().toLowerCase()).filter((email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))));
 const EMAIL_FROM = process.env.EMAIL_FROM || 'CakraNexa <info@cakranexa.com>';
+// Data royalti pesanan cetak (PPN_PERCENT, GATEWAY_FEE_RATES); lihat backend/printOrderRoyalty.ts.
+const PRINT_ROYALTY_CONFIG = loadPrintRoyaltyConfig(process.env);
 // Bucket Supabase Storage PUBLIK khusus file sampel produk digital (bukan file utuh).
 const DIGITAL_SAMPLES_BUCKET = process.env.DIGITAL_SAMPLES_BUCKET || 'digital-samples';
 // Penerima email permintaan penawaran institusi; default sama dengan penerima notifikasi pesanan.
@@ -1042,6 +1045,16 @@ async function startServer() {
       });
       const shippingCost = Math.max(0, Number(order.shippingCost) || 0);
       const total = subtotal + shippingCost;
+      // Data royalti (fase 5) hanya ditulis ke tabel pesanan; harga, total, dan respons tidak berubah.
+      const royalty = printOrderRoyaltyFields({
+        items: items.map(({ book, quantity, unitPrice }: any) => ({ harga: book.harga, originalHarga: book.originalHarga, unitPrice: unitPrice ?? book.harga, quantity })),
+        subtotal,
+        total,
+        paymentMethod: order.paymentMethod,
+        memberPrice: Boolean(memberDiscount),
+        isTest: digitalPhase2.feature.isBeta(c.email),
+        config: PRINT_ROYALTY_CONFIG
+      });
 
       const normalized = {
         ...order,
@@ -1079,18 +1092,20 @@ async function startServer() {
           payment_proof_url: normalized.paymentProofUrl || null,
           tracking_number: normalized.trackingNumber || null,
           customer_notes: c.notes || null,
-          language: normalized.language
+          language: normalized.language,
+          ...royalty.order
         });
         if (orderError) {
           console.error('Supabase order insert error:', orderError.message);
         } else {
           await supabaseAdmin.from('order_items').insert(
-            items.map(({ book, quantity, unitPrice }: any) => ({
+            items.map(({ book, quantity, unitPrice }: any, index: number) => ({
               order_id: normalized.orderNumber,
               book_id: book.id,
               quantity,
               unit_price: unitPrice ?? book.harga,
-              subtotal: (unitPrice ?? book.harga) * quantity
+              subtotal: (unitPrice ?? book.harga) * quantity,
+              ...royalty.items[index]
             }))
           );
           // Kurangi stok via RPC (lihat schema.sql: decrement_book_stock)
