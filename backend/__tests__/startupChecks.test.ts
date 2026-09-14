@@ -41,9 +41,24 @@ describe('checkSupabase', () => {
     schema.digital_products = [];
     const result = await checkSupabase(fakeClient(schema) as any);
     expect(result.connected).toBe(true);
-    expect(new Set(result.missing.map((m) => m.migration))).toEqual(new Set(['src/db/digital_phase2_migration.sql']));
+    // Fase 3 memperluas tabel entitlements fase 2, jadi ikut dilaporkan.
+    expect(new Set(result.missing.map((m) => m.migration))).toEqual(new Set(['src/db/digital_phase2_migration.sql', 'src/db/membership_phase3_migration.sql']));
     expect(result.missing.map((m) => m.object)).toContain('digital_products.processing_status/storage_path');
     expect(result.missing.map((m) => m.object)).toContain('entitlements');
+  });
+
+  it('migration fase 3 belum dijalankan -> hanya objek fase 3', async () => {
+    const schema = fullSchema();
+    for (const r of REQUIRED_SCHEMA.filter((x) => x.migration.includes('phase3') && !x.columns)) delete schema[r.table];
+    schema.entitlements = [];
+    delete schema.plans;
+    delete schema.plan_benefits;
+    const result = await checkSupabase(fakeClient(schema) as any);
+    expect(result.connected).toBe(true);
+    expect(new Set(result.missing.map((m) => m.migration))).toEqual(new Set(['src/db/membership_phase3_migration.sql']));
+    expect(result.missing.map((m) => m.object)).toEqual(expect.arrayContaining([
+      'entitlements.scope', 'plans.print_discount_percent', 'plan_benefits.feature_flag', 'subscriptions', 'subscription_invoices', 'subscription_events', 'digital_member_picks'
+    ]));
   });
 
   it('kunci salah / jaringan putus -> tidak terhubung, berhenti di pemeriksaan pertama', async () => {

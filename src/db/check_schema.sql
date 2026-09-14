@@ -36,7 +36,19 @@ WITH required (urutan, migration, object, kind) AS (
         (5, 'src/db/digital_phase2_migration.sql', 'reading_events', 'table'),
         (5, 'src/db/digital_phase2_migration.sql', 'user_notes', 'table'),
         (5, 'src/db/digital_phase2_migration.sql', 'access_anomalies', 'table'),
-        (5, 'src/db/digital_phase2_migration.sql', 'digital-assets', 'private_bucket')
+        (5, 'src/db/digital_phase2_migration.sql', 'digital-assets', 'private_bucket'),
+        (6, 'src/db/membership_phase3_migration.sql', 'entitlements.scope', 'column'),
+        (6, 'src/db/membership_phase3_migration.sql', 'plans', 'table'),
+        (6, 'src/db/membership_phase3_migration.sql', 'plans.print_discount_percent', 'column'),
+        (6, 'src/db/membership_phase3_migration.sql', 'plan_benefits', 'table'),
+        (6, 'src/db/membership_phase3_migration.sql', 'plan_benefits.feature_flag', 'column'),
+        (6, 'src/db/membership_phase3_migration.sql', 'subscriptions', 'table'),
+        (6, 'src/db/membership_phase3_migration.sql', 'subscription_invoices', 'table'),
+        (6, 'src/db/membership_phase3_migration.sql', 'subscription_events', 'table'),
+        (6, 'src/db/membership_phase3_migration.sql', 'digital_member_picks', 'table'),
+        (6, 'src/db/membership_phase3_migration.sql', 'is_product_on_shelf', 'function'),
+        (6, 'src/db/membership_phase3_migration.sql', 'membership_claim_founding', 'function'),
+        (6, 'src/db/membership_phase3_migration.sql', 'membership_release_founding', 'function')
 )
 SELECT
     urutan,
@@ -51,6 +63,9 @@ SELECT
                AND c.column_name = split_part(object, '.', 2))
         WHEN 'public_bucket' THEN EXISTS (SELECT 1 FROM storage.buckets b WHERE b.id = object AND b.public)
         WHEN 'private_bucket' THEN EXISTS (SELECT 1 FROM storage.buckets b WHERE b.id = object AND NOT b.public)
+        WHEN 'function' THEN EXISTS (
+            SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+             WHERE n.nspname = 'public' AND p.proname = object)
     END AS ada
 FROM required
 ORDER BY urutan, object;

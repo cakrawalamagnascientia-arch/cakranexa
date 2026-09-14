@@ -3,7 +3,7 @@ import express, { type Router } from 'express';
 import { asyncRoute, ConflictError, httpError } from './errors';
 import { LICENSE_VERSION } from './config';
 import { purchaseConfirmationEmail } from './email';
-import { resolveEntitlement } from './entitlements';
+import { isEntitlementUsable, ownsPermanently } from './entitlements';
 import type { DigitalContext, MidtransSettings } from './context';
 import type { DigitalOrderStatus, OrderPatch, OrderRecord, ProductRecord } from './types';
 
@@ -129,12 +129,15 @@ export const createCheckoutRouter = (ctx: DigitalContext, midtrans: MidtransClie
     }
     if (unavailable.length > 0) throw httpError(400, 'product_unavailable', 'Sebagian produk belum dapat dibeli.', { productIds: unavailable });
 
+    // "Sudah dimiliki" = hak produk seumur hidup. Akses rak keanggotaan dan Digital Member Pick bersifat sementara,
+    // jadi anggota tetap boleh membeli satuan.
     const owned: string[] = [];
     const suspended: string[] = [];
+    const checkedAt = ctx.now();
     for (const product of products) {
-      const access = await resolveEntitlement(ctx, user.id, product.id);
-      if (access.entitlement) owned.push(product.id);
-      else if (access.reason === 'suspended') suspended.push(product.id);
+      const rows = await ctx.store.listEntitlements({ userId: user.id, productId: product.id });
+      if (ownsPermanently(rows, checkedAt)) owned.push(product.id);
+      else if (rows.some((e) => e.status === 'suspended') && !rows.some((e) => isEntitlementUsable(e, checkedAt))) suspended.push(product.id);
     }
     if (owned.length > 0) throw httpError(409, 'already_owned', 'Anda sudah memiliki produk ini.', { productIds: owned });
     if (suspended.length > 0) throw httpError(409, 'suspended', 'Akses produk ini sedang ditangguhkan. Hubungi kami.', { productIds: suspended });
@@ -268,7 +271,7 @@ export const handleDigitalNotification = async (
         revokedReason: String(notification.transaction_status),
         statusChangedBy: 'webhook'
       });
-      for (const e of toRevoke) await ctx.store.endSessions({ userId: e.userId, productId: e.productId }, 'revoked');
+      for (const e of toRevoke) await ctx.store.endSessions({ userId: e.userId, productId: e.productId ?? undefined }, 'revoked');
     }
     return { status: 200, body: { status: 'success', revoked: toRevoke.length } };
   }
@@ -283,8 +286,11 @@ export const handleDigitalNotification = async (
     const created = await ctx.store.insertEntitlements(updated.items.map((item) => ({
       userId: updated.userId,
       productId: item.productId,
+      scope: 'product' as const,
       source: 'purchase' as const,
       sourceRef: updated.id,
+      // Jam server (sama dengan jam pemeriksaan akses): akses langsung berlaku walau jam database sedikit berbeda.
+      startsAt: nowIso,
       maxDevices: ctx.config.defaultMaxDevices,
       statusChangedBy: 'webhook'
     })));

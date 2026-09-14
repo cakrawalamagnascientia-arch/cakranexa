@@ -5,6 +5,8 @@ import { CartItem } from '../types';
 import { resolveImageUrl, handleImageError } from '../utils/imageUtils';
 import { toTitleCase } from '../utils/formatters';
 import { useBookText, useCategoryLabel, useFormatters } from '../i18n/hooks';
+import { useMemberPrintDiscount } from '../hooks/useMemberPrintDiscount';
+import { memberPrintPrice, printSubtotal } from '../utils/memberPrice';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -27,9 +29,34 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const { currency } = useFormatters();
   const bookText = useBookText();
   const categoryLabel = useCategoryLabel();
+  const memberPricing = useMemberPrintDiscount();
   if (!isOpen) return null;
 
   const subtotal = items.reduce((sum, item) => sum + item.book.harga * item.quantity, 0);
+  // Harga member (fase 3 Langkah 7): tidak berlaku -> memberSubtotal === subtotal dan tampilan persis seperti biasa.
+  const memberSubtotal = memberPricing.applies ? printSubtotal(items, memberPricing.percent) : subtotal;
+  const hasMemberPrice = memberSubtotal < subtotal;
+  const renderLineTotal = (item: CartItem) => {
+    const memberUnit = memberPricing.applies ? memberPrintPrice(item.book.harga, item.book.originalHarga, memberPricing.percent) : null;
+    if (memberUnit === null) {
+      return (
+        <span className="text-xs font-bold font-mono text-slate-900">
+          {currency(item.book.harga * item.quantity)}
+        </span>
+      );
+    }
+    return (
+      <>
+        <span className="block text-[10px] text-slate-400 line-through font-mono">
+          {currency(item.book.harga * item.quantity)}
+        </span>
+        <span className="text-xs font-bold font-mono text-slate-900">
+          {currency(memberUnit * item.quantity)}
+        </span>
+        <span className="block text-[9px] font-semibold text-[#9A7B38]">{t('common:memberPrice')}</span>
+      </>
+    );
+  };
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden text-left">
@@ -142,9 +169,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       </div>
 
                       <div className="text-right">
-                        <span className="text-xs font-bold font-mono text-slate-900">
-                          {currency(item.book.harga * item.quantity)}
-                        </span>
+                        {renderLineTotal(item)}
                       </div>
                     </div>
                   </div>
@@ -161,16 +186,29 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <span>{t('drawer.totalProducts')}</span>
                   <span>{t('drawer.bookCount', { count: items.reduce((acc, i) => acc + i.quantity, 0) })}</span>
                 </div>
-                <div className="flex justify-between text-slate-500">
-                  <span>{t('drawer.subtotal')}</span>
-                  <span className="font-mono font-semibold text-slate-900">
-                    {currency(subtotal)}
-                  </span>
-                </div>
+                {hasMemberPrice ? (
+                  <div className="flex justify-between text-slate-500">
+                    <span>
+                      {t('drawer.subtotal')}
+                      <span className="ml-1.5 text-[9px] font-semibold text-[#9A7B38] bg-amber-50 px-1 rounded">{t('common:memberPrice')}</span>
+                    </span>
+                    <span className="text-right">
+                      <span className="block font-mono text-[10px] text-slate-400 line-through">{currency(subtotal)}</span>
+                      <span className="font-mono font-semibold text-slate-900">{currency(memberSubtotal)}</span>
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex justify-between text-slate-500">
+                    <span>{t('drawer.subtotal')}</span>
+                    <span className="font-mono font-semibold text-slate-900">
+                      {currency(subtotal)}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm font-bold text-slate-900 pt-2 border-t border-slate-100">
                   <span>{t('common:cart')}</span>
                   <span className="font-mono text-[#9A7B38] text-base">
-                    {currency(subtotal)}
+                    {currency(memberSubtotal)}
                   </span>
                 </div>
               </div>

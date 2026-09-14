@@ -11,8 +11,9 @@ import { DEFAULT_LANGUAGE, getCurrentLanguage, isAppLanguage, type AppLanguage }
  *
  * Produk digital: /digital/ebook, /digital/audiobook (daftar), /digital/<format>/<slug-buku> (detail),
  * /digital/sample/<id-produk> (sampel), /digital/checkout?items=... (checkout). Keanggotaan: /membership,
- * /institutions, /library (Pustaka Saya), /library/read/<id-produk>, /library/listen/<id-produk>.
- * Akun pembeli: /account/login|register|reset|update-password (?next=<path>).
+ * /membership/checkout?plan=&cycle=, /membership/terms, /institutions, /library (Pustaka Saya, ?welcome=1),
+ * /library/read/<id-produk>, /library/listen/<id-produk>.
+ * Akun pembeli: /account/login|register|reset|update-password (?next=<path>), /account/membership (?invoice=).
  */
 export interface RouteState {
   page: ActivePage;
@@ -54,7 +55,7 @@ const VALID_SUBSECTIONS = new Set<string>([
   'proses', 'faq', 'profil', 'visi-misi', 'tim', 'legalitas'
 ]);
 
-const ACCOUNT_SUBSECTIONS = new Set<string>(['login', 'register', 'reset', 'update-password']);
+const ACCOUNT_SUBSECTIONS = new Set<string>(['login', 'register', 'reset', 'update-password', 'membership']);
 
 const CATEGORIES = new Set(['Perpajakan', 'Akuntansi', 'Hukum', 'Ekonomi & Bisnis', 'Filsafat', 'Teologia']);
 
@@ -119,6 +120,15 @@ export const parseLocation = (pathname: string = window.location.pathname, searc
     if ((segments[1] === 'read' || segments[1] === 'listen') && segments[2]) {
       state.subSection = segments[1];
       state.digitalItem = segments[2];
+    } else if (rawQuery) {
+      state.query = rawQuery;
+    }
+  } else if (page === 'membership') {
+    if (segments[1] === 'checkout') {
+      state.subSection = 'checkout';
+      state.query = rawQuery;
+    } else if (segments[1] === 'terms') {
+      state.subSection = 'terms';
     }
   } else if (page === 'account') {
     state.subSection = (ACCOUNT_SUBSECTIONS.has(segments[1]) ? segments[1] : 'login') as SubSection;
@@ -158,6 +168,11 @@ const buildBasePath = (state: RouteState): string => {
   }
   if (page === 'library') {
     if ((subSection === 'read' || subSection === 'listen') && digitalItem) return `${base}/${subSection}/${encodeURIComponent(digitalItem)}`;
+    return withQuery(base);
+  }
+  if (page === 'membership') {
+    if (subSection === 'checkout') return withQuery(`${base}/checkout`);
+    if (subSection === 'terms') return `${base}/terms`;
     return base;
   }
   if (page === 'account') {

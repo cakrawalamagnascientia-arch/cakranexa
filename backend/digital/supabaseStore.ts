@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { ConflictError } from './errors';
-import type { DigitalStore, EntitlementFilter, NewAnomaly, NewNote, NewSession, SessionFilter } from './store';
+import type { DigitalStore, EntitlementFilter, InvoiceFilter, NewAnomaly, NewNote, NewSession, SessionFilter, SubscriptionFilter } from './store';
 import type {
   AccessLogInput,
   AccessLogRecord,
@@ -9,17 +9,31 @@ import type {
   ChapterRecord,
   DeviceRecord,
   EntitlementRecord,
+  InvoicePatch,
+  InvoiceRecord,
+  InvoiceStatus,
   NewEntitlement,
+  NewInvoice,
   NewOrder,
+  NewSubscription,
   NoteRecord,
   OrderItemRecord,
   OrderPatch,
   OrderRecord,
+  PickRecord,
+  PlanBenefitRecord,
+  PlanPatch,
+  PlanRecord,
   ProductPatch,
   ProductRecord,
   ProgressRecord,
   ReadingEventInput,
   SessionRecord,
+  SubscriptionEventRecord,
+  SubscriptionEventType,
+  SubscriptionPatch,
+  SubscriptionRecord,
+  SubscriptionStatus,
   UserProfile
 } from './types';
 
@@ -45,6 +59,7 @@ const toProduct = (r: any): ProductRecord => ({
   price: Number(r.price) || 0,
   isActive: r.is_active !== false,
   availabilityStatus: r.availability_status,
+  shelfEntryDate: r.shelf_entry_date ? String(r.shelf_entry_date).slice(0, 10) : null,
   pageCount: num(r.page_count),
   durationSeconds: num(r.duration_seconds),
   storagePath: r.storage_path ?? null,
@@ -60,7 +75,8 @@ const toProduct = (r: any): ProductRecord => ({
 const toEntitlement = (r: any): EntitlementRecord => ({
   id: r.id,
   userId: r.user_id,
-  productId: r.digital_product_id,
+  productId: r.digital_product_id ?? null,
+  scope: r.scope === 'shelf' ? 'shelf' : 'product',
   source: r.source,
   sourceRef: r.source_ref ?? null,
   status: r.status,
@@ -173,6 +189,109 @@ const toAnomaly = (r: any): AnomalyRecord => ({
 
 const toProfile = (r: any): UserProfile => ({ id: r.id, email: r.email || '', fullName: r.full_name || '', createdAt: r.created_at });
 
+const toPlan = (r: any): PlanRecord => ({
+  id: r.id,
+  code: r.code,
+  nameId: r.name_id,
+  nameEn: r.name_en,
+  priceMonthly: Number(r.price_monthly) || 0,
+  priceYearly: Number(r.price_yearly) || 0,
+  foundingPriceYearly: num(r.founding_price_yearly),
+  foundingCap: num(r.founding_cap),
+  foundingCount: Number(r.founding_count) || 0,
+  maxDevices: Number(r.max_devices) || 1,
+  shelfAccess: r.shelf_access,
+  printDiscountPercent: Number(r.print_discount_percent) || 0,
+  sortOrder: Number(r.sort_order) || 0,
+  isActive: r.is_active !== false,
+  updatedAt: r.updated_at
+});
+
+const toSubscription = (r: any): SubscriptionRecord => ({
+  id: r.id,
+  userId: r.user_id,
+  planId: r.plan_id,
+  billingCycle: r.billing_cycle,
+  status: r.status,
+  isFounding: r.is_founding === true,
+  priceLocked: Number(r.price_locked) || 0,
+  currentPeriodStart: r.current_period_start ?? null,
+  currentPeriodEnd: r.current_period_end ?? null,
+  cancelAtPeriodEnd: r.cancel_at_period_end === true,
+  canceledAt: r.canceled_at ?? null,
+  endedAt: r.ended_at ?? null,
+  endedReason: r.ended_reason ?? null,
+  paymentMethod: r.payment_method,
+  midtransSubscriptionId: r.midtrans_subscription_id ?? null,
+  midtransToken: r.midtrans_token ?? null,
+  midtransTokenExpiresAt: r.midtrans_token_expires_at ?? null,
+  midtransAccountId: r.midtrans_account_id ?? null,
+  pendingPlanId: r.pending_plan_id ?? null,
+  pendingBillingCycle: r.pending_billing_cycle ?? null,
+  foundingEndsAt: r.founding_ends_at ?? null,
+  extraGraceDays: Number(r.extra_grace_days) || 0,
+  customerEmail: r.customer_email || '',
+  customerName: r.customer_name || '',
+  language: r.language || 'id',
+  whatsappNumber: r.whatsapp_number ?? null,
+  whatsappOptIn: r.whatsapp_opt_in === true,
+  whatsappOptInAt: r.whatsapp_opt_in_at ?? null,
+  idempotencyKey: r.idempotency_key,
+  isTest: r.is_test === true,
+  createdAt: r.created_at,
+  updatedAt: r.updated_at
+});
+
+const toInvoice = (r: any): InvoiceRecord => ({
+  id: r.id,
+  subscriptionId: r.subscription_id,
+  userId: r.user_id,
+  kind: r.kind,
+  planId: r.plan_id,
+  billingCycle: r.billing_cycle,
+  periodStart: r.period_start,
+  periodEnd: r.period_end,
+  amount: Number(r.amount) || 0,
+  status: r.status,
+  orderRef: r.order_ref,
+  midtransOrderId: r.midtrans_order_id ?? null,
+  midtransSnapToken: r.midtrans_snap_token ?? null,
+  snapRedirectUrl: r.snap_redirect_url ?? null,
+  snapCreatedAt: r.snap_created_at ?? null,
+  midtransTransactionId: r.midtrans_transaction_id ?? null,
+  paymentType: r.payment_type ?? null,
+  claimsFounding: r.claims_founding === true,
+  isFoundingPrice: r.is_founding_price === true,
+  issuedAt: r.issued_at ?? null,
+  paidAt: r.paid_at ?? null,
+  dueAt: r.due_at ?? null,
+  attempt: Number(r.attempt) || 0,
+  failureReason: r.failure_reason ?? null,
+  isTest: r.is_test === true,
+  createdAt: r.created_at,
+  updatedAt: r.updated_at
+});
+
+const toSubscriptionEvent = (r: any): SubscriptionEventRecord => ({
+  id: String(r.id),
+  subscriptionId: r.subscription_id,
+  type: r.type,
+  meta: r.meta || {},
+  dedupeKey: r.dedupe_key ?? null,
+  createdAt: r.created_at
+});
+
+const toPick = (r: any): PickRecord => ({
+  id: r.id,
+  subscriptionId: r.subscription_id,
+  userId: r.user_id,
+  productId: r.digital_product_id,
+  periodStart: r.period_start,
+  periodEnd: r.period_end,
+  entitlementId: r.entitlement_id ?? null,
+  createdAt: r.created_at
+});
+
 const ORDER_SELECT = '*, items:digital_order_items(*)';
 
 /** Implementasi produksi: tabel fase 2 di Supabase lewat service role (melewati RLS). */
@@ -193,6 +312,11 @@ export class SupabaseDigitalStore implements DigitalStore {
 
   async listProductsByStatus(status: ProductRecord['processingStatus']) {
     const data = check(await this.db.from('digital_products').select('*').eq('processing_status', status), 'listProductsByStatus');
+    return (data || []).map(toProduct);
+  }
+
+  async listProductsWithShelfDate() {
+    const data = check(await this.db.from('digital_products').select('*').eq('is_active', true).not('shelf_entry_date', 'is', null), 'listProductsWithShelfDate');
     return (data || []).map(toProduct);
   }
 
@@ -320,6 +444,7 @@ export class SupabaseDigitalStore implements DigitalStore {
     if (filter.ids) query = query.in('id', filter.ids);
     if (filter.userId) query = query.eq('user_id', filter.userId);
     if (filter.productId) query = query.eq('digital_product_id', filter.productId);
+    if (filter.scope) query = query.eq('scope', filter.scope);
     if (filter.source) query = query.eq('source', filter.source);
     if (filter.sourceRef) query = query.eq('source_ref', filter.sourceRef);
     const data = check(await query.order('created_at', { ascending: false }).limit(1000), 'listEntitlements');
@@ -333,9 +458,10 @@ export class SupabaseDigitalStore implements DigitalStore {
 
   async insertEntitlements(rows: NewEntitlement[]) {
     if (rows.length === 0) return 0;
-    const payload = rows.map((r) => ({
+    const toRow = (r: NewEntitlement) => ({
       user_id: r.userId,
-      digital_product_id: r.productId,
+      digital_product_id: (r.scope ?? 'product') === 'shelf' ? null : r.productId,
+      scope: r.scope ?? 'product',
       source: r.source,
       source_ref: r.sourceRef,
       starts_at: r.startsAt || nowIso(),
@@ -344,11 +470,28 @@ export class SupabaseDigitalStore implements DigitalStore {
       status: 'active',
       status_changed_at: nowIso(),
       status_changed_by: r.statusChangedBy || null
-    }));
-    const data = check(await this.db.from('entitlements')
-      .upsert(payload, { onConflict: 'user_id,digital_product_id,source,source_ref', ignoreDuplicates: true })
-      .select('id'), 'insertEntitlements');
-    return (data || []).length;
+    });
+    let inserted = 0;
+    const productRows = rows.filter((r) => (r.scope ?? 'product') === 'product');
+    if (productRows.length > 0) {
+      const data = check(await this.db.from('entitlements')
+        .upsert(productRows.map(toRow), { onConflict: 'user_id,digital_product_id,source,source_ref', ignoreDuplicates: true })
+        .select('id'), 'insertEntitlements');
+      inserted += (data || []).length;
+    }
+    // Indeks unik parsial (scope='shelf') tidak bisa dipakai sebagai target ON CONFLICT PostgREST: insert satu per satu,
+    // pelanggaran unik (webhook ganda) diabaikan.
+    for (const row of rows.filter((r) => r.scope === 'shelf')) {
+      const result = await this.db.from('entitlements').insert(toRow(row)).select('id');
+      if (result.error?.code === '23505') continue;
+      inserted += (check(result, 'insertShelfEntitlement') || []).length;
+    }
+    return inserted;
+  }
+
+  async updateEntitlementsEndsAt(ids: string[], endsAt: string) {
+    if (ids.length === 0) return;
+    check(await this.db.from('entitlements').update({ ends_at: endsAt }).in('id', ids), 'updateEntitlementsEndsAt');
   }
 
   async updateEntitlements(ids: string[], patch: { status: EntitlementRecord['status']; revokedReason?: string | null; statusChangedBy: string }) {
@@ -590,5 +733,141 @@ export class SupabaseDigitalStore implements DigitalStore {
 
   async resolveAnomaly(id: string, resolvedBy: string, note: string | null) {
     check(await this.db.from('access_anomalies').update({ resolved_at: nowIso(), resolved_by: resolvedBy, resolution_note: note }).eq('id', id), 'resolveAnomaly');
+  }
+
+  // ---- keanggotaan (tabel fase 3: plans, plan_benefits, subscriptions, subscription_invoices, subscription_events, digital_member_picks)
+  async listPlans() {
+    const data = check(await this.db.from('plans').select('*').order('sort_order'), 'listPlans');
+    return (data || []).map(toPlan);
+  }
+
+  async updatePlan(id: string, patch: PlanPatch) {
+    const data = check(await this.db.from('plans').update({ ...toSnakePatch(patch), updated_at: nowIso() }).eq('id', id).select('*').maybeSingle(), 'updatePlan');
+    return data ? toPlan(data) : null;
+  }
+
+  async listPlanBenefits(): Promise<PlanBenefitRecord[]> {
+    const data = check(await this.db.from('plan_benefits').select('plan_id, benefit_key, sort_order, feature_flag').order('sort_order'), 'listPlanBenefits');
+    return (data || []).map((r: any) => ({ planId: r.plan_id, benefitKey: r.benefit_key, sortOrder: Number(r.sort_order) || 0, featureFlag: r.feature_flag ?? null }));
+  }
+
+  async claimFoundingSlot(planId: string) {
+    const data = check(await this.db.rpc('membership_claim_founding', { p_plan_id: planId }), 'claimFoundingSlot');
+    return data === true;
+  }
+
+  async releaseFoundingSlot(planId: string) {
+    check(await this.db.rpc('membership_release_founding', { p_plan_id: planId }), 'releaseFoundingSlot');
+  }
+
+  async createSubscription(row: NewSubscription) {
+    const data = check(await this.db.from('subscriptions').insert(toSnakePatch(row as unknown as Record<string, unknown>)).select('*').single(), 'createSubscription');
+    return toSubscription(data);
+  }
+
+  async getSubscription(id: string) {
+    const data = check(await this.db.from('subscriptions').select('*').eq('id', id).maybeSingle(), 'getSubscription');
+    return data ? toSubscription(data) : null;
+  }
+
+  async getSubscriptionByIdempotencyKey(key: string) {
+    const data = check(await this.db.from('subscriptions').select('*').eq('idempotency_key', key).maybeSingle(), 'getSubscriptionByIdempotencyKey');
+    return data ? toSubscription(data) : null;
+  }
+
+  async listSubscriptions(filter: SubscriptionFilter) {
+    let query = this.db.from('subscriptions').select('*');
+    if (filter.userId) query = query.eq('user_id', filter.userId);
+    if (filter.statuses) query = query.in('status', filter.statuses);
+    if (filter.planId) query = query.eq('plan_id', filter.planId);
+    if (filter.isFounding !== undefined) query = query.eq('is_founding', filter.isFounding);
+    if (filter.midtransSubscriptionId) query = query.eq('midtrans_subscription_id', filter.midtransSubscriptionId);
+    const data = check(await query.order('created_at', { ascending: false }).limit(filter.limit ?? 1000), 'listSubscriptions');
+    return (data || []).map(toSubscription);
+  }
+
+  async updateSubscription(id: string, patch: SubscriptionPatch, expectStatuses?: SubscriptionStatus[]) {
+    let query = this.db.from('subscriptions').update({ ...toSnakePatch(patch as Record<string, unknown>), updated_at: nowIso() }).eq('id', id);
+    if (expectStatuses) query = query.in('status', expectStatuses);
+    const data = check(await query.select('*').maybeSingle(), 'updateSubscription');
+    return data ? toSubscription(data) : null;
+  }
+
+  async createInvoice(row: NewInvoice) {
+    const data = check(await this.db.from('subscription_invoices').insert(toSnakePatch(row as unknown as Record<string, unknown>)).select('*').single(), 'createInvoice');
+    return toInvoice(data);
+  }
+
+  async getInvoice(id: string) {
+    const data = check(await this.db.from('subscription_invoices').select('*').eq('id', id).maybeSingle(), 'getInvoice');
+    return data ? toInvoice(data) : null;
+  }
+
+  async getInvoiceByOrderRef(orderRef: string) {
+    const data = check(await this.db.from('subscription_invoices').select('*').eq('order_ref', orderRef).maybeSingle(), 'getInvoiceByOrderRef');
+    return data ? toInvoice(data) : null;
+  }
+
+  async listInvoices(filter: InvoiceFilter) {
+    let query = this.db.from('subscription_invoices').select('*');
+    if (filter.subscriptionId) query = query.eq('subscription_id', filter.subscriptionId);
+    if (filter.userId) query = query.eq('user_id', filter.userId);
+    if (filter.statuses) query = query.in('status', filter.statuses);
+    if (filter.kinds) query = query.in('kind', filter.kinds);
+    if (filter.paidFrom) query = query.gte('paid_at', filter.paidFrom);
+    if (filter.paidTo) query = query.lt('paid_at', filter.paidTo);
+    if (filter.isTest !== undefined) query = query.eq('is_test', filter.isTest);
+    const data = check(await query.order('period_start', { ascending: false }).order('created_at', { ascending: false }).limit(filter.limit ?? 1000), 'listInvoices');
+    return (data || []).map(toInvoice);
+  }
+
+  async updateInvoice(id: string, patch: InvoicePatch, expectStatuses?: InvoiceStatus[]) {
+    let query = this.db.from('subscription_invoices').update({ ...toSnakePatch(patch as Record<string, unknown>), updated_at: nowIso() }).eq('id', id);
+    if (expectStatuses) query = query.in('status', expectStatuses);
+    const data = check(await query.select('*').maybeSingle(), 'updateInvoice');
+    return data ? toInvoice(data) : null;
+  }
+
+  async insertSubscriptionEvent(row: { subscriptionId: string; type: SubscriptionEventType; meta?: Record<string, unknown>; dedupeKey?: string | null }) {
+    const result = await this.db.from('subscription_events').insert({
+      subscription_id: row.subscriptionId,
+      type: row.type,
+      meta: row.meta || {},
+      dedupe_key: row.dedupeKey ?? null
+    });
+    if (result.error?.code === '23505') return false; // dedupe_key sudah ada: pengingat tidak dikirim dua kali
+    check(result, 'insertSubscriptionEvent');
+    return true;
+  }
+
+  async listSubscriptionEvents(filter: { subscriptionId?: string; type?: SubscriptionEventType; limit?: number }) {
+    let query = this.db.from('subscription_events').select('*');
+    if (filter.subscriptionId) query = query.eq('subscription_id', filter.subscriptionId);
+    if (filter.type) query = query.eq('type', filter.type);
+    const data = check(await query.order('created_at', { ascending: false }).order('id', { ascending: false }).limit(filter.limit ?? 500), 'listSubscriptionEvents');
+    return (data || []).map(toSubscriptionEvent);
+  }
+
+  async createPick(row: Omit<PickRecord, 'id' | 'createdAt' | 'entitlementId'>) {
+    const data = check(await this.db.from('digital_member_picks').insert({
+      subscription_id: row.subscriptionId,
+      user_id: row.userId,
+      digital_product_id: row.productId,
+      period_start: row.periodStart,
+      period_end: row.periodEnd
+    }).select('*').single(), 'createPick');
+    return toPick(data);
+  }
+
+  async listPicks(filter: { subscriptionId?: string; userId?: string }) {
+    let query = this.db.from('digital_member_picks').select('*');
+    if (filter.subscriptionId) query = query.eq('subscription_id', filter.subscriptionId);
+    if (filter.userId) query = query.eq('user_id', filter.userId);
+    const data = check(await query.order('period_start', { ascending: false }).limit(500), 'listPicks');
+    return (data || []).map(toPick);
+  }
+
+  async setPickEntitlement(id: string, entitlementId: string) {
+    check(await this.db.from('digital_member_picks').update({ entitlement_id: entitlementId }).eq('id', id), 'setPickEntitlement');
   }
 }

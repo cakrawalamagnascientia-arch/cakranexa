@@ -7,6 +7,8 @@ export type DigitalFormat = 'ebook' | 'audiobook';
 export type ProcessingStatus = 'none' | 'processing' | 'ready' | 'failed';
 export type EntitlementSource = 'purchase' | 'membership' | 'institution' | 'admin_grant' | 'author';
 export type EntitlementStatus = 'active' | 'suspended' | 'revoked' | 'expired';
+/** product = hak atas satu produk; shelf = hak atas seluruh Digital Reading Shelf (fase 3, productId NULL). */
+export type EntitlementScope = 'product' | 'shelf';
 export type DigitalOrderStatus = 'pending' | 'challenge' | 'paid' | 'failed' | 'cancelled' | 'expired' | 'refunded';
 export type AccessAction = 'page_view' | 'segment' | 'key' | 'search' | 'note' | 'session_start' | 'session_end' | 'denied';
 export type NoteColor = 'yellow' | 'green' | 'blue' | 'pink';
@@ -34,6 +36,8 @@ export interface ProductRecord {
   price: number;
   isActive: boolean;
   availabilityStatus: 'coming_soon' | 'available';
+  /** Tanggal masuk Digital Reading Shelf (YYYY-MM-DD, zona Asia/Jakarta); null = belum ditetapkan. */
+  shelfEntryDate: string | null;
   pageCount: number | null;
   durationSeconds: number | null;
   storagePath: string | null;
@@ -62,7 +66,9 @@ export interface BookInfo {
 export interface EntitlementRecord {
   id: string;
   userId: string;
-  productId: string;
+  /** null untuk scope 'shelf'. */
+  productId: string | null;
+  scope: EntitlementScope;
   source: EntitlementSource;
   sourceRef: string | null;
   status: EntitlementStatus;
@@ -77,7 +83,10 @@ export interface EntitlementRecord {
 
 export interface NewEntitlement {
   userId: string;
-  productId: string;
+  /** null untuk scope 'shelf'. */
+  productId: string | null;
+  /** Bawaan 'product'. */
+  scope?: EntitlementScope;
   source: EntitlementSource;
   sourceRef: string | null;
   startsAt?: string;
@@ -230,6 +239,153 @@ export interface AnomalyRecord extends AnomalyCandidate {
   resolvedAt: string | null;
   resolvedBy: string | null;
   resolutionNote: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// Keanggotaan (fase 3)
+// ---------------------------------------------------------------------------
+export type PlanCode = 'free' | 'reader' | 'professional' | 'author';
+export type ShelfAccess = 'none' | 'pick' | 'full';
+export type BillingCycle = 'monthly' | 'yearly';
+export type SubscriptionStatus = 'pending' | 'active' | 'past_due' | 'grace' | 'canceled' | 'expired';
+export type MembershipPaymentMethod = 'card' | 'gopay' | 'va' | 'qris' | 'other';
+export type InvoiceStatus = 'draft' | 'issued' | 'paid' | 'failed' | 'void';
+/** initial = pembayaran pertama; renewal = periode berikutnya; upgrade = selisih prorata; manual = pembayaran offline oleh admin. */
+export type InvoiceKind = 'initial' | 'renewal' | 'upgrade' | 'manual';
+
+export interface PlanRecord {
+  id: string;
+  code: PlanCode;
+  nameId: string;
+  nameEn: string;
+  priceMonthly: number;
+  priceYearly: number;
+  foundingPriceYearly: number | null;
+  foundingCap: number | null;
+  foundingCount: number;
+  maxDevices: number;
+  /** Nilai di tabel; akses efektif juga bergantung flag (ENABLE_READER_DIGITAL_PICK, ENABLE_AUTHOR_GUILD_SHELF). */
+  shelfAccess: ShelfAccess;
+  /** Diskon harga member buku cetak (Langkah 7, flag ENABLE_MEMBER_PRINT_DISCOUNT). */
+  printDiscountPercent: number;
+  sortOrder: number;
+  isActive: boolean;
+  updatedAt: string;
+}
+
+export type PlanPatch = Partial<Pick<PlanRecord,
+  'priceMonthly' | 'priceYearly' | 'foundingPriceYearly' | 'foundingCap' | 'maxDevices' | 'shelfAccess' | 'printDiscountPercent' | 'isActive'>>;
+
+export interface PlanBenefitRecord {
+  planId: string;
+  benefitKey: string;
+  sortOrder: number;
+  /** Nama flag env; awalan "!" = tampil bila flag MATI. null = selalu tampil. */
+  featureFlag: string | null;
+}
+
+export interface SubscriptionRecord {
+  id: string;
+  userId: string;
+  planId: string;
+  billingCycle: BillingCycle;
+  status: SubscriptionStatus;
+  isFounding: boolean;
+  /** Harga per periode yang disepakati untuk periode berjalan. */
+  priceLocked: number;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  canceledAt: string | null;
+  endedAt: string | null;
+  endedReason: string | null;
+  paymentMethod: MembershipPaymentMethod;
+  midtransSubscriptionId: string | null;
+  /** Token Midtrans (saved_token_id / token GoPay) terenkripsi AES-256-GCM. Tidak pernah nomor kartu. */
+  midtransToken: string | null;
+  midtransTokenExpiresAt: string | null;
+  midtransAccountId: string | null;
+  pendingPlanId: string | null;
+  pendingBillingCycle: BillingCycle | null;
+  /** Akhir tahun pertama (harga Founding berlaku sampai tanggal ini). */
+  foundingEndsAt: string | null;
+  extraGraceDays: number;
+  customerEmail: string;
+  customerName: string;
+  language: string;
+  /** Nomor WhatsApp anggota (628…) untuk pengingat; hanya diisi bila anggota menyetujui (whatsappOptIn). */
+  whatsappNumber: string | null;
+  whatsappOptIn: boolean;
+  whatsappOptInAt: string | null;
+  idempotencyKey: string;
+  isTest: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type NewSubscription = Omit<SubscriptionRecord, 'id' | 'createdAt' | 'updatedAt'>;
+export type SubscriptionPatch = Partial<Omit<SubscriptionRecord, 'id' | 'userId' | 'idempotencyKey' | 'createdAt' | 'updatedAt'>>;
+
+export interface InvoiceRecord {
+  id: string;
+  subscriptionId: string;
+  userId: string;
+  kind: InvoiceKind;
+  /** Paket & siklus yang dibayar invoice ini (renewal dengan downgrade terjadwal, atau upgrade). */
+  planId: string;
+  billingCycle: BillingCycle;
+  periodStart: string;
+  periodEnd: string;
+  amount: number;
+  status: InvoiceStatus;
+  /** Referensi tetap invoice (SUB-...); order_id Midtrans = `${orderRef}-${attempt}`. */
+  orderRef: string;
+  midtransOrderId: string | null;
+  midtransSnapToken: string | null;
+  snapRedirectUrl: string | null;
+  snapCreatedAt: string | null;
+  midtransTransactionId: string | null;
+  paymentType: string | null;
+  /** Upgrade/langganan baru yang mengambil satu kursi Founding (dilepas bila tidak dibayar). */
+  claimsFounding: boolean;
+  isFoundingPrice: boolean;
+  issuedAt: string | null;
+  paidAt: string | null;
+  dueAt: string | null;
+  attempt: number;
+  failureReason: string | null;
+  isTest: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type NewInvoice = Omit<InvoiceRecord, 'id' | 'createdAt' | 'updatedAt'>;
+export type InvoicePatch = Partial<Omit<InvoiceRecord, 'id' | 'subscriptionId' | 'userId' | 'orderRef' | 'createdAt' | 'updatedAt'>>;
+
+export type SubscriptionEventType =
+  | 'created' | 'activated' | 'renewed' | 'payment_failed' | 'reminder_sent' | 'grace_started' | 'expired' | 'canceled'
+  | 'upgraded' | 'downgraded' | 'founding_notice' | 'invoice_issued' | 'cancel_reverted' | 'change_canceled'
+  | 'payment_method_changed' | 'pick_selected' | 'reconciled' | 'admin_extended' | 'admin_grace' | 'admin_plan_changed'
+  | 'admin_founding' | 'admin_canceled' | 'autodebit_error' | 'refunded' | 'payment_orphan' | 'whatsapp_failed';
+
+export interface SubscriptionEventRecord {
+  id: string;
+  subscriptionId: string;
+  type: SubscriptionEventType;
+  meta: Record<string, unknown>;
+  dedupeKey: string | null;
+  createdAt: string;
+}
+
+export interface PickRecord {
+  id: string;
+  subscriptionId: string;
+  userId: string;
+  productId: string;
+  periodStart: string;
+  periodEnd: string;
+  entitlementId: string | null;
+  createdAt: string;
 }
 
 /** Konteks akses yang dipasang middleware sesi untuk endpoint reader/player. */

@@ -2,6 +2,7 @@ import { Order } from '../types';
 import { getStoredPaymentSettings } from './paymentService';
 import i18n, { DEFAULT_LANGUAGE, isAppLanguage } from '../i18n/index';
 import { formatCurrency } from '../i18n/format';
+import { printUnitPrice } from '../utils/memberPrice';
 
 export interface DispatchLog {
   id: string;
@@ -40,7 +41,7 @@ class NotificationService {
    */
   public formatAdminWhatsAppMessage(order: Order): string {
     const bookList = order.items
-      .map((item, idx) => `${idx + 1}. *${item.book.name}*\n   Qty: ${item.quantity} eks | Rp ${(item.book.harga * item.quantity).toLocaleString('id-ID')}`)
+      .map((item, idx) => `${idx + 1}. *${item.book.name}*\n   Qty: ${item.quantity} eks | Rp ${((order.memberDiscount ? printUnitPrice(item.book, order.memberDiscount.percent) : item.book.harga) * item.quantity).toLocaleString('id-ID')}`)
       .join('\n');
 
     return (

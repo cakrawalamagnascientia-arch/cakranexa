@@ -19,6 +19,10 @@ import { generateOrderNumber, generateOrderId, nowIso } from '../utils/orderUtil
 import { useBookText, useCategoryLabel, useFormatters } from '../i18n/hooks';
 import { getCurrentLanguage } from '../i18n/index';
 import { useOrderLabels, useShippingMethodText } from '../i18n/orderLabels';
+import { getAccessToken } from '../services/memberSession';
+import { useMemberPrintDiscount } from '../hooks/useMemberPrintDiscount';
+import { memberPrintPrice, printSubtotal } from '../utils/memberPrice';
+import { MembershipOfferCard } from './MembershipOfferCard';
 import {
   ArrowLeft,
   ShieldCheck,
@@ -40,12 +44,15 @@ interface CheckoutFormProps {
   cartItems: CartItem[];
   onOrderCompleted: (order: Order) => void;
   onCancel: () => void;
+  /** Buka halaman /membership dari tawaran keanggotaan setelah pesanan sukses (fase 3 Langkah 6). */
+  onOpenMembership?: () => void;
 }
 
 export const CheckoutForm: React.FC<CheckoutFormProps> = ({
   cartItems,
   onOrderCompleted,
-  onCancel
+  onCancel,
+  onOpenMembership
 }) => {
   const { t } = useTranslation(['checkout', 'common']);
   const { currency } = useFormatters();
@@ -94,7 +101,14 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
     (acc, item) => acc + item.book.harga * item.quantity,
     0
   );
-  const grandTotal = subtotal + shippingCost;
+  // Harga member buku cetak (fase 3 Langkah 7). Tidak berlaku -> payableSubtotal === subtotal, alur persis seperti biasa.
+  // Ongkir tetap dihitung dari subtotal katalog (tidak terpengaruh harga member).
+  const memberPricing = useMemberPrintDiscount();
+  const payableSubtotal = memberPricing.applies ? printSubtotal(cartItems, memberPricing.percent) : subtotal;
+  const hasMemberPrice = payableSubtotal < subtotal;
+  const memberUnitPrice = (item: CartItem) =>
+    memberPricing.applies ? memberPrintPrice(item.book.harga, item.book.originalHarga, memberPricing.percent) : null;
+  const grandTotal = payableSubtotal + shippingCost;
 
   // Fire InitiateCheckout tracking event on mount
   useEffect(() => {
@@ -148,7 +162,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
       orderNumber,
       trackingNumber: autoTrackingNumber,
       items: [...cartItems],
-      subtotal,
+      subtotal: payableSubtotal,
       shippingCost,
       total: grandTotal,
       totalWeightGram,
@@ -162,10 +176,13 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
       createdAt: nowIso()
     };
 
+    // Harga member: token login hanya dikirim bila harga member berlaku; selain itu permintaan identik seperti biasa.
+    const accessToken = memberPricing.applies ? await getAccessToken().catch(() => null) : null;
+
     // 1) Catat pesanan di backend: validasi harga/stok di server & (jika Midtrans aktif) buat Snap token asli
     let serverResult;
     try {
-      serverResult = await apiClient.createOrder(draftOrder);
+      serverResult = await apiClient.createOrder(draftOrder, { accessToken });
     } catch (err) {
       setIsSubmitting(false);
       setSubmitError(err instanceof ApiError ? err.message : t('form.errors.orderFailed'));
@@ -183,7 +200,8 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
       serverSynced: serverResult.paymentMode !== 'offline',
       paymentMode: serverResult.paymentMode,
       // Bahasa pelanggan: konfirmasi WhatsApp ke pelanggan ditulis dalam bahasa ini.
-      language: getCurrentLanguage()
+      language: getCurrentLanguage(),
+      ...(serverResult.memberDiscount ? { memberDiscount: serverResult.memberDiscount } : {})
     };
     setCreatedOrder(newOrder);
 
@@ -515,14 +533,28 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                         <h4 className="text-xs font-semibold text-slate-900 line-clamp-2 leading-snug">
                           {toTitleCase(bookText.title(item.book))}
                         </h4>
-                        <div className="flex items-center justify-between mt-1 text-xs">
-                          <span className="text-slate-500 font-mono">
-                            {item.quantity} x {currency(item.book.harga)}
-                          </span>
-                          <span className="font-mono font-bold text-[#0F172A]">
-                            {currency(item.book.harga * item.quantity)}
-                          </span>
-                        </div>
+                        {memberUnitPrice(item) !== null ? (
+                          <>
+                            <div className="flex items-center justify-between mt-1 text-xs">
+                              <span className="text-slate-500 font-mono">
+                                {item.quantity} x <span className="line-through text-slate-400">{currency(item.book.harga)}</span> {currency(memberUnitPrice(item) ?? item.book.harga)}
+                              </span>
+                              <span className="font-mono font-bold text-[#0F172A]">
+                                {currency((memberUnitPrice(item) ?? item.book.harga) * item.quantity)}
+                              </span>
+                            </div>
+                            <span className="block text-[9px] font-semibold text-[#9A7B38] mt-0.5">{t('common:memberPrice')}</span>
+                          </>
+                        ) : (
+                          <div className="flex items-center justify-between mt-1 text-xs">
+                            <span className="text-slate-500 font-mono">
+                              {item.quantity} x {currency(item.book.harga)}
+                            </span>
+                            <span className="font-mono font-bold text-[#0F172A]">
+                              {currency(item.book.harga * item.quantity)}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -530,12 +562,25 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
                 {/* Price Breakdown */}
                 <div className="space-y-2.5 pt-4 border-t border-slate-100 text-xs">
-                  <div className="flex justify-between text-slate-600">
-                    <span>{t('form.summary.subtotal', { count: cartItems.reduce((a, b) => a + b.quantity, 0) })}</span>
-                    <span className="font-mono font-bold text-slate-900">
-                      {currency(subtotal)}
-                    </span>
-                  </div>
+                  {hasMemberPrice ? (
+                    <div className="flex justify-between text-slate-600">
+                      <span>
+                        {t('form.summary.subtotal', { count: cartItems.reduce((a, b) => a + b.quantity, 0) })}
+                        <span className="ml-1.5 text-[9px] font-semibold text-[#9A7B38] bg-amber-50 px-1 rounded">{t('common:memberPrice')}</span>
+                      </span>
+                      <span className="text-right">
+                        <span className="block font-mono text-[10px] text-slate-400 line-through">{currency(subtotal)}</span>
+                        <span className="font-mono font-bold text-slate-900">{currency(payableSubtotal)}</span>
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex justify-between text-slate-600">
+                      <span>{t('form.summary.subtotal', { count: cartItems.reduce((a, b) => a + b.quantity, 0) })}</span>
+                      <span className="font-mono font-bold text-slate-900">
+                        {currency(subtotal)}
+                      </span>
+                    </div>
+                  )}
 
                   <div className="flex justify-between text-slate-600">
                     <div>
@@ -738,6 +783,9 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 <span>{t('form.success.printInvoice')}</span>
               </button>
             </div>
+
+            {/* Tawaran keanggotaan (fase 3 Langkah 6): maks. sekali per 30 hari, tidak untuk anggota aktif. */}
+            {onOpenMembership && <MembershipOfferCard onOpenMembership={onOpenMembership} />}
 
             <button
               type="button"

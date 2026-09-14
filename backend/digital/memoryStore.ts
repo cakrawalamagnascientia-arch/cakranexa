@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { ConflictError } from './errors';
-import type { DigitalStore, EntitlementFilter, NewAnomaly, NewNote, NewSession, SessionFilter } from './store';
+import { OPEN_SUBSCRIPTION_STATUSES, type DigitalStore, type EntitlementFilter, type InvoiceFilter, type NewAnomaly, type NewNote, type NewSession, type SessionFilter, type SubscriptionFilter } from './store';
+import { DEFAULT_PLAN_BENEFITS, DEFAULT_PLANS } from './membership/plans';
 import type {
   AccessLogRecord,
   AnomalyCandidate,
@@ -9,13 +10,27 @@ import type {
   ChapterRecord,
   DeviceRecord,
   EntitlementRecord,
+  InvoicePatch,
+  InvoiceRecord,
+  InvoiceStatus,
+  NewInvoice,
+  NewSubscription,
   NoteRecord,
   OrderRecord,
+  PickRecord,
+  PlanBenefitRecord,
+  PlanPatch,
+  PlanRecord,
   ProductPatch,
   ProductRecord,
   ProgressRecord,
   ReadingEventInput,
   SessionRecord,
+  SubscriptionEventRecord,
+  SubscriptionEventType,
+  SubscriptionPatch,
+  SubscriptionRecord,
+  SubscriptionStatus,
   UserProfile
 } from './types';
 
@@ -27,6 +42,8 @@ export interface Phase1ProductLike {
   price: number;
   isActive: boolean;
   availabilityStatus: 'coming_soon' | 'available';
+  /** Tanggal masuk Digital Reading Shelf (YYYY-MM-DD). */
+  shelfEntryDate?: string | null;
   pageCount: number | null;
   durationSeconds: number | null;
 }
@@ -54,6 +71,12 @@ export class MemoryDigitalStore implements DigitalStore {
   readonly progress = new Map<string, ProgressRecord>();
   readonly notes: NoteRecord[] = [];
   readonly anomalies: AnomalyRecord[] = [];
+  readonly plans: PlanRecord[] = DEFAULT_PLANS.map((plan) => ({ ...plan, updatedAt: nowIso() }));
+  readonly planBenefits: PlanBenefitRecord[] = DEFAULT_PLAN_BENEFITS.map((benefit) => ({ ...benefit }));
+  readonly subscriptions: SubscriptionRecord[] = [];
+  readonly invoices: InvoiceRecord[] = [];
+  readonly subscriptionEvents: SubscriptionEventRecord[] = [];
+  readonly picks: PickRecord[] = [];
 
   constructor(private readonly productSource: () => Promise<Phase1ProductLike[]>) {}
 
@@ -71,6 +94,7 @@ export class MemoryDigitalStore implements DigitalStore {
       price: base.price,
       isActive: base.isActive,
       availabilityStatus: base.availabilityStatus,
+      shelfEntryDate: base.shelfEntryDate ?? null,
       pageCount: extra.pageCount !== undefined ? extra.pageCount : base.pageCount,
       durationSeconds: extra.durationSeconds !== undefined ? extra.durationSeconds : base.durationSeconds,
       storagePath: extra.storagePath ?? null,
@@ -91,6 +115,10 @@ export class MemoryDigitalStore implements DigitalStore {
 
   async listProductsByStatus(status: ProductRecord['processingStatus']) {
     return (await this.productSource()).map((p) => this.toProduct(p)).filter((p) => p.processingStatus === status);
+  }
+
+  async listProductsWithShelfDate() {
+    return (await this.productSource()).map((p) => this.toProduct(p)).filter((p) => p.isActive && p.shelfEntryDate !== null);
   }
 
   async updateProduct(id: string, patch: ProductPatch) {
@@ -190,6 +218,7 @@ export class MemoryDigitalStore implements DigitalStore {
     return (!f.ids || f.ids.includes(e.id))
       && (!f.userId || e.userId === f.userId)
       && (!f.productId || e.productId === f.productId)
+      && (!f.scope || e.scope === f.scope)
       && (!f.source || e.source === f.source)
       && (!f.sourceRef || e.sourceRef === f.sourceRef);
   }
@@ -206,17 +235,23 @@ export class MemoryDigitalStore implements DigitalStore {
   async insertEntitlements(rows: Parameters<DigitalStore['insertEntitlements']>[0]) {
     let inserted = 0;
     for (const row of rows) {
-      const duplicate = row.sourceRef !== null && this.entitlements.some((e) =>
-        e.userId === row.userId && e.productId === row.productId && e.source === row.source && e.sourceRef === row.sourceRef);
+      const scope = row.scope ?? 'product';
+      const startsAt = row.startsAt || nowIso();
+      // Sama dengan SQL: UNIQUE(user, produk, source, source_ref) untuk product; indeks parsial (user, source, source_ref, starts_at) untuk shelf.
+      const duplicate = scope === 'shelf'
+        ? this.entitlements.some((e) => e.scope === 'shelf' && e.userId === row.userId && e.source === row.source && e.sourceRef === row.sourceRef && e.startsAt === startsAt)
+        : row.sourceRef !== null && this.entitlements.some((e) =>
+          e.scope === 'product' && e.userId === row.userId && e.productId === row.productId && e.source === row.source && e.sourceRef === row.sourceRef);
       if (duplicate) continue;
       this.entitlements.push({
         id: uuid(),
         userId: row.userId,
-        productId: row.productId,
+        productId: scope === 'shelf' ? null : row.productId,
+        scope,
         source: row.source,
         sourceRef: row.sourceRef,
         status: 'active',
-        startsAt: row.startsAt || nowIso(),
+        startsAt,
         endsAt: row.endsAt ?? null,
         maxDevices: row.maxDevices ?? 2,
         revokedReason: null,
@@ -237,6 +272,10 @@ export class MemoryDigitalStore implements DigitalStore {
       e.statusChangedBy = patch.statusChangedBy;
       e.statusChangedAt = nowIso();
     }
+  }
+
+  async updateEntitlementsEndsAt(ids: string[], endsAt: string) {
+    for (const e of this.entitlements) if (ids.includes(e.id)) e.endsAt = endsAt;
   }
 
   // ---- perangkat
@@ -459,5 +498,165 @@ export class MemoryDigitalStore implements DigitalStore {
   async resolveAnomaly(id: string, resolvedBy: string, note: string | null) {
     const a = this.anomalies.find((x) => x.id === id);
     if (a) Object.assign(a, { resolvedAt: nowIso(), resolvedBy, resolutionNote: note });
+  }
+
+  // ---- keanggotaan (aturan keunikan sama dengan membership_phase3_migration.sql)
+  async listPlans() {
+    return this.plans.map(clone).sort((a, b) => a.sortOrder - b.sortOrder);
+  }
+
+  async updatePlan(id: string, patch: PlanPatch) {
+    const plan = this.plans.find((p) => p.id === id);
+    if (!plan) return null;
+    Object.assign(plan, clone(patch), { updatedAt: nowIso() });
+    return clone(plan);
+  }
+
+  async listPlanBenefits() {
+    return this.planBenefits.map((b) => ({ ...b }));
+  }
+
+  async claimFoundingSlot(planId: string) {
+    const plan = this.plans.find((p) => p.id === planId);
+    if (!plan || plan.foundingCap === null || plan.foundingPriceYearly === null || plan.foundingCount >= plan.foundingCap) return false;
+    plan.foundingCount += 1;
+    return true;
+  }
+
+  async releaseFoundingSlot(planId: string) {
+    const plan = this.plans.find((p) => p.id === planId);
+    if (plan && plan.foundingCount > 0) plan.foundingCount -= 1;
+  }
+
+  private hasOtherOpenSubscription(userId: string, exceptId?: string) {
+    return this.subscriptions.some((s) => s.id !== exceptId && s.userId === userId && OPEN_SUBSCRIPTION_STATUSES.includes(s.status));
+  }
+
+  async createSubscription(row: NewSubscription) {
+    if (this.subscriptions.some((s) => s.idempotencyKey === row.idempotencyKey)) throw new ConflictError('subscription_idempotency');
+    if (OPEN_SUBSCRIPTION_STATUSES.includes(row.status) && this.hasOtherOpenSubscription(row.userId)) throw new ConflictError('subscription_open_exists');
+    const record: SubscriptionRecord = { ...clone(row), id: uuid(), createdAt: nowIso(), updatedAt: nowIso() };
+    this.subscriptions.push(record);
+    return clone(record);
+  }
+
+  async getSubscription(id: string) {
+    const s = this.subscriptions.find((x) => x.id === id);
+    return s ? clone(s) : null;
+  }
+
+  async getSubscriptionByIdempotencyKey(key: string) {
+    const s = this.subscriptions.find((x) => x.idempotencyKey === key);
+    return s ? clone(s) : null;
+  }
+
+  async listSubscriptions(f: SubscriptionFilter) {
+    return this.subscriptions
+      .filter((s) => (!f.userId || s.userId === f.userId)
+        && (!f.statuses || f.statuses.includes(s.status))
+        && (!f.planId || s.planId === f.planId)
+        && (f.isFounding === undefined || s.isFounding === f.isFounding)
+        && (!f.midtransSubscriptionId || s.midtransSubscriptionId === f.midtransSubscriptionId))
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id))
+      .slice(0, f.limit ?? 1000)
+      .map(clone);
+  }
+
+  async updateSubscription(id: string, patch: SubscriptionPatch, expectStatuses?: SubscriptionStatus[]) {
+    const s = this.subscriptions.find((x) => x.id === id);
+    if (!s || (expectStatuses && !expectStatuses.includes(s.status))) return null;
+    if (patch.status && OPEN_SUBSCRIPTION_STATUSES.includes(patch.status) && !OPEN_SUBSCRIPTION_STATUSES.includes(s.status)
+      && this.hasOtherOpenSubscription(s.userId, s.id)) {
+      throw new ConflictError('subscription_open_exists');
+    }
+    Object.assign(s, clone(patch), { updatedAt: nowIso() });
+    return clone(s);
+  }
+
+  async createInvoice(row: NewInvoice) {
+    if (this.invoices.some((i) => i.orderRef === row.orderRef)) throw new ConflictError('invoice_order_ref');
+    if (row.midtransOrderId && this.invoices.some((i) => i.midtransOrderId === row.midtransOrderId)) throw new ConflictError('invoice_order_id');
+    if ((row.kind === 'initial' || row.kind === 'renewal') && row.status !== 'void' && this.invoices.some((i) =>
+      i.subscriptionId === row.subscriptionId && i.kind === row.kind && i.periodStart === row.periodStart && i.status !== 'void')) {
+      throw new ConflictError('invoice_period_exists');
+    }
+    const record: InvoiceRecord = { ...clone(row), id: uuid(), createdAt: nowIso(), updatedAt: nowIso() };
+    this.invoices.push(record);
+    return clone(record);
+  }
+
+  async getInvoice(id: string) {
+    const i = this.invoices.find((x) => x.id === id);
+    return i ? clone(i) : null;
+  }
+
+  async getInvoiceByOrderRef(orderRef: string) {
+    const i = this.invoices.find((x) => x.orderRef === orderRef);
+    return i ? clone(i) : null;
+  }
+
+  async listInvoices(f: InvoiceFilter) {
+    return this.invoices
+      .filter((i) => (!f.subscriptionId || i.subscriptionId === f.subscriptionId)
+        && (!f.userId || i.userId === f.userId)
+        && (!f.statuses || f.statuses.includes(i.status))
+        && (!f.kinds || f.kinds.includes(i.kind))
+        && (!f.paidFrom || (i.paidAt !== null && i.paidAt >= f.paidFrom))
+        && (!f.paidTo || (i.paidAt !== null && i.paidAt < f.paidTo))
+        && (f.isTest === undefined || i.isTest === f.isTest))
+      .sort((a, b) => b.periodStart.localeCompare(a.periodStart) || b.createdAt.localeCompare(a.createdAt))
+      .slice(0, f.limit ?? 1000)
+      .map(clone);
+  }
+
+  async updateInvoice(id: string, patch: InvoicePatch, expectStatuses?: InvoiceStatus[]) {
+    const i = this.invoices.find((x) => x.id === id);
+    if (!i || (expectStatuses && !expectStatuses.includes(i.status))) return null;
+    if (patch.midtransOrderId && this.invoices.some((x) => x.id !== id && x.midtransOrderId === patch.midtransOrderId)) {
+      throw new ConflictError('invoice_order_id');
+    }
+    Object.assign(i, clone(patch), { updatedAt: nowIso() });
+    return clone(i);
+  }
+
+  async insertSubscriptionEvent(row: { subscriptionId: string; type: SubscriptionEventType; meta?: Record<string, unknown>; dedupeKey?: string | null }) {
+    if (row.dedupeKey && this.subscriptionEvents.some((e) => e.dedupeKey === row.dedupeKey)) return false;
+    this.subscriptionEvents.push({
+      id: uuid(),
+      subscriptionId: row.subscriptionId,
+      type: row.type,
+      meta: clone(row.meta || {}),
+      dedupeKey: row.dedupeKey ?? null,
+      createdAt: nowIso()
+    });
+    return true;
+  }
+
+  async listSubscriptionEvents(f: { subscriptionId?: string; type?: SubscriptionEventType; limit?: number }) {
+    return this.subscriptionEvents
+      .filter((e) => (!f.subscriptionId || e.subscriptionId === f.subscriptionId) && (!f.type || e.type === f.type))
+      .slice()
+      .reverse()
+      .slice(0, f.limit ?? 500)
+      .map(clone);
+  }
+
+  async createPick(row: Omit<PickRecord, 'id' | 'createdAt' | 'entitlementId'>) {
+    if (this.picks.some((p) => p.subscriptionId === row.subscriptionId && p.periodStart === row.periodStart)) throw new ConflictError('pick_exists');
+    const record: PickRecord = { ...clone(row), id: uuid(), entitlementId: null, createdAt: nowIso() };
+    this.picks.push(record);
+    return clone(record);
+  }
+
+  async listPicks(f: { subscriptionId?: string; userId?: string }) {
+    return this.picks
+      .filter((p) => (!f.subscriptionId || p.subscriptionId === f.subscriptionId) && (!f.userId || p.userId === f.userId))
+      .sort((a, b) => b.periodStart.localeCompare(a.periodStart))
+      .map(clone);
+  }
+
+  async setPickEntitlement(id: string, entitlementId: string) {
+    const p = this.picks.find((x) => x.id === id);
+    if (p) p.entitlementId = entitlementId;
   }
 }

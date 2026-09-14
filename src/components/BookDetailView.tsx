@@ -20,6 +20,8 @@ import { toTitleCase } from '../utils/formatters';
 import { useBookText, useCategoryLabel, useFormatters, useLocalized } from '../i18n/hooks';
 import { useDigitalCatalog } from '../hooks/useDigitalCatalog';
 import { FormatSelector, DigitalFormatPanel } from './digital/FormatSelector';
+import { useMemberPrintDiscount } from '../hooks/useMemberPrintDiscount';
+import { memberPrintPrice } from '../utils/memberPrice';
 
 interface BookDetailViewProps {
   book: Book;
@@ -50,6 +52,9 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
   const localized = useLocalized();
   const categoryName = categoryLabel(book?.category ?? '');
   const isPurchasable = Number(book?.harga) > 0;
+  // Harga member (fase 3 Langkah 7): null = tampilan harga cetak persis seperti biasa.
+  const memberPricing = useMemberPrintDiscount();
+  const memberPrice = memberPricing.applies && book ? memberPrintPrice(book.harga, book.originalHarga, memberPricing.percent) : null;
   const hasReviews = Boolean(book?.rating && book?.reviewsCount);
   const [activeTab, setActiveTab] = useState<'sinopsis' | 'penulis' | 'daftar-isi' | 'review'>('sinopsis');
   const [copied, setCopied] = useState(false);
@@ -271,19 +276,32 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-slate-400 uppercase font-medium tracking-wider">{t('pricing.officialPrintPrice')}</span>
-                  {book?.originalHarga && book.originalHarga > book.harga && (
-                    <span className="text-xs text-slate-400 line-through font-mono">
-                      {currency(book.originalHarga)}
-                    </span>
+                  {memberPrice !== null ? (
+                    <>
+                      <span className="text-xs text-slate-400 line-through font-mono">
+                        {currency(book.harga)}
+                      </span>
+                      <span className="text-[10px] font-bold text-[#DFBF64] bg-[#DFBF64]/10 border border-[#DFBF64]/40 px-1.5 py-0.5 rounded">
+                        {t('common:memberPrice')}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      {book?.originalHarga && book.originalHarga > book.harga && (
+                        <span className="text-xs text-slate-400 line-through font-mono">
+                          {currency(book.originalHarga)}
+                        </span>
+                      )}
+                      {book?.discountPercentage ? (
+                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-700/60 px-1.5 py-0.5 rounded">
+                          {t('pricing.save', { percent: book.discountPercentage })}
+                        </span>
+                      ) : null}
+                    </>
                   )}
-                  {book?.discountPercentage ? (
-                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-700/60 px-1.5 py-0.5 rounded">
-                      {t('pricing.save', { percent: book.discountPercentage })}
-                    </span>
-                  ) : null}
                 </div>
                 <div className="text-2xl sm:text-3xl font-bold text-[#DFBF64] tracking-tight mt-0.5">
-                  {isPurchasable ? currency(book.harga) : t('common:priceComingSoon')}
+                  {memberPrice !== null ? currency(memberPrice) : isPurchasable ? currency(book.harga) : t('common:priceComingSoon')}
                 </div>
               </div>
               <div className="flex items-center gap-2">

@@ -281,7 +281,50 @@
       "expired": "Expired",
       "refunded": "Refunded"
     },
-    "viewOrder": "View"
+    "viewOrder": "View",
+    "manageMembership": "My Membership",
+    "tabs": {
+      "shelf": "Digital Shelf",
+      "owned": "Owned"
+    },
+    "shelf": {
+      "loadError": "The digital shelf could not be loaded. Check your connection and try again.",
+      "fullTitle": "Digital Reading Shelf",
+      "fullDescription": "Every title on the shelf can be read and listened to while your membership is active (access until {{date}}).",
+      "empty": "No titles on the shelf yet.",
+      "noneTitle": "The digital shelf is for members",
+      "noneDescription": "Free Circle gets samples of every title. Professional & Academic Society unlocks the entire Digital Reading Shelf.",
+      "noneCta": "View membership plans",
+      "browseSamples": "Browse samples"
+    },
+    "pick": {
+      "title": "Digital Member Pick",
+      "description": "Choose one title from the shelf for {{start}} – {{end}}. Once chosen, it is locked until the end of the period.",
+      "choose": "Choose this title",
+      "confirm": "Choose “{{title}}” as this period's Pick? It cannot be changed until {{date}}.",
+      "locked": "Your Pick, locked until {{date}}",
+      "errors": {
+        "pick_locked": "This period's Pick has already been chosen.",
+        "not_on_shelf": "This title is not on the Digital Reading Shelf yet.",
+        "pick_unavailable": "Digital Member Pick is not available on your plan."
+      }
+    },
+    "upcoming": {
+      "title": "Coming to the shelf",
+      "description": "New titles are sold individually first, then join the shelf on the dates below.",
+      "entry": "Joins the shelf {{date}}",
+      "buy": "Buy individually {{price}}"
+    },
+    "onboarding": {
+      "title": "Welcome to Cakrawala Magna Society",
+      "step1Title": "Digital shelf",
+      "step1": "Open the Digital Shelf tab to read or listen to the titles included in your plan.",
+      "step2Title": "Devices",
+      "step2": "Membership access can be used on {{n}} devices. A device is registered the first time you open a title.",
+      "step3Title": "Renewal",
+      "step3": "Invoices, renewals, plan changes, and cancellation are on My Membership.",
+      "dismiss": "Got it"
+    }
   },
   "nav": {
     "menu": "Digital",
@@ -425,9 +468,9 @@
     "viewDigitalDetail": "View {{format}} details"
   },
   "membership": {
-    "badge": "CakraNexa Membership",
-    "title": "Choose how you read and create",
-    "subtitle": "From general readers to academics and authors, each plan offers different benefits. Full access to e-books and audiobooks comes with Professional & Academic Society.",
+    "badge": "Cakrawala Magna Society",
+    "title": "Read smarter, buy for less, and grow with the Cakrawala Magna community",
+    "subtitle": "CakraNexa membership from {{price}} a month. E-books and audiobooks are available through the Digital Reading Shelf in the Professional & Academic Society plan.",
     "billing": {
       "label": "Billing period",
       "monthly": "Monthly",
@@ -438,101 +481,255 @@
     "perMonth": "/month",
     "perYear": "/year",
     "annualEquivalent": "equivalent to {{price}}/month",
-    "recommended": "Recommended",
+    "recommended": "Main digital plan",
     "foundingMember": "Founding Member",
+    "founding": {
+      "firstYear": "Founding price for the first year, for the first {{cap}} members",
+      "renewal": "Renews at {{price}}/year afterwards, with advance notice",
+      "annualOnly": "The Founding price of {{price}} for the first year is available on the annual plan"
+    },
     "includesShelf": "Includes the Digital Reading Shelf",
     "choosePlan": "Choose plan",
     "joinFree": "Join for free",
     "phase2Note": "Membership sign-up is being prepared and will open soon.",
+    "showAllBenefits": "See all {{total}} benefits",
+    "showFewerBenefits": "Show fewer",
+    "authorDisclaimer": "Membership does not guarantee publication, an ISBN, or full editing. Publishing decisions are still based on the merit of the manuscript.",
     "plans": {
       "freeCircle": {
         "name": "Free Circle",
-        "tagline": "Get to know CakraNexa at no cost."
+        "tagline": "A free way in: samples, newsletters, and purchase points."
       },
       "readerCircle": {
         "name": "Reader Circle",
-        "tagline": "For readers who buy books regularly."
+        "tagline": "For general readers, students, and collectors who buy books regularly."
       },
       "professionalSociety": {
         "name": "Professional & Academic Society",
-        "tagline": "Full e-book and audiobook access for academics and practitioners."
+        "tagline": "For lecturers, researchers, and professionals. Includes the Digital Reading Shelf."
       },
       "authorGuild": {
         "name": "Author Guild",
-        "tagline": "For authors who want to publish with CakraNexa."
+        "tagline": "For authors, aspiring authors, and lecturers who write."
       }
     },
     "benefits": {
-      "samples": "Access to every e-book and audiobook sample",
-      "newsletter": "Monthly release and insight newsletter",
-      "publicEvents": "Invitations to webinars and public events",
-      "memberDiscount": "Member prices on single e-books and audiobooks",
-      "printDiscount": "Member discount on print books",
-      "earlyNews": "Early news about upcoming titles",
-      "digitalShelf": "Full Digital Reading Shelf access (e-books and audiobooks)",
-      "frontlistDiscount": "Special prices on new titles before they join the shelf",
-      "webinars": "Members-only webinars and professional classes",
-      "manuscriptReview": "Manuscript consultation with the editorial team",
-      "publishingDiscount": "Discount on publishing services",
-      "authorCommunity": "Author community and writing classes"
+      "account": "Member account",
+      "samples": "E-book samples ({{min}}–{{max}}% of pages) and audiobook samples",
+      "newsletter": "New-release newsletter",
+      "points": "Points on every qualifying purchase",
+      "recommendations": "Book recommendations based on your interests",
+      "publicEvents": "Invitations to public events",
+      "birthdayGift": "Conditional birthday gift",
+      "referralBasic": "Basic referral program",
+      "bookDiscount": "{{percent}}% off books published by the PT Cakrawala Magna Scientia group",
+      "readerWallet": "Magna Book Wallet of {{amount}} every month (min. spend {{min}}, valid {{days}} days, max. {{active}} active wallets)",
+      "memberPick": "Member Pick: one member-chosen book each month at a special price",
+      "digitalPick": "Digital Member Pick: one backlist e-book of your choice each month",
+      "preorderDiscount": "{{percent}}% off preorders of selected titles",
+      "freeShipping": "Free shipping on orders from {{min}} (regions and subsidy limits set by the company)",
+      "digitalSampler": "Digital sampler: selected chapters, summaries, and companion materials",
+      "backlistDiscount": "Up to {{percent}}% off backlist titles in selected campaigns",
+      "purchaseReward": "{{percent}}% purchase reward as book credit",
+      "bookClub": "Monthly online book club",
+      "earlyAccess": "Preorders and special editions {{days}} days early",
+      "birthdayVoucher": "{{percent}}% birthday voucher (max. {{max}} off)",
+      "referral": "{{amount}} credit after a friend you invite spends at least {{min}}",
+      "annualGift": "Annual member gift: one company-selected book (max. {{max}}), subject to a minimum purchase",
+      "digitalShelf": "Digital Reading Shelf: read backlist and selected titles, including audiobooks",
+      "printDiscount": "{{percent}}% off print books across all group titles",
+      "proWallet": "Professional Book Wallet of {{amount}} per quarter (min. spend {{min}})",
+      "annualCredit": "Annual book credit of {{amount}} for annual members (min. order {{min}})",
+      "expertWebinar": "At least {{n}} expert webinars every quarter",
+      "researchDigest": "Monthly research digest: research summaries and regulatory updates",
+      "companionResources": "Companion resources: tables, checklists, templates, and supporting materials",
+      "citationTools": "Citation metadata in APA, Chicago, Harvard, and other formats",
+      "executiveSummary": "Executive summaries of selected professional books",
+      "readingPathway": "Reading pathways by profession (choose up to {{n}} interest tracks)",
+      "preorderPriority": "Preorder priority and professional pricing",
+      "expertForum": "Moderated expert forums by discipline",
+      "memberCertificate": "Certificates for qualifying activities",
+      "corporateReferral": "Rewards for referring organizational purchases",
+      "authorAcademy": "Author Academy: {{n}} online group classes every month",
+      "manuscriptClinic": "Monthly group manuscript clinic",
+      "authorBookDiscount": "{{percent}}% off all group titles",
+      "ownBooksDiscount": "Up to {{percent}}% off your own books (min. {{copies}} copies)",
+      "authorWallet": "Book wallet of {{amount}} per quarter (min. spend {{min}})",
+      "miniDiagnostic": "Mini manuscript diagnostic once a year (max. {{words}} words)",
+      "editorialDiscount": "{{percent}}% off editorial services (max. benefit {{max}} per year)",
+      "fastTrack": "Submission fast track: administrative review within {{days}} working days",
+      "templateLibrary": "Templates for book proposals, synopses, outlines, author bios, marketing plans, and launch checklists",
+      "marketIntelligence": "Quarterly reports on topic and reader trends",
+      "launchBundle": "Book launch bundles: special prices for 50, 100, and 250 copies",
+      "authorProfile": "Author profile page on the publisher's site",
+      "authorCommunity": "Author forum and accountability group",
+      "referralWallet": "Referral wallet of {{percent}}% of qualifying net sales (as book or service credit)",
+      "eventPriority": "Priority for workshops, festivals, and pitching sessions",
+      "strategySession": "Annual strategy session: small group or 30 minutes one-on-one",
+      "wishlist": "Book wishlist",
+      "preorderAlerts": "Pre-order alerts",
+      "memberPrintDiscount": "{{percent}}% member price on group print books",
+      "authorOwnWorks": "Digital access to your own works and samples of every title"
+    },
+    "access": {
+      "title": "E-book and audiobook access by plan",
+      "subtitle": "Digital access is one of the benefits inside each plan. The Digital Reading Shelf holds backlist and selected titles that have passed the frontlist period.",
+      "feature": "Feature",
+      "rows": {
+        "ebook": "E-books",
+        "audiobook": "Audiobooks",
+        "frontlist": "New titles (frontlist)",
+        "devices": "Devices for membership access",
+        "printDiscount": "Print book discount",
+        "wallet": "Book wallet"
+      },
+      "none": "—",
+      "ebook": {
+        "sample": "{{min}}–{{max}}% sample of every title",
+        "sampler": "Digital sampler: selected chapters, summaries, companion materials",
+        "pick": "1 backlist Digital Member Pick per month",
+        "shelf": "Digital Reading Shelf: backlist and selected titles"
+      },
+      "audiobook": {
+        "sample": "{{minutes}}-minute sample",
+        "shelf": "Every audiobook on the Digital Reading Shelf"
+      },
+      "frontlist": {
+        "sample": "Sample; buy a single copy",
+        "preorder": "Sample; {{percent}}% off preorders of selected titles",
+        "shelf": "Joins the shelf {{min}}–{{max}} days after release; preorder priority"
+      },
+      "devices": "{{n}} devices",
+      "printDiscountPreorder": "{{percent}}% (preorders {{preorder}}%)",
+      "wallet": {
+        "month": "{{amount}}/month, min. spend {{min}}",
+        "quarter": "{{amount}}/quarter, min. spend {{min}}",
+        "annualCredit": "annual credit of {{amount}} (min. {{min}}) for annual members"
+      },
+      "institution": {
+        "ebook": "Digital collection agreed in the contract",
+        "audiobook": "According to the collection",
+        "frontlist": "Joins the collection after the frontlist period",
+        "devices": "Based on concurrent users",
+        "wallet": "Acquisition wallet of {{percent}}% of the annual fee"
+      },
+      "notes": {
+        "unitPurchase": "Single-copy e-books and audiobooks are open to everyone, can be opened on 2 devices, and stay yours even after a membership ends.",
+        "security": "No PDF downloads. All access is through the watermarked cloud reader and player, with one active session per title."
+      }
     },
     "frontlist": {
       "title": "When do new titles join the Digital Reading Shelf?",
-      "body": "New titles are released first as print books and single-copy e-books. After 90–180 days they join the Digital Reading Shelf, so Professional & Academic Society members can read them at no extra cost. The shelf date is shown on every digital product page.",
+      "body": "New titles are released first as print books and single-copy e-books. After an exclusive period of {{min}}–{{max}} days they join the Digital Reading Shelf, so Professional & Academic Society members can read them at no extra cost. A 10–15% sample stays available to everyone, and the shelf date is shown on every digital product page.",
       "step1": "At release: print book and single-copy e-book",
-      "step2": "90–180 days later: joins the Digital Reading Shelf",
+      "step2": "{{min}}–{{max}} days later: joins the Digital Reading Shelf",
       "step3": "After that: still available as a single copy"
+    },
+    "loyalty": {
+      "title": "Loyalty status and Magna Points",
+      "subtitle": "Status is based on annual spending and applies on top of any membership type.",
+      "joined": "When you join",
+      "spend": "Spend {{amount}} a year",
+      "statuses": {
+        "member": {
+          "name": "Member",
+          "benefit": "Basic membership benefits"
+        },
+        "reader": {
+          "name": "Reader",
+          "benefit": "Bonus points"
+        },
+        "curator": {
+          "name": "Curator",
+          "benefit": "Access to special events"
+        },
+        "patron": {
+          "name": "Patron",
+          "benefit": "Priority service and special editions"
+        }
+      },
+      "points": "Magna Points: {{percent}}% store credit on regular purchases (up to {{campaign}}% in special campaigns). Points are valid for {{months}} months, cannot be cashed out or transferred, are credited after the return period ends, and are cancelled if the purchase is cancelled."
     },
     "faq": {
       "title": "Frequently asked questions",
       "items": {
         "shelf": {
           "q": "What is the Digital Reading Shelf?",
-          "a": "A digital reading shelf of CakraNexa e-books and audiobooks that Professional & Academic Society and Author Guild members can access without buying each title."
+          "a": "A digital reading shelf of CakraNexa backlist and selected titles as e-books and audiobooks. It is open to Professional & Academic Society members and institutions, without buying each title."
         },
         "frontlist": {
           "q": "Why don't new titles join the shelf right away?",
-          "a": "New titles are sold as single copies first so authors are paid fairly. After 90–180 days a title joins the shelf, and the date is shown on its product page."
+          "a": "New titles are sold as single copies first for {{min}}–{{max}} days so authors are paid fairly. After that a title joins the shelf, and the date is shown on its product page."
         },
         "unitPurchase": {
           "q": "Can I buy an e-book without a membership?",
-          "a": "Yes. Every available e-book and audiobook can be bought as a single copy and stays in My Library."
+          "a": "Yes. Every available e-book and audiobook can be bought as a single copy and stays in My Library for good. Members get member prices, which cannot be combined with a wallet."
         },
         "billing": {
           "q": "What is the difference between monthly and annual billing?",
           "a": "Annual billing is paid once a year at the price of 10 months, so you save 2 months compared with monthly billing."
         },
+        "founding": {
+          "q": "What is the Founding Member price?",
+          "a": "A launch price for the first annual members: Reader Circle {{reader}} (first {{readerCap}} members), Professional & Academic Society {{professional}} (first {{professionalCap}} members), and Author Guild {{author}} (first {{authorCap}} members). It applies to the first year. Renewals use the regular price, and we let you know {{noticeDays}} days in advance."
+        },
+        "payment": {
+          "q": "Which payment methods are available?",
+          "a": "Credit cards and GoPay renew automatically. Virtual Accounts and QRIS renew manually; we send reminders {{d1}}, {{d2}}, and {{d3}} days before the due date and on the due date.",
+          "aManual": "For now every method (Virtual Account, QRIS, card, and GoPay) is paid each period: we issue an invoice and send reminders {{d1}}, {{d2}}, and {{d3}} days before the due date and on the due date. Automatic renewal by card and GoPay will open once Midtrans activation is complete."
+        },
+        "grace": {
+          "q": "What if a payment is late?",
+          "a": "There is a {{graceDays}}-day grace period and your access stays open. After that access is locked, but your reading progress and notes are kept for {{retentionMonths}} months and reconnect as soon as you pay."
+        },
+        "changePlan": {
+          "q": "Can I switch plans?",
+          "a": "Yes. Upgrades take effect immediately with a prorated payment for the difference. Downgrades take effect from the next billing period."
+        },
         "cancel": {
           "q": "Can I cancel at any time?",
-          "a": "Yes. You can cancel at any time and your membership stays active until the end of the period you paid for. Titles bought as single copies remain yours."
+          "a": "Yes, directly from your account page. Your membership stays active until the end of the period you paid for, and there is no further charge. Titles bought as single copies remain yours."
+        },
+        "devices": {
+          "q": "On how many devices can I read?",
+          "a": "Digital Reading Shelf access and single-copy titles can be opened on {{devices}} devices. There is one active reading or listening session per title, and a device can be released once every {{releaseDays}} days. There are no PDF downloads; all access is through the cloud reader and player."
         },
         "institutions": {
           "q": "I represent a university or library. Which plan fits?",
-          "a": "Institution & Library Network: shared access for many users on an annual contract. Request a quote on the institutions page."
+          "a": "Institution & Library Network: shared access based on concurrent users on an annual contract. Request a quote on the institutions page."
         }
       }
     },
     "institutionsCta": {
       "title": "For universities, libraries, and agencies",
-      "description": "Institution & Library Network gives many users Digital Reading Shelf access at once on an annual contract.",
+      "description": "Institution & Library Network gives 5 to 50 concurrent users, or more through a custom offer, access to the digital collection on an annual contract with an acquisition wallet.",
       "link": "Explore Institution & Library Network"
-    }
+    },
+    "foundingSeats": "Founding Member — {{count}} seats left",
+    "foundingSoldOut": "Founding seats sold out",
+    "foundingNotEligible": "Founding pricing is for new members only; rejoining uses the regular price.",
+    "currentPlan": "Your current plan",
+    "changePlan": "Change plan",
+    "devices": "Membership access on {{n}} devices",
+    "includesPick": "Includes 1 Digital Member Pick per month",
+    "termsLink": "Membership terms"
   },
   "institutions": {
     "badge": "Institution & Library Network",
     "title": "CakraNexa digital access for your institution",
     "subtitle": "One annual contract for your whole community: students, lecturers, researchers, and staff can read CakraNexa e-books and listen to audiobooks.",
-    "pricingNote": "Pricing depends on the size of the institution and the number of titles.",
+    "pricingNote": "Annual pricing depends on the number of concurrent users and the size of the digital catalog.",
+    "foundingNote": "Founding program: {{percent}}% off the first year for the first {{cap}} institutions.",
     "tiersTitle": "Service tiers",
     "concurrentUsers_one": "Up to {{count}} concurrent user",
     "concurrentUsers_other": "Up to {{count}} concurrent users",
-    "concurrentUsersCustom": "More than 100 concurrent users, tailored",
+    "concurrentUsersCustom": "More than 50 concurrent users",
     "concurrentExplainer": "Concurrent users are the number of people who can read at the same time.",
     "requestQuote": "Request a quote",
     "tiers": {
       "starter": {
         "name": "Starter",
-        "description": "For study programs, research institutes, or small libraries."
+        "description": "For schools, study programs, research institutes, or small libraries."
       },
       "campus": {
         "name": "Campus",
@@ -540,24 +737,61 @@
       },
       "network": {
         "name": "Network",
-        "description": "For consortia, multi-campus institutions, or library networks."
+        "description": "For large campuses, multi-faculty institutions, or library networks."
+      },
+      "consortium": {
+        "name": "Consortium / Enterprise",
+        "description": "For consortia, multi-campus institutions, companies, and agencies above 50 concurrent users. Usage-based pricing."
       }
     },
+    "spec": {
+      "adminAccounts": "Admin accounts",
+      "webinars": "Institutional webinars",
+      "usageReports": "Usage reports",
+      "printDiscount": "Print book discount",
+      "bulkOrderMin": "Minimum bulk order",
+      "readingLists": "Custom reading lists",
+      "courseAdoption": "Course adoption support",
+      "acquisitionWallet": "Acquisition wallet",
+      "custom": "Per contract",
+      "perYear": "{{n}}/year",
+      "books": "{{n}} books",
+      "walletValue": "{{percent}}% of the annual fee",
+      "reports": {
+        "quarterly": "Quarterly",
+        "monthly": "Monthly",
+        "monthlyAnalysis": "Monthly + analysis"
+      },
+      "adoption": {
+        "basic": "Basic",
+        "full": "Full",
+        "fullManager": "Full + account manager"
+      }
+    },
+    "commonTitle": "Included in every tier",
     "features": {
-      "shelfAccess": "Digital Reading Shelf access (e-books and audiobooks)",
-      "usageReports": "Regular usage reports",
-      "acquisitionWallet": "Acquisition wallet for permanent title purchases",
-      "ipAccess": "Automatic access from the campus network (IP)",
-      "marcRecords": "MARC catalog records for library systems",
-      "multiCampus": "One contract for several campuses or branches",
-      "accountManager": "Dedicated account manager"
+      "collection": "Access to the agreed digital collection",
+      "accessMethods": "Access by account, IP address, or single sign-on, depending on system capability",
+      "concurrentAccess": "Access rights based on the number of concurrent users",
+      "adminDashboard": "Administrator dashboard",
+      "usageReports": "Usage reports",
+      "catalogMetadata": "Catalog metadata",
+      "readingLists": "Reading lists",
+      "courseAdoption": "Course adoption support",
+      "printDiscount": "Discounts on print book purchases",
+      "webinars": "Institutional webinars",
+      "collectionAdvice": "Help choosing the collection",
+      "librarianSupport": "Librarian support",
+      "collectionUpdates": "Regular collection updates",
+      "techSupport": "Technical help desk",
+      "certificate": "Institutional membership certificate"
     },
     "wallet": {
       "title": "What is an acquisition wallet?",
-      "body": "Part of the annual contract value is kept as an acquisition balance. It is used to buy selected titles permanently, so the collection stays with the institution even if the contract is not renewed.",
-      "point1": "Choose the titles read most often",
-      "point2": "Purchased titles stay accessible afterwards",
-      "point3": "Balance use is recorded in the annual report"
+      "body": "{{percent}}% of the annual fee paid is converted into acquisition credit at the end of the period. The credit buys permanent licenses or print copies of the most-used titles, so the access fee is not lost.",
+      "point1": "Title choices are based on usage data",
+      "point2": "Permanent licenses stay accessible even if the contract is not renewed",
+      "point3": "Credit use is recorded in the annual report"
     },
     "form": {
       "title": "Request a quote",
@@ -621,5 +855,261 @@
     "membership": "Membership",
     "institutions": "Institutions",
     "library": "My Library"
+  },
+  "membershipCheckout": {
+    "title": "Join the membership",
+    "subtitle": "Review your plan, choose how to pay, then continue to secure Midtrans payment.",
+    "loginTitle": "Sign in to join",
+    "loginDescription": "Your membership is linked to your account so your digital shelf, devices, and invoices are managed in one place.",
+    "plan": "Plan",
+    "cycle": "Billing period",
+    "change": "Change plan",
+    "totalToday": "Total today",
+    "renewalNote": "Next renewal {{price}} {{cycle}}, with advance notice.",
+    "perYear": "per year",
+    "perMonth": "per month",
+    "methodTitle": "Payment method",
+    "honestNote": "Card/GoPay: automatic renewal. Virtual Account/QRIS: we send an invoice every period and you pay manually.",
+    "honestNoteManual": "For now every method is paid each period: we send an invoice and reminders before the due date, and you pay manually.",
+    "methods": {
+      "va": {
+        "label": "Virtual Account",
+        "description": "Transfer to a bank Virtual Account number. We send an invoice every period and you pay manually."
+      },
+      "qris": {
+        "label": "QRIS",
+        "description": "Scan the QR code from a banking or e-wallet app. We send an invoice every period and you pay manually."
+      },
+      "card": {
+        "label": "Credit/debit card",
+        "descriptionAuto": "Renews automatically every period. Card details are entered only on the Midtrans page and are never stored by CakraNexa.",
+        "descriptionManual": "Automatic renewal is not active yet; we send an invoice every period and you pay manually."
+      },
+      "gopay": {
+        "label": "GoPay",
+        "descriptionAuto": "Renews automatically from the GoPay account you link.",
+        "descriptionManual": "Automatic renewal is not active yet; we send an invoice every period and you pay manually."
+      }
+    },
+    "termsAccept": "I have read and agree to the",
+    "licenseAccept": "I agree to the digital licence terms: personal reading/listening through the cloud reader and player, no downloads, with an account watermark.",
+    "pay": "Pay {{total}}",
+    "paying": "Processing…",
+    "popupClosed": "The payment window was closed. Your invoice stays open for 24 hours and can be paid from My Membership.",
+    "resume": "Resume payment",
+    "manage": "Open My Membership",
+    "confirmingTitle": "Payment received",
+    "confirmingDescription": "We are activating your membership. You will be taken to My Library shortly.",
+    "alreadyMemberTitle": "You are already a member",
+    "freeTitle": "Free Circle is already active",
+    "freeDescription": "Free Circle applies automatically to every account: samples, newsletter, wishlist, and event invitations.",
+    "unavailableTitle": "Sign-up is not open yet",
+    "unavailable": "Membership sign-up is being prepared and will open soon.",
+    "back": "Back to membership plans",
+    "errors": {
+      "terms_required": "Please accept the membership terms first.",
+      "license_required": "Please accept the digital licence terms first.",
+      "already_subscribed": "You already have an active membership. Use Change plan on My Membership.",
+      "plan_unavailable": "This plan is not available.",
+      "payment_unavailable": "Online payment is not available yet. Please try again later.",
+      "payment_error": "Payment could not be started. Please try again.",
+      "subscription_in_progress": "Another sign-up is being processed. Please reload the page.",
+      "email_required": "Your account needs an email address to subscribe.",
+      "snap_unavailable": "The payment page could not be opened. Disable your popup blocker and try again.",
+      "digital_disabled": "Membership sign-up is not open yet.",
+      "network": "Connection lost. Check your internet and try again.",
+      "unknown": "Something went wrong. Please try again.",
+      "invalid_whatsapp": "Invalid WhatsApp number. Use an Indonesian mobile number, for example 0812 3456 7890."
+    },
+    "whatsapp": {
+      "title": "WhatsApp reminders (optional)",
+      "description": "Invoice and membership reminders are sent from CakraNexa's official number {{sender}}. You can turn them off at any time on My Membership.",
+      "optIn": "Send invoice reminders by WhatsApp",
+      "number": "WhatsApp number",
+      "placeholder": "0812 3456 7890"
+    }
+  },
+  "membershipTerms": {
+    "badge": "Draft for review",
+    "title": "Cakrawala Magna Society Membership Terms",
+    "intro": "These terms apply to CakraNexa paid memberships operated by PT Cakrawala Magna Scientia. This document is a draft and may change before sign-up opens.",
+    "back": "Back to membership plans",
+    "sections": {
+      "plans": {
+        "title": "1. Plans and prices",
+        "body": "Membership consists of Free Circle (free), Reader Circle, Professional & Academic Society, and Author Guild. Each plan's price, benefits, and device limit are shown on the membership page when you sign up. The annual price equals 10 times the monthly price. All prices are in Indonesian Rupiah."
+      },
+      "founding": {
+        "title": "2. Founding Member pricing",
+        "body": "Founding pricing applies to the first year of an annual plan for new members while seats last: Reader Circle {{reader}} ({{readerCap}} members), Professional & Academic Society {{professional}} ({{professionalCap}} members), and Author Guild {{author}} ({{authorCap}} members). A seat is reserved at sign-up and released if the first invoice is not paid within 24 hours. Later years use the regular price; we notify you {{noticeDays}} days in advance."
+      },
+      "billing": {
+        "title": "3. Billing and renewal",
+        "body": "The membership period starts when the first payment succeeds. For manual payment (Virtual Account, QRIS), the renewal invoice is issued {{d1}} days before the period ends, with reminders {{d1}}, {{d2}}, and {{d3}} days before and on the due date. For card or GoPay with automatic renewal (when available), the charge is made at the end of the period and retried for up to 3 days if it fails. Payments are processed by Midtrans; CakraNexa never stores card data."
+      },
+      "grace": {
+        "title": "4. Grace period and locked access",
+        "body": "If an invoice is unpaid on the due date, the membership enters a {{graceDays}}-day grace period and access stays open. After that, membership access is locked. Reading progress and notes are kept for {{retentionMonths}} months and reconnect when you subscribe again at the regular price."
+      },
+      "changes": {
+        "title": "5. Changing plans",
+        "body": "Upgrades and monthly-to-annual changes take effect immediately: the unused value of the current period becomes a prorated credit, and a new period starts on the day the difference is paid. Downgrades and annual-to-monthly changes take effect at the end of the current period. If your active devices exceed the new plan's limit, you will be asked to release a device."
+      },
+      "cancel": {
+        "title": "6. Cancellation",
+        "body": "You can cancel at any time from My Membership without contacting an administrator. Access stays open until the end of the paid period, there is no further invoice, and you can undo the cancellation before the period ends. Payments for the current period are not refunded, except where required by law."
+      },
+      "digital": {
+        "title": "7. Digital access and devices",
+        "body": "The Digital Reading Shelf and Digital Member Pick are a personal reading/listening licence while the membership is active, through the cloud reader and player with no file downloads. Each title can be open in one active session, on devices within the plan limit, with an account watermark. A device can be released once every {{releaseDays}} days. Misuse (such as account sharing or automated page turning) may suspend access. Titles bought individually remain yours after the membership ends."
+      },
+      "frontlist": {
+        "title": "8. New titles (frontlist)",
+        "body": "New titles are sold individually for {{min}}–{{max}} days before they join the Digital Reading Shelf. The shelf entry date is shown on each product page."
+      },
+      "privacy": {
+        "title": "9. Personal data",
+        "body": "We process your name, email, and billing history to manage your membership, and access logs to protect content. Card and e-wallet details are processed only by Midtrans."
+      },
+      "updates": {
+        "title": "10. Changes to these terms",
+        "body": "Changes to prices or terms are announced by email before they apply to your next renewal."
+      },
+      "contact": {
+        "title": "11. Contact",
+        "body": "Questions about membership can be sent through the CakraNexa Contact page."
+      }
+    }
+  },
+  "accountMembership": {
+    "title": "My Membership",
+    "subtitle": "Your plan, invoices, renewals, and cancellation.",
+    "loginTitle": "Sign in to view your membership",
+    "loginDescription": "Your membership and invoices are linked to your account.",
+    "loadError": "Membership details could not be loaded. Check your connection and try again.",
+    "openLibrary": "Open My Library",
+    "none": {
+      "title": "No paid membership yet",
+      "description": "Your account includes Free Circle. Choose a plan to unlock the Digital Reading Shelf or Digital Member Pick.",
+      "cta": "View membership plans"
+    },
+    "status": {
+      "pending": "Awaiting payment",
+      "active": "Active",
+      "past_due": "Payment failed",
+      "grace": "Grace period",
+      "canceled": "Canceled",
+      "expired": "Ended"
+    },
+    "cycles": {
+      "monthly": "Monthly",
+      "yearly": "Annual"
+    },
+    "fields": {
+      "cycle": "Billing period",
+      "period": "Current period",
+      "accessUntil": "Access until",
+      "method": "Payment method",
+      "devices": "Device limit",
+      "nextRenewal": "Next renewal"
+    },
+    "otherMethod": "Other",
+    "autodebitOn": "automatic renewal",
+    "autodebitOff": "manual payment each period",
+    "nextRenewal": "{{amount}} on {{date}}",
+    "renewalAuto": "Charged automatically on that date.",
+    "renewalManual": "The invoice is sent 7 days before.",
+    "foundingUntil": "Founding pricing applies until {{date}}. The next renewal uses the regular price of {{price}}/year.",
+    "pendingChange": "From {{date}} your plan changes to {{plan}} ({{cycle}}).",
+    "cancelChange": "Cancel change",
+    "pendingNotice": "Your sign-up is awaiting payment. Complete it within 24 hours to activate the membership.",
+    "graceNotice": "Your invoice is unpaid. Access stays open until {{date}} (grace period).",
+    "pastDueNotice": "Automatic payment failed. We will retry over the next few days; you can also pay now.",
+    "canceledNotice": "Membership canceled. Access stays open until {{date}} and there is no further invoice.",
+    "endedNotice": "Membership ended on {{date}}. Your progress and notes are kept for {{months}} months; subscribe again to unlock them.",
+    "resume": "Undo cancellation",
+    "resumed": "Cancellation undone. Your membership continues as usual.",
+    "subscribeAgain": "Subscribe again",
+    "openInvoice": {
+      "title": "Open invoice",
+      "due": "Due {{date}}",
+      "pay": "Pay now",
+      "refresh": "Check payment status",
+      "paidNow": "Payment received. Thank you!",
+      "stillPending": "We have not received the payment yet. If you just paid, wait a few minutes and check again."
+    },
+    "invoiceKind": {
+      "initial": "Sign-up",
+      "renewal": "Renewal",
+      "upgrade": "Upgrade difference",
+      "manual": "Offline payment"
+    },
+    "invoiceStatus": {
+      "draft": "Draft",
+      "issued": "Unpaid",
+      "paid": "Paid",
+      "failed": "Failed",
+      "void": "Voided"
+    },
+    "invoices": {
+      "title": "Invoice history",
+      "empty": "No invoices yet.",
+      "receipt": "Receipt"
+    },
+    "change": {
+      "title": "Change plan",
+      "description": "Upgrades and monthly-to-annual changes apply immediately with a prorated credit. Downgrades and annual-to-monthly changes apply at the end of the period.",
+      "plan": "Plan",
+      "cycle": "Billing period",
+      "submit": "Change plan",
+      "immediateResult": "Pay the difference of {{amount}} (after a {{credit}} credit) to activate the new plan.",
+      "scheduledResult": "The change is scheduled from {{date}}.",
+      "appliedResult": "Your new plan is active."
+    },
+    "method": {
+      "title": "Payment method",
+      "description": "Applies to the next invoice. Card/GoPay renew automatically once that feature is active.",
+      "submit": "Save method",
+      "saved": "Payment method updated for the next invoice."
+    },
+    "cancel": {
+      "title": "Cancel membership",
+      "description": "Access stays open until {{date}}. There is no further invoice, and titles you bought individually remain yours.",
+      "descriptionNow": "This period's invoice is unpaid, so cancelling ends membership access immediately.",
+      "button": "Cancel membership",
+      "confirm": "Cancel your membership? Membership access ends on {{date}}.",
+      "done": "Membership canceled. Access ends on {{date}}."
+    },
+    "errors": {
+      "payment_required": "Please settle the outstanding invoice first.",
+      "no_subscription": "You do not have an active membership.",
+      "no_change": "The plan and billing period are the same as now.",
+      "canceled": "Undo the cancellation first to schedule a plan change.",
+      "already_canceled": "The membership is already canceled.",
+      "nothing_to_resume": "There is no cancellation to undo.",
+      "period_ended": "The period has already ended.",
+      "state_changed": "Your membership status changed. Please reload the page.",
+      "invoice_closed": "This invoice can no longer be paid.",
+      "invoice_not_found": "Invoice not found.",
+      "plan_unavailable": "Plan not available.",
+      "payment_unavailable": "Online payment is not available yet.",
+      "payment_error": "Payment could not be started. Please try again.",
+      "no_pending_change": "There is no scheduled plan change.",
+      "invalid_request": "Invalid request.",
+      "snap_unavailable": "The payment page could not be opened. Disable your popup blocker and try again.",
+      "network": "Connection lost. Check your internet and try again.",
+      "digital_disabled": "Membership is not open yet.",
+      "unknown": "Something went wrong. Please try again.",
+      "invalid_whatsapp": "Invalid WhatsApp number. Use an Indonesian mobile number, for example 0812 3456 7890."
+    },
+    "whatsapp": {
+      "title": "WhatsApp reminders",
+      "description": "Invoice reminders (7, 3 and 1 days before and on the due date), grace period, and locked-access notices are sent from CakraNexa's official number {{sender}}. Email is still sent.",
+      "optIn": "Send reminders by WhatsApp",
+      "number": "WhatsApp number",
+      "save": "Save reminders",
+      "saved": "WhatsApp reminders are on for this number.",
+      "off": "WhatsApp reminders are off. Reminders are still sent by email."
+    }
   }
 }

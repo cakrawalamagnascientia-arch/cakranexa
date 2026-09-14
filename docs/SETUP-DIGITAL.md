@@ -6,6 +6,8 @@ Dokumen ini disimpan di repo agar tidak hilang di catatan chat. Perbarui bila en
 > **Status implementasi:** langkah 1–7 selesai: pemrosesan aset, checkout Midtrans, akses/sesi/perangkat, reader, player,
 > Pustaka Saya, tab admin "Entitlement & Akses" dan "Anomali", serta deteksi anomali per jam.
 > Langkah 8–9 menyusul (penyempurnaan i18n/noindex, tes menyeluruh). Migration produksi baru dijalankan setelah tes langkah 9 hijau.
+>
+> **Fase 3 (keanggotaan berbayar):** migration, env, cron, dan Midtrans Subscriptions ada di [`docs/SETUP-KEANGGOTAAN.md`](SETUP-KEANGGOTAAN.md).
 
 ---
 

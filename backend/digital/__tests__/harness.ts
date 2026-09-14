@@ -8,6 +8,9 @@ import { createSupabaseTokenVerifier } from '../auth';
 import { MemoryDigitalStore, type Phase1ProductLike } from '../memoryStore';
 import { createFilesystemAssetStorage } from '../storage';
 import type { ProcessingTools } from '../processing';
+import type { MidtransClient } from '../checkout';
+import type { MembershipGateway } from '../membership/gateway';
+import type { WhatsAppSender } from '../membership/whatsapp';
 import type { MailMessage, Mailer, MidtransSettings } from '../context';
 import type { BookInfo } from '../types';
 
@@ -54,6 +57,11 @@ export interface TestAppOptions {
   env?: Record<string, string>;
   /** Pengganti pengirim email (default: dikumpulkan ke `mails`). */
   mailer?: Mailer;
+  /** Snap tiruan (keanggotaan) dan Midtrans Subscriptions/status API tiruan. */
+  midtransClient?: MidtransClient;
+  membershipGateway?: MembershipGateway;
+  /** Gateway WhatsApp tiruan (default: tanpa WhatsApp). */
+  whatsappSender?: WhatsAppSender | null;
 }
 
 export const createTestApp = async (options: TestAppOptions = {}) => {
@@ -86,7 +94,10 @@ export const createTestApp = async (options: TestAppOptions = {}) => {
       verifier: createSupabaseTokenVerifier({ supabaseUrl: '', jwtSecret: JWT_SECRET }),
       tools: options.tools ?? failingTools,
       now: options.now,
-      fetchImpl: options.fetchImpl
+      fetchImpl: options.fetchImpl,
+      midtransClient: options.midtransClient,
+      membershipGateway: options.membershipGateway,
+      whatsappSender: options.whatsappSender ?? null
     }
   });
   const app = express();

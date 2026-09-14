@@ -29,7 +29,52 @@ export interface DigitalConfig {
   featureEnabled: boolean;
   /** DIGITAL_BETA_EMAILS (huruf kecil): tetap bisa memakai fitur digital saat flag mati; pesanannya ditandai is_test. */
   betaEmails: string[];
+  membership: MembershipConfig;
+  whatsapp: WhatsAppConfig;
 }
+
+/** Pengingat WhatsApp keanggotaan (backend/digital/membership/whatsapp.ts). Bawaan mati. */
+export interface WhatsAppConfig {
+  /** WHATSAPP_PROVIDER: off | fonnte | cloud. */
+  provider: 'off' | 'fonnte' | 'cloud';
+  /** Nomor resmi pengirim (628…), WHATSAPP_SENDER_NUMBER; bawaan +62 852 8614 6806. */
+  senderNumber: string;
+  fonnteToken: string;
+  cloudToken: string;
+  cloudPhoneNumberId: string;
+  cloudApiVersion: string;
+  /** Awalan nama template Cloud API (bawaan "cnx_"). */
+  templatePrefix: string;
+}
+
+const DEFAULT_WHATSAPP_SENDER = '6285286146806';
+
+/** Keanggotaan fase 3 (docs/PHASE-3-BRIEF.md). Semua flag bawaan mati. */
+export interface MembershipConfig {
+  /** ENABLE_AUTODEBIT: perpanjangan otomatis kartu/GoPay lewat Midtrans Subscriptions (butuh aktivasi Midtrans). */
+  autodebitEnabled: boolean;
+  /** ENABLE_READER_DIGITAL_PICK: Reader Circle memilih 1 judul backlist per bulan. */
+  readerDigitalPick: boolean;
+  /** ENABLE_AUTHOR_GUILD_SHELF: Author Guild membuka seluruh Digital Reading Shelf (mati = sampel + karya sendiri). */
+  authorGuildShelf: boolean;
+  /** ENABLE_MEMBER_PRINT_DISCOUNT: harga member buku cetak (Langkah 7). Mati = alur cetak tidak berubah. */
+  memberPrintDiscount: boolean;
+  /** MEMBERSHIP_EXTENDED_BENEFITS: tampilkan manfaat yang belum bisa dipenuhi saat peluncuran (wallet, poin, dsb.). */
+  extendedBenefits: boolean;
+  /** Masa tenggang setelah akhir periode; akses tetap terbuka. */
+  graceDays: number;
+  /** Pengingat tagihan (hari sebelum jatuh tempo). */
+  reminderDays: number[];
+  foundingNoticeDays: number;
+  /** Midtrans mengulang tagihan gagal tiap hari sebanyak ini (H+1, H+2, H+3). */
+  autodebitRetryDays: number;
+  /** Langganan/invoice pending tanpa pembayaran dibatalkan setelah ini (kursi Founding dilepas). */
+  pendingTtlHours: number;
+  /** Kunci AES-256-GCM untuk token Midtrans (PAYMENT_TOKEN_KEY 64 hex; tanpa itu diturunkan dari ACCESS_TOKEN_SECRET). */
+  tokenKey: Buffer;
+}
+
+const envFlag = (value: string | undefined) => ['true', '1', 'yes'].includes(String(value || '').trim().toLowerCase());
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -65,6 +110,34 @@ export const loadDigitalConfig = (env: NodeJS.ProcessEnv = process.env): Digital
     betaEmails: Array.from(new Set(String(env.DIGITAL_BETA_EMAILS || '')
       .split(',')
       .map((email) => email.trim().toLowerCase())
-      .filter((email) => EMAIL_RE.test(email))))
+      .filter((email) => EMAIL_RE.test(email)))),
+    membership: {
+      autodebitEnabled: envFlag(env.ENABLE_AUTODEBIT),
+      readerDigitalPick: envFlag(env.ENABLE_READER_DIGITAL_PICK),
+      authorGuildShelf: envFlag(env.ENABLE_AUTHOR_GUILD_SHELF),
+      memberPrintDiscount: envFlag(env.ENABLE_MEMBER_PRINT_DISCOUNT),
+      extendedBenefits: envFlag(env.MEMBERSHIP_EXTENDED_BENEFITS),
+      graceDays: 5,
+      reminderDays: [7, 3, 1, 0],
+      foundingNoticeDays: 30,
+      autodebitRetryDays: 3,
+      pendingTtlHours: 24,
+      tokenKey: /^[0-9a-f]{64}$/i.test(env.PAYMENT_TOKEN_KEY || '')
+        ? Buffer.from(String(env.PAYMENT_TOKEN_KEY), 'hex')
+        : crypto.createHash('sha256').update(`cakranexa-payment-token:${accessTokenSecret}`).digest()
+    },
+    whatsapp: {
+      provider: (['fonnte', 'cloud'] as const).find((p) => p === String(env.WHATSAPP_PROVIDER || '').trim().toLowerCase()) ?? 'off',
+      senderNumber: (() => {
+        const digits = String(env.WHATSAPP_SENDER_NUMBER || '').replace(/\D/g, '');
+        const normalized = digits.startsWith('0') ? `62${digits.slice(1)}` : digits;
+        return /^628\d{7,11}$/.test(normalized) ? normalized : DEFAULT_WHATSAPP_SENDER;
+      })(),
+      fonnteToken: String(env.FONNTE_TOKEN || '').trim(),
+      cloudToken: String(env.WHATSAPP_CLOUD_TOKEN || '').trim(),
+      cloudPhoneNumberId: String(env.WHATSAPP_CLOUD_PHONE_NUMBER_ID || '').trim(),
+      cloudApiVersion: String(env.WHATSAPP_CLOUD_API_VERSION || 'v21.0').trim(),
+      templatePrefix: String(env.WHATSAPP_TEMPLATE_PREFIX || 'cnx_').trim()
+    }
   };
 };

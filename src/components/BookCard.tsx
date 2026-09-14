@@ -6,6 +6,8 @@ import { resolveImageUrl, handleImageError } from '../utils/imageUtils';
 import { toTitleCase } from '../utils/formatters';
 import { useBookText, useCategoryLabel, useFormatters } from '../i18n/hooks';
 import { BookFormatIcons } from './digital/BookFormatIcons';
+import { useMemberPrintDiscount } from '../hooks/useMemberPrintDiscount';
+import { memberPrintPrice } from '../utils/memberPrice';
 
 interface BookCardProps {
   book: Book;
@@ -26,8 +28,11 @@ export const BookCard: React.FC<BookCardProps> = ({
   const categoryLabel = useCategoryLabel();
   const { currency } = useFormatters();
   const bookText = useBookText();
+  const memberPricing = useMemberPrintDiscount();
   const isPurchasable = Number(book?.harga) > 0;
   if (!book) return null;
+  // Harga member (fase 3 Langkah 7): null = tampilan harga persis seperti biasa.
+  const memberPrice = memberPricing.applies ? memberPrintPrice(book.harga, book.originalHarga, memberPricing.percent) : null;
   const bookTitle = bookText.title(book);
   const displayTitle = toTitleCase(bookTitle);
 
@@ -110,26 +115,44 @@ export const BookCard: React.FC<BookCardProps> = ({
         {/* Price Information */}
         <div className="flex min-h-[2.25rem] items-baseline justify-between gap-1 w-full">
           <div>
-            {book?.originalHarga && book.originalHarga > book.harga ? (
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <span className="text-[10px] text-slate-400 line-through font-mono">
-                  {currency(book.originalHarga)}
-                </span>
-                {book?.discountPercentage ? (
-                  <span className="text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-1 rounded">
-                    -{book.discountPercentage}%
+            {memberPrice !== null ? (
+              <>
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span className="text-[10px] text-slate-400 line-through font-mono">
+                    {currency(book.harga)}
                   </span>
-                ) : null}
-              </div>
-            ) : null}
-            {isPurchasable ? (
-              <span className="font-bold text-slate-900 text-sm sm:text-base leading-tight block whitespace-nowrap font-mono">
-                {currency(book.harga)}
-              </span>
+                  <span className="text-[9px] font-semibold text-[#9A7B38] bg-amber-50 px-1 rounded">
+                    {t('common:memberPrice')}
+                  </span>
+                </div>
+                <span className="font-bold text-slate-900 text-sm sm:text-base leading-tight block whitespace-nowrap font-mono">
+                  {currency(memberPrice)}
+                </span>
+              </>
             ) : (
-              <span className="font-semibold text-amber-700 text-xs leading-tight block whitespace-nowrap">
-                {t('common:priceComingSoon')}
-              </span>
+              <>
+                {book?.originalHarga && book.originalHarga > book.harga ? (
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className="text-[10px] text-slate-400 line-through font-mono">
+                      {currency(book.originalHarga)}
+                    </span>
+                    {book?.discountPercentage ? (
+                      <span className="text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-1 rounded">
+                        -{book.discountPercentage}%
+                      </span>
+                    ) : null}
+                  </div>
+                ) : null}
+                {isPurchasable ? (
+                  <span className="font-bold text-slate-900 text-sm sm:text-base leading-tight block whitespace-nowrap font-mono">
+                    {currency(book.harga)}
+                  </span>
+                ) : (
+                  <span className="font-semibold text-amber-700 text-xs leading-tight block whitespace-nowrap">
+                    {t('common:priceComingSoon')}
+                  </span>
+                )}
+              </>
             )}
           </div>
 

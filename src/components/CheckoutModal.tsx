@@ -30,6 +30,10 @@ import { useBookText, useFormatters } from '../i18n/hooks';
 import { getCurrentLanguage } from '../i18n/index';
 import { formatCurrency } from '../i18n/format';
 import { useManualTransferInstructions, useOrderLabels, useShippingMethodText } from '../i18n/orderLabels';
+import { getAccessToken } from '../services/memberSession';
+import { useMemberPrintDiscount } from '../hooks/useMemberPrintDiscount';
+import { memberPrintPrice, printSubtotal, printUnitPrice } from '../utils/memberPrice';
+import { MembershipOfferCard } from './MembershipOfferCard';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -37,6 +41,8 @@ interface CheckoutModalProps {
   items: CartItem[];
   onOrderSuccess: (order: Order) => void;
   directBookBuy?: CartItem | null;
+  /** Buka halaman /membership dari tawaran keanggotaan setelah pesanan sukses (fase 3 Langkah 6). */
+  onOpenMembership?: () => void;
 }
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
@@ -44,9 +50,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   onClose,
   items,
   onOrderSuccess,
-  directBookBuy
+  directBookBuy,
+  onOpenMembership
 }) => {
-  const { t } = useTranslation('checkout');
+  const { t } = useTranslation(['checkout', 'common']);
   const { currency } = useFormatters();
   const bookText = useBookText();
   const { paymentMethodLabel } = useOrderLabels();
@@ -90,13 +97,20 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   );
 
   const subtotal = activeItems.reduce((sum, item) => sum + (item.book.harga * item.quantity), 0);
+  // Harga member buku cetak (fase 3 Langkah 7). Tidak berlaku -> payableSubtotal === subtotal, alur persis seperti biasa.
+  // Ongkir tetap dihitung dari subtotal katalog (tidak terpengaruh harga member).
+  const memberPricing = useMemberPrintDiscount();
+  const payableSubtotal = memberPricing.applies ? printSubtotal(activeItems, memberPricing.percent) : subtotal;
+  const hasMemberPrice = payableSubtotal < subtotal;
+  const memberUnitPrice = (item: CartItem) =>
+    memberPricing.applies ? memberPrintPrice(item.book.harga, item.book.originalHarga, memberPricing.percent) : null;
 
   const currentCourier = shippingMethods.find(m => m.id === selectedCourierId) || shippingMethods[0];
   const shippingCalculation = currentCourier
     ? calculateShippingFee(currentCourier, totalWeightGram, '10430', subtotal)
     : { fee: 15000, isFree: false, originalFee: 15000 };
   const shippingCost = shippingCalculation.fee;
-  const total = subtotal + shippingCost;
+  const total = payableSubtotal + shippingCost;
 
   // Customer Details Form State
   // customer.courier disimpan di data pesanan dan dibaca admin: tetap Bahasa Indonesia ('id').
@@ -152,7 +166,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       orderNumber: generateOrderNumber(),
       trackingNumber: generateCakraNexaTrackingNumber(),
       items: activeItems,
-      subtotal,
+      subtotal: payableSubtotal,
       shippingCost,
       total,
       customer,
@@ -161,10 +175,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       createdAt: nowIso()
     };
 
+    // Harga member: token login hanya dikirim bila harga member berlaku; selain itu permintaan identik seperti biasa.
+    const accessToken = memberPricing.applies ? await getAccessToken().catch(() => null) : null;
+
     // Catat pesanan di backend terlebih dahulu (validasi harga & stok, Snap token asli jika Midtrans aktif)
     let result;
     try {
-      result = await apiClient.createOrder(draftOrder);
+      result = await apiClient.createOrder(draftOrder, { accessToken });
     } catch (err) {
       setIsCreatingOrder(false);
       showToast('error', err instanceof ApiError ? err.message : t('modal.toast.orderFailed'));
@@ -180,7 +197,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       serverSynced: result.paymentMode !== 'offline',
       paymentMode: result.paymentMode,
       // Bahasa pelanggan: konfirmasi WhatsApp ke pelanggan ditulis dalam bahasa ini.
-      language: getCurrentLanguage()
+      language: getCurrentLanguage(),
+      ...(result.memberDiscount ? { memberDiscount: result.memberDiscount } : {})
     };
     setCreatedOrder(newOrder);
     setIsCreatingOrder(false);
@@ -288,9 +306,17 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                         {toTitleCase(bookText.title(item.book))}
                       </span>
                     </div>
-                    <span className="font-mono text-slate-900 font-bold">
-                      {currency(item.book.harga * item.quantity)}
-                    </span>
+                    {memberUnitPrice(item) !== null ? (
+                      <span className="text-right">
+                        <span className="block font-mono text-[10px] text-slate-400 line-through">{currency(item.book.harga * item.quantity)}</span>
+                        <span className="font-mono text-slate-900 font-bold">{currency((memberUnitPrice(item) ?? item.book.harga) * item.quantity)}</span>
+                        <span className="block text-[9px] font-semibold text-[#9A7B38]">{t('common:memberPrice')}</span>
+                      </span>
+                    ) : (
+                      <span className="font-mono text-slate-900 font-bold">
+                        {currency(item.book.harga * item.quantity)}
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
@@ -413,10 +439,23 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
             {/* Total Summary */}
             <div className="p-4 rounded-xl bg-slate-900 text-white space-y-2 text-xs">
-              <div className="flex justify-between text-slate-400">
-                <span>{t('modal.summary.subtotal')}</span>
-                <span className="font-mono text-white">{currency(subtotal)}</span>
-              </div>
+              {hasMemberPrice ? (
+                <div className="flex justify-between text-slate-400">
+                  <span>
+                    {t('modal.summary.subtotal')}
+                    <span className="ml-1.5 text-[9px] font-semibold text-[#DFBF64] bg-[#DFBF64]/10 border border-[#DFBF64]/40 px-1 rounded">{t('common:memberPrice')}</span>
+                  </span>
+                  <span className="text-right">
+                    <span className="block font-mono text-[10px] text-slate-500 line-through">{currency(subtotal)}</span>
+                    <span className="font-mono text-white">{currency(payableSubtotal)}</span>
+                  </span>
+                </div>
+              ) : (
+                <div className="flex justify-between text-slate-400">
+                  <span>{t('modal.summary.subtotal')}</span>
+                  <span className="font-mono text-white">{currency(subtotal)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-slate-400">
                 <span>{t('modal.summary.shippingCost')}</span>
                 <span className="font-mono text-white">{currency(shippingCost)}</span>
@@ -766,9 +805,15 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                           <span className="text-[10px] text-slate-400 font-mono">ISBN: {item.book.isbn}</span>
                         </td>
                         <td className="py-2.5 text-center font-mono">{item.quantity}</td>
-                        <td className="py-2.5 text-right font-mono">{currency(item.book.harga)}</td>
+                        {/* Harga satuan dari persen yang dikonfirmasi server; tanpa memberDiscount = harga katalog. */}
+                        <td className="py-2.5 text-right font-mono">
+                          {currency(printUnitPrice(item.book, createdOrder.memberDiscount?.percent ?? 0))}
+                          {printUnitPrice(item.book, createdOrder.memberDiscount?.percent ?? 0) < item.book.harga ? (
+                            <span className="block text-[9px] font-sans font-semibold text-[#9A7B38]">{t('common:memberPrice')}</span>
+                          ) : null}
+                        </td>
                         <td className="py-2.5 text-right font-mono font-bold text-slate-900">
-                          {currency(item.book.harga * item.quantity)}
+                          {currency(printUnitPrice(item.book, createdOrder.memberDiscount?.percent ?? 0) * item.quantity)}
                         </td>
                       </tr>
                     ))}
@@ -793,6 +838,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </div>
 
             </div>
+
+            {/* Tawaran keanggotaan (fase 3 Langkah 6): maks. sekali per 30 hari, tidak untuk anggota aktif. */}
+            {onOpenMembership && <MembershipOfferCard onOpenMembership={onOpenMembership} />}
 
             {/* Actions */}
             <div className="flex gap-3">

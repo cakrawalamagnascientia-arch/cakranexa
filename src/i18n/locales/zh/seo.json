@@ -39,10 +39,10 @@
       "imageAlt": "《{{title}}》试读"
     },
     "membership": {
-      "title": "CakraNexa 会员 — 从 Free Circle 到 Author Guild",
-      "description": "选择 CakraNexa 会员方案：Free Circle、Reader Circle、包含 Digital Reading Shelf 访问的 Professional & Academic Society，以及 Author Guild。按年计费可省 2 个月。",
-      "keywords": "cakranexa 会员, 学术电子书订阅, digital reading shelf, author guild",
-      "imageAlt": "CakraNexa 会员"
+      "title": "Cakrawala Magna Society — CakraNexa 会员",
+      "description": "CakraNexa 会员：Free Circle、Reader Circle、包含 Digital Reading Shelf（电子书与有声书）的 Professional & Academic Society，以及 Author Guild。首批年度会员享 Founding Member 价格；按年计费可省 2 个月。",
+      "keywords": "cakrawala magna society, cakranexa 会员, 学术电子书订阅, digital reading shelf, founding member",
+      "imageAlt": "Cakrawala Magna Society 会员"
     },
     "institutions": {
       "title": "Institution & Library Network — 面向大学和图书馆的数字访问 | CakraNexa",
@@ -115,6 +115,12 @@
       "description": "安全支付并配送至印度尼西亚全国，完成您的 CakraNexa 学术图书订单。",
       "keywords": "购买学术图书, cakranexa 结算",
       "imageAlt": "CakraNexa 结算"
+    },
+    "membershipTerms": {
+      "title": "Cakrawala Magna Society 会员条款 — CakraNexa",
+      "description": "CakraNexa 会员条款：方案与价格、创始会员价格、账单与续费、宽限期、更改方案、取消以及 Digital Reading Shelf 访问。",
+      "keywords": "cakranexa 会员条款, 电子书订阅条款, cakrawala magna society",
+      "imageAlt": "Cakrawala Magna Society 会员条款"
     }
   }
 }

@@ -130,7 +130,7 @@ export interface NextMetadata {
 
 /** Kunci halaman di seo:pages.* dan path-nya (tanpa prefix bahasa). */
 type SeoPageKey = 'catalog' | 'publishing' | 'training' | 'journal' | 'about' | 'blog' | 'career' | 'contact' | 'authors' | 'checkout'
-  | 'membership' | 'institutions' | 'library';
+  | 'membership' | 'membershipTerms' | 'institutions' | 'library';
 const SEO_PAGES: Partial<Record<ActivePage, { key: SeoPageKey; path: string }>> = {
   katalog: { key: 'catalog', path: '/katalog' },
   penerbitan: { key: 'publishing', path: '/penerbitan' },
@@ -148,8 +148,15 @@ const SEO_PAGES: Partial<Record<ActivePage, { key: SeoPageKey; path: string }>> 
 };
 
 /** Halaman yang tidak diindeks mesin pencari: Pustaka Saya (personal) dan pratinjau sampel digital. */
+/**
+ * Halaman pribadi/transaksional: Pustaka Saya (termasuk reader/player), akun pembeli (termasuk /account/membership),
+ * checkout digital & keanggotaan, dan sampel. /membership dan /membership/terms tetap diindeks.
+ */
 const isNoIndexPage = (page: ActivePage, subSection?: SubSection): boolean =>
-  page === 'library' || (page === 'digital' && subSection === 'sample');
+  page === 'library'
+  || page === 'account'
+  || (page === 'digital' && (subSection === 'sample' || subSection === 'checkout'))
+  || (page === 'membership' && subSection === 'checkout');
 
 const OG_LOCALE: Record<AppLanguage, string> = { id: 'id_ID', en: 'en_US', zh: 'zh_CN' };
 
@@ -158,7 +165,7 @@ const OG_LOCALE: Record<AppLanguage, string> = { id: 'id_ID', en: 'en_US', zh: '
  * - `/` (Beranda), `/katalog`, `/katalog/[slug]` (Detail Buku), `/katalog/penulis`, `/penerbitan`,
  *   `/pelatihan`, `/jurnal`, `/tentang-kami`, `/blog`, `/karir`, `/kontak`, `/checkout`
  * - Produk digital: `/digital/ebook`, `/digital/audiobook`, `/digital/[format]/[slug]`, `/digital/sample/[id]` (noindex),
- *   serta `/membership`, `/institutions`, `/library` (noindex)
+ *   `/digital/checkout` (noindex), serta `/membership`, `/institutions`, `/library/*` dan `/account/*` (noindex)
  * - Judul & deskripsi dari namespace terjemahan `seo`; URL berprefiks /en, /zh untuk bahasa lain,
  *   dengan canonical per bahasa dan tautan hreflang ke semua versi bahasa.
  */
@@ -323,7 +330,9 @@ export const generatePageMetadata = (
   // 3. HALAMAN LAIN DENGAN METADATA SENDIRI
   const seoPage = page === 'katalog' && options.subSection === 'penulis'
     ? { key: 'authors' as const, path: '/katalog/penulis' }
-    : SEO_PAGES[page];
+    : page === 'membership' && options.subSection === 'terms'
+      ? { key: 'membershipTerms' as const, path: '/membership/terms' }
+      : SEO_PAGES[page];
   if (seoPage) {
     return build({
       path: seoPage.path,

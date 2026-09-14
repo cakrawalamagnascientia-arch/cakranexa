@@ -39,10 +39,10 @@
       "imageAlt": "Sampel {{title}}"
     },
     "membership": {
-      "title": "Keanggotaan CakraNexa — Free Circle hingga Author Guild",
-      "description": "Pilih paket keanggotaan CakraNexa: Free Circle, Reader Circle, Professional & Academic Society dengan akses Digital Reading Shelf, dan Author Guild. Hemat 2 bulan dengan tagihan tahunan.",
-      "keywords": "keanggotaan cakranexa, langganan ebook akademik, digital reading shelf, author guild",
-      "imageAlt": "Keanggotaan CakraNexa"
+      "title": "Cakrawala Magna Society — Keanggotaan CakraNexa",
+      "description": "Keanggotaan CakraNexa: Free Circle, Reader Circle, Professional & Academic Society dengan Digital Reading Shelf (e-book dan audiobook), dan Author Guild. Harga Founding Member untuk anggota tahunan pertama; tagihan tahunan hemat 2 bulan.",
+      "keywords": "cakrawala magna society, keanggotaan cakranexa, langganan ebook akademik, digital reading shelf, founding member",
+      "imageAlt": "Keanggotaan Cakrawala Magna Society"
     },
     "institutions": {
       "title": "Institution & Library Network — Akses Digital untuk Kampus & Perpustakaan | CakraNexa",
@@ -115,6 +115,12 @@
       "description": "Selesaikan pemesanan buku akademik CakraNexa dengan pembayaran aman dan pengiriman ke seluruh Indonesia.",
       "keywords": "beli buku akademik, checkout cakranexa",
       "imageAlt": "Checkout CakraNexa"
+    },
+    "membershipTerms": {
+      "title": "Ketentuan Keanggotaan Cakrawala Magna Society — CakraNexa",
+      "description": "Ketentuan keanggotaan CakraNexa: paket dan harga, harga Founding Member, tagihan dan perpanjangan, masa tenggang, ubah paket, pembatalan, serta akses Digital Reading Shelf.",
+      "keywords": "ketentuan keanggotaan cakranexa, syarat langganan ebook, cakrawala magna society",
+      "imageAlt": "Ketentuan Keanggotaan Cakrawala Magna Society"
     }
   }
 }

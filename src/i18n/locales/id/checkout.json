@@ -328,5 +328,10 @@
     "preparing": "Tim logistik kami sedang menyiapkan eksemplar naskah ber-ISBN Anda dengan standar kemasan protektif berlapis.",
     "closing": "Salam hormat,",
     "team": "*Divisi Sirkulasi CakraNexa*"
+  },
+  "memberOffer": {
+    "title": "Jadi anggota Cakrawala Magna Society",
+    "description": "Buka rak digital e-book & audiobook dan manfaat anggota lainnya untuk bacaan Anda berikutnya.",
+    "cta": "Lihat paket keanggotaan"
   }
 }

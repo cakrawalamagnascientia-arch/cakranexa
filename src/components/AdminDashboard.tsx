@@ -69,6 +69,8 @@ import { InstitutionInquiriesTab } from './InstitutionInquiriesTab';
 import { TabletSmartphone as DigitalProductsIcon, Building2 as InstitutionIcon, KeyRound as DigitalAccessIcon, ShieldAlert as AnomalyIcon } from 'lucide-react';
 import { DigitalAccessTab } from './DigitalAccessTab';
 import { DigitalAnomaliesTab } from './DigitalAnomaliesTab';
+import { MembershipAdminTab } from './MembershipAdminTab';
+import { Crown as MembershipIcon } from 'lucide-react';
 import { CmsDashboardManager } from './CmsDashboardManager';
 import { ShippingLabelModal } from './ShippingLabelModal';
 import { getStoredSeoSettings, saveStoredSeoSettings, DEFAULT_SEO_SETTINGS } from '../services/seoService';
@@ -193,7 +195,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onNavigateHome,
   onGoBack
 }) => {
-  const [activeTab, setActiveTab] = useState<'analytics' | 'inventory' | 'orders' | 'shipping' | 'payments' | 'cms' | 'seo-settings' | 'seo-analysis' | 'authors' | 'digital-products' | 'digital-access' | 'digital-anomalies' | 'institution-inquiries'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'inventory' | 'orders' | 'shipping' | 'payments' | 'cms' | 'seo-settings' | 'seo-analysis' | 'authors' | 'digital-products' | 'digital-access' | 'digital-anomalies' | 'membership' | 'institution-inquiries'>('analytics');
   // Pengguna yang dibuka di tab "Entitlement & Akses" (mis. dari tab Anomali).
   const [digitalAccessUserId, setDigitalAccessUserId] = useState<string | null>(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -1036,6 +1038,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           </button>
 
+          {/* Keanggotaan (fase 3) */}
+          <button
+            id="sidebar-btn-membership"
+            type="button"
+            onClick={() => { setActiveTab('membership'); setIsMobileSidebarOpen(false); }}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+              activeTab === 'membership'
+                ? 'bg-slate-800 text-[#DFBF64] font-semibold'
+                : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <MembershipIcon className={`w-4 h-4 ${activeTab === 'membership' ? 'text-[#DFBF64]' : 'text-slate-400'}`} />
+              <span>Keanggotaan</span>
+            </div>
+          </button>
+
           {/* Permintaan Institusi (/institutions) */}
           <button
             id="sidebar-btn-institution-inquiries"
@@ -1148,6 +1167,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {activeTab === 'digital-products' && 'Produk Digital'}
             {activeTab === 'digital-access' && 'Entitlement & Akses'}
             {activeTab === 'digital-anomalies' && 'Anomali Akses'}
+            {activeTab === 'membership' && 'Keanggotaan'}
             {activeTab === 'institution-inquiries' && 'Permintaan Institusi'}
           </div>
           <button
@@ -1201,6 +1221,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {activeTab === 'digital-products' && 'Produk Digital: E-Book & Audiobook'}
               {activeTab === 'digital-access' && 'Entitlement & Akses Produk Digital'}
               {activeTab === 'digital-anomalies' && 'Anomali Akses Produk Digital'}
+              {activeTab === 'membership' && 'Keanggotaan Berbayar'}
               {activeTab === 'institution-inquiries' && 'Permintaan Institution & Library Network'}
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -1216,6 +1237,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {activeTab === 'digital-products' && 'Kelola harga satuan, status, tanggal masuk Digital Reading Shelf, dan file sampel e-book & audiobook.'}
               {activeTab === 'digital-access' && 'Cari pembeli, lihat hak akses, perangkat, sesi, dan log; beri, tangguhkan, atau cabut akses; lepas perangkat.'}
               {activeTab === 'digital-anomalies' && 'Pola akses mencurigakan dari deteksi per jam. Selesaikan anomali dan pulihkan akses yang ditangguhkan otomatis.'}
+              {activeTab === 'membership' && 'Ringkasan anggota & pendapatan, edit harga dan kuota Founding, kelola langganan (perpanjang manual, tenggang, batal, ubah paket, Founding), dan ekspor CSV.'}
               {activeTab === 'institution-inquiries' && 'Daftar permintaan penawaran dari halaman /institutions beserta status tindak lanjutnya.'}
             </p>
           </div>
@@ -2182,6 +2204,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* ANOMALI AKSES (PRODUK DIGITAL) */}
       {activeTab === 'digital-anomalies' && (
         <DigitalAnomaliesTab
+          onOpenUser={(userId) => {
+            setDigitalAccessUserId(userId);
+            setActiveTab('digital-access');
+          }}
+        />
+      )}
+
+      {/* KEANGGOTAAN (FASE 3) */}
+      {activeTab === 'membership' && (
+        <MembershipAdminTab
           onOpenUser={(userId) => {
             setDigitalAccessUserId(userId);
             setActiveTab('digital-access');

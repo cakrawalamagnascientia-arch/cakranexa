@@ -143,7 +143,7 @@ export const createPlayerRouter = (ctx: DigitalContext): Router => {
     }
     const product = await ctx.store.getProduct(productId);
     if (!product || product.format !== 'audiobook' || product.processingStatus !== 'ready') throw httpError(404, 'not_ready', 'Audiobook tidak tersedia.');
-    const { entitlement, reason } = await resolveEntitlement(ctx, payload.u, productId);
+    const { entitlement, reason } = await resolveEntitlement(ctx, payload.u, product);
     if (!entitlement) {
       await ctx.store.endSessions({ ids: [session.id] }, 'revoked');
       const { ip, userAgent } = clientInfo(req);

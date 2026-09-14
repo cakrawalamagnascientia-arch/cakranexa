@@ -128,6 +128,8 @@ export interface Order {
   paymentMode?: string;
   /** Bahasa pelanggan saat checkout; dipakai untuk pesan WhatsApp ke pelanggan. */
   language?: AppLanguage;
+  /** Harga member buku cetak yang diterapkan server (fase 3 Langkah 7); tidak ada = harga katalog biasa. */
+  memberDiscount?: { percent: number; planCode: string };
 }
 
 export type ActivePage = 
@@ -184,6 +186,8 @@ export type SubSection =
   | 'register'
   | 'reset'
   | 'update-password'
+  | 'terms'
+  | 'membership'
   | null;
 
 export interface SeoSettings {

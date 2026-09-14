@@ -75,6 +75,13 @@ const parseError = async (res: Response): Promise<ApiError> => {
   return new ApiError(message, res.status);
 };
 
+/** Permintaan JSON admin (header admin + batas waktu admin); galat server `{ error }` menjadi ApiError. */
+const adminRequest = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
+  const res = await fetchWithTimeout(apiUrl(path), { ...init, headers: adminHeaders() }, ADMIN_WRITE_TIMEOUT_MS);
+  if (!res.ok) throw await parseError(res);
+  return res.json() as Promise<T>;
+};
+
 export interface ShippingCalculationRequest {
   originPostalCode?: string;
   destinationPostalCode: string;
@@ -98,6 +105,8 @@ export interface CreateOrderResponse {
   total?: number;
   subtotal?: number;
   shippingCost?: number;
+  /** Ada bila server menerapkan harga member buku cetak (fase 3 Langkah 7). */
+  memberDiscount?: { percent: number; planCode: string };
   paymentStatus?: OrderStatus;
 }
 
@@ -365,11 +374,14 @@ export const apiClient = {
    * memvalidasi harga, mengurangi stok, dan membuat Snap token Midtrans).
    * Tidak lagi menulis langsung ke Supabase dari browser -> tidak ada order ganda.
    */
-  async createOrder(order: Order): Promise<CreateOrderResponse> {
+  async createOrder(order: Order, options: { accessToken?: string | null } = {}): Promise<CreateOrderResponse> {
     try {
+      // Harga member (fase 3 Langkah 7): token login hanya dikirim bila harga member berlaku untuk pengguna ini.
+      // Tanpa token, permintaan identik dengan alur cetak biasa.
+      const headers = options.accessToken ? { ...jsonHeaders(), Authorization: `Bearer ${options.accessToken}` } : jsonHeaders();
       const res = await fetchWithTimeout(apiUrl('/api/orders'), {
         method: 'POST',
-        headers: jsonHeaders(),
+        headers,
         body: JSON.stringify(order)
       }, 20000);
       if (!res.ok) throw await parseError(res);
@@ -382,7 +394,8 @@ export const apiClient = {
         total: data.total,
         subtotal: data.subtotal,
         shippingCost: data.shippingCost,
-        paymentStatus: data.paymentStatus
+        paymentStatus: data.paymentStatus,
+        ...(data.memberDiscount ? { memberDiscount: data.memberDiscount } : {})
       };
     } catch (err) {
       if (err instanceof ApiError) throw err; // validasi server (400/409) harus ditampilkan ke pengguna
@@ -760,6 +773,92 @@ export const apiClient = {
     const res = await fetchWithTimeout(apiUrl('/api/admin/digital-access/anomalies/scan'), { method: 'POST', headers: adminHeaders() }, ADMIN_WRITE_TIMEOUT_MS);
     if (!res.ok) throw await parseError(res);
     return res.json();
+  },
+
+  // ==========================================================================
+  // KEANGGOTAAN FASE 3 (admin, Langkah 8)
+  // ==========================================================================
+  /** Ringkasan bulan berjalan (WIB); langganan uji tidak dihitung. */
+  getMembershipSummary(): Promise<AdminMembershipSummary> {
+    return adminRequest('/api/admin/membership/summary');
+  },
+
+  getMembershipPlans(): Promise<AdminMembershipPlans> {
+    return adminRequest('/api/admin/membership/plans');
+  },
+
+  /** Kirim hanya kolom yang berubah. */
+  updateMembershipPlan(code: string, patch: AdminMembershipPlanPatch): Promise<{ plan: AdminMembershipPlan; warnings: string[]; note: string }> {
+    return adminRequest(`/api/admin/membership/plans/${encodeURIComponent(code)}`, { method: 'PATCH', body: JSON.stringify(patch) });
+  },
+
+  listMembershipSubscriptions(filters: AdminSubscriptionFilters = {}): Promise<{ subscriptions: AdminSubscription[]; total: number }> {
+    const params = new URLSearchParams();
+    if (filters.plan) params.set('plan', filters.plan);
+    if (filters.status) params.set('status', filters.status);
+    if (filters.founding) params.set('founding', filters.founding);
+    if (filters.q?.trim()) params.set('q', filters.q.trim());
+    if (filters.all) params.set('all', '1');
+    const query = params.toString();
+    return adminRequest(`/api/admin/membership/subscriptions${query ? `?${query}` : ''}`);
+  },
+
+  getMembershipSubscription(id: string): Promise<AdminSubscriptionDetail> {
+    return adminRequest(`/api/admin/membership/subscriptions/${encodeURIComponent(id)}`);
+  },
+
+  /** Perpanjang manual (pembayaran offline). amount kosong = nominal perpanjangan reguler. */
+  extendMembershipSubscription(id: string, input: { amount?: number; note?: string }): Promise<AdminSubscriptionActionResult> {
+    return adminRequest(`/api/admin/membership/subscriptions/${encodeURIComponent(id)}/extend`, {
+      method: 'POST',
+      body: JSON.stringify({ confirm: true, ...input })
+    });
+  },
+
+  /** Masa tenggang tambahan 1–30 hari untuk periode berjalan. */
+  addMembershipGrace(id: string, input: { days: number; note?: string }): Promise<AdminSubscriptionActionResult> {
+    return adminRequest(`/api/admin/membership/subscriptions/${encodeURIComponent(id)}/grace`, { method: 'POST', body: JSON.stringify(input) });
+  },
+
+  cancelMembershipSubscription(id: string, input: { immediate?: boolean; note?: string }): Promise<AdminSubscriptionActionResult> {
+    return adminRequest(`/api/admin/membership/subscriptions/${encodeURIComponent(id)}/cancel`, {
+      method: 'POST',
+      body: JSON.stringify({ confirm: true, ...input })
+    });
+  },
+
+  changeMembershipPlan(
+    id: string,
+    input: { plan_code: AdminPlanCode; billing_cycle?: AdminBillingCycle; when: 'now' | 'period_end'; note?: string }
+  ): Promise<AdminSubscriptionActionResult> {
+    return adminRequest(`/api/admin/membership/subscriptions/${encodeURIComponent(id)}/change-plan`, { method: 'POST', body: JSON.stringify(input) });
+  },
+
+  setMembershipFounding(id: string, input: { is_founding: boolean; note?: string }): Promise<AdminSubscriptionActionResult> {
+    return adminRequest(`/api/admin/membership/subscriptions/${encodeURIComponent(id)}/founding`, { method: 'POST', body: JSON.stringify(input) });
+  },
+
+  /** Status gateway WhatsApp; bila `to` diisi, kirim satu pesan uji ke nomor itu. */
+  testMembershipWhatsApp(to?: string): Promise<AdminWhatsAppTestResult> {
+    return adminRequest('/api/admin/membership/whatsapp/test', { method: 'POST', body: JSON.stringify(to ? { to } : {}) });
+  },
+
+  /**
+   * Ekspor CSV (UTF-8 BOM) sebagai Blob. Nama file dari Content-Disposition bila terbaca
+   * (lintas-origin header ini bisa tidak terekspos), selain itu nama cadangan.
+   */
+  async downloadMembershipCsv(kind: 'subscriptions' | 'invoices', params: Record<string, string | undefined> = {}): Promise<{ blob: Blob; filename: string }> {
+    const search = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) if (value) search.set(key, value);
+    const query = search.toString();
+    const res = await fetchWithTimeout(
+      apiUrl(`/api/admin/membership/export/${kind}.csv${query ? `?${query}` : ''}`),
+      { headers: { ...adminHeaders(), Accept: 'text/csv' } },
+      ADMIN_WRITE_TIMEOUT_MS
+    );
+    if (!res.ok) throw await parseError(res);
+    const match = /filename="?([^";]+)"?/i.exec(res.headers.get('Content-Disposition') || '');
+    return { blob: await res.blob(), filename: match?.[1] || `keanggotaan-${kind === 'subscriptions' ? 'langganan' : 'invoice'}.csv` };
   }
 };
 
@@ -840,6 +939,208 @@ export interface DigitalSalesSummary {
   summary: { paidCount: number; revenue: number; itemsSold: number; pendingCount: number; refundedCount: number; refundedAmount: number };
   recent: AdminDigitalOrder[];
   test: { count: number; paidCount: number; paidAmount: number; orders: AdminDigitalOrder[] };
+}
+
+// ---------------------------------------------------------------------------
+// Keanggotaan fase 3 (admin) — mengikuti backend/digital/membership/admin.ts
+// ---------------------------------------------------------------------------
+export type AdminPlanCode = 'free' | 'reader' | 'professional' | 'author';
+export type AdminShelfAccess = 'none' | 'pick' | 'full';
+export type AdminBillingCycle = 'monthly' | 'yearly';
+export type AdminSubscriptionStatus = 'pending' | 'active' | 'past_due' | 'grace' | 'canceled' | 'expired';
+export type AdminInvoiceStatus = 'draft' | 'issued' | 'paid' | 'failed' | 'void';
+export type AdminInvoiceKind = 'initial' | 'renewal' | 'upgrade' | 'manual';
+export type AdminMembershipPaymentMethod = 'card' | 'gopay' | 'va' | 'qris' | 'other';
+
+/** Flag env di server (Render); hanya-baca di admin. */
+export interface AdminMembershipFlags {
+  autodebit: boolean;
+  printDiscount: boolean;
+  readerPick: boolean;
+  authorShelf: boolean;
+  extendedBenefits: boolean;
+  graceDays: number;
+  /** Gateway pengingat WhatsApp terpasang (WHATSAPP_PROVIDER + token). */
+  whatsapp: boolean;
+  whatsappSender: string | null;
+}
+
+/** POST /api/admin/membership/whatsapp/test */
+export interface AdminWhatsAppTestResult {
+  provider: 'fonnte' | 'cloud';
+  senderNumber: string;
+  connectedNumber: string | null;
+  /** null = gateway tidak melaporkan nomor. */
+  matchesSender: boolean | null;
+  gatewayOk: boolean;
+  detail: string;
+  sentTo: string | null;
+}
+
+export interface AdminMembershipPlan {
+  id: string;
+  code: AdminPlanCode;
+  nameId: string;
+  nameEn: string;
+  priceMonthly: number;
+  priceYearly: number;
+  foundingPriceYearly: number | null;
+  foundingCap: number | null;
+  foundingCount: number;
+  maxDevices: number;
+  shelfAccess: AdminShelfAccess;
+  printDiscountPercent: number;
+  sortOrder: number;
+  isActive: boolean;
+  updatedAt: string;
+}
+
+export type AdminMembershipPlanPatch = Partial<Pick<AdminMembershipPlan,
+  'priceMonthly' | 'priceYearly' | 'foundingPriceYearly' | 'foundingCap' | 'maxDevices' | 'shelfAccess' | 'printDiscountPercent' | 'isActive'>>;
+
+export interface AdminMembershipPlans {
+  plans: AdminMembershipPlan[];
+  benefits: Array<{ planId: string; benefitKey: string; sortOrder: number; featureFlag: string | null }>;
+  flags: AdminMembershipFlags;
+}
+
+export interface AdminMembershipSummary {
+  /** YYYY-MM (WIB). */
+  month: string;
+  activeTotal: number;
+  activeByPlan: Array<{ code: AdminPlanCode; name: string; active: number; yearly: number; founding: number }>;
+  newThisMonth: number;
+  cancelRequestsThisMonth: number;
+  canceledThisMonth: number;
+  expiredThisMonth: number;
+  pastDue: number;
+  grace: number;
+  revenueThisMonth: number;
+  /** 0–1. */
+  revenueYearlyShare: number;
+  /** 0–1. */
+  activeYearlyShare: number;
+  activeAtMonthStart: number;
+  /** 0–1; null bila belum ada anggota aktif di awal bulan. */
+  churnRate: number | null;
+  founding: Array<{ code: AdminPlanCode; cap: number | null; used: number; remaining: number }>;
+  flags: AdminMembershipFlags;
+  testSubscriptions: number;
+}
+
+export interface AdminSubscription {
+  id: string;
+  userId: string;
+  email: string;
+  name: string;
+  planCode: AdminPlanCode | null;
+  planName: string | null;
+  billingCycle: AdminBillingCycle;
+  status: AdminSubscriptionStatus;
+  isFounding: boolean;
+  priceLocked: number;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  graceEndsAt: string | null;
+  accessEndsAt: string | null;
+  cancelAtPeriodEnd: boolean;
+  canceledAt: string | null;
+  endedAt: string | null;
+  endedReason: string | null;
+  paymentMethod: AdminMembershipPaymentMethod;
+  autodebit: boolean;
+  whatsappNumber: string | null;
+  whatsappOptIn: boolean;
+  pendingPlanCode: AdminPlanCode | null;
+  pendingBillingCycle: AdminBillingCycle | null;
+  foundingEndsAt: string | null;
+  extraGraceDays: number;
+  language: string;
+  isTest: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminMembershipInvoice {
+  id: string;
+  subscriptionId: string;
+  kind: AdminInvoiceKind;
+  planCode: AdminPlanCode | null;
+  billingCycle: AdminBillingCycle;
+  periodStart: string;
+  periodEnd: string;
+  amount: number;
+  status: AdminInvoiceStatus;
+  orderRef: string;
+  midtransOrderId: string | null;
+  midtransTransactionId: string | null;
+  paymentType: string | null;
+  isFoundingPrice: boolean;
+  issuedAt: string | null;
+  paidAt: string | null;
+  dueAt: string | null;
+  attempt: number;
+  failureReason: string | null;
+  isTest: boolean;
+  createdAt: string;
+}
+
+export interface AdminSubscriptionEvent {
+  id: string;
+  subscriptionId: string;
+  type: string;
+  meta: Record<string, unknown>;
+  dedupeKey: string | null;
+  createdAt: string;
+}
+
+/** Entitlement dengan scope fase 3 (scope 'shelf' tanpa produk). */
+export interface AdminMembershipEntitlement extends Omit<AdminEntitlement, 'productId'> {
+  productId: string | null;
+  scope: 'product' | 'shelf';
+}
+
+export interface AdminSubscriptionDetail {
+  subscription: AdminSubscription;
+  user: AdminDigitalUser;
+  maxDevices: number;
+  invoices: AdminMembershipInvoice[];
+  events: AdminSubscriptionEvent[];
+  entitlements: AdminMembershipEntitlement[];
+  devices: Array<{ id: string; label: string; firstSeen: string; lastSeen: string; releasedAt: string | null; releasedBy: string | null }>;
+  picks: Array<{
+    id: string;
+    subscriptionId: string;
+    userId: string;
+    productId: string;
+    periodStart: string;
+    periodEnd: string;
+    entitlementId: string | null;
+    createdAt: string;
+    product: AdminProductRef | null;
+  }>;
+  /** Langganan lain milik pengguna yang sama. */
+  history: AdminSubscription[];
+}
+
+export interface AdminSubscriptionFilters {
+  plan?: AdminPlanCode | '';
+  /** 'open' = pending/active/past_due/grace. */
+  status?: AdminSubscriptionStatus | 'open' | '';
+  founding?: 'true' | 'false' | '';
+  q?: string;
+  /** Sertakan pendaftaran yang tidak pernah dibayar. */
+  all?: boolean;
+}
+
+export interface AdminSubscriptionActionResult {
+  subscription: AdminSubscription;
+  /** Perpanjang manual: invoice 'manual' yang tercatat lunas. */
+  invoice?: AdminMembershipInvoice;
+  /** Pembatalan: pengingat refund manual di Midtrans. */
+  refundNote?: string;
+  /** Founding: catatan harga terkunci. */
+  note?: string;
 }
 
 export interface DigitalChapter {

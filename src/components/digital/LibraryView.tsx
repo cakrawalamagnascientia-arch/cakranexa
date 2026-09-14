@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, Library, LogIn, MonitorSmartphone, Receipt } from 'lucide-react';
+import { ArrowRight, CalendarClock, CreditCard, Library, LogIn, MonitorSmartphone, Receipt, Sparkles, X } from 'lucide-react';
 import type { ActivePage, SubSection } from '../../types';
 import { useMemberSession } from '../../services/memberSession';
 import {
@@ -13,7 +13,8 @@ import {
   type DigitalOrder,
   type LibraryItem
 } from '../../services/digitalApi';
-import { goToContact, goToDigitalOrder, goToLibraryItem, goToMembership } from '../../services/digitalNavigation';
+import { chooseMemberPick, getMembershipShelf, membershipErrorCode, type MembershipShelf, type ShelfCard } from '../../services/membershipApi';
+import { goToAccountMembership, goToContact, goToDigitalCheckout, goToDigitalOrder, goToLibraryItem, goToMembership } from '../../services/digitalNavigation';
 import { useDigitalCatalog } from '../../hooks/useDigitalCatalog';
 import { useBookText, useFormatters } from '../../i18n/hooks';
 import { resolveImageUrl } from '../../utils/imageUtils';
@@ -23,6 +24,7 @@ import { ComingSoonButton } from './ComingSoonButton';
 import { useDigitalFormatters } from './useDigitalFormatters';
 
 type NavigateFn = (page: ActivePage, subSection?: SubSection) => void;
+type LibraryTab = 'shelf' | 'owned';
 
 const STATUS_CLASS: Record<string, string> = {
   active: 'bg-emerald-100 text-emerald-800',
@@ -110,6 +112,257 @@ const LibraryCard: React.FC<{ item: LibraryItem }> = ({ item }) => {
         <div className="mt-auto pt-2">{action}</div>
       </div>
     </li>
+  );
+};
+
+/** Judul rak (akses rak, Pick, atau "Segera masuk rak") dengan satu tombol aksi. */
+const ShelfTile: React.FC<{ item: ShelfCard; note?: string; action: React.ReactNode }> = ({ item, note, action }) => {
+  const fmt = useDigitalFormatters();
+  const bookText = useBookText();
+  const catalogBook = useDigitalCatalog().findById(item.productId)?.book;
+  const title = toTitleCase(catalogBook ? bookText.title(catalogBook) : item.title);
+  const { t } = useTranslation('digital');
+  const percent = Math.round(item.progress?.percent ?? 0);
+  return (
+    <li id={`shelf-item-${item.productId}`} className="flex gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-xs">
+      <img src={resolveImageUrl(catalogBook?.coverBuku || item.coverUrl, 'book', item.bookId)} alt="" draggable={false} className="h-28 w-20 shrink-0 rounded-md border border-slate-100 bg-slate-50 object-cover" />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <span className="inline-flex w-fit items-center gap-1 rounded bg-slate-900 px-1.5 py-0.5 text-[9px] font-semibold text-[#DFBF64]">
+          <FormatIcon format={item.format} className="h-3 w-3" />
+          {fmt.formatLabel(item.format)}
+        </span>
+        <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-slate-900 [overflow-wrap:anywhere]">{title}</h3>
+        <p className="line-clamp-1 text-xs text-slate-500">{item.author}</p>
+        {note && <p className="mt-0.5 text-[11px] text-slate-500">{note}</p>}
+        {percent > 0 && <p className="mt-0.5 text-[10px] text-slate-500">{t('myLibrary.progress', { percent })}</p>}
+        <div className="mt-auto pt-2">{action}</div>
+      </div>
+    </li>
+  );
+};
+
+const openButton = (item: ShelfCard, label: string) => (
+  <button
+    type="button"
+    id={`btn-shelf-open-${item.productId}`}
+    onClick={() => goToLibraryItem(item.format, item.productId)}
+    className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#D4AF37] px-3 py-2 text-xs font-bold text-slate-950 transition-colors hover:bg-[#c5a059] cursor-pointer"
+  >
+    {label}
+    <ArrowRight className="h-3.5 w-3.5" />
+  </button>
+);
+
+/** Tab "Rak Digital": seluruh rak (Professional/Author), Digital Member Pick (Reader), atau ajakan (Free Circle). */
+const ShelfPanel: React.FC<{ onNavigate: NavigateFn; waitForMembership: boolean }> = ({ onNavigate, waitForMembership }) => {
+  const { t } = useTranslation('digital');
+  const { date, currency } = useFormatters();
+  const bookText = useBookText();
+  const catalog = useDigitalCatalog();
+  const [shelf, setShelf] = useState<MembershipShelf | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [pickError, setPickError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoadError(false);
+    try {
+      setShelf(await getMembershipShelf());
+    } catch {
+      setLoadError(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  // Setelah pembayaran pertama, notifikasi Midtrans bisa tiba beberapa detik kemudian: muat ulang beberapa kali.
+  useEffect(() => {
+    if (!waitForMembership || !shelf || shelf.membership) return;
+    let attempts = 0;
+    const timer = window.setInterval(() => {
+      attempts += 1;
+      void load();
+      if (attempts >= 5) window.clearInterval(timer);
+    }, 4000);
+    return () => window.clearInterval(timer);
+  }, [waitForMembership, shelf, load]);
+
+  const choose = async (item: ShelfCard) => {
+    if (!shelf?.pick.slot) return;
+    const catalogBook = catalog.findById(item.productId)?.book;
+    const title = toTitleCase(catalogBook ? bookText.title(catalogBook) : item.title);
+    if (!window.confirm(t('myLibrary.pick.confirm', { title, date: date(new Date(shelf.pick.slot.end)) }))) return;
+    setBusy(item.productId);
+    setPickError(null);
+    try {
+      await chooseMemberPick(item.productId);
+      await load();
+    } catch (err) {
+      setPickError(membershipErrorCode(err));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  if (loadError) {
+    return (
+      <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700">
+        <p>{t('myLibrary.shelf.loadError')}</p>
+        <button type="button" onClick={() => void load()} className="mt-2 font-semibold underline cursor-pointer">{t('myLibrary.retry')}</button>
+      </div>
+    );
+  }
+  if (!shelf) return <p role="status" className="text-sm text-slate-500">{t('myLibrary.loading')}</p>;
+
+  const pick = shelf.pick;
+  const currentPick = pick.current ? pick.options.find((o) => o.productId === pick.current!.productId) ?? null : null;
+
+  return (
+    <div className="space-y-6">
+      {shelf.access === 'full' && (
+        <section id="library-shelf">
+          <h2 className="text-base font-bold text-slate-900">{t('myLibrary.shelf.fullTitle')}</h2>
+          <p className="mt-1 text-sm text-slate-600">{t('myLibrary.shelf.fullDescription', { date: shelf.accessEndsAt ? date(new Date(shelf.accessEndsAt)) : '—' })}</p>
+          {shelf.items.length === 0 ? (
+            <p className="mt-3 text-sm text-slate-500">{t('myLibrary.shelf.empty')}</p>
+          ) : (
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {shelf.items.map((item) => (
+                <ShelfTile key={item.productId} item={item} action={openButton(item, (item.progress?.percent ?? 0) > 0 ? t('myLibrary.continue') : item.format === 'ebook' ? t('myLibrary.read') : t('myLibrary.listen'))} />
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
+
+      {shelf.access !== 'full' && pick.enabled && pick.slot && (
+        <section id="library-pick">
+          <h2 className="text-base font-bold text-slate-900">{t('myLibrary.pick.title')}</h2>
+          <p className="mt-1 text-sm text-slate-600">
+            {t('myLibrary.pick.description', { start: date(new Date(pick.slot.start)), end: date(new Date(pick.slot.end)) })}
+          </p>
+          {pickError && (
+            <p role="alert" className="mt-2 text-sm text-rose-700">
+              {['pick_locked', 'not_on_shelf', 'pick_unavailable'].includes(pickError) ? t(`myLibrary.pick.errors.${pickError as 'pick_locked'}`) : t('access.error.generic')}
+            </p>
+          )}
+          {pick.current ? (
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {currentPick ? (
+                <ShelfTile
+                  item={currentPick}
+                  note={t('myLibrary.pick.locked', { date: date(new Date(pick.current.periodEnd)) })}
+                  action={openButton(currentPick, currentPick.format === 'ebook' ? t('myLibrary.read') : t('myLibrary.listen'))}
+                />
+              ) : (
+                <li className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">{t('myLibrary.pick.locked', { date: date(new Date(pick.current.periodEnd)) })}</li>
+              )}
+            </ul>
+          ) : pick.options.length === 0 ? (
+            <p className="mt-3 text-sm text-slate-500">{t('myLibrary.shelf.empty')}</p>
+          ) : (
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {pick.options.map((item) => (
+                <ShelfTile
+                  key={item.productId}
+                  item={item}
+                  action={(
+                    <button
+                      type="button"
+                      id={`btn-pick-${item.productId}`}
+                      disabled={busy !== null}
+                      onClick={() => void choose(item)}
+                      className="w-full rounded-lg border border-[#D4AF37] px-3 py-2 text-xs font-bold text-slate-900 transition-colors hover:bg-[#D4AF37]/10 disabled:opacity-60 cursor-pointer"
+                    >
+                      {t('myLibrary.pick.choose')}
+                    </button>
+                  )}
+                />
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
+
+      {shelf.access === 'none' && !pick.enabled && (
+        <section id="library-shelf-none" className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center">
+          <Library className="mx-auto h-10 w-10 text-slate-300" aria-hidden="true" />
+          <h2 className="mt-3 text-base font-bold text-slate-900">{t('myLibrary.shelf.noneTitle')}</h2>
+          <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">{t('myLibrary.shelf.noneDescription')}</p>
+          <div className="mt-5 flex flex-wrap justify-center gap-2">
+            <button type="button" id="btn-shelf-membership" onClick={goToMembership} className="rounded-lg bg-[#D4AF37] px-4 py-2 text-xs font-bold text-slate-950 hover:bg-[#c5a059] cursor-pointer">
+              {t('myLibrary.shelf.noneCta')}
+            </button>
+            <button type="button" onClick={() => onNavigate('digital', 'ebook')} className="rounded-lg border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer">
+              {t('myLibrary.shelf.browseSamples')}
+            </button>
+          </div>
+        </section>
+      )}
+
+      {shelf.upcoming.length > 0 && (
+        <section id="library-upcoming">
+          <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
+            <CalendarClock className="h-5 w-5 text-[#9A7B38]" aria-hidden="true" />
+            {t('myLibrary.upcoming.title')}
+          </h2>
+          <p className="mt-1 text-sm text-slate-600">{t('myLibrary.upcoming.description')}</p>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {shelf.upcoming.map((item) => (
+              <ShelfTile
+                key={item.productId}
+                item={item}
+                note={item.shelfEntryDate ? t('myLibrary.upcoming.entry', { date: date(new Date(`${item.shelfEntryDate}T00:00:00+07:00`)) }) : undefined}
+                action={item.purchasable ? (
+                  <button type="button" onClick={() => goToDigitalCheckout([item.productId])} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-50 cursor-pointer">
+                    {t('myLibrary.upcoming.buy', { price: currency(item.price) })}
+                  </button>
+                ) : null}
+              />
+            ))}
+          </ul>
+        </section>
+      )}
+    </div>
+  );
+};
+
+/** Onboarding singkat setelah pembayaran keanggotaan pertama (/library?welcome=1). */
+const WelcomePanel: React.FC<{ maxDevices: number; onDismiss: () => void }> = ({ maxDevices, onDismiss }) => {
+  const { t } = useTranslation('digital');
+  const steps = [
+    { icon: Library, title: t('myLibrary.onboarding.step1Title'), body: t('myLibrary.onboarding.step1') },
+    { icon: MonitorSmartphone, title: t('myLibrary.onboarding.step2Title'), body: t('myLibrary.onboarding.step2', { n: maxDevices }) },
+    { icon: CreditCard, title: t('myLibrary.onboarding.step3Title'), body: t('myLibrary.onboarding.step3') }
+  ];
+  return (
+    <section id="library-welcome" className="relative mt-6 rounded-2xl border border-[#D4AF37]/40 bg-[#D4AF37]/5 p-5">
+      <button type="button" onClick={onDismiss} aria-label={t('myLibrary.onboarding.dismiss')} className="absolute right-3 top-3 rounded p-1 text-slate-500 hover:bg-white cursor-pointer">
+        <X className="h-4 w-4" />
+      </button>
+      <h2 className="flex items-center gap-2 pr-8 text-base font-bold text-slate-900">
+        <Sparkles className="h-5 w-5 text-[#9A7B38]" aria-hidden="true" />
+        {t('myLibrary.onboarding.title')}
+      </h2>
+      <ol className="mt-4 grid gap-3 sm:grid-cols-3">
+        {steps.map(({ icon: Icon, title, body }, index) => (
+          <li key={title} className="rounded-xl border border-slate-200 bg-white p-4">
+            <p className="flex items-center gap-2 text-sm font-bold text-slate-900">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#D4AF37] text-xs font-bold text-slate-950">{index + 1}</span>
+              <Icon className="h-4 w-4 text-[#9A7B38]" aria-hidden="true" />
+              {title}
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-slate-600">{body}</p>
+          </li>
+        ))}
+      </ol>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button type="button" onClick={onDismiss} className="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800 cursor-pointer">{t('myLibrary.onboarding.dismiss')}</button>
+        <button type="button" onClick={() => goToAccountMembership()} className="rounded-lg border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-800 hover:bg-white cursor-pointer">{t('myLibrary.manageMembership')}</button>
+      </div>
+    </section>
   );
 };
 
@@ -226,7 +479,18 @@ interface LibraryViewProps {
   onNavigate: NavigateFn;
 }
 
-/** Halaman /library (Pustaka Saya): hak akses aktif, progres, perangkat, dan riwayat pembelian. */
+const welcomeRequested = () => {
+  try {
+    return new URLSearchParams(window.location.search).get('welcome') === '1';
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Halaman /library (Pustaka Saya): tab "Rak Digital" (akses keanggotaan: rak penuh, Digital Member Pick, dan
+ * "Segera masuk rak") dan tab "Milik Saya" (pembelian satuan & hak per judul), perangkat, dan riwayat pembelian.
+ */
 export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
   const { t } = useTranslation('digital');
   const member = useMemberSession();
@@ -234,12 +498,17 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
   const digitalEnabled = useDigitalCatalog().enabled;
   const showMember = member.isLoggedIn && digitalEnabled;
   const [items, setItems] = useState<LibraryItem[] | null>(null);
+  const [maxDevices, setMaxDevices] = useState(2);
   const [loadError, setLoadError] = useState(false);
+  const [welcome, setWelcome] = useState(welcomeRequested);
+  const [tab, setTab] = useState<LibraryTab>('shelf');
 
   const load = useCallback(async () => {
     setLoadError(false);
     try {
-      setItems((await getLibrary()).items);
+      const library = await getLibrary();
+      setItems(library.items);
+      setMaxDevices(library.devices.max);
     } catch {
       setLoadError(true);
     }
@@ -266,16 +535,41 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
     </div>
   );
 
+  const tabButton = (value: LibraryTab) => (
+    <button
+      key={value}
+      type="button"
+      role="tab"
+      id={`library-tab-${value}`}
+      aria-selected={tab === value}
+      aria-controls={`library-panel-${value}`}
+      onClick={() => setTab(value)}
+      className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${tab === value ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'}`}
+    >
+      {t(`myLibrary.tabs.${value}`)}
+    </button>
+  );
+
   return (
     <div id="library-page" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 text-left">
-      <header>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#D4AF37]/40 bg-[#D4AF37]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#9A7B38]">
-          <Library className="h-3.5 w-3.5" aria-hidden="true" />
-          {t('library.badge')}
-        </span>
-        <h1 className="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">{t('library.title')}</h1>
-        <p className="mt-2 text-sm text-slate-600 sm:text-base">{t('library.subtitle')}</p>
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#D4AF37]/40 bg-[#D4AF37]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#9A7B38]">
+            <Library className="h-3.5 w-3.5" aria-hidden="true" />
+            {t('library.badge')}
+          </span>
+          <h1 className="mt-3 text-2xl font-bold text-slate-900 sm:text-3xl">{t('library.title')}</h1>
+          <p className="mt-2 text-sm text-slate-600 sm:text-base">{t('library.subtitle')}</p>
+        </div>
+        {showMember && (
+          <button type="button" id="btn-library-account-membership" onClick={() => goToAccountMembership()} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-50 cursor-pointer">
+            <CreditCard className="h-3.5 w-3.5" />
+            {t('myLibrary.manageMembership')}
+          </button>
+        )}
       </header>
+
+      {showMember && welcome && <WelcomePanel maxDevices={maxDevices} onDismiss={() => setWelcome(false)} />}
 
       {!showMember && !member.isLoading && (
         <section className="mt-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs sm:flex-row sm:items-center sm:justify-between">
@@ -319,22 +613,29 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
       {!showMember && <section className="mt-6">{emptyState}</section>}
 
       {showMember && (
-        <section className="mt-6" aria-live="polite">
-          {loadError ? (
-            <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700">
-              <p>{t('myLibrary.loadError')}</p>
-              <button type="button" onClick={() => void load()} className="mt-2 font-semibold underline cursor-pointer">{t('myLibrary.retry')}</button>
-            </div>
-          ) : items === null ? (
-            <p role="status" className="text-sm text-slate-500">{t('myLibrary.loading')}</p>
-          ) : items.length === 0 ? (
-            emptyState
-          ) : (
-            <ul id="library-items" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {items.map((item) => <LibraryCard key={item.productId} item={item} />)}
-            </ul>
-          )}
-        </section>
+        <>
+          <div role="tablist" aria-label={t('library.title')} className="mt-6 inline-flex gap-1 rounded-full border border-slate-200 bg-white p-1 shadow-xs">
+            {(['shelf', 'owned'] as const).map(tabButton)}
+          </div>
+          <section id={`library-panel-${tab}`} role="tabpanel" aria-labelledby={`library-tab-${tab}`} className="mt-5" aria-live="polite">
+            {tab === 'shelf' ? (
+              <ShelfPanel onNavigate={onNavigate} waitForMembership={welcome} />
+            ) : loadError ? (
+              <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700">
+                <p>{t('myLibrary.loadError')}</p>
+                <button type="button" onClick={() => void load()} className="mt-2 font-semibold underline cursor-pointer">{t('myLibrary.retry')}</button>
+              </div>
+            ) : items === null ? (
+              <p role="status" className="text-sm text-slate-500">{t('myLibrary.loading')}</p>
+            ) : items.length === 0 ? (
+              emptyState
+            ) : (
+              <ul id="library-items" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {items.map((item) => <LibraryCard key={item.productId} item={item} />)}
+              </ul>
+            )}
+          </section>
+        </>
       )}
 
       {showMember && (

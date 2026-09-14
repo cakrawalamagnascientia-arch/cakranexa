@@ -30,7 +30,7 @@ import {
   validateDigitalProduct
 } from './src/data/digitalProducts';
 import { INSTITUTION_TYPES, INSTITUTION_INQUIRY_STATUSES, INSTITUTION_INQUIRY_LIMITS } from './src/data/membership';
-import { createDigitalPhase2 } from './backend/digital';
+import { createDigitalPhase2, isMembershipNotification, memberPrintPrice } from './backend/digital';
 import { checkProcessingTools, checkSupabase, evaluateStartup, type SupabaseCheckResult } from './backend/startupChecks';
 
 // Load environment variables
@@ -686,7 +686,7 @@ async function createSnapTransaction(order: any): Promise<string | null> {
       item_details: [
         ...order.items.map((it: any) => ({
           id: it.book.id,
-          price: Math.round(it.book.harga),
+          price: Math.round(it.unitPrice ?? it.book.harga),
           quantity: it.quantity,
           name: String(it.book.name).slice(0, 50)
         })),
@@ -862,7 +862,8 @@ async function startServer() {
       isActive: p.isActive,
       availabilityStatus: p.availabilityStatus,
       pageCount: p.pageCount,
-      durationSeconds: p.durationSeconds
+      durationSeconds: p.durationSeconds,
+      shelfEntryDate: p.shelfEntryDate ?? null
     })),
     mailer: { send: sendResendEmail },
     adminEmails: ORDER_NOTIFICATION_EMAILS,
@@ -1018,6 +1019,10 @@ async function startServer() {
         return res.status(409).json({ error: 'Nomor pesanan sudah terdaftar.' });
       }
 
+      // Harga member (fase 3 Langkah 7, flag ENABLE_MEMBER_PRINT_DISCOUNT) untuk anggota aktif yang mengirim token login.
+      // Flag mati / bukan anggota -> null, dan alur di bawah identik dengan sebelumnya.
+      const memberDiscount = (await digitalPhase2.memberPrintDiscount?.(req.headers.authorization)) ?? null;
+
       // Hitung ulang subtotal dari harga katalog server, bukan dari client
       const catalog = await loadBooks();
       let subtotal = 0;
@@ -1031,8 +1036,9 @@ async function startServer() {
         if (typeof book.stock === 'number' && book.stock < qty) {
           throw Object.assign(new Error(`Stok "${book.name}" tidak mencukupi (tersisa ${book.stock}).`), { status: 409 });
         }
-        subtotal += book.harga * qty;
-        return { book, quantity: qty };
+        const unitPrice = memberDiscount ? memberPrintPrice(book.harga, book.originalHarga, memberDiscount.percent) : null;
+        subtotal += (unitPrice ?? book.harga) * qty;
+        return unitPrice !== null ? { book, quantity: qty, unitPrice } : { book, quantity: qty };
       });
       const shippingCost = Math.max(0, Number(order.shippingCost) || 0);
       const total = subtotal + shippingCost;
@@ -1046,7 +1052,8 @@ async function startServer() {
         paymentStatus: order.paymentMethod === 'manual_mandiri' ? 'processing' : 'pending',
         // Bahasa pelanggan saat checkout (untuk pesan WhatsApp ke pelanggan); nilai lain -> 'id'.
         language: ['id', 'en', 'zh'].includes(order.language) ? order.language : 'id',
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        ...(memberDiscount ? { memberDiscount } : {})
       };
       inMemoryOrders.unshift(normalized);
 
@@ -1078,12 +1085,12 @@ async function startServer() {
           console.error('Supabase order insert error:', orderError.message);
         } else {
           await supabaseAdmin.from('order_items').insert(
-            items.map(({ book, quantity }: any) => ({
+            items.map(({ book, quantity, unitPrice }: any) => ({
               order_id: normalized.orderNumber,
               book_id: book.id,
               quantity,
-              unit_price: book.harga,
-              subtotal: book.harga * quantity
+              unit_price: unitPrice ?? book.harga,
+              subtotal: (unitPrice ?? book.harga) * quantity
             }))
           );
           // Kurangi stok via RPC (lihat schema.sql: decrement_book_stock)
@@ -1111,7 +1118,8 @@ async function startServer() {
         total,
         paymentStatus: normalized.paymentStatus,
         snapToken,
-        paymentMode: snapToken ? (MIDTRANS_IS_PRODUCTION ? 'midtrans_production' : 'midtrans_sandbox') : 'unavailable'
+        paymentMode: snapToken ? (MIDTRANS_IS_PRODUCTION ? 'midtrans_production' : 'midtrans_sandbox') : 'unavailable',
+        ...(memberDiscount ? { memberDiscount } : {})
       });
     } catch (err: any) {
       console.error('Order creation error:', err);
@@ -1161,6 +1169,21 @@ async function startServer() {
     const n = req.body || {};
     if (!MIDTRANS_ENABLED) {
       return res.status(503).json({ error: 'Midtrans belum dikonfigurasi (MIDTRANS_SERVER_KEY).' });
+    }
+    // Keanggotaan fase 3: order_id "SUB-..." atau tagihan otomatis Midtrans Subscriptions (dikenali lewat ID langganan).
+    // Handler memverifikasi sendiri: signature untuk SUB-, status transaksi dari API Midtrans untuk tagihan otomatis.
+    if (isMembershipNotification(n)) {
+      if (!digitalPhase2.handleMembershipNotification) {
+        return res.status(503).json({ error: 'Modul keanggotaan tidak aktif di server ini.' });
+      }
+      try {
+        const result = await digitalPhase2.handleMembershipNotification(n);
+        return res.status(result.status).json(result.body);
+      } catch (err: any) {
+        // 500 -> Midtrans mengirim ulang; handler idempoten.
+        console.error('[membership] webhook Midtrans gagal diproses:', n.order_id, err?.message || err);
+        return res.status(500).json({ error: 'Gagal memproses notifikasi.' });
+      }
     }
     if (!verifyMidtransSignature(n)) {
       console.warn('⚠️  Webhook Midtrans dengan signature tidak valid ditolak:', n.order_id);
@@ -1813,6 +1836,7 @@ async function startServer() {
       { path: '/digital/ebook', freq: 'weekly', prio: '0.8' },
       { path: '/digital/audiobook', freq: 'weekly', prio: '0.75' },
       { path: '/membership', freq: 'monthly', prio: '0.7' },
+      { path: '/membership/terms', freq: 'yearly', prio: '0.4' },
       { path: '/institutions', freq: 'monthly', prio: '0.65' }
     ];
     const books = await loadBooks();

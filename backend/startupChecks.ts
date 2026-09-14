@@ -42,7 +42,14 @@ export const REQUIRED_SCHEMA: SchemaRequirement[] = [
   { migration: 'src/db/digital_phase2_migration.sql', table: 'reading_progress' },
   { migration: 'src/db/digital_phase2_migration.sql', table: 'reading_events' },
   { migration: 'src/db/digital_phase2_migration.sql', table: 'user_notes' },
-  { migration: 'src/db/digital_phase2_migration.sql', table: 'access_anomalies' }
+  { migration: 'src/db/digital_phase2_migration.sql', table: 'access_anomalies' },
+  { migration: 'src/db/membership_phase3_migration.sql', table: 'entitlements', columns: ['scope'] },
+  { migration: 'src/db/membership_phase3_migration.sql', table: 'plans', columns: ['print_discount_percent'] },
+  { migration: 'src/db/membership_phase3_migration.sql', table: 'plan_benefits', columns: ['feature_flag'] },
+  { migration: 'src/db/membership_phase3_migration.sql', table: 'subscriptions' },
+  { migration: 'src/db/membership_phase3_migration.sql', table: 'subscription_invoices' },
+  { migration: 'src/db/membership_phase3_migration.sql', table: 'subscription_events' },
+  { migration: 'src/db/membership_phase3_migration.sql', table: 'digital_member_picks' }
 ];
 
 export interface MissingSchemaObject {

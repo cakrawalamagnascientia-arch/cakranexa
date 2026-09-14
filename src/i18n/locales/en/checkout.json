@@ -329,5 +329,10 @@
     "preparing": "Our logistics team is preparing your ISBN-registered copies with multi-layer protective packaging.",
     "closing": "Kind regards,",
     "team": "*CakraNexa Fulfilment Division*"
+  },
+  "memberOffer": {
+    "title": "Become a Cakrawala Magna Society member",
+    "description": "Unlock the digital e-book & audiobook shelf and other member benefits for your next reads.",
+    "cta": "View membership plans"
   }
 }

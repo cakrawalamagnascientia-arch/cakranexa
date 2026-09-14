@@ -281,7 +281,50 @@
       "expired": "Kedaluwarsa",
       "refunded": "Dikembalikan"
     },
-    "viewOrder": "Lihat"
+    "viewOrder": "Lihat",
+    "manageMembership": "Keanggotaan Saya",
+    "tabs": {
+      "shelf": "Rak Digital",
+      "owned": "Milik Saya"
+    },
+    "shelf": {
+      "loadError": "Rak digital gagal dimuat. Periksa koneksi lalu coba lagi.",
+      "fullTitle": "Digital Reading Shelf",
+      "fullDescription": "Semua judul di rak dapat dibaca dan didengarkan selama keanggotaan aktif (akses sampai {{date}}).",
+      "empty": "Belum ada judul di rak.",
+      "noneTitle": "Rak digital untuk anggota",
+      "noneDescription": "Free Circle mendapat sampel setiap judul. Professional & Academic Society membuka seluruh Digital Reading Shelf.",
+      "noneCta": "Lihat paket keanggotaan",
+      "browseSamples": "Jelajahi sampel"
+    },
+    "pick": {
+      "title": "Digital Member Pick",
+      "description": "Pilih satu judul dari rak untuk periode {{start}} – {{end}}. Setelah dipilih, judul terkunci sampai akhir periode.",
+      "choose": "Pilih judul ini",
+      "confirm": "Pilih “{{title}}” sebagai Pick periode ini? Pilihan tidak bisa diganti sampai {{date}}.",
+      "locked": "Pick Anda, terkunci sampai {{date}}",
+      "errors": {
+        "pick_locked": "Pick periode ini sudah dipilih.",
+        "not_on_shelf": "Judul ini belum masuk Digital Reading Shelf.",
+        "pick_unavailable": "Digital Member Pick tidak tersedia untuk paket Anda."
+      }
+    },
+    "upcoming": {
+      "title": "Segera masuk rak",
+      "description": "Judul baru dijual satuan lebih dulu, lalu masuk rak pada tanggal berikut.",
+      "entry": "Masuk rak {{date}}",
+      "buy": "Beli satuan {{price}}"
+    },
+    "onboarding": {
+      "title": "Selamat datang di Cakrawala Magna Society",
+      "step1Title": "Rak digital",
+      "step1": "Buka tab Rak Digital untuk membaca atau mendengarkan judul yang termasuk paket Anda.",
+      "step2Title": "Perangkat",
+      "step2": "Akses keanggotaan dapat dibuka di {{n}} perangkat. Perangkat terdaftar saat pertama kali membuka judul.",
+      "step3Title": "Perpanjangan",
+      "step3": "Tagihan, perpanjangan, ubah paket, dan pembatalan ada di halaman Keanggotaan Saya.",
+      "dismiss": "Mengerti"
+    }
   },
   "nav": {
     "menu": "Digital",
@@ -422,9 +465,9 @@
     "viewDigitalDetail": "Lihat detail {{format}}"
   },
   "membership": {
-    "badge": "Keanggotaan CakraNexa",
-    "title": "Pilih cara Anda membaca dan berkarya",
-    "subtitle": "Dari pembaca umum hingga akademisi dan penulis, setiap paket memberi manfaat berbeda. Akses penuh e-book dan audiobook ada di Professional & Academic Society.",
+    "badge": "Cakrawala Magna Society",
+    "title": "Baca lebih cerdas, beli lebih hemat, dan bertumbuh bersama komunitas Cakrawala Magna",
+    "subtitle": "Keanggotaan CakraNexa mulai {{price}} per bulan. E-book dan audiobook dapat dibaca lewat Digital Reading Shelf di paket Professional & Academic Society.",
     "billing": {
       "label": "Periode tagihan",
       "monthly": "Bulanan",
@@ -435,100 +478,254 @@
     "perMonth": "/bulan",
     "perYear": "/tahun",
     "annualEquivalent": "setara {{price}}/bulan",
-    "recommended": "Rekomendasi",
+    "recommended": "Paket digital utama",
     "foundingMember": "Founding Member",
+    "founding": {
+      "firstYear": "Harga Founding tahun pertama untuk {{cap}} anggota pertama",
+      "renewal": "Tahun berikutnya {{price}}/tahun, dengan pemberitahuan sebelumnya",
+      "annualOnly": "Harga Founding {{price}} untuk tahun pertama tersedia di paket tahunan"
+    },
     "includesShelf": "Termasuk Digital Reading Shelf",
     "choosePlan": "Pilih paket",
     "joinFree": "Daftar gratis",
     "phase2Note": "Pendaftaran keanggotaan sedang disiapkan dan akan segera dibuka.",
+    "showAllBenefits": "Lihat semua {{total}} manfaat",
+    "showFewerBenefits": "Tampilkan lebih sedikit",
+    "authorDisclaimer": "Keanggotaan tidak menjamin naskah diterbitkan, ISBN, atau penyuntingan penuh. Keputusan penerbitan tetap berdasarkan kelayakan naskah.",
     "plans": {
       "freeCircle": {
         "name": "Free Circle",
-        "tagline": "Kenali karya CakraNexa tanpa biaya."
+        "tagline": "Pintu masuk gratis: sampel, newsletter, dan poin belanja."
       },
       "readerCircle": {
         "name": "Reader Circle",
-        "tagline": "Untuk pembaca yang rutin membeli buku."
+        "tagline": "Untuk pembaca umum, mahasiswa, dan kolektor yang rutin membeli buku."
       },
       "professionalSociety": {
         "name": "Professional & Academic Society",
-        "tagline": "Akses penuh e-book dan audiobook untuk akademisi dan praktisi."
+        "tagline": "Untuk dosen, peneliti, dan profesional. Termasuk Digital Reading Shelf."
       },
       "authorGuild": {
         "name": "Author Guild",
-        "tagline": "Untuk penulis yang ingin berkarya bersama CakraNexa."
+        "tagline": "Untuk penulis, calon penulis, dan dosen yang sedang menulis."
       }
     },
     "benefits": {
-      "samples": "Akses semua sampel e-book dan audiobook",
-      "newsletter": "Buletin rilis dan wawasan bulanan",
-      "publicEvents": "Undangan webinar dan acara publik",
-      "memberDiscount": "Harga anggota untuk e-book dan audiobook satuan",
-      "printDiscount": "Diskon anggota untuk buku cetak",
-      "earlyNews": "Info prarilis judul baru lebih awal",
-      "digitalShelf": "Akses penuh Digital Reading Shelf (e-book dan audiobook)",
-      "frontlistDiscount": "Harga khusus judul baru sebelum masuk rak digital",
-      "webinars": "Webinar dan kelas profesional khusus anggota",
-      "manuscriptReview": "Konsultasi naskah bersama tim redaksi",
-      "publishingDiscount": "Potongan biaya layanan penerbitan",
-      "authorCommunity": "Komunitas dan kelas penulis"
+      "account": "Akun anggota",
+      "samples": "Sampel e-book ({{min}}–{{max}}% halaman) dan audiobook",
+      "newsletter": "Newsletter buku baru",
+      "points": "Poin untuk setiap transaksi yang memenuhi syarat",
+      "recommendations": "Rekomendasi buku sesuai minat",
+      "publicEvents": "Undangan acara publik",
+      "birthdayGift": "Hadiah ulang tahun bersyarat",
+      "referralBasic": "Program referral dasar",
+      "bookDiscount": "Diskon {{percent}}% buku terbitan grup PT Cakrawala Magna Scientia",
+      "readerWallet": "Magna Book Wallet {{amount}} setiap bulan (min. belanja {{min}}, berlaku {{days}} hari, maks. {{active}} wallet aktif)",
+      "memberPick": "Member Pick: satu buku pilihan anggota setiap bulan dengan harga khusus",
+      "digitalPick": "Digital Member Pick: satu e-book backlist pilihan Anda setiap bulan",
+      "preorderDiscount": "Diskon preorder {{percent}}% untuk judul terpilih",
+      "freeShipping": "Gratis ongkir untuk transaksi min. {{min}} (wilayah dan batas subsidi ditetapkan perusahaan)",
+      "digitalSampler": "Digital sampler: bab pilihan, ringkasan, dan materi pendamping",
+      "backlistDiscount": "Diskon backlist hingga {{percent}}% pada kampanye tertentu",
+      "purchaseReward": "Reward pembelian {{percent}}% dalam bentuk saldo buku",
+      "bookClub": "Book club daring satu kali setiap bulan",
+      "earlyAccess": "Akses preorder dan edisi khusus {{days}} hari lebih awal",
+      "birthdayVoucher": "Voucher ulang tahun {{percent}}% (maks. potongan {{max}})",
+      "referral": "Saldo {{amount}} setelah teman yang Anda ajak berbelanja min. {{min}}",
+      "annualGift": "Hadiah anggota tahunan: satu buku pilihan perusahaan (maks. {{max}}), dengan syarat pembelian minimum",
+      "digitalShelf": "Digital Reading Shelf: baca backlist dan judul pilihan, termasuk audiobook",
+      "printDiscount": "Diskon {{percent}}% buku cetak untuk seluruh judul grup",
+      "proWallet": "Professional Book Wallet {{amount}} per triwulan (min. belanja {{min}})",
+      "annualCredit": "Annual book credit {{amount}} untuk anggota tahunan (min. transaksi {{min}})",
+      "expertWebinar": "Minimal {{n}} expert webinar setiap triwulan",
+      "researchDigest": "Research digest bulanan: ringkasan riset dan perkembangan regulasi",
+      "companionResources": "Companion resources: tabel, checklist, template, dan materi pendamping",
+      "citationTools": "Metadata sitasi APA, Chicago, Harvard, dan format lain",
+      "executiveSummary": "Executive summary buku profesional terpilih",
+      "readingPathway": "Reading pathway sesuai profesi (pilih hingga {{n}} jalur minat)",
+      "preorderPriority": "Prioritas preorder dan harga profesional",
+      "expertForum": "Forum ahli termoderasi per disiplin",
+      "memberCertificate": "Sertifikat untuk kegiatan yang memenuhi syarat",
+      "corporateReferral": "Reward untuk rujukan pembelian organisasi",
+      "authorAcademy": "Author Academy: {{n}} kelas daring kelompok setiap bulan",
+      "manuscriptClinic": "Manuscript clinic kelompok setiap bulan",
+      "authorBookDiscount": "Diskon {{percent}}% semua buku terbitan grup",
+      "ownBooksDiscount": "Diskon buku karya sendiri hingga {{percent}}% (min. {{copies}} eksemplar)",
+      "authorWallet": "Book wallet {{amount}} per triwulan (min. belanja {{min}})",
+      "miniDiagnostic": "Mini manuscript diagnostic satu kali per tahun (maks. {{words}} kata)",
+      "editorialDiscount": "Diskon {{percent}}% jasa editorial (manfaat maks. {{max}} per tahun)",
+      "fastTrack": "Submission fast track: pemeriksaan administratif maks. {{days}} hari kerja",
+      "templateLibrary": "Template proposal buku, sinopsis, outline, author bio, marketing plan, dan launch checklist",
+      "marketIntelligence": "Laporan tren tema dan pembaca setiap triwulan",
+      "launchBundle": "Book launch bundle: harga khusus untuk 50, 100, dan 250 buku",
+      "authorProfile": "Halaman profil penulis di situs penerbit",
+      "authorCommunity": "Forum penulis dan accountability group",
+      "referralWallet": "Referral wallet {{percent}}% dari penjualan bersih yang memenuhi syarat (saldo buku atau jasa)",
+      "eventPriority": "Prioritas workshop, festival, dan pitching session",
+      "strategySession": "Sesi strategi tahunan: kelompok kecil atau 30 menit individual",
+      "wishlist": "Wishlist buku",
+      "preorderAlerts": "Pemberitahuan preorder",
+      "memberPrintDiscount": "Harga member {{percent}}% untuk buku cetak grup",
+      "authorOwnWorks": "Akses digital karya Anda sendiri dan sampel semua judul"
+    },
+    "access": {
+      "title": "Akses e-book dan audiobook per paket",
+      "subtitle": "Akses digital adalah salah satu manfaat di dalam paket. Digital Reading Shelf berisi backlist dan judul pilihan yang sudah melewati masa frontlist.",
+      "feature": "Fitur",
+      "rows": {
+        "ebook": "E-book",
+        "audiobook": "Audiobook",
+        "frontlist": "Judul baru (frontlist)",
+        "devices": "Perangkat untuk akses keanggotaan",
+        "printDiscount": "Diskon buku cetak",
+        "wallet": "Book wallet"
+      },
+      "none": "—",
+      "ebook": {
+        "sample": "Sampel {{min}}–{{max}}% setiap judul",
+        "sampler": "Digital sampler: bab pilihan, ringkasan, materi pendamping",
+        "pick": "1 Digital Member Pick backlist per bulan",
+        "shelf": "Digital Reading Shelf: backlist dan judul pilihan"
+      },
+      "audiobook": {
+        "sample": "Sampel {{minutes}} menit",
+        "shelf": "Semua audiobook di Digital Reading Shelf"
+      },
+      "frontlist": {
+        "sample": "Sampel; beli satuan",
+        "preorder": "Sampel; diskon preorder {{percent}}% judul terpilih",
+        "shelf": "Masuk rak {{min}}–{{max}} hari setelah terbit; prioritas preorder"
+      },
+      "devices": "{{n}} perangkat",
+      "printDiscountPreorder": "{{percent}}% (preorder {{preorder}}%)",
+      "wallet": {
+        "month": "{{amount}}/bulan, min. belanja {{min}}",
+        "quarter": "{{amount}}/triwulan, min. belanja {{min}}",
+        "annualCredit": "kredit tahunan {{amount}} (min. {{min}}) untuk anggota tahunan"
+      },
+      "institution": {
+        "ebook": "Koleksi digital sesuai kontrak",
+        "audiobook": "Sesuai koleksi",
+        "frontlist": "Masuk koleksi setelah masa frontlist",
+        "devices": "Sesuai jumlah pengguna bersamaan",
+        "wallet": "Acquisition wallet {{percent}}% biaya tahunan"
+      },
+      "notes": {
+        "unitPurchase": "E-book dan audiobook satuan dapat dibeli siapa saja, dibuka di 2 perangkat, dan tetap milik Anda walau keanggotaan berakhir.",
+        "security": "Tidak ada unduhan PDF. Semua akses melalui cloud reader dan player ber-watermark dengan satu sesi aktif per judul."
+      }
     },
     "frontlist": {
       "title": "Kapan judul baru masuk Digital Reading Shelf?",
-      "body": "Judul baru terbit lebih dulu sebagai buku cetak dan e-book satuan. Setelah 90–180 hari, judul tersebut masuk Digital Reading Shelf sehingga anggota Professional & Academic Society dapat membacanya tanpa biaya tambahan. Tanggal masuk rak tercantum di setiap halaman produk digital.",
+      "body": "Judul baru terbit lebih dulu sebagai buku cetak dan e-book satuan. Setelah masa eksklusif {{min}}–{{max}} hari, judul masuk Digital Reading Shelf sehingga anggota Professional & Academic Society dapat membacanya tanpa biaya tambahan. Sampel 10–15% tetap tersedia untuk semua orang, dan tanggal masuk rak tercantum di setiap halaman produk digital.",
       "step1": "Saat terbit: buku cetak dan e-book satuan",
-      "step2": "90–180 hari kemudian: masuk Digital Reading Shelf",
+      "step2": "{{min}}–{{max}} hari kemudian: masuk Digital Reading Shelf",
       "step3": "Seterusnya: tetap bisa dibeli satuan"
+    },
+    "loyalty": {
+      "title": "Status loyalitas dan Magna Points",
+      "subtitle": "Status dihitung dari belanja tahunan dan berlaku untuk semua jenis keanggotaan.",
+      "joined": "Saat bergabung",
+      "spend": "Belanja {{amount}} per tahun",
+      "statuses": {
+        "member": {
+          "name": "Member",
+          "benefit": "Manfaat dasar keanggotaan"
+        },
+        "reader": {
+          "name": "Reader",
+          "benefit": "Bonus poin"
+        },
+        "curator": {
+          "name": "Curator",
+          "benefit": "Akses acara khusus"
+        },
+        "patron": {
+          "name": "Patron",
+          "benefit": "Layanan prioritas dan edisi khusus"
+        }
+      },
+      "points": "Magna Points: {{percent}}% store credit untuk transaksi normal (kampanye khusus maks. {{campaign}}%). Poin berlaku {{months}} bulan, tidak dapat diuangkan atau dipindahtangankan, diberikan setelah masa pengembalian berakhir, dan batal bila transaksi dibatalkan."
     },
     "faq": {
       "title": "Pertanyaan yang sering diajukan",
       "items": {
         "shelf": {
           "q": "Apa itu Digital Reading Shelf?",
-          "a": "Rak baca digital berisi e-book dan audiobook CakraNexa yang bisa diakses anggota Professional & Academic Society dan Author Guild tanpa membeli judul satu per satu."
+          "a": "Rak baca digital berisi backlist dan judul pilihan CakraNexa dalam bentuk e-book dan audiobook. Rak ini dibuka untuk anggota Professional & Academic Society dan institusi, tanpa perlu membeli judul satu per satu."
         },
         "frontlist": {
           "q": "Mengapa judul baru tidak langsung masuk rak?",
-          "a": "Judul baru dijual satuan lebih dulu agar penulis mendapat imbalan yang adil. Setelah 90–180 hari judul masuk rak, dan tanggalnya tercantum di halaman produk."
+          "a": "Judul baru dijual satuan lebih dulu selama {{min}}–{{max}} hari agar penulis mendapat imbalan yang adil. Setelah itu judul masuk rak, dan tanggalnya tercantum di halaman produk."
         },
         "unitPurchase": {
           "q": "Bisakah saya membeli e-book tanpa berlangganan?",
-          "a": "Bisa. Setiap e-book dan audiobook yang tersedia dapat dibeli satuan dan tersimpan di Pustaka Saya."
+          "a": "Bisa. Setiap e-book dan audiobook yang tersedia dapat dibeli satuan dan tersimpan di Pustaka Saya selamanya. Anggota mendapat harga anggota, yang tidak digabung dengan wallet."
         },
         "billing": {
           "q": "Apa bedanya tagihan bulanan dan tahunan?",
           "a": "Tagihan tahunan dibayar sekali setahun seharga 10 bulan, jadi Anda hemat 2 bulan dibanding tagihan bulanan."
         },
+        "founding": {
+          "q": "Apa itu harga Founding Member?",
+          "a": "Harga peluncuran untuk anggota tahunan pertama: Reader Circle {{reader}} ({{readerCap}} anggota pertama), Professional & Academic Society {{professional}} ({{professionalCap}} anggota pertama), dan Author Guild {{author}} ({{authorCap}} anggota pertama). Harga ini berlaku untuk tahun pertama. Perpanjangan memakai harga reguler, dan kami memberi tahu {{noticeDays}} hari sebelumnya."
+        },
+        "payment": {
+          "q": "Metode pembayaran apa yang tersedia?",
+          "a": "Kartu kredit dan GoPay diperpanjang otomatis. Virtual Account dan QRIS diperpanjang manual; kami mengirim pengingat {{d1}}, {{d2}}, dan {{d3}} hari sebelum jatuh tempo serta pada hari jatuh tempo.",
+          "aManual": "Untuk saat ini semua metode (Virtual Account, QRIS, kartu, dan GoPay) dibayar per periode: kami menerbitkan tagihan dan mengirim pengingat {{d1}}, {{d2}}, dan {{d3}} hari sebelum jatuh tempo serta pada hari jatuh tempo. Perpanjangan otomatis kartu dan GoPay akan dibuka setelah aktivasi di Midtrans selesai."
+        },
+        "grace": {
+          "q": "Bagaimana jika pembayaran terlambat?",
+          "a": "Ada masa tenggang {{graceDays}} hari dan akses tetap terbuka. Setelah itu akses dikunci, tetapi progres baca dan catatan disimpan {{retentionMonths}} bulan dan tersambung kembali begitu Anda membayar."
+        },
+        "changePlan": {
+          "q": "Bisakah saya pindah paket?",
+          "a": "Bisa. Upgrade berlaku seketika dengan membayar selisih prorata. Downgrade berlaku mulai periode tagihan berikutnya."
+        },
         "cancel": {
           "q": "Bisakah saya berhenti kapan saja?",
-          "a": "Ya. Keanggotaan dapat dihentikan kapan saja dan tetap aktif sampai akhir periode yang sudah dibayar. Judul yang dibeli satuan tetap milik Anda."
+          "a": "Ya, langsung dari halaman akun. Keanggotaan tetap aktif sampai akhir periode yang sudah dibayar dan tidak ada tagihan berikutnya. Judul yang dibeli satuan tetap milik Anda."
+        },
+        "devices": {
+          "q": "Di berapa perangkat saya bisa membaca?",
+          "a": "Akses Digital Reading Shelf dan judul yang dibeli satuan dapat dibuka di {{devices}} perangkat. Hanya ada satu sesi baca/dengar aktif per judul, dan perangkat dapat dilepas satu kali setiap {{releaseDays}} hari. Tidak ada unduhan PDF; semua akses melalui cloud reader dan player."
         },
         "institutions": {
           "q": "Saya mewakili kampus atau perpustakaan. Paket mana yang cocok?",
-          "a": "Institution & Library Network: akses bersama untuk banyak pengguna dengan kontrak tahunan. Ajukan penawaran di halaman institusi."
+          "a": "Institution & Library Network: akses bersama berdasarkan jumlah pengguna bersamaan dengan kontrak tahunan. Ajukan penawaran di halaman institusi."
         }
       }
     },
     "institutionsCta": {
       "title": "Untuk kampus, perpustakaan, dan instansi",
-      "description": "Institution & Library Network memberi akses Digital Reading Shelf untuk banyak pengguna sekaligus dengan kontrak tahunan.",
+      "description": "Institution & Library Network memberi akses koleksi digital untuk 5 hingga 50 pengguna bersamaan, atau lebih lewat penawaran khusus, dengan kontrak tahunan dan acquisition wallet.",
       "link": "Pelajari Institution & Library Network"
-    }
+    },
+    "foundingSeats": "Founding Member — tersisa {{count}} kursi",
+    "foundingSoldOut": "Kuota Founding habis",
+    "foundingNotEligible": "Harga Founding khusus anggota baru; pendaftaran ulang memakai harga reguler.",
+    "currentPlan": "Paket Anda saat ini",
+    "changePlan": "Ubah paket",
+    "devices": "Akses keanggotaan di {{n}} perangkat",
+    "includesPick": "Termasuk 1 Digital Member Pick per bulan",
+    "termsLink": "Ketentuan keanggotaan"
   },
   "institutions": {
     "badge": "Institution & Library Network",
     "title": "Akses digital CakraNexa untuk institusi Anda",
     "subtitle": "Satu kontrak tahunan untuk seluruh sivitas: mahasiswa, dosen, peneliti, dan staf dapat membaca e-book dan mendengarkan audiobook CakraNexa.",
-    "pricingNote": "Harga disesuaikan dengan ukuran institusi dan jumlah judul.",
+    "pricingNote": "Harga tahunan disesuaikan dengan jumlah pengguna bersamaan dan ukuran katalog digital.",
+    "foundingNote": "Program Founding: diskon {{percent}}% tahun pertama untuk {{cap}} institusi pertama.",
     "tiersTitle": "Tingkat layanan",
     "concurrentUsers_other": "Hingga {{count}} pengguna bersamaan",
-    "concurrentUsersCustom": "Di atas 100 pengguna bersamaan, disesuaikan",
+    "concurrentUsersCustom": "Di atas 50 pengguna bersamaan",
     "concurrentExplainer": "Pengguna bersamaan adalah jumlah orang yang dapat membaca pada waktu yang sama.",
     "requestQuote": "Minta penawaran",
     "tiers": {
       "starter": {
         "name": "Starter",
-        "description": "Untuk program studi, lembaga riset, atau perpustakaan kecil."
+        "description": "Untuk sekolah, program studi, lembaga riset, atau perpustakaan kecil."
       },
       "campus": {
         "name": "Campus",
@@ -536,24 +733,61 @@
       },
       "network": {
         "name": "Network",
-        "description": "Untuk konsorsium, multi-kampus, atau jaringan perpustakaan."
+        "description": "Untuk kampus besar, multi-fakultas, atau jaringan perpustakaan."
+      },
+      "consortium": {
+        "name": "Consortium / Enterprise",
+        "description": "Untuk konsorsium, multi-kampus, perusahaan, dan instansi di atas 50 pengguna bersamaan. Harga berdasarkan penggunaan."
       }
     },
+    "spec": {
+      "adminAccounts": "Akun administrator",
+      "webinars": "Webinar institusional",
+      "usageReports": "Laporan penggunaan",
+      "printDiscount": "Diskon buku cetak",
+      "bulkOrderMin": "Minimum bulk order",
+      "readingLists": "Custom reading list",
+      "courseAdoption": "Dukungan adopsi mata kuliah",
+      "acquisitionWallet": "Acquisition wallet",
+      "custom": "Sesuai kontrak",
+      "perYear": "{{n}}/tahun",
+      "books": "{{n}} buku",
+      "walletValue": "{{percent}}% biaya tahunan",
+      "reports": {
+        "quarterly": "Triwulanan",
+        "monthly": "Bulanan",
+        "monthlyAnalysis": "Bulanan + analisis"
+      },
+      "adoption": {
+        "basic": "Dasar",
+        "full": "Penuh",
+        "fullManager": "Penuh + account manager"
+      }
+    },
+    "commonTitle": "Manfaat di semua tingkat",
     "features": {
-      "shelfAccess": "Akses Digital Reading Shelf (e-book dan audiobook)",
-      "usageReports": "Laporan pemakaian berkala",
-      "acquisitionWallet": "Acquisition wallet untuk pembelian judul permanen",
-      "ipAccess": "Akses otomatis dari jaringan kampus (IP)",
-      "marcRecords": "Data katalog MARC untuk sistem perpustakaan",
-      "multiCampus": "Satu kontrak untuk beberapa kampus atau cabang",
-      "accountManager": "Manajer akun khusus"
+      "collection": "Akses koleksi digital yang disepakati",
+      "accessMethods": "Akses lewat akun, alamat IP, atau single sign-on sesuai kemampuan sistem",
+      "concurrentAccess": "Hak akses sesuai jumlah pengguna bersamaan",
+      "adminDashboard": "Dashboard administrator",
+      "usageReports": "Laporan penggunaan",
+      "catalogMetadata": "Metadata katalog",
+      "readingLists": "Reading list",
+      "courseAdoption": "Dukungan course adoption",
+      "printDiscount": "Diskon pembelian buku cetak",
+      "webinars": "Webinar institusional",
+      "collectionAdvice": "Bantuan pemilihan koleksi",
+      "librarianSupport": "Dukungan pustakawan",
+      "collectionUpdates": "Pembaruan koleksi berkala",
+      "techSupport": "Layanan bantuan teknis",
+      "certificate": "Sertifikat keanggotaan institusi"
     },
     "wallet": {
       "title": "Apa itu acquisition wallet?",
-      "body": "Sebagian nilai kontrak tahunan disimpan sebagai saldo akuisisi. Saldo ini dipakai untuk membeli judul pilihan secara permanen, sehingga koleksi tetap menjadi milik institusi walaupun kontrak tidak diperpanjang.",
-      "point1": "Pilih judul yang paling sering dibaca",
-      "point2": "Judul yang dibeli tetap dapat diakses seterusnya",
-      "point3": "Pemakaian saldo tercatat di laporan tahunan"
+      "body": "Sebanyak {{percent}}% biaya tahunan yang dibayar dikonversi menjadi kredit akuisisi di akhir periode. Kredit dipakai untuk membeli lisensi permanen atau buku cetak dari judul yang paling banyak digunakan, sehingga biaya akses tidak hilang.",
+      "point1": "Pilihan judul didasarkan pada data penggunaan",
+      "point2": "Lisensi permanen tetap dapat diakses walau kontrak tidak diperpanjang",
+      "point3": "Pemakaian kredit tercatat di laporan tahunan"
     },
     "form": {
       "title": "Minta penawaran",
@@ -617,5 +851,261 @@
     "membership": "Keanggotaan",
     "institutions": "Institusi",
     "library": "Pustaka Saya"
+  },
+  "membershipCheckout": {
+    "title": "Daftar keanggotaan",
+    "subtitle": "Periksa paket, pilih cara bayar, lalu lanjutkan ke pembayaran aman Midtrans.",
+    "loginTitle": "Masuk untuk mendaftar",
+    "loginDescription": "Keanggotaan terhubung ke akun Anda agar rak digital, perangkat, dan tagihan bisa dikelola dari satu tempat.",
+    "plan": "Paket",
+    "cycle": "Periode tagihan",
+    "change": "Ganti paket",
+    "totalToday": "Total hari ini",
+    "renewalNote": "Perpanjangan berikutnya {{price}} {{cycle}}, dengan pemberitahuan sebelumnya.",
+    "perYear": "per tahun",
+    "perMonth": "per bulan",
+    "methodTitle": "Cara bayar",
+    "honestNote": "Kartu/GoPay: perpanjangan otomatis. Virtual Account/QRIS: kami kirim tagihan setiap periode, Anda bayar manual.",
+    "honestNoteManual": "Untuk sementara semua metode dibayar per periode: kami mengirim tagihan dan pengingat sebelum jatuh tempo, lalu Anda membayar manual.",
+    "methods": {
+      "va": {
+        "label": "Virtual Account",
+        "description": "Transfer lewat nomor Virtual Account bank. Kami kirim tagihan setiap periode, Anda bayar manual."
+      },
+      "qris": {
+        "label": "QRIS",
+        "description": "Pindai kode QR dari aplikasi bank atau e-wallet. Kami kirim tagihan setiap periode, Anda bayar manual."
+      },
+      "card": {
+        "label": "Kartu kredit/debit",
+        "descriptionAuto": "Perpanjangan otomatis setiap periode. Data kartu hanya dimasukkan di halaman Midtrans dan tidak disimpan CakraNexa.",
+        "descriptionManual": "Perpanjangan otomatis belum aktif; kami kirim tagihan setiap periode dan Anda bayar manual."
+      },
+      "gopay": {
+        "label": "GoPay",
+        "descriptionAuto": "Perpanjangan otomatis dari akun GoPay yang Anda tautkan.",
+        "descriptionManual": "Perpanjangan otomatis belum aktif; kami kirim tagihan setiap periode dan Anda bayar manual."
+      }
+    },
+    "termsAccept": "Saya sudah membaca dan menyetujui",
+    "licenseAccept": "Saya menyetujui ketentuan lisensi digital: akses baca/dengar pribadi melalui cloud reader dan player, tanpa unduhan, dengan watermark akun.",
+    "pay": "Bayar {{total}}",
+    "paying": "Memproses…",
+    "popupClosed": "Jendela pembayaran ditutup. Tagihan tetap tersimpan selama 24 jam dan bisa dibayar dari halaman Keanggotaan Saya.",
+    "resume": "Lanjutkan pembayaran",
+    "manage": "Buka Keanggotaan Saya",
+    "confirmingTitle": "Pembayaran diterima",
+    "confirmingDescription": "Kami sedang mengaktifkan keanggotaan Anda. Sebentar lagi Anda diarahkan ke Pustaka Saya.",
+    "alreadyMemberTitle": "Anda sudah menjadi anggota",
+    "freeTitle": "Free Circle sudah aktif",
+    "freeDescription": "Free Circle otomatis berlaku untuk setiap akun: sampel, newsletter, wishlist, dan undangan acara.",
+    "unavailableTitle": "Pendaftaran belum dibuka",
+    "unavailable": "Pendaftaran keanggotaan sedang disiapkan dan akan segera dibuka.",
+    "back": "Kembali ke paket keanggotaan",
+    "errors": {
+      "terms_required": "Setujui ketentuan keanggotaan terlebih dahulu.",
+      "license_required": "Setujui ketentuan lisensi digital terlebih dahulu.",
+      "already_subscribed": "Anda sudah memiliki keanggotaan aktif. Gunakan Ubah paket di halaman Keanggotaan Saya.",
+      "plan_unavailable": "Paket ini tidak tersedia.",
+      "payment_unavailable": "Pembayaran online belum tersedia. Coba lagi nanti.",
+      "payment_error": "Pembayaran gagal dimulai. Coba lagi.",
+      "subscription_in_progress": "Pendaftaran lain sedang diproses. Muat ulang halaman.",
+      "email_required": "Akun Anda perlu alamat email untuk berlangganan.",
+      "snap_unavailable": "Halaman pembayaran tidak dapat dibuka. Nonaktifkan pemblokir popup lalu coba lagi.",
+      "digital_disabled": "Pendaftaran keanggotaan belum dibuka.",
+      "network": "Koneksi terputus. Periksa internet Anda lalu coba lagi.",
+      "unknown": "Terjadi kesalahan. Coba lagi.",
+      "invalid_whatsapp": "Nomor WhatsApp tidak valid. Gunakan nomor seluler Indonesia, misalnya 0812 3456 7890."
+    },
+    "whatsapp": {
+      "title": "Pengingat WhatsApp (opsional)",
+      "description": "Pengingat tagihan dan status keanggotaan dikirim dari nomor resmi CakraNexa {{sender}}. Anda bisa mematikannya kapan saja di Keanggotaan Saya.",
+      "optIn": "Kirim pengingat tagihan lewat WhatsApp",
+      "number": "Nomor WhatsApp",
+      "placeholder": "0812 3456 7890"
+    }
+  },
+  "membershipTerms": {
+    "badge": "Draf untuk ditinjau",
+    "title": "Ketentuan Keanggotaan Cakrawala Magna Society",
+    "intro": "Ketentuan ini berlaku untuk keanggotaan berbayar CakraNexa yang dikelola PT Cakrawala Magna Scientia. Dokumen ini masih draf dan dapat berubah sebelum pendaftaran dibuka.",
+    "back": "Kembali ke paket keanggotaan",
+    "sections": {
+      "plans": {
+        "title": "1. Paket dan harga",
+        "body": "Keanggotaan terdiri dari Free Circle (gratis), Reader Circle, Professional & Academic Society, dan Author Guild. Harga, manfaat, dan batas perangkat setiap paket tercantum di halaman keanggotaan saat Anda mendaftar. Harga tahunan setara 10 kali harga bulanan. Semua harga dalam Rupiah."
+      },
+      "founding": {
+        "title": "2. Harga Founding Member",
+        "body": "Harga Founding berlaku untuk tahun pertama paket tahunan bagi anggota baru selama kuota tersedia: Reader Circle {{reader}} ({{readerCap}} anggota), Professional & Academic Society {{professional}} ({{professionalCap}} anggota), dan Author Guild {{author}} ({{authorCap}} anggota). Kursi dipesan saat pendaftaran dan dilepas bila tagihan pertama tidak dibayar dalam 24 jam. Tahun berikutnya memakai harga reguler; kami memberi tahu {{noticeDays}} hari sebelumnya."
+      },
+      "billing": {
+        "title": "3. Tagihan dan perpanjangan",
+        "body": "Periode keanggotaan dimulai saat pembayaran pertama berhasil. Untuk pembayaran manual (Virtual Account, QRIS), tagihan perpanjangan terbit {{d1}} hari sebelum akhir periode dengan pengingat {{d1}}, {{d2}}, dan {{d3}} hari sebelumnya serta pada hari jatuh tempo. Untuk kartu atau GoPay dengan perpanjangan otomatis (bila tersedia), tagihan dibebankan pada akhir periode dan dicoba ulang hingga 3 hari bila gagal. Pembayaran diproses oleh Midtrans; CakraNexa tidak menyimpan data kartu."
+      },
+      "grace": {
+        "title": "4. Masa tenggang dan akses terkunci",
+        "body": "Bila tagihan belum dibayar pada jatuh tempo, keanggotaan masuk masa tenggang {{graceDays}} hari dan akses tetap terbuka. Setelah itu akses keanggotaan dikunci. Progres baca dan catatan disimpan {{retentionMonths}} bulan dan tersambung kembali bila Anda berlangganan lagi dengan harga reguler."
+      },
+      "changes": {
+        "title": "5. Ubah paket",
+        "body": "Upgrade dan perubahan bulanan ke tahunan berlaku seketika: sisa nilai periode berjalan dihitung sebagai kredit prorata dan periode baru dimulai pada hari pembayaran selisih. Downgrade dan perubahan tahunan ke bulanan berlaku pada akhir periode berjalan. Bila perangkat aktif melebihi batas paket baru, Anda diminta melepas perangkat."
+      },
+      "cancel": {
+        "title": "6. Pembatalan",
+        "body": "Anda dapat membatalkan kapan saja dari halaman Keanggotaan Saya tanpa menghubungi admin. Akses tetap terbuka sampai akhir periode yang sudah dibayar, tidak ada tagihan berikutnya, dan pembatalan dapat dibatalkan sebelum periode berakhir. Pembayaran periode berjalan tidak dikembalikan, kecuali diwajibkan hukum."
+      },
+      "digital": {
+        "title": "7. Akses digital dan perangkat",
+        "body": "Digital Reading Shelf dan Digital Member Pick adalah lisensi baca/dengar pribadi selama keanggotaan aktif, melalui cloud reader dan player tanpa unduhan berkas. Setiap judul hanya dapat dibuka dalam satu sesi aktif, di perangkat sesuai batas paket, dan diberi watermark akun. Perangkat dapat dilepas sekali setiap {{releaseDays}} hari. Pelanggaran (misalnya berbagi akun atau membalik halaman secara otomatis) dapat menangguhkan akses. Judul yang dibeli satuan tetap milik Anda walau keanggotaan berakhir."
+      },
+      "frontlist": {
+        "title": "8. Judul baru (frontlist)",
+        "body": "Judul baru dijual satuan lebih dulu selama {{min}}–{{max}} hari sebelum masuk Digital Reading Shelf. Tanggal masuk rak tercantum di halaman produk."
+      },
+      "privacy": {
+        "title": "9. Data pribadi",
+        "body": "Kami memproses nama, email, dan riwayat tagihan untuk mengelola keanggotaan, serta log akses untuk keamanan konten. Data kartu dan akun e-wallet hanya diproses oleh Midtrans."
+      },
+      "updates": {
+        "title": "10. Perubahan ketentuan",
+        "body": "Perubahan harga atau ketentuan diberitahukan lewat email sebelum berlaku pada perpanjangan Anda berikutnya."
+      },
+      "contact": {
+        "title": "11. Kontak",
+        "body": "Pertanyaan tentang keanggotaan dapat dikirim melalui halaman Kontak CakraNexa."
+      }
+    }
+  },
+  "accountMembership": {
+    "title": "Keanggotaan Saya",
+    "subtitle": "Paket, tagihan, perpanjangan, dan pembatalan keanggotaan Anda.",
+    "loginTitle": "Masuk untuk melihat keanggotaan",
+    "loginDescription": "Keanggotaan dan tagihan terhubung ke akun Anda.",
+    "loadError": "Data keanggotaan gagal dimuat. Periksa koneksi lalu coba lagi.",
+    "openLibrary": "Buka Pustaka Saya",
+    "none": {
+      "title": "Belum ada keanggotaan berbayar",
+      "description": "Akun Anda termasuk Free Circle. Pilih paket untuk membuka Digital Reading Shelf atau Digital Member Pick.",
+      "cta": "Lihat paket keanggotaan"
+    },
+    "status": {
+      "pending": "Menunggu pembayaran",
+      "active": "Aktif",
+      "past_due": "Penagihan gagal",
+      "grace": "Masa tenggang",
+      "canceled": "Dibatalkan",
+      "expired": "Berakhir"
+    },
+    "cycles": {
+      "monthly": "Bulanan",
+      "yearly": "Tahunan"
+    },
+    "fields": {
+      "cycle": "Periode tagihan",
+      "period": "Periode berjalan",
+      "accessUntil": "Akses sampai",
+      "method": "Metode bayar",
+      "devices": "Batas perangkat",
+      "nextRenewal": "Perpanjangan berikutnya"
+    },
+    "otherMethod": "Lainnya",
+    "autodebitOn": "perpanjangan otomatis",
+    "autodebitOff": "bayar manual per periode",
+    "nextRenewal": "{{amount}} pada {{date}}",
+    "renewalAuto": "Ditagih otomatis pada tanggal tersebut.",
+    "renewalManual": "Tagihan dikirim 7 hari sebelumnya.",
+    "foundingUntil": "Harga Founding berlaku sampai {{date}}. Perpanjangan berikutnya memakai harga reguler {{price}}/tahun.",
+    "pendingChange": "Mulai {{date}} paket berubah menjadi {{plan}} ({{cycle}}).",
+    "cancelChange": "Batalkan perubahan",
+    "pendingNotice": "Pendaftaran menunggu pembayaran. Selesaikan pembayaran dalam 24 jam untuk mengaktifkan keanggotaan.",
+    "graceNotice": "Tagihan belum dibayar. Akses tetap terbuka sampai {{date}} (masa tenggang).",
+    "pastDueNotice": "Penagihan otomatis gagal. Kami mencoba lagi dalam beberapa hari; Anda juga bisa membayar sekarang.",
+    "canceledNotice": "Keanggotaan dibatalkan. Akses tetap terbuka sampai {{date}} dan tidak ada tagihan berikutnya.",
+    "endedNotice": "Keanggotaan berakhir {{date}}. Progres dan catatan Anda disimpan {{months}} bulan; berlangganan lagi untuk membuka kembali.",
+    "resume": "Batalkan pembatalan",
+    "resumed": "Pembatalan dibatalkan. Keanggotaan berlanjut seperti biasa.",
+    "subscribeAgain": "Berlangganan lagi",
+    "openInvoice": {
+      "title": "Tagihan terbuka",
+      "due": "Jatuh tempo {{date}}",
+      "pay": "Bayar sekarang",
+      "refresh": "Periksa status pembayaran",
+      "paidNow": "Pembayaran diterima. Terima kasih!",
+      "stillPending": "Pembayaran belum kami terima. Bila Anda baru membayar, tunggu beberapa menit lalu periksa lagi."
+    },
+    "invoiceKind": {
+      "initial": "Pendaftaran",
+      "renewal": "Perpanjangan",
+      "upgrade": "Selisih upgrade",
+      "manual": "Pembayaran offline"
+    },
+    "invoiceStatus": {
+      "draft": "Draf",
+      "issued": "Belum dibayar",
+      "paid": "Lunas",
+      "failed": "Gagal",
+      "void": "Dibatalkan"
+    },
+    "invoices": {
+      "title": "Riwayat tagihan",
+      "empty": "Belum ada tagihan.",
+      "receipt": "Bukti bayar"
+    },
+    "change": {
+      "title": "Ubah paket",
+      "description": "Upgrade dan bulanan ke tahunan berlaku seketika dengan kredit prorata. Downgrade dan tahunan ke bulanan berlaku di akhir periode.",
+      "plan": "Paket",
+      "cycle": "Periode tagihan",
+      "submit": "Ubah paket",
+      "immediateResult": "Bayar selisih {{amount}} (setelah kredit {{credit}}) untuk mengaktifkan paket baru.",
+      "scheduledResult": "Perubahan dijadwalkan mulai {{date}}.",
+      "appliedResult": "Paket baru sudah aktif."
+    },
+    "method": {
+      "title": "Metode pembayaran",
+      "description": "Berlaku untuk tagihan berikutnya. Kartu/GoPay diperpanjang otomatis bila fitur tersebut sudah aktif.",
+      "submit": "Simpan metode",
+      "saved": "Metode pembayaran diperbarui untuk tagihan berikutnya."
+    },
+    "cancel": {
+      "title": "Batalkan keanggotaan",
+      "description": "Akses tetap terbuka sampai {{date}}. Tidak ada tagihan berikutnya, dan judul yang dibeli satuan tetap milik Anda.",
+      "descriptionNow": "Tagihan periode ini belum dibayar, jadi pembatalan langsung mengakhiri akses keanggotaan.",
+      "button": "Batalkan keanggotaan",
+      "confirm": "Batalkan keanggotaan? Akses keanggotaan berakhir {{date}}.",
+      "done": "Keanggotaan dibatalkan. Akses berakhir {{date}}."
+    },
+    "errors": {
+      "payment_required": "Selesaikan tagihan yang tertunggak lebih dulu.",
+      "no_subscription": "Anda belum memiliki keanggotaan aktif.",
+      "no_change": "Paket dan periode sama dengan yang berjalan.",
+      "canceled": "Batalkan pembatalan lebih dulu untuk menjadwalkan perubahan paket.",
+      "already_canceled": "Keanggotaan sudah dibatalkan.",
+      "nothing_to_resume": "Tidak ada pembatalan yang bisa dibatalkan.",
+      "period_ended": "Periode sudah berakhir.",
+      "state_changed": "Status keanggotaan berubah. Muat ulang halaman.",
+      "invoice_closed": "Tagihan ini sudah tidak dapat dibayar.",
+      "invoice_not_found": "Tagihan tidak ditemukan.",
+      "plan_unavailable": "Paket tidak tersedia.",
+      "payment_unavailable": "Pembayaran online belum tersedia.",
+      "payment_error": "Pembayaran gagal dimulai. Coba lagi.",
+      "no_pending_change": "Tidak ada perubahan paket terjadwal.",
+      "invalid_request": "Permintaan tidak valid.",
+      "snap_unavailable": "Halaman pembayaran tidak dapat dibuka. Nonaktifkan pemblokir popup lalu coba lagi.",
+      "network": "Koneksi terputus. Periksa internet Anda lalu coba lagi.",
+      "digital_disabled": "Fitur keanggotaan belum dibuka.",
+      "unknown": "Terjadi kesalahan. Coba lagi.",
+      "invalid_whatsapp": "Nomor WhatsApp tidak valid. Gunakan nomor seluler Indonesia, misalnya 0812 3456 7890."
+    },
+    "whatsapp": {
+      "title": "Pengingat WhatsApp",
+      "description": "Pengingat tagihan (H-7, H-3, H-1, hari jatuh tempo), masa tenggang, dan akses dikunci dikirim dari nomor resmi CakraNexa {{sender}}. Email tetap dikirim.",
+      "optIn": "Kirim pengingat lewat WhatsApp",
+      "number": "Nomor WhatsApp",
+      "save": "Simpan pengingat",
+      "saved": "Pengingat WhatsApp aktif untuk nomor ini.",
+      "off": "Pengingat WhatsApp dimatikan. Pengingat tetap dikirim lewat email."
+    }
   }
 }

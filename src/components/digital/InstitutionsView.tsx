@@ -2,9 +2,16 @@ import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, Check, CheckCircle2, Send, Users, Wallet } from 'lucide-react';
 import type { InstitutionType } from '../../types';
-import { INSTITUTION_INQUIRY_LIMITS, INSTITUTION_TIERS, INSTITUTION_TYPES } from '../../data/membership';
+import {
+  INSTITUTION_COMMON_FEATURES,
+  INSTITUTION_INQUIRY_LIMITS,
+  INSTITUTION_PROGRAM,
+  INSTITUTION_TIERS,
+  INSTITUTION_TYPES,
+  type InstitutionTier
+} from '../../data/membership';
 import { apiClient, ApiError } from '../../services/apiClient';
-import { useAppLanguage } from '../../i18n/hooks';
+import { useAppLanguage, useFormatters } from '../../i18n/hooks';
 
 type FieldName = 'institutionName' | 'institutionType' | 'userCount' | 'email';
 
@@ -34,13 +41,28 @@ const EMPTY_FORM: InquiryForm = {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
- * Halaman /institutions: tingkat Starter/Campus/Network (berbasis pengguna bersamaan), acquisition wallet,
- * dan formulir permintaan penawaran (POST /api/institutions/inquiry + email notifikasi ke admin).
- * Tanpa harga publik.
+ * Halaman /institutions: tingkat Starter/Campus/Network/Consortium (berbasis pengguna bersamaan), manfaat per tingkat,
+ * acquisition wallet, dan formulir permintaan penawaran (POST /api/institutions/inquiry + email notifikasi ke admin).
+ * Tanpa harga publik: harga penuh dan penyesuaian katalog ada di src/data/membership.ts untuk penyusunan penawaran.
  */
 export const InstitutionsView: React.FC = () => {
   const { t } = useTranslation('digital');
   const language = useAppLanguage();
+  const { number } = useFormatters();
+
+  const tierSpecs = (tier: InstitutionTier): { label: string; value: string }[] => {
+    const custom = t('institutions.spec.custom');
+    return [
+      { label: t('institutions.spec.adminAccounts'), value: tier.adminAccounts === null ? custom : number(tier.adminAccounts) },
+      { label: t('institutions.spec.webinars'), value: tier.webinarsPerYear === null ? custom : t('institutions.spec.perYear', { n: tier.webinarsPerYear }) },
+      { label: t('institutions.spec.usageReports'), value: tier.usageReports === null ? custom : t(`institutions.spec.reports.${tier.usageReports}`) },
+      { label: t('institutions.spec.printDiscount'), value: tier.printDiscountPercent === null ? custom : `${tier.printDiscountPercent}%` },
+      { label: t('institutions.spec.bulkOrderMin'), value: tier.bulkOrderMin === null ? custom : t('institutions.spec.books', { n: number(tier.bulkOrderMin) }) },
+      { label: t('institutions.spec.readingLists'), value: tier.readingListsPerYear === null ? custom : t('institutions.spec.perYear', { n: tier.readingListsPerYear }) },
+      { label: t('institutions.spec.courseAdoption'), value: tier.courseAdoption === null ? custom : t(`institutions.spec.adoption.${tier.courseAdoption}`) },
+      { label: t('institutions.spec.acquisitionWallet'), value: t('institutions.spec.walletValue', { percent: INSTITUTION_PROGRAM.acquisitionWalletPercent }) }
+    ];
+  };
   const formRef = useRef<HTMLElement>(null);
   const [form, setForm] = useState<InquiryForm>(EMPTY_FORM);
   const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
@@ -127,6 +149,9 @@ export const InstitutionsView: React.FC = () => {
           <h1 className="mt-3 text-2xl font-bold leading-tight sm:text-3xl md:text-4xl">{t('institutions.title')}</h1>
           <p className="mt-3 text-sm text-slate-300 sm:text-base">{t('institutions.subtitle')}</p>
           <p className="mt-3 text-sm font-semibold text-[#DFBF64]">{t('institutions.pricingNote')}</p>
+          <p className="mt-1 text-xs text-slate-300">
+            {t('institutions.foundingNote', { percent: INSTITUTION_PROGRAM.founding.discountPercent, cap: INSTITUTION_PROGRAM.founding.cap })}
+          </p>
           <button
             type="button"
             id="btn-institutions-hero-quote"
@@ -146,7 +171,7 @@ export const InstitutionsView: React.FC = () => {
           <Users className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           {t('institutions.concurrentExplainer')}
         </p>
-        <div className="mt-5 grid gap-4 md:grid-cols-3">
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {INSTITUTION_TIERS.map((tier) => (
             <article
               key={tier.key}
@@ -155,19 +180,19 @@ export const InstitutionsView: React.FC = () => {
                 tier.highlighted ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/30' : 'border-slate-200'
               }`}
             >
-              <h3 className="text-lg font-bold text-slate-900">{t(`institutions.tiers.${tier.key}.name`)}</h3>
+              <h3 className="text-lg font-bold text-slate-900 [overflow-wrap:anywhere]">{t(`institutions.tiers.${tier.key}.name`)}</h3>
               <p className="mt-1 text-sm font-semibold text-[#9A7B38]">
                 {tier.concurrentUsers ? t('institutions.concurrentUsers', { count: tier.concurrentUsers }) : t('institutions.concurrentUsersCustom')}
               </p>
               <p className="mt-2 text-xs text-slate-600">{t(`institutions.tiers.${tier.key}.description`)}</p>
-              <ul className="mt-4 flex-1 space-y-2 text-xs text-slate-700">
-                {tier.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2">
-                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
-                    <span>{t(`institutions.features.${feature}`)}</span>
-                  </li>
+              <dl className="mt-4 flex-1 divide-y divide-slate-100 text-xs">
+                {tierSpecs(tier).map((spec) => (
+                  <div key={spec.label} className="flex items-start justify-between gap-3 py-1.5">
+                    <dt className="text-slate-500">{spec.label}</dt>
+                    <dd className="text-right font-semibold text-slate-800">{spec.value}</dd>
+                  </div>
                 ))}
-              </ul>
+              </dl>
               <p className="mt-4 text-[11px] italic text-slate-500">{t('institutions.pricingNote')}</p>
               <button
                 type="button"
@@ -181,6 +206,19 @@ export const InstitutionsView: React.FC = () => {
         </div>
       </section>
 
+      {/* Manfaat semua tingkat */}
+      <section id="institution-common-features" className="mt-12">
+        <h2 className="text-xl font-bold text-slate-900">{t('institutions.commonTitle')}</h2>
+        <ul className="mt-4 grid gap-x-6 gap-y-2 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-3">
+          {INSTITUTION_COMMON_FEATURES.map((feature) => (
+            <li key={feature} className="flex items-start gap-2">
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+              <span>{t(`institutions.features.${feature}`)}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       {/* Acquisition wallet */}
       <section className="mt-12 grid gap-6 rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8 lg:grid-cols-2">
         <div>
@@ -188,7 +226,9 @@ export const InstitutionsView: React.FC = () => {
             <Wallet className="h-5 w-5 shrink-0 text-[#9A7B38]" aria-hidden="true" />
             {t('institutions.wallet.title')}
           </h2>
-          <p className="mt-3 text-sm leading-relaxed text-slate-600">{t('institutions.wallet.body')}</p>
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">
+            {t('institutions.wallet.body', { percent: INSTITUTION_PROGRAM.acquisitionWalletPercent })}
+          </p>
         </div>
         <ul className="space-y-3 self-center">
           {(['point1', 'point2', 'point3'] as const).map((point) => (

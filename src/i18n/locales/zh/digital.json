@@ -281,7 +281,50 @@
       "expired": "已过期",
       "refunded": "已退款"
     },
-    "viewOrder": "查看"
+    "viewOrder": "查看",
+    "manageMembership": "我的会员",
+    "tabs": {
+      "shelf": "数字书架",
+      "owned": "已购"
+    },
+    "shelf": {
+      "loadError": "无法加载数字书架，请检查网络后重试。",
+      "fullTitle": "Digital Reading Shelf",
+      "fullDescription": "会员有效期内可阅读和收听书架上的所有书目（访问至 {{date}}）。",
+      "empty": "书架上暂无书目。",
+      "noneTitle": "数字书架面向会员",
+      "noneDescription": "Free Circle 可阅读每本书的样章。Professional & Academic Society 可访问整个 Digital Reading Shelf。",
+      "noneCta": "查看会员方案",
+      "browseSamples": "浏览样章"
+    },
+    "pick": {
+      "title": "Digital Member Pick",
+      "description": "从书架中为 {{start}} – {{end}} 选择一本书。选定后在周期结束前锁定。",
+      "choose": "选择此书",
+      "confirm": "将“{{title}}”设为本期 Pick？{{date}} 之前无法更改。",
+      "locked": "您的 Pick，锁定至 {{date}}",
+      "errors": {
+        "pick_locked": "本期 Pick 已选择。",
+        "not_on_shelf": "此书尚未进入 Digital Reading Shelf。",
+        "pick_unavailable": "您的方案不包含 Digital Member Pick。"
+      }
+    },
+    "upcoming": {
+      "title": "即将入架",
+      "description": "新书先单独销售，随后于以下日期进入书架。",
+      "entry": "{{date}} 入架",
+      "buy": "单独购买 {{price}}"
+    },
+    "onboarding": {
+      "title": "欢迎加入 Cakrawala Magna Society",
+      "step1Title": "数字书架",
+      "step1": "打开“数字书架”标签，阅读或收听方案包含的书目。",
+      "step2Title": "设备",
+      "step2": "会员访问可在 {{n}} 台设备上使用。首次打开书目时会登记设备。",
+      "step3Title": "续费",
+      "step3": "账单、续费、更改方案和取消均在“我的会员”页面。",
+      "dismiss": "知道了"
+    }
   },
   "nav": {
     "menu": "数字",
@@ -422,9 +465,9 @@
     "viewDigitalDetail": "查看{{format}}详情"
   },
   "membership": {
-    "badge": "CakraNexa 会员",
-    "title": "选择适合您的阅读与创作方式",
-    "subtitle": "从普通读者到学者和作者，每种方案提供不同的权益。Professional & Academic Society 可完整访问电子书和有声书。",
+    "badge": "Cakrawala Magna Society",
+    "title": "更聪明地阅读，更划算地购书，与 Cakrawala Magna 社群共同成长",
+    "subtitle": "CakraNexa 会员每月 {{price}} 起。Professional & Academic Society 方案可通过 Digital Reading Shelf 阅读电子书和收听有声书。",
     "billing": {
       "label": "计费周期",
       "monthly": "按月",
@@ -435,100 +478,254 @@
     "perMonth": "/月",
     "perYear": "/年",
     "annualEquivalent": "相当于每月 {{price}}",
-    "recommended": "推荐",
+    "recommended": "主要数字方案",
     "foundingMember": "Founding Member",
+    "founding": {
+      "firstYear": "首年 Founding 价格，限前 {{cap}} 位会员",
+      "renewal": "次年起按 {{price}}/年续费，并提前通知",
+      "annualOnly": "首年 Founding 价格 {{price}} 仅适用于年度方案"
+    },
     "includesShelf": "包含 Digital Reading Shelf",
     "choosePlan": "选择方案",
     "joinFree": "免费加入",
     "phase2Note": "会员注册正在准备中，即将开放。",
+    "showAllBenefits": "查看全部 {{total}} 项权益",
+    "showFewerBenefits": "收起",
+    "authorDisclaimer": "会员资格不保证书稿出版、ISBN 或完整编辑服务。出版决定仍取决于书稿质量。",
     "plans": {
       "freeCircle": {
         "name": "Free Circle",
-        "tagline": "免费了解 CakraNexa 的作品。"
+        "tagline": "免费入门：试读、新书简报和购书积分。"
       },
       "readerCircle": {
         "name": "Reader Circle",
-        "tagline": "适合经常购书的读者。"
+        "tagline": "适合经常购书的普通读者、学生和藏书者。"
       },
       "professionalSociety": {
         "name": "Professional & Academic Society",
-        "tagline": "为学者和从业者提供完整的电子书与有声书访问。"
+        "tagline": "适合教师、研究人员和专业人士，包含 Digital Reading Shelf。"
       },
       "authorGuild": {
         "name": "Author Guild",
-        "tagline": "适合希望与 CakraNexa 合作出版的作者。"
+        "tagline": "适合作者、准作者和正在写作的教师。"
       }
     },
     "benefits": {
-      "samples": "访问所有电子书和有声书试读/试听",
-      "newsletter": "每月新书与观点简报",
-      "publicEvents": "网络研讨会和公开活动邀请",
-      "memberDiscount": "单本电子书和有声书会员价",
-      "printDiscount": "纸质书会员折扣",
-      "earlyNews": "提前获知新书预告",
-      "digitalShelf": "完整访问 Digital Reading Shelf（电子书和有声书）",
-      "frontlistDiscount": "新书上架数字书架前的特别价格",
-      "webinars": "会员专属网络研讨会和专业课程",
-      "manuscriptReview": "与编辑团队进行书稿咨询",
-      "publishingDiscount": "出版服务费用优惠",
-      "authorCommunity": "作者社群与写作课程"
+      "account": "会员账户",
+      "samples": "电子书试读（{{min}}–{{max}}% 页面）和有声书试听",
+      "newsletter": "新书通讯",
+      "points": "每笔符合条件的交易均可获得积分",
+      "recommendations": "根据兴趣推荐图书",
+      "publicEvents": "公开活动邀请",
+      "birthdayGift": "有条件的生日礼物",
+      "referralBasic": "基础推荐计划",
+      "bookDiscount": "PT Cakrawala Magna Scientia 集团出版图书 {{percent}}% 折扣",
+      "readerWallet": "每月 {{amount}} Magna Book Wallet（最低消费 {{min}}，有效期 {{days}} 天，最多 {{active}} 个有效钱包）",
+      "memberPick": "Member Pick：每月一本会员精选图书，享特别价格",
+      "digitalPick": "Digital Member Pick：每月一本您自选的旧版电子书",
+      "preorderDiscount": "精选图书预购 {{percent}}% 折扣",
+      "freeShipping": "订单满 {{min}} 免运费（地区与补贴上限由公司确定）",
+      "digitalSampler": "数字试读包：精选章节、摘要和配套资料",
+      "backlistDiscount": "特定活动中旧版图书最高 {{percent}}% 折扣",
+      "purchaseReward": "{{percent}}% 购书奖励，以图书余额形式发放",
+      "bookClub": "每月一次线上读书会",
+      "earlyAccess": "提前 {{days}} 天预购和购买特别版",
+      "birthdayVoucher": "生日 {{percent}}% 优惠券（最高减免 {{max}}）",
+      "referral": "您邀请的好友消费满 {{min}} 后获得 {{amount}} 余额",
+      "annualGift": "年度会员礼物：一本公司精选图书（最高 {{max}}），需满足最低消费",
+      "digitalShelf": "Digital Reading Shelf：阅读旧版和精选书目，包括有声书",
+      "printDiscount": "集团全部书目纸质书 {{percent}}% 折扣",
+      "proWallet": "每季度 {{amount}} Professional Book Wallet（最低消费 {{min}}）",
+      "annualCredit": "年度会员年度购书额度 {{amount}}（最低订单 {{min}}）",
+      "expertWebinar": "每季度至少 {{n}} 场专家网络研讨会",
+      "researchDigest": "每月研究摘要：研究综述与法规动态",
+      "companionResources": "配套资源：表格、清单、模板和辅助材料",
+      "citationTools": "APA、Chicago、Harvard 等格式的引用元数据",
+      "executiveSummary": "精选专业图书的执行摘要",
+      "readingPathway": "按职业划分的阅读路径（最多选择 {{n}} 个兴趣方向）",
+      "preorderPriority": "预购优先权与专业价格",
+      "expertForum": "按学科划分、有专人管理的专家论坛",
+      "memberCertificate": "符合条件的活动证书",
+      "corporateReferral": "推荐机构采购可获奖励",
+      "authorAcademy": "Author Academy：每月 {{n}} 节线上小组课程",
+      "manuscriptClinic": "每月一次小组书稿诊所",
+      "authorBookDiscount": "集团全部图书 {{percent}}% 折扣",
+      "ownBooksDiscount": "本人著作最高 {{percent}}% 折扣（至少 {{copies}} 册）",
+      "authorWallet": "每季度 {{amount}} 购书钱包（最低消费 {{min}}）",
+      "miniDiagnostic": "每年一次迷你书稿诊断（最多 {{words}} 字）",
+      "editorialDiscount": "编辑服务 {{percent}}% 折扣（每年最高优惠 {{max}}）",
+      "fastTrack": "投稿快速通道：{{days}} 个工作日内完成行政审核",
+      "templateLibrary": "图书提案、内容简介、大纲、作者简介、营销计划和发布清单模板",
+      "marketIntelligence": "每季度主题与读者趋势报告",
+      "launchBundle": "新书发布套餐：50、100、250 册特别价格",
+      "authorProfile": "出版社网站上的作者主页",
+      "authorCommunity": "作者论坛与互助督促小组",
+      "referralWallet": "符合条件的净销售额 {{percent}}% 推荐奖励（以图书或服务余额发放）",
+      "eventPriority": "工作坊、书展和提案会优先参与",
+      "strategySession": "年度策略会：小组形式或 30 分钟一对一",
+      "wishlist": "图书心愿单",
+      "preorderAlerts": "预购提醒",
+      "memberPrintDiscount": "集团纸质书会员价 {{percent}}%",
+      "authorOwnWorks": "访问您本人作品的数字版及所有书目的样章"
+    },
+    "access": {
+      "title": "各方案的电子书与有声书访问",
+      "subtitle": "数字访问是各方案中的一项权益。Digital Reading Shelf 收录已过新书期的旧版和精选书目。",
+      "feature": "功能",
+      "rows": {
+        "ebook": "电子书",
+        "audiobook": "有声书",
+        "frontlist": "新书（frontlist）",
+        "devices": "会员访问设备数",
+        "printDiscount": "纸质书折扣",
+        "wallet": "购书钱包"
+      },
+      "none": "—",
+      "ebook": {
+        "sample": "每本书 {{min}}–{{max}}% 试读",
+        "sampler": "数字试读包：精选章节、摘要、配套资料",
+        "pick": "每月 1 本旧版 Digital Member Pick",
+        "shelf": "Digital Reading Shelf：旧版和精选书目"
+      },
+      "audiobook": {
+        "sample": "{{minutes}} 分钟试听",
+        "shelf": "Digital Reading Shelf 中的全部有声书"
+      },
+      "frontlist": {
+        "sample": "试读；单本购买",
+        "preorder": "试读；精选图书预购 {{percent}}% 折扣",
+        "shelf": "出版 {{min}}–{{max}} 天后上架；预购优先"
+      },
+      "devices": "{{n}} 台设备",
+      "printDiscountPreorder": "{{percent}}%（预购 {{preorder}}%）",
+      "wallet": {
+        "month": "{{amount}}/月，最低消费 {{min}}",
+        "quarter": "{{amount}}/季度，最低消费 {{min}}",
+        "annualCredit": "年度会员年度额度 {{amount}}（最低 {{min}}）"
+      },
+      "institution": {
+        "ebook": "合同约定的数字馆藏",
+        "audiobook": "按馆藏而定",
+        "frontlist": "新书期结束后纳入馆藏",
+        "devices": "按并发用户数",
+        "wallet": "年费 {{percent}}% 的采购账户"
+      },
+      "notes": {
+        "unitPurchase": "单本购买的电子书和有声书向所有人开放，可在 2 台设备上打开，会员到期后仍归您所有。",
+        "security": "不提供 PDF 下载。所有访问均通过带水印的云端阅读器和播放器进行，每本书仅限一个活跃会话。"
+      }
     },
     "frontlist": {
       "title": "新书何时上架 Digital Reading Shelf？",
-      "body": "新书首先以纸质书和单本电子书形式发行。90–180 天后，新书将上架 Digital Reading Shelf，Professional & Academic Society 会员即可免费阅读。每个数字产品页面都会注明上架日期。",
+      "body": "新书首先以纸质书和单本电子书形式发行。经过 {{min}}–{{max}} 天的独家期后，新书将上架 Digital Reading Shelf，Professional & Academic Society 会员即可免费阅读。10–15% 的试读内容始终向所有人开放，每个数字产品页面都会注明上架日期。",
       "step1": "出版时：纸质书和单本电子书",
-      "step2": "90–180 天后：上架 Digital Reading Shelf",
+      "step2": "{{min}}–{{max}} 天后：上架 Digital Reading Shelf",
       "step3": "此后：仍可单本购买"
+    },
+    "loyalty": {
+      "title": "忠诚度等级与 Magna Points",
+      "subtitle": "等级根据年度消费计算，适用于任何会员类型。",
+      "joined": "加入时",
+      "spend": "年消费 {{amount}}",
+      "statuses": {
+        "member": {
+          "name": "Member",
+          "benefit": "基础会员权益"
+        },
+        "reader": {
+          "name": "Reader",
+          "benefit": "额外积分"
+        },
+        "curator": {
+          "name": "Curator",
+          "benefit": "特别活动参与资格"
+        },
+        "patron": {
+          "name": "Patron",
+          "benefit": "优先服务与特别版"
+        }
+      },
+      "points": "Magna Points：常规交易返还 {{percent}}% 购物余额（特别活动最高 {{campaign}}%）。积分有效期 {{months}} 个月，不可兑现或转让，在退货期结束后发放，交易取消时作废。"
     },
     "faq": {
       "title": "常见问题",
       "items": {
         "shelf": {
           "q": "什么是 Digital Reading Shelf？",
-          "a": "收录 CakraNexa 电子书和有声书的数字阅读书架，Professional & Academic Society 和 Author Guild 会员无需逐本购买即可访问。"
+          "a": "收录 CakraNexa 旧版和精选书目的数字阅读书架，包括电子书和有声书。Professional & Academic Society 会员和机构无需逐本购买即可访问。"
         },
         "frontlist": {
           "q": "为什么新书不会立即上架？",
-          "a": "新书先以单本形式销售，以保障作者获得公平回报。90–180 天后上架，日期会在产品页面注明。"
+          "a": "新书先单本销售 {{min}}–{{max}} 天，以保障作者获得公平回报。之后上架，日期会在产品页面注明。"
         },
         "unitPurchase": {
           "q": "不订阅会员可以购买电子书吗？",
-          "a": "可以。所有可购买的电子书和有声书都能单本购买，并保存在“我的书库”中。"
+          "a": "可以。所有可购买的电子书和有声书都能单本购买，并永久保存在“我的书库”中。会员享受会员价，但不能与钱包叠加使用。"
         },
         "billing": {
           "q": "按月和按年计费有什么区别？",
           "a": "按年计费每年付款一次，价格相当于 10 个月，比按月计费节省 2 个月。"
         },
+        "founding": {
+          "q": "什么是 Founding Member 价格？",
+          "a": "面向首批年度会员的上市价格：Reader Circle {{reader}}（前 {{readerCap}} 位会员）、Professional & Academic Society {{professional}}（前 {{professionalCap}} 位会员）、Author Guild {{author}}（前 {{authorCap}} 位会员）。该价格适用于第一年，续费按常规价格计算，我们会提前 {{noticeDays}} 天通知您。"
+        },
+        "payment": {
+          "q": "支持哪些付款方式？",
+          "a": "信用卡和 GoPay 自动续费。虚拟账户（Virtual Account）和 QRIS 需手动续费；我们会在到期前 {{d1}} 天、{{d2}} 天、{{d3}} 天以及到期当天发送提醒。",
+          "aManual": "目前所有支付方式（虚拟账户、QRIS、银行卡和 GoPay）均按周期付款：我们会开具账单，并在到期前 {{d1}}、{{d2}}、{{d3}} 天及到期当天发送提醒。银行卡和 GoPay 的自动续费将在 Midtrans 开通后提供。"
+        },
+        "grace": {
+          "q": "付款逾期怎么办？",
+          "a": "您有 {{graceDays}} 天宽限期，期间访问保持开放。之后访问将被锁定，但阅读进度和笔记会保留 {{retentionMonths}} 个月，付款后即可恢复。"
+        },
+        "changePlan": {
+          "q": "可以更换方案吗？",
+          "a": "可以。升级立即生效，只需按比例支付差额。降级从下一个计费周期开始生效。"
+        },
         "cancel": {
           "q": "可以随时取消吗？",
-          "a": "可以。会员可随时取消，并在已付费周期结束前保持有效。单本购买的书目仍归您所有。"
+          "a": "可以，直接在账户页面操作。会员资格在已付费周期结束前保持有效，之后不再扣费。单本购买的书目仍归您所有。"
+        },
+        "devices": {
+          "q": "可以在多少台设备上阅读？",
+          "a": "Digital Reading Shelf 访问和单本购买的书目可在 {{devices}} 台设备上打开。每本书同时只能有一个阅读或收听会话，每 {{releaseDays}} 天可解除一台设备。不提供 PDF 下载，所有访问均通过云端阅读器和播放器进行。"
         },
         "institutions": {
           "q": "我代表大学或图书馆，哪个方案合适？",
-          "a": "Institution & Library Network：以年度合同为多位用户提供共享访问。请在机构页面申请报价。"
+          "a": "Institution & Library Network：以年度合同按并发用户数提供共享访问。请在机构页面申请报价。"
         }
       }
     },
     "institutionsCta": {
       "title": "面向大学、图书馆和机构",
-      "description": "Institution & Library Network 以年度合同为多位用户同时提供 Digital Reading Shelf 访问。",
+      "description": "Institution & Library Network 以年度合同为 5 至 50 位并发用户（或通过定制方案支持更多用户）提供数字馆藏访问，并附带采购账户。",
       "link": "了解 Institution & Library Network"
-    }
+    },
+    "foundingSeats": "创始会员 — 剩余 {{count}} 个名额",
+    "foundingSoldOut": "创始会员名额已满",
+    "foundingNotEligible": "创始价格仅适用于新会员；重新加入按常规价格计费。",
+    "currentPlan": "您当前的方案",
+    "changePlan": "更改方案",
+    "devices": "会员访问可在 {{n}} 台设备上使用",
+    "includesPick": "每月包含 1 本 Digital Member Pick",
+    "termsLink": "会员条款"
   },
   "institutions": {
     "badge": "Institution & Library Network",
     "title": "为您的机构提供 CakraNexa 数字访问",
     "subtitle": "一份年度合同覆盖全体成员：学生、教师、研究人员和员工均可阅读 CakraNexa 电子书、收听有声书。",
-    "pricingNote": "价格根据机构规模和书目数量确定。",
+    "pricingNote": "年费根据并发用户数和数字馆藏规模确定。",
+    "foundingNote": "Founding 计划：前 {{cap}} 家机构首年享 {{percent}}% 折扣。",
     "tiersTitle": "服务等级",
     "concurrentUsers_other": "最多 {{count}} 位并发用户",
-    "concurrentUsersCustom": "超过 100 位并发用户，按需定制",
+    "concurrentUsersCustom": "超过 50 位并发用户",
     "concurrentExplainer": "并发用户指可同时阅读的人数。",
     "requestQuote": "申请报价",
     "tiers": {
       "starter": {
         "name": "Starter",
-        "description": "适合学科项目、研究机构或小型图书馆。"
+        "description": "适合学校、学科项目、研究机构或小型图书馆。"
       },
       "campus": {
         "name": "Campus",
@@ -536,24 +733,61 @@
       },
       "network": {
         "name": "Network",
-        "description": "适合联盟、多校区机构或图书馆网络。"
+        "description": "适合大型高校、多学院机构或图书馆网络。"
+      },
+      "consortium": {
+        "name": "Consortium / Enterprise",
+        "description": "适合并发用户超过 50 位的联盟、多校区机构、企业和政府机构，按使用量定价。"
       }
     },
+    "spec": {
+      "adminAccounts": "管理员账户",
+      "webinars": "机构网络研讨会",
+      "usageReports": "使用报告",
+      "printDiscount": "纸质书折扣",
+      "bulkOrderMin": "最低批量订购",
+      "readingLists": "定制阅读清单",
+      "courseAdoption": "课程采用支持",
+      "acquisitionWallet": "采购账户",
+      "custom": "按合同约定",
+      "perYear": "{{n}}/年",
+      "books": "{{n}} 册",
+      "walletValue": "年费的 {{percent}}%",
+      "reports": {
+        "quarterly": "每季度",
+        "monthly": "每月",
+        "monthlyAnalysis": "每月 + 分析"
+      },
+      "adoption": {
+        "basic": "基础",
+        "full": "全面",
+        "fullManager": "全面 + 客户经理"
+      }
+    },
+    "commonTitle": "所有等级均包含",
     "features": {
-      "shelfAccess": "访问 Digital Reading Shelf（电子书和有声书）",
-      "usageReports": "定期使用报告",
-      "acquisitionWallet": "用于永久购书的采购账户（acquisition wallet）",
-      "ipAccess": "校园网络（IP）自动访问",
-      "marcRecords": "供图书馆系统使用的 MARC 编目数据",
-      "multiCampus": "一份合同覆盖多个校区或分馆",
-      "accountManager": "专属客户经理"
+      "collection": "访问约定的数字馆藏",
+      "accessMethods": "根据系统能力，通过账户、IP 地址或单点登录访问",
+      "concurrentAccess": "按并发用户数授予访问权限",
+      "adminDashboard": "管理员仪表板",
+      "usageReports": "使用报告",
+      "catalogMetadata": "编目元数据",
+      "readingLists": "阅读清单",
+      "courseAdoption": "课程采用支持",
+      "printDiscount": "纸质书采购折扣",
+      "webinars": "机构网络研讨会",
+      "collectionAdvice": "馆藏选择协助",
+      "librarianSupport": "图书馆员支持",
+      "collectionUpdates": "定期更新馆藏",
+      "techSupport": "技术支持服务",
+      "certificate": "机构会员证书"
     },
     "wallet": {
       "title": "什么是采购账户（acquisition wallet）？",
-      "body": "年度合同金额的一部分将作为采购余额保留，用于永久购买选定书目。即使合同未续签，这些馆藏仍归机构所有。",
-      "point1": "选择阅读量最高的书目",
-      "point2": "已购书目此后仍可访问",
-      "point3": "余额使用情况记录在年度报告中"
+      "body": "已付年费的 {{percent}}% 将在周期结束时转换为采购额度，用于购买使用量最高书目的永久授权或纸质书，因此访问费用不会白白流失。",
+      "point1": "根据使用数据选择书目",
+      "point2": "即使合同未续签，永久授权仍可访问",
+      "point3": "额度使用情况记录在年度报告中"
     },
     "form": {
       "title": "申请报价",
@@ -617,5 +851,261 @@
     "membership": "会员",
     "institutions": "机构",
     "library": "我的书库"
+  },
+  "membershipCheckout": {
+    "title": "加入会员",
+    "subtitle": "确认方案、选择付款方式，然后前往安全的 Midtrans 支付页面。",
+    "loginTitle": "登录后加入",
+    "loginDescription": "会员与您的账户关联，便于在同一处管理数字书架、设备和账单。",
+    "plan": "方案",
+    "cycle": "计费周期",
+    "change": "更换方案",
+    "totalToday": "今日应付",
+    "renewalNote": "下次续费 {{price}} {{cycle}}，续费前会提前通知。",
+    "perYear": "每年",
+    "perMonth": "每月",
+    "methodTitle": "付款方式",
+    "honestNote": "银行卡/GoPay：自动续费。虚拟账户/QRIS：我们每期发送账单，由您手动付款。",
+    "honestNoteManual": "目前所有方式均按周期付款：我们会在到期前发送账单和提醒，由您手动付款。",
+    "methods": {
+      "va": {
+        "label": "虚拟账户",
+        "description": "通过银行虚拟账户号码转账。我们每期发送账单，由您手动付款。"
+      },
+      "qris": {
+        "label": "QRIS",
+        "description": "使用银行或电子钱包应用扫描二维码。我们每期发送账单，由您手动付款。"
+      },
+      "card": {
+        "label": "信用卡/借记卡",
+        "descriptionAuto": "每期自动续费。卡片信息仅在 Midtrans 页面填写，CakraNexa 不会保存。",
+        "descriptionManual": "自动续费尚未开通；我们每期发送账单，由您手动付款。"
+      },
+      "gopay": {
+        "label": "GoPay",
+        "descriptionAuto": "从您绑定的 GoPay 账户自动续费。",
+        "descriptionManual": "自动续费尚未开通；我们每期发送账单，由您手动付款。"
+      }
+    },
+    "termsAccept": "我已阅读并同意",
+    "licenseAccept": "我同意数字许可条款：通过云端阅读器和播放器进行个人阅读/收听，不可下载，并带有账户水印。",
+    "pay": "支付 {{total}}",
+    "paying": "处理中…",
+    "popupClosed": "付款窗口已关闭。账单将保留 24 小时，可在“我的会员”页面付款。",
+    "resume": "继续付款",
+    "manage": "打开“我的会员”",
+    "confirmingTitle": "已收到付款",
+    "confirmingDescription": "正在为您开通会员，稍后将跳转到“我的书库”。",
+    "alreadyMemberTitle": "您已是会员",
+    "freeTitle": "Free Circle 已生效",
+    "freeDescription": "每个账户自动享有 Free Circle：样章、新书通讯、心愿单和活动邀请。",
+    "unavailableTitle": "暂未开放注册",
+    "unavailable": "会员注册正在筹备中，即将开放。",
+    "back": "返回会员方案",
+    "errors": {
+      "terms_required": "请先同意会员条款。",
+      "license_required": "请先同意数字许可条款。",
+      "already_subscribed": "您已有有效会员。请在“我的会员”页面使用“更改方案”。",
+      "plan_unavailable": "该方案暂不可用。",
+      "payment_unavailable": "在线支付暂不可用，请稍后再试。",
+      "payment_error": "无法发起付款，请重试。",
+      "subscription_in_progress": "另一笔注册正在处理中，请刷新页面。",
+      "email_required": "您的账户需要电子邮箱才能订阅。",
+      "snap_unavailable": "无法打开付款页面。请关闭弹窗拦截后重试。",
+      "digital_disabled": "会员注册暂未开放。",
+      "network": "网络已断开，请检查网络后重试。",
+      "unknown": "发生错误，请重试。",
+      "invalid_whatsapp": "WhatsApp 号码无效。请使用印尼手机号码，例如 0812 3456 7890。"
+    },
+    "whatsapp": {
+      "title": "WhatsApp 提醒（可选）",
+      "description": "账单和会员提醒将从 CakraNexa 官方号码 {{sender}} 发送。您可以随时在“我的会员”中关闭。",
+      "optIn": "通过 WhatsApp 发送账单提醒",
+      "number": "WhatsApp 号码",
+      "placeholder": "0812 3456 7890"
+    }
+  },
+  "membershipTerms": {
+    "badge": "待审阅草案",
+    "title": "Cakrawala Magna Society 会员条款",
+    "intro": "本条款适用于由 PT Cakrawala Magna Scientia 运营的 CakraNexa 付费会员。本文件仍为草案，在开放注册前可能修改。",
+    "back": "返回会员方案",
+    "sections": {
+      "plans": {
+        "title": "1. 方案与价格",
+        "body": "会员包括 Free Circle（免费）、Reader Circle、Professional & Academic Society 和 Author Guild。各方案的价格、权益和设备上限以您注册时会员页面所示为准。年费相当于 10 个月的月费。所有价格以印尼盾计。"
+      },
+      "founding": {
+        "title": "2. 创始会员价格",
+        "body": "在名额范围内，新会员首年年付方案可享创始价格：Reader Circle {{reader}}（{{readerCap}} 名）、Professional & Academic Society {{professional}}（{{professionalCap}} 名）、Author Guild {{author}}（{{authorCap}} 名）。名额在注册时预留，若首张账单 24 小时内未付款则释放。之后各年按常规价格计费，我们会提前 {{noticeDays}} 天通知。"
+      },
+      "billing": {
+        "title": "3. 账单与续费",
+        "body": "会员期自首次付款成功时开始。手动付款（虚拟账户、QRIS）的续费账单在周期结束前 {{d1}} 天开具，并于到期前 {{d1}}、{{d2}}、{{d3}} 天及到期当天提醒。使用银行卡或 GoPay 自动续费（开通后）时，在周期结束时扣款，失败后最多重试 3 天。付款由 Midtrans 处理，CakraNexa 不保存卡片数据。"
+      },
+      "grace": {
+        "title": "4. 宽限期与访问锁定",
+        "body": "若到期日账单未付，会员进入 {{graceDays}} 天宽限期，期间访问保持开放。之后会员访问将被锁定。阅读进度和笔记将保留 {{retentionMonths}} 个月，按常规价格重新订阅后即可恢复。"
+      },
+      "changes": {
+        "title": "5. 更改方案",
+        "body": "升级及月付改年付立即生效：当前周期未使用的价值按比例抵扣，新周期自补差价付款当日开始。降级及年付改月付在当前周期结束时生效。若活跃设备超过新方案上限，系统会请您解除设备。"
+      },
+      "cancel": {
+        "title": "6. 取消",
+        "body": "您可随时在“我的会员”页面取消，无需联系管理员。访问将持续到已付周期结束，不会再有账单，且在周期结束前可撤销取消。当前周期的费用不予退还，法律另有规定的除外。"
+      },
+      "digital": {
+        "title": "7. 数字访问与设备",
+        "body": "Digital Reading Shelf 和 Digital Member Pick 是会员有效期内的个人阅读/收听许可，通过云端阅读器和播放器使用，不提供文件下载。每本书同一时间只能在一个会话中打开，设备数量以方案上限为准，并带有账户水印。设备每 {{releaseDays}} 天可解除一次。违规行为（如共享账户或自动翻页）可能导致访问被暂停。单独购买的书目在会员结束后仍归您所有。"
+      },
+      "frontlist": {
+        "title": "8. 新书（frontlist）",
+        "body": "新书先单独销售 {{min}}–{{max}} 天，之后才进入 Digital Reading Shelf。入架日期显示在各产品页面。"
+      },
+      "privacy": {
+        "title": "9. 个人数据",
+        "body": "我们处理您的姓名、电子邮箱和账单记录以管理会员，并记录访问日志以保护内容。银行卡和电子钱包信息仅由 Midtrans 处理。"
+      },
+      "updates": {
+        "title": "10. 条款变更",
+        "body": "价格或条款的变更会在适用于您下一次续费之前通过电子邮件通知。"
+      },
+      "contact": {
+        "title": "11. 联系我们",
+        "body": "有关会员的问题可通过 CakraNexa 联系页面提交。"
+      }
+    }
+  },
+  "accountMembership": {
+    "title": "我的会员",
+    "subtitle": "您的方案、账单、续费与取消。",
+    "loginTitle": "登录以查看会员",
+    "loginDescription": "会员与账单均与您的账户关联。",
+    "loadError": "无法加载会员信息，请检查网络后重试。",
+    "openLibrary": "打开“我的书库”",
+    "none": {
+      "title": "尚无付费会员",
+      "description": "您的账户已包含 Free Circle。选择方案即可开通 Digital Reading Shelf 或 Digital Member Pick。",
+      "cta": "查看会员方案"
+    },
+    "status": {
+      "pending": "等待付款",
+      "active": "有效",
+      "past_due": "扣款失败",
+      "grace": "宽限期",
+      "canceled": "已取消",
+      "expired": "已结束"
+    },
+    "cycles": {
+      "monthly": "月付",
+      "yearly": "年付"
+    },
+    "fields": {
+      "cycle": "计费周期",
+      "period": "当前周期",
+      "accessUntil": "访问截止",
+      "method": "付款方式",
+      "devices": "设备上限",
+      "nextRenewal": "下次续费"
+    },
+    "otherMethod": "其他",
+    "autodebitOn": "自动续费",
+    "autodebitOff": "每期手动付款",
+    "nextRenewal": "{{date}} 支付 {{amount}}",
+    "renewalAuto": "将于当日自动扣款。",
+    "renewalManual": "账单将提前 7 天发送。",
+    "foundingUntil": "创始价格有效期至 {{date}}。下次续费按常规价格 {{price}}/年。",
+    "pendingChange": "自 {{date}} 起方案将变更为 {{plan}}（{{cycle}}）。",
+    "cancelChange": "撤销变更",
+    "pendingNotice": "注册正在等待付款。请在 24 小时内完成付款以开通会员。",
+    "graceNotice": "账单尚未支付。访问保持开放至 {{date}}（宽限期）。",
+    "pastDueNotice": "自动扣款失败。我们将在接下来几天重试；您也可以立即付款。",
+    "canceledNotice": "会员已取消。访问保持开放至 {{date}}，不会再有账单。",
+    "endedNotice": "会员已于 {{date}} 结束。您的进度和笔记将保留 {{months}} 个月，重新订阅即可恢复。",
+    "resume": "撤销取消",
+    "resumed": "已撤销取消，会员照常继续。",
+    "subscribeAgain": "重新订阅",
+    "openInvoice": {
+      "title": "待付账单",
+      "due": "到期日 {{date}}",
+      "pay": "立即付款",
+      "refresh": "查询付款状态",
+      "paidNow": "已收到付款，谢谢！",
+      "stillPending": "我们尚未收到付款。如您刚刚付款，请稍候几分钟再查询。"
+    },
+    "invoiceKind": {
+      "initial": "注册",
+      "renewal": "续费",
+      "upgrade": "升级差价",
+      "manual": "线下付款"
+    },
+    "invoiceStatus": {
+      "draft": "草稿",
+      "issued": "未付款",
+      "paid": "已付款",
+      "failed": "失败",
+      "void": "已作废"
+    },
+    "invoices": {
+      "title": "账单记录",
+      "empty": "暂无账单。",
+      "receipt": "付款凭证"
+    },
+    "change": {
+      "title": "更改方案",
+      "description": "升级及月付改年付立即生效并按比例抵扣。降级及年付改月付在周期结束时生效。",
+      "plan": "方案",
+      "cycle": "计费周期",
+      "submit": "更改方案",
+      "immediateResult": "支付差价 {{amount}}（已抵扣 {{credit}}）即可开通新方案。",
+      "scheduledResult": "变更已安排，自 {{date}} 起生效。",
+      "appliedResult": "新方案已生效。"
+    },
+    "method": {
+      "title": "付款方式",
+      "description": "适用于下一张账单。自动续费开通后，银行卡/GoPay 将自动续费。",
+      "submit": "保存方式",
+      "saved": "付款方式已更新，适用于下一张账单。"
+    },
+    "cancel": {
+      "title": "取消会员",
+      "description": "访问保持开放至 {{date}}。不会再有账单，单独购买的书目仍归您所有。",
+      "descriptionNow": "本期账单尚未支付，取消后会员访问将立即结束。",
+      "button": "取消会员",
+      "confirm": "确定取消会员吗？会员访问将于 {{date}} 结束。",
+      "done": "会员已取消，访问于 {{date}} 结束。"
+    },
+    "errors": {
+      "payment_required": "请先结清未付账单。",
+      "no_subscription": "您没有有效的会员。",
+      "no_change": "方案和计费周期与当前相同。",
+      "canceled": "请先撤销取消，再安排方案变更。",
+      "already_canceled": "会员已取消。",
+      "nothing_to_resume": "没有可撤销的取消。",
+      "period_ended": "周期已结束。",
+      "state_changed": "会员状态已变化，请刷新页面。",
+      "invoice_closed": "该账单已无法支付。",
+      "invoice_not_found": "未找到账单。",
+      "plan_unavailable": "方案不可用。",
+      "payment_unavailable": "在线支付暂不可用。",
+      "payment_error": "无法发起付款，请重试。",
+      "no_pending_change": "没有已安排的方案变更。",
+      "invalid_request": "请求无效。",
+      "snap_unavailable": "无法打开付款页面。请关闭弹窗拦截后重试。",
+      "network": "网络已断开，请检查网络后重试。",
+      "digital_disabled": "会员功能暂未开放。",
+      "unknown": "发生错误，请重试。",
+      "invalid_whatsapp": "WhatsApp 号码无效。请使用印尼手机号码，例如 0812 3456 7890。"
+    },
+    "whatsapp": {
+      "title": "WhatsApp 提醒",
+      "description": "账单提醒（到期前 7、3、1 天及到期当天）、宽限期和访问锁定通知将从 CakraNexa 官方号码 {{sender}} 发送。电子邮件照常发送。",
+      "optIn": "通过 WhatsApp 发送提醒",
+      "number": "WhatsApp 号码",
+      "save": "保存提醒设置",
+      "saved": "此号码的 WhatsApp 提醒已开启。",
+      "off": "WhatsApp 提醒已关闭，提醒仍会通过电子邮件发送。"
+    }
   }
 }

@@ -30,4 +30,17 @@ export const goToLibrary = (): void => navigateToAppPath(buildPath({ page: 'libr
 
 export const goToMembership = (): void => navigateToAppPath(buildPath({ page: 'membership' }));
 
+export const goToMembershipCheckout = (planCode: string, cycle: 'monthly' | 'yearly'): void =>
+  navigateToAppPath(buildPath({ page: 'membership', subSection: 'checkout', query: `plan=${encodeURIComponent(planCode)}&cycle=${cycle}` }));
+
+export const membershipTermsPath = (): string => buildPath({ page: 'membership', subSection: 'terms' });
+
+export const goToMembershipTerms = (): void => navigateToAppPath(membershipTermsPath());
+
+export const goToAccountMembership = (query = ''): void =>
+  navigateToAppPath(buildPath({ page: 'account', subSection: 'membership', query }));
+
+/** Setelah pembayaran keanggotaan pertama: Pustaka Saya dengan onboarding singkat. */
+export const goToLibraryWelcome = (): void => navigateToAppPath(buildPath({ page: 'library', query: 'welcome=1' }));
+
 export const goToContact = (): void => navigateToAppPath(buildPath({ page: 'kontak' }));

@@ -50,6 +50,9 @@ import { InstitutionsView } from './components/digital/InstitutionsView';
 import { LibraryView } from './components/digital/LibraryView';
 import { AuthView, type AuthMode } from './components/account/AuthView';
 import { DigitalCheckoutView } from './components/digital/DigitalCheckoutView';
+import { MembershipCheckoutView } from './components/digital/MembershipCheckoutView';
+import { MembershipTermsView } from './components/digital/MembershipTermsView';
+import { AccountMembershipView } from './components/account/AccountMembershipView';
 import { ReaderView } from './components/reader/ReaderView';
 import { PlayerView } from './components/player/PlayerView';
 import { refreshDigitalFeature, useDigitalFeature } from './services/digitalFeature';
@@ -456,7 +459,7 @@ export default function App() {
       category: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogCategory : undefined,
       search: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogSearch : undefined,
       digitalItem: activePage === 'digital' || activePage === 'library' ? digitalItem : null,
-      query: activePage === 'account' || (activePage === 'digital' && activeSubSection === 'checkout') ? routeQuery : undefined
+      query: activePage === 'account' || activePage === 'library' || (activePage === 'digital' && activeSubSection === 'checkout') || (activePage === 'membership' && activeSubSection === 'checkout') ? routeQuery : undefined
     }, activePage === 'katalog' && !selectedBook && !selectedAuthor && (catalogSearch !== '' || catalogCategory !== 'all'));
   }, [activePage, activeSubSection, selectedBook, selectedAuthor, catalogCategory, catalogSearch, pendingBookSlug, digitalItem, routeQuery]);
 
@@ -1289,7 +1292,13 @@ export default function App() {
         )}
 
         {/* VIEW 13: KEANGGOTAAN, INSTITUSI, PUSTAKA SAYA */}
-        {activePage === 'membership' && <MembershipView onNavigate={navigateTo} />}
+        {activePage === 'membership' && (
+          activeSubSection === 'checkout'
+            ? <MembershipCheckoutView query={routeQuery} onNavigate={navigateTo} />
+            : activeSubSection === 'terms'
+              ? <MembershipTermsView onNavigate={navigateTo} />
+              : <MembershipView onNavigate={navigateTo} />
+        )}
         {activePage === 'institutions' && <InstitutionsView />}
         {activePage === 'library' && (
           digitalCatalog.enabled && activeSubSection === 'read' && digitalItem
@@ -1300,7 +1309,10 @@ export default function App() {
         )}
 
         {/* VIEW 14: AKUN PEMBELI (MASUK, DAFTAR, ATUR ULANG KATA SANDI) */}
-        {activePage === 'account' && (
+        {activePage === 'account' && activeSubSection === 'membership' && (
+          <AccountMembershipView query={routeQuery} onNavigate={navigateTo} />
+        )}
+        {activePage === 'account' && activeSubSection !== 'membership' && (
           <AuthView
             mode={(['login', 'register', 'reset', 'update-password'].includes(String(activeSubSection)) ? activeSubSection : 'login') as AuthMode}
             query={routeQuery}
@@ -1353,6 +1365,7 @@ export default function App() {
                   setDirectBookBuy(null);
                   navigateTo('katalog');
                 }}
+                onOpenMembership={() => navigateTo('membership')}
               />
             </div>
           </div>
@@ -1380,6 +1393,11 @@ export default function App() {
         items={cart}
         directBookBuy={directBookBuy}
         onOrderSuccess={handleOrderSuccess}
+        onOpenMembership={() => {
+          setIsCheckoutOpen(false);
+          setDirectBookBuy(null);
+          navigateTo('membership');
+        }}
       />
 
       {/* Quick Search Modal (Cmd+K / Search Icon) */}

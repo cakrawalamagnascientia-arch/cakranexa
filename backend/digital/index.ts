@@ -13,11 +13,17 @@ import { createReaderRouter } from './reader';
 import { createPlayerRouter } from './player';
 import { createAdminDigitalRouter } from './admin';
 import { createAnomalyRouter, startAnomalyJob } from './anomalies';
+import { createMidtransGateway, type MembershipGateway } from './membership/gateway';
+import { createWhatsAppSender, type WhatsAppSender } from './membership/whatsapp';
+import { isMembershipNotification, memberPrintPrice, memberUnitPrice, MembershipService } from './membership/service';
+import { createMembershipRouter } from './membership/router';
+import { createMembershipAdminRouter } from './membership/admin';
+import { runMembershipJob, startMembershipJob, type MembershipJobResult } from './membership/jobs';
 import type { DigitalStore } from './store';
 import type { DigitalContext, DigitalFeature, Mailer, MidtransSettings } from './context';
 import type { BookInfo } from './types';
 
-export { isDigitalOrderId };
+export { isDigitalOrderId, isMembershipNotification, memberPrintPrice, memberUnitPrice };
 
 export interface Phase2Deps {
   supabaseAdmin: SupabaseClient | null;
@@ -39,6 +45,9 @@ export interface Phase2Deps {
     now: () => Date;
     fetchImpl: typeof fetch;
     midtransClient: MidtransClient;
+    membershipGateway: MembershipGateway;
+    /** null = tanpa WhatsApp (tes); tidak diisi = sesuai env WHATSAPP_PROVIDER. */
+    whatsappSender: WhatsAppSender | null;
   }>;
 }
 
@@ -58,6 +67,13 @@ export interface DigitalPhase2 {
   idle?: () => Promise<void>;
   /** Produk sudah dimiliki pembeli (entitlement status apa pun)? Penjaga hapus produk di admin fase 1. */
   hasEntitlements?: (productId: string) => Promise<boolean>;
+  /** Keanggotaan fase 3 (dipakai tes dan admin). */
+  membership?: MembershipService;
+  /** Notifikasi Midtrans keanggotaan (order_id SUB-... atau tagihan otomatis Midtrans Subscriptions). */
+  handleMembershipNotification?: (notification: Record<string, any>) => Promise<{ status: number; body: Record<string, unknown> }>;
+  runMembershipJob?: () => Promise<MembershipJobResult>;
+  /** Langkah 7: persen harga member buku cetak untuk pemilik token; null bila flag mati atau bukan anggota aktif. */
+  memberPrintDiscount?: (authorization: string | undefined) => Promise<{ percent: number; planCode: string } | null>;
 }
 
 /** Awalan rute fase 2 — dijawab 503 bila fitur tidak aktif di instance ini. */
@@ -72,6 +88,8 @@ export const PHASE2_ROUTE_PREFIXES = [
   '/api/digital/orders',
   '/api/admin/digital-access',
   '/api/admin/digital/processing',
+  '/api/membership',
+  '/api/admin/membership',
   '/api/internal/cron'
 ];
 
@@ -201,6 +219,15 @@ export const createDigitalPhase2 = (deps: Phase2Deps): DigitalPhase2 => {
   const midtransClient = deps.overrides?.midtransClient ?? createMidtransClient(deps.midtrans, deps.overrides?.fetchImpl ?? fetch);
   router.use(createCheckoutRouter(context, midtransClient));
 
+  // Keanggotaan berbayar (fase 3): pendaftaran, penagihan, Digital Reading Shelf, Pick, admin.
+  const membershipGateway = deps.overrides?.membershipGateway ?? createMidtransGateway(deps.midtrans, deps.overrides?.fetchImpl ?? fetch);
+  const whatsappSender = deps.overrides && 'whatsappSender' in deps.overrides
+    ? deps.overrides.whatsappSender ?? null
+    : createWhatsAppSender(config.whatsapp, deps.overrides?.fetchImpl ?? fetch);
+  const membership = new MembershipService(context, membershipGateway, midtransClient, whatsappSender);
+  router.use(createMembershipRouter(context, membership));
+  router.use(createMembershipAdminRouter(context, membership));
+
   // Akses: sesi baca/dengar, perangkat, Pustaka Saya.
   router.use(createAccessRouter(context));
 
@@ -214,7 +241,7 @@ export const createDigitalPhase2 = (deps: Phase2Deps): DigitalPhase2 => {
   router.use(createAdminDigitalRouter(context));
 
   // Anomali: tab admin, pemeriksaan manual, dan endpoint cron.
-  router.use(createAnomalyRouter(context));
+  router.use(createAnomalyRouter(context, { membership: () => runMembershipJob(membership) }));
 
   router.use(PHASE2_ROUTE_PREFIXES, digitalErrorHandler);
   return {
@@ -227,8 +254,13 @@ export const createDigitalPhase2 = (deps: Phase2Deps): DigitalPhase2 => {
       if (!config.jobsEnabled) return;
       queue.start();
       startAnomalyJob(context);
+      startMembershipJob(membership);
     },
     handleMidtransNotification: (notification) => handleDigitalNotification(context, notification),
+    membership,
+    handleMembershipNotification: (notification) => membership.handleNotification(notification),
+    runMembershipJob: () => runMembershipJob(membership),
+    memberPrintDiscount: (authorization) => membership.memberPrintDiscount(authorization),
     idle: async () => {
       while (pending.size > 0) await Promise.allSettled([...pending]);
     },

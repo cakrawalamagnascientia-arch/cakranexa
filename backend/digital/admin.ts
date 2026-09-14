@@ -118,7 +118,7 @@ export const createAdminDigitalRouter = (ctx: DigitalContext): Router => {
     let entitlementsDeleted = 0;
     if (orderIds.length > 0) {
       const entitlements = (await Promise.all(orderIds.map((id) => ctx.store.listEntitlements({ source: 'purchase', sourceRef: id })))).flat();
-      for (const e of entitlements) await ctx.store.endSessions({ userId: e.userId, productId: e.productId }, 'revoked');
+      for (const e of entitlements) await ctx.store.endSessions({ userId: e.userId, productId: e.productId ?? undefined }, 'revoked');
       if (entitlements.length > 0) await ctx.store.deleteEntitlements(entitlements.map((e) => e.id));
       entitlementsDeleted = entitlements.length;
       await ctx.store.deleteOrders(orderIds);
@@ -159,7 +159,7 @@ export const createAdminDigitalRouter = (ctx: DigitalContext): Router => {
       maxDevices: await maxDevicesForUser(ctx, userId),
       entitlements: entitlements
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-        .map((e) => ({ ...e, usable: isEntitlementUsable(e, now), product: products.get(e.productId) ?? null })),
+        .map((e) => ({ ...e, usable: isEntitlementUsable(e, now), product: e.productId ? products.get(e.productId) ?? null : null })),
       devices: devices
         .sort((a, b) => b.lastSeen.localeCompare(a.lastSeen))
         .map((d) => ({
@@ -214,10 +214,12 @@ export const createAdminDigitalRouter = (ctx: DigitalContext): Router => {
     }
     const maxDevices = body.maxDevices === undefined || body.maxDevices === null ? ctx.config.defaultMaxDevices : Number(body.maxDevices);
     if (!Number.isInteger(maxDevices) || maxDevices < 1 || maxDevices > 10) throw httpError(400, 'invalid_max_devices', 'Batas perangkat harus 1–10.');
-    const sourceRef = `admin:${crypto.randomUUID()}`;
+    // entitlements.source_ref bertipe UUID: satu UUID acak per pemberian akses (source = admin_grant).
+    const sourceRef = crypto.randomUUID();
     await ctx.store.insertEntitlements([{
       userId,
       productId,
+      scope: 'product',
       source: 'admin_grant',
       sourceRef,
       startsAt: now.toISOString(),
@@ -239,7 +241,8 @@ export const createAdminDigitalRouter = (ctx: DigitalContext): Router => {
     if (!entitlement) throw httpError(404, 'entitlement_not_found', 'Hak akses tidak ditemukan.');
     const reason = status === 'active' ? null : String(body.reason || ADMIN_ACTOR).slice(0, 200);
     await ctx.store.updateEntitlements([id], { status, revokedReason: reason, statusChangedBy: ADMIN_ACTOR });
-    if (status !== 'active') await ctx.store.endSessions({ userId: entitlement.userId, productId: entitlement.productId }, status === 'revoked' ? 'revoked' : 'admin');
+    // Hak rak (productId null) mengakhiri semua sesi pengguna; hak produk hanya sesi produk itu.
+    if (status !== 'active') await ctx.store.endSessions({ userId: entitlement.userId, productId: entitlement.productId ?? undefined }, status === 'revoked' ? 'revoked' : 'admin');
     res.json({ entitlement: await ctx.store.getEntitlement(id) });
   }));
 

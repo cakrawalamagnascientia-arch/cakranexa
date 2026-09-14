@@ -39,10 +39,10 @@
       "imageAlt": "Sample of {{title}}"
     },
     "membership": {
-      "title": "CakraNexa Membership — Free Circle to Author Guild",
-      "description": "Choose a CakraNexa membership plan: Free Circle, Reader Circle, Professional & Academic Society with Digital Reading Shelf access, and Author Guild. Save 2 months with annual billing.",
-      "keywords": "cakranexa membership, academic e-book subscription, digital reading shelf, author guild",
-      "imageAlt": "CakraNexa Membership"
+      "title": "Cakrawala Magna Society — CakraNexa Membership",
+      "description": "CakraNexa membership: Free Circle, Reader Circle, Professional & Academic Society with the Digital Reading Shelf (e-books and audiobooks), and Author Guild. Founding Member prices for the first annual members; annual billing saves 2 months.",
+      "keywords": "cakrawala magna society, cakranexa membership, academic e-book subscription, digital reading shelf, founding member",
+      "imageAlt": "Cakrawala Magna Society membership"
     },
     "institutions": {
       "title": "Institution & Library Network — Digital Access for Universities & Libraries | CakraNexa",
@@ -115,6 +115,12 @@
       "description": "Complete your CakraNexa academic book order with secure payment and delivery across Indonesia.",
       "keywords": "buy academic books, cakranexa checkout",
       "imageAlt": "CakraNexa Checkout"
+    },
+    "membershipTerms": {
+      "title": "Cakrawala Magna Society Membership Terms — CakraNexa",
+      "description": "CakraNexa membership terms: plans and prices, Founding Member pricing, billing and renewal, grace period, plan changes, cancellation, and Digital Reading Shelf access.",
+      "keywords": "cakranexa membership terms, ebook subscription terms, cakrawala magna society",
+      "imageAlt": "Cakrawala Magna Society Membership Terms"
     }
   }
 }

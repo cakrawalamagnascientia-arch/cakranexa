@@ -328,5 +328,10 @@
     "preparing": "我们的物流团队正在以多层防护包装为您准备已获ISBN的图书。",
     "closing": "此致敬礼，",
     "team": "*CakraNexa 发行部*"
+  },
+  "memberOffer": {
+    "title": "成为 Cakrawala Magna Society 会员",
+    "description": "开启电子书与有声书数字书架及更多会员权益，伴您开启下一次阅读。",
+    "cta": "查看会员方案"
   }
 }

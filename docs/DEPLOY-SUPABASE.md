@@ -20,7 +20,7 @@ Akibatnya:
 5. Ulangi pemeriksaan sampai semua `ada = true` (bagian 4).
 6. Isi env Render (bagian 5).
 7. Deploy versi yang memuat pemeriksaan start, lalu cek `/api/health` (bagian 6).
-8. Setelah health check menunjukkan `supabaseConnected: true` dan `supabaseSchemaReady: true`, baru migration fase 3.
+8. Setelah health check menunjukkan `supabaseConnected: true` dan `supabaseSchemaReady: true`, baru migration fase 3 (bagian 8). Migration fase 3 harus dijalankan **sebelum** men-deploy kode fase 3.
 
 ---
 
@@ -41,7 +41,7 @@ Akibatnya:
 
 1. Supabase → **SQL Editor** → **New query**.
 2. Tempel seluruh isi [`src/db/check_schema.sql`](../src/db/check_schema.sql), lalu klik **Run**.
-3. Hasilnya 29 baris dengan kolom `urutan`, `migration`, `object`, dan `ada`. Baris dengan `ada = false` menunjukkan migration yang belum dijalankan.
+3. Hasilnya 41 baris dengan kolom `urutan`, `migration`, `object`, dan `ada`: 29 baris fase 1–2 (urutan 1–5) dan 12 baris fase 3 (urutan 6). Baris dengan `ada = false` menunjukkan migration yang belum dijalankan.
 
 Kueri ini tidak mengubah apa pun dan aman dijalankan kapan saja.
 
@@ -58,6 +58,7 @@ Jalankan **satu file per kueri**. Buka file di GitHub → **Raw** → salin semu
 | 3 | `src/db/i18n_content_migration.sql` | Ya | `books.i18n`, `authors.i18n`, atau `orders.language` false |
 | 4 | `src/db/digital_products_migration.sql` (**fase 1**) | Ya | Ada baris urutan 4 yang false |
 | 5 | `src/db/digital_phase2_migration.sql` (**fase 2**) | Ya | Ada baris urutan 5 yang false |
+| 6 | `src/db/membership_phase3_migration.sql` (**fase 3**, keanggotaan) | Ya | Ada baris urutan 6 yang false. Jalankan sebelum men-deploy kode fase 3 (bagian 8). |
 
 Semua file di urutan 2–5 memakai `IF NOT EXISTS` atau bentuk yang setara. Kelimanya sudah diuji di Postgres lokal: dijalankan berurutan, dijalankan ulang, lalu diperiksa dengan `check_schema.sql`.
 
@@ -76,7 +77,7 @@ File-file ini mengubah atau menambah data dan bukan syarat server.
 
 ## 4. Verifikasi
 
-- Jalankan ulang `check_schema.sql`. Semua 29 baris harus `ada = true`.
+- Jalankan ulang `check_schema.sql`. Semua baris harus `ada = true` (29 sebelum fase 3, 41 setelah migration fase 3).
 - Di **Storage**, bucket `digital-assets` harus **Private** dan `digital-samples` **Public**.
 
 ---
@@ -123,7 +124,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 - `FFMPEG_PATH`, `PDFTOPPM_PATH`, `PDFTOTEXT_PATH`: sudah ada di image Docker.
 - `VERCEL`.
 
-Env fase 3 (`ENABLE_AUTODEBIT`, `ENABLE_READER_DIGITAL_PICK`, `ENABLE_AUTHOR_GUILD_SHELF`, `ENABLE_MEMBER_PRINT_DISCOUNT`) ditambahkan di langkah fase 3.
+Env fase 3 (`ENABLE_AUTODEBIT`, `PAYMENT_TOKEN_KEY`, `ENABLE_READER_DIGITAL_PICK`, `ENABLE_AUTHOR_GUILD_SHELF`, `ENABLE_MEMBER_PRINT_DISCOUNT`, `MEMBERSHIP_EXTENDED_BENEFITS`): lihat [`docs/SETUP-KEANGGOTAAN.md`](SETUP-KEANGGOTAAN.md) bagian 2. Semuanya boleh dibiarkan kosong (default mati).
 
 Variabel `VITE_*` dibakar saat build, jadi perubahan nilainya memerlukan **build ulang** (Render melakukannya saat deploy).
 
@@ -165,3 +166,14 @@ Variabel `VITE_*` dibakar saat build, jadi perubahan nilainya memerlukan **build
 - **Pesanan buku cetak** tersimpan di tabel `orders` dan `order_items`, jadi tidak hilang saat restart.
 - **Perubahan admin** (buku, penulis, konten CMS, SEO, produk digital) disimpan ke Supabase. Buku dan produk digital yang belum ada di database tetap tampil dari data bawaan, jadi katalog dan menu Digital tidak kosong.
 - **Fitur digital fase 2** memakai Supabase, tetapi tetap tertutup untuk umum selama `DIGITAL_ENABLED=false`. Hanya email di `DIGITAL_BETA_EMAILS` yang bisa mengujinya.
+
+---
+
+## 8. Fase 3 (keanggotaan berbayar)
+
+1. Cadangkan database (bagian 1).
+2. Jalankan `src/db/membership_phase3_migration.sql` di SQL Editor sebagai **satu kueri**. Hasil yang benar: *Success. No rows returned*. File ini aman diulang dan tidak menimpa perubahan harga dari admin.
+   - Satu-satunya perubahan pada tabel fase 2: kolom `entitlements.scope` (default `product`), `digital_product_id` boleh NULL untuk scope `shelf`, dan satu indeks unik parsial. Baris lama tidak diubah.
+3. Jalankan ulang `check_schema.sql`: 41 baris `ada = true`.
+4. Baru setelah itu deploy kode fase 3. Tanpa migration, server menolak start dengan pesan `Skema belum lengkap — jalankan src/db/membership_phase3_migration.sql`, dan Render tetap menjalankan versi sebelumnya.
+5. Env, cron, dan Midtrans: [`docs/SETUP-KEANGGOTAAN.md`](SETUP-KEANGGOTAAN.md).

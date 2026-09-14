@@ -4,7 +4,13 @@ import { asyncRoute, httpError } from './errors';
 import type { DigitalContext } from './context';
 import { anomalyAlertEmail, type AnomalyAlertItem } from './email';
 import { productRefs, publicAnomaly } from './admin';
+import { isEntitlementUsable, resolveEntitlement } from './entitlements';
+import { DAY_MS } from './time';
 import type { AnomalyRecord, AnomalyRule } from './types';
+
+/** Baris blokir per judul untuk anggota rak (A4): diselesaikan admin = dicabut (bukan diaktifkan). */
+export const ANOMALY_TITLE_BLOCK_REASON = 'anomaly:page_speed:title_block';
+const SHELF_ESCALATION_WINDOW_MS = 30 * DAY_MS;
 
 /**
  * Deteksi anomali akses (keputusan #7 & #9):
@@ -41,16 +47,54 @@ export const runAnomalyScan = async (ctx: DigitalContext): Promise<AnomalyScanRe
     if (recentlyHandled) continue;
 
     let suspendedEntitlementIds: string[] = [];
+    let details: Record<string, unknown> = candidate.details;
     if (candidate.rule === 'page_speed' && candidate.productId) {
       const active = (await ctx.store.listEntitlements({ userId: candidate.userId, productId: candidate.productId })).filter((e) => e.status === 'active');
+      const product = active.length === 0 ? await ctx.store.getProduct(candidate.productId) : null;
+      const access = product ? await resolveEntitlement(ctx, candidate.userId, product) : null;
       if (active.length > 0) {
+        // Hak per judul (pembelian, grant, Pick): ditangguhkan seperti fase 2.
         suspendedEntitlementIds = active.map((e) => e.id);
         await ctx.store.updateEntitlements(suspendedEntitlementIds, { status: 'suspended', revokedReason: 'anomaly:page_speed', statusChangedBy: 'anomaly' });
         await ctx.store.endSessions({ userId: candidate.userId, productId: candidate.productId }, 'revoked');
+      } else if (access?.entitlement?.scope === 'shelf') {
+        // Dibaca lewat rak keanggotaan (A4): pelanggaran pertama memblokir judul itu saja; pelanggaran kedua dalam 30 hari
+        // menangguhkan seluruh rak.
+        const previousViaShelf = (await ctx.store.listAnomalies({ userId: candidate.userId, limit: 200 }))
+          .filter((a) => a.rule === 'page_speed' && a.details?.via === 'shelf' && now.getTime() - Date.parse(a.detectedAt) < SHELF_ESCALATION_WINDOW_MS);
+        if (previousViaShelf.length > 0) {
+          suspendedEntitlementIds = (await ctx.store.listEntitlements({ userId: candidate.userId, scope: 'shelf' }))
+            .filter((e) => isEntitlementUsable(e, now))
+            .map((e) => e.id);
+          await ctx.store.updateEntitlements(suspendedEntitlementIds, { status: 'suspended', revokedReason: 'anomaly:page_speed:shelf', statusChangedBy: 'anomaly' });
+          await ctx.store.endSessions({ userId: candidate.userId }, 'revoked');
+          details = { ...candidate.details, via: 'shelf', action: 'shelf_suspended', previous_anomaly_id: previousViaShelf[0].id };
+        } else {
+          const sourceRef = crypto.randomUUID();
+          await ctx.store.insertEntitlements([{
+            userId: candidate.userId,
+            productId: candidate.productId,
+            scope: 'product',
+            source: 'membership',
+            sourceRef,
+            startsAt: now.toISOString(),
+            endsAt: access.entitlement.endsAt,
+            maxDevices: access.entitlement.maxDevices,
+            statusChangedBy: 'anomaly'
+          }]);
+          const [block] = await ctx.store.listEntitlements({ userId: candidate.userId, productId: candidate.productId, source: 'membership', sourceRef });
+          if (block) {
+            await ctx.store.updateEntitlements([block.id], { status: 'suspended', revokedReason: ANOMALY_TITLE_BLOCK_REASON, statusChangedBy: 'anomaly' });
+            suspendedEntitlementIds = [block.id];
+          }
+          await ctx.store.endSessions({ userId: candidate.userId, productId: candidate.productId }, 'revoked');
+          details = { ...candidate.details, via: 'shelf', action: 'title_blocked' };
+        }
       }
     }
     const record = await ctx.store.insertAnomaly({
       ...candidate,
+      details,
       actionTaken: suspendedEntitlementIds.length > 0 ? 'suspended' : 'flagged',
       suspendedEntitlementIds
     });
@@ -106,7 +150,8 @@ const secretMatches = (provided: string, secret: string) => {
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 };
 
-export const createAnomalyRouter = (ctx: DigitalContext): Router => {
+/** `cronJobs`: job lain yang ikut dijalankan oleh POST /api/internal/cron (mis. keanggotaan fase 3). */
+export const createAnomalyRouter = (ctx: DigitalContext, cronJobs: Record<string, () => Promise<unknown>> = {}): Router => {
   const router = express.Router();
   const admin = ctx.requireAdmin;
   const idOk = (id: string) => (ctx.store.kind === 'supabase' ? UUID_RE : /^[A-Za-z0-9_-]{1,64}$/).test(id);
@@ -130,13 +175,13 @@ export const createAnomalyRouter = (ctx: DigitalContext): Router => {
     const note = typeof body.note === 'string' ? body.note.trim().slice(0, 1000) || null : null;
     let reactivated = 0;
     if (body.reactivate === true && anomaly.suspendedEntitlementIds.length > 0) {
-      const ids = (await ctx.store.listEntitlements({ ids: anomaly.suspendedEntitlementIds }))
-        .filter((e) => e.status === 'suspended')
-        .map((e) => e.id);
-      if (ids.length > 0) {
-        await ctx.store.updateEntitlements(ids, { status: 'active', revokedReason: null, statusChangedBy: 'admin' });
-        reactivated = ids.length;
-      }
+      const suspended = (await ctx.store.listEntitlements({ ids: anomaly.suspendedEntitlementIds })).filter((e) => e.status === 'suspended');
+      // Baris blokir judul tidak memberi akses: dipulihkan dengan mencabutnya, sehingga akses rak berlaku lagi.
+      const blocks = suspended.filter((e) => e.revokedReason === ANOMALY_TITLE_BLOCK_REASON).map((e) => e.id);
+      const ids = suspended.filter((e) => e.revokedReason !== ANOMALY_TITLE_BLOCK_REASON).map((e) => e.id);
+      if (blocks.length > 0) await ctx.store.updateEntitlements(blocks, { status: 'revoked', revokedReason: 'anomaly:resolved', statusChangedBy: 'admin' });
+      if (ids.length > 0) await ctx.store.updateEntitlements(ids, { status: 'active', revokedReason: null, statusChangedBy: 'admin' });
+      reactivated = blocks.length + ids.length;
     }
     await ctx.store.resolveAnomaly(id, 'admin', note);
     res.json({ resolved: true, reactivated });
@@ -155,7 +200,16 @@ export const createAnomalyRouter = (ctx: DigitalContext): Router => {
     const provided = header.startsWith('Bearer ') ? header.slice(7).trim() : String(req.headers['x-cron-secret'] || '');
     if (!provided || !secretMatches(provided, secret)) throw httpError(401, 'unauthorized', 'Rahasia cron tidak valid.');
     const result = await runAnomalyScan(ctx);
-    res.json({ candidates: result.candidates, created: result.created.length });
+    const jobs: Record<string, unknown> = {};
+    for (const [name, job] of Object.entries(cronJobs)) {
+      try {
+        jobs[name] = await job();
+      } catch (err: any) {
+        console.warn(`[digital] job cron ${name} gagal:`, err?.message || err);
+        jobs[name] = { error: String(err?.message || err) };
+      }
+    }
+    res.json({ candidates: result.candidates, created: result.created.length, jobs });
   }));
 
   return router;

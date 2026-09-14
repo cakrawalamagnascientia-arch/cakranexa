@@ -7,29 +7,71 @@ import type {
   ChapterRecord,
   DeviceRecord,
   EntitlementRecord,
+  EntitlementScope,
   EntitlementSource,
   EntitlementStatus,
+  InvoiceKind,
+  InvoicePatch,
+  InvoiceRecord,
+  InvoiceStatus,
   NewEntitlement,
+  NewInvoice,
   NewOrder,
+  NewSubscription,
   NoteRecord,
   OrderPatch,
   OrderRecord,
+  PickRecord,
+  PlanBenefitRecord,
+  PlanPatch,
+  PlanRecord,
   ProcessingStatus,
   ProductPatch,
   ProductRecord,
   ProgressRecord,
   ReadingEventInput,
   SessionRecord,
+  SubscriptionEventRecord,
+  SubscriptionEventType,
+  SubscriptionPatch,
+  SubscriptionRecord,
+  SubscriptionStatus,
   UserProfile
 } from './types';
 
 export interface EntitlementFilter {
   ids?: string[];
   userId?: string;
+  /** Hanya baris scope 'product' untuk produk ini. */
   productId?: string;
+  scope?: EntitlementScope;
   source?: EntitlementSource;
   sourceRef?: string;
 }
+
+export interface SubscriptionFilter {
+  userId?: string;
+  statuses?: SubscriptionStatus[];
+  planId?: string;
+  isFounding?: boolean;
+  midtransSubscriptionId?: string;
+  limit?: number;
+}
+
+export interface InvoiceFilter {
+  subscriptionId?: string;
+  userId?: string;
+  statuses?: InvoiceStatus[];
+  kinds?: InvoiceKind[];
+  /** paid_at >= paidFrom dan < paidTo (ISO). */
+  paidFrom?: string;
+  paidTo?: string;
+  isTest?: boolean;
+  limit?: number;
+}
+
+/** Status langganan yang belum berakhir: maksimal satu per user (indeks unik parsial di SQL). */
+export const OPEN_SUBSCRIPTION_STATUSES: SubscriptionStatus[] = ['pending', 'active', 'past_due', 'grace'];
 
 export interface SessionFilter {
   ids?: string[];
@@ -55,6 +97,8 @@ export interface DigitalStore {
   // Produk & aset terproses
   getProduct(id: string): Promise<ProductRecord | null>;
   listProductsByStatus(status: ProcessingStatus): Promise<ProductRecord[]>;
+  /** Produk aktif yang sudah punya tanggal masuk rak (untuk rak digital dan "Segera masuk rak"). */
+  listProductsWithShelfDate(): Promise<ProductRecord[]>;
   updateProduct(id: string, patch: ProductPatch): Promise<void>;
   replacePages(productId: string, pages: Array<{ pageNumber: number; text: string }>): Promise<void>;
   searchPages(productId: string, query: string, limit: number): Promise<Array<{ pageNumber: number; text: string }>>;
@@ -83,9 +127,14 @@ export interface DigitalStore {
   // Entitlement
   listEntitlements(filter: EntitlementFilter): Promise<EntitlementRecord[]>;
   getEntitlement(id: string): Promise<EntitlementRecord | null>;
-  /** Insert dengan ON CONFLICT DO NOTHING; mengembalikan jumlah baris baru. */
+  /**
+   * Insert dengan ON CONFLICT DO NOTHING; mengembalikan jumlah baris baru. Scope 'product': unik per
+   * (user, produk, source, source_ref); scope 'shelf': unik per (user, source, source_ref, starts_at).
+   */
   insertEntitlements(rows: NewEntitlement[]): Promise<number>;
   updateEntitlements(ids: string[], patch: { status: EntitlementStatus; revokedReason?: string | null; statusChangedBy: string }): Promise<void>;
+  /** Ubah akhir masa berlaku (pembatalan, masa tenggang tambahan, pergantian paket). */
+  updateEntitlementsEndsAt(ids: string[], endsAt: string): Promise<void>;
 
   // Perangkat
   listDevices(userId: string, includeReleased?: boolean): Promise<DeviceRecord[]>;
@@ -125,4 +174,33 @@ export interface DigitalStore {
   listAnomalies(filter: { open?: boolean; userId?: string; limit?: number }): Promise<AnomalyRecord[]>;
   getAnomaly(id: string): Promise<AnomalyRecord | null>;
   resolveAnomaly(id: string, resolvedBy: string, note: string | null): Promise<void>;
+
+  // Keanggotaan (fase 3)
+  listPlans(): Promise<PlanRecord[]>;
+  updatePlan(id: string, patch: PlanPatch): Promise<PlanRecord | null>;
+  listPlanBenefits(): Promise<PlanBenefitRecord[]>;
+  /** Ambil satu kursi Founding secara atomik (founding_count < founding_cap); false bila kuota habis. */
+  claimFoundingSlot(planId: string): Promise<boolean>;
+  releaseFoundingSlot(planId: string): Promise<void>;
+  /** ConflictError bila user sudah punya langganan terbuka atau idempotency key terpakai. */
+  createSubscription(row: NewSubscription): Promise<SubscriptionRecord>;
+  getSubscription(id: string): Promise<SubscriptionRecord | null>;
+  getSubscriptionByIdempotencyKey(key: string): Promise<SubscriptionRecord | null>;
+  listSubscriptions(filter: SubscriptionFilter): Promise<SubscriptionRecord[]>;
+  /** Update bersyarat: null bila tidak ada atau status saat ini tidak termasuk `expectStatuses`. */
+  updateSubscription(id: string, patch: SubscriptionPatch, expectStatuses?: SubscriptionStatus[]): Promise<SubscriptionRecord | null>;
+  /** ConflictError bila order_ref/order_id terpakai atau invoice initial/renewal periode yang sama sudah ada. */
+  createInvoice(row: NewInvoice): Promise<InvoiceRecord>;
+  getInvoice(id: string): Promise<InvoiceRecord | null>;
+  getInvoiceByOrderRef(orderRef: string): Promise<InvoiceRecord | null>;
+  listInvoices(filter: InvoiceFilter): Promise<InvoiceRecord[]>;
+  /** Update bersyarat (transisi atomik, mis. issued -> paid sekali saja). */
+  updateInvoice(id: string, patch: InvoicePatch, expectStatuses?: InvoiceStatus[]): Promise<InvoiceRecord | null>;
+  /** false bila dedupeKey sudah pernah dicatat (pengingat/pemberitahuan tidak terkirim dua kali). */
+  insertSubscriptionEvent(row: { subscriptionId: string; type: SubscriptionEventType; meta?: Record<string, unknown>; dedupeKey?: string | null }): Promise<boolean>;
+  listSubscriptionEvents(filter: { subscriptionId?: string; type?: SubscriptionEventType; limit?: number }): Promise<SubscriptionEventRecord[]>;
+  /** ConflictError bila Pick periode yang sama sudah ada. */
+  createPick(row: Omit<PickRecord, 'id' | 'createdAt' | 'entitlementId'>): Promise<PickRecord>;
+  listPicks(filter: { subscriptionId?: string; userId?: string }): Promise<PickRecord[]>;
+  setPickEntitlement(id: string, entitlementId: string): Promise<void>;
 }

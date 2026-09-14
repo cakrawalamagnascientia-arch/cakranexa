@@ -42,6 +42,7 @@ const publicProduct = (product: ProductRecord) => ({
 
 const publicEntitlement = (e: EntitlementRecord) => ({
   id: e.id,
+  scope: e.scope,
   source: e.source,
   status: e.status,
   startsAt: e.startsAt,
@@ -65,7 +66,7 @@ const loadProduct = async (ctx: DigitalContext, productId: string): Promise<Prod
 export const requireEntitlement = (ctx: DigitalContext): RequestHandler => asyncRoute(async (req, _res, next) => {
   const user = req.digitalUser!;
   const product = await loadProduct(ctx, String(req.params.productId));
-  const { entitlement, reason } = await resolveEntitlement(ctx, user.id, product.id);
+  const { entitlement, reason } = await resolveEntitlement(ctx, user.id, product);
   if (!entitlement) throw denyAccess(ctx, req, user.id, product, reason ?? 'no_entitlement');
   req.digitalGrant = { product, entitlement };
   next();
@@ -90,7 +91,7 @@ export const requireSession = (ctx: DigitalContext): RequestHandler => asyncRout
     throw httpError(401, 'session_ended', 'Sesi baca/dengar kedaluwarsa.', { endReason: 'expired' });
   }
   const product = await loadProduct(ctx, productId);
-  const { entitlement, reason } = await resolveEntitlement(ctx, user.id, productId);
+  const { entitlement, reason } = await resolveEntitlement(ctx, user.id, product);
   if (!entitlement) {
     await ctx.store.endSessions({ ids: [session.id] }, 'revoked');
     throw denyAccess(ctx, req, user.id, product, reason ?? 'no_entitlement', session.id);
@@ -161,12 +162,14 @@ const registerDevice = async (ctx: DigitalContext, req: Request, userId: string,
   const nowIso = ctx.now().toISOString();
   const active = await ctx.store.listDevices(userId);
   const known = active.find((d) => d.fingerprintHash === fingerprintHash);
-  if (known) {
+  const maxDevices = await maxDevicesForUser(ctx, userId);
+  // Setelah downgrade (mis. Professional 2 -> Reader 1) perangkat terdaftar bisa melebihi batas baru:
+  // sesi berikutnya meminta pengguna melepas perangkat, termasuk dari perangkat yang sudah dikenal.
+  if (known && active.length <= maxDevices) {
     await ctx.store.updateDevice(known.id, { lastSeen: nowIso, userAgent });
     return { ...known, lastSeen: nowIso, userAgent };
   }
-  const maxDevices = await maxDevicesForUser(ctx, userId);
-  if (active.length >= maxDevices) {
+  if (known || active.length >= maxDevices) {
     ctx.log({ userId, productId, action: 'denied', ip, userAgent, meta: { reason: 'device_limit', max_devices: maxDevices, active_devices: active.length } });
     throw httpError(403, 'device_limit', `Batas ${maxDevices} perangkat tercapai. Lepaskan salah satu perangkat untuk melanjutkan.`,
       await devicesOverview(ctx, userId, fingerprintHash));
@@ -363,9 +366,11 @@ export const createAccessRouter = (ctx: DigitalContext): Router => {
       ctx.store.listProgress(user.id),
       ctx.store.listDevices(user.id)
     ]);
+    // Hanya hak per produk (pembelian, grant, karya sendiri, Digital Member Pick). Akses rak keanggotaan ada di
+    // /api/membership/shelf (tab "Rak Digital").
     const byProduct = new Map<string, EntitlementRecord[]>();
     for (const e of entitlements) {
-      if (e.status === 'revoked') continue;
+      if (e.status === 'revoked' || !e.productId) continue;
       byProduct.set(e.productId, [...(byProduct.get(e.productId) || []), e]);
     }
     const items: LibraryItemPayload[] = [];
