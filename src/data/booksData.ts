@@ -434,6 +434,25 @@ const RAW_BOOKS: Book[] = [
     beratGram: 500
   },
   {
+    id: "book-29",
+    name: "AKUNTANSI FORENSIK: KONSEP DAN APLIKASI",
+    slug: "akuntansi-forensik-konsep-dan-aplikasi",
+    author: "Didit Santoso & Anis W. Hermawan",
+    category: "Akuntansi",
+    isbn: "978-634-05-4539-5",
+    tahunTerbit: 2026,
+    jumlahHalaman: 0,
+    ukuranBuku: '155 x 230 mm (UNESCO B5)',
+    harga: 135000,
+    sinopsis: "Akuntansi forensik merupakan disiplin yang memadukan ketelitian ilmu akuntansi dengan teknik investigasi yang terstruktur. Dalam ekosistem perpajakan, kompetensi ini memainkan peran strategis untuk mendeteksi dan mencegah fraud, menilai ketepatan pelaporan keuangan sebagai basis pengenaan pajak, dan memperkuat proses penegakan hukum yang adil, proporsional, dan berbasis bukti. Transformasi administrasi perpajakan yang sedang dan terus kami jalankan, meliputi modernisasi proses bisnis, digitalisasi layanan, serta pemanfaatan data dan analitik, yang menuntut standar profesionalisme yang semakin tinggi. Di satu sisi, wajib pajak memerlukan kepastian hukum dan panduan yang jelas; di sisi lain, otoritas pajak dituntut untuk mengelola data yang kian besar dan beragam, mengidentifikasi pola risiko secara presisi, serta memastikan bahwa setiap rupiah penerimaan negara dikumpulkan dengan cara yang sah dan bermartabat. Di sinilah akuntansi forensik menjadi mitra penting: ia menyediakan kerangka pikir, metodologi, dan perangkat kerja untuk membaca jejak transaksi secara holistik, dari dokumen sumber hingga implikasi hukumnya.",
+    linkPembelian: '#',
+    bukuTerbaru: true,
+    penerbit: 'PT Scientia Integritas Utama',
+    coverBuku: '',
+    badge: "Akuntansi Forensik",
+    beratGram: 500
+  },
+  {
     id: "book-22",
     name: "ALKITAB YANG MEMBACA KITA",
     subtitle: "Menjadi Manusia Penafsir dari Taurat hingga Para Nabi",

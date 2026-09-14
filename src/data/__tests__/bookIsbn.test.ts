@@ -22,6 +22,18 @@ describe('ISBN buku cetak', () => {
     expect(isbn13Valid(seed('book-4').isbn)).toBe(true);
   });
 
+  it('Akuntansi Forensik: Konsep dan Aplikasi masuk katalog cetak dengan ISBN, harga, penulis, dan penerbit', () => {
+    const book = seed('book-29');
+    expect(book.slug).toBe('akuntansi-forensik-konsep-dan-aplikasi');
+    expect(book.isbn).toBe('978-634-05-4539-5');
+    expect(isbn13Valid(book.isbn)).toBe(true);
+    expect(book.harga).toBe(135000);
+    expect(book.author).toBe('Didit Santoso & Anis W. Hermawan');
+    expect(book.penerbit).toBe('PT Scientia Integritas Utama');
+    expect(book.category).toBe('Akuntansi');
+    expect(INITIAL_BOOKS.filter((b) => b.slug === book.slug)).toHaveLength(1);
+  });
+
   it('ISBN cetak terbit lainnya sesuai data redaksi dan valid', () => {
     const bySlug = (slug: string) => INITIAL_BOOKS.find((b) => b.slug === slug)?.isbn;
     const expected: Record<string, string> = {
