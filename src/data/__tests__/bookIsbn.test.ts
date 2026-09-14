@@ -31,6 +31,7 @@ describe('ISBN buku cetak', () => {
     expect(book.author).toBe('Didit Santoso & Anis W. Hermawan');
     expect(book.penerbit).toBe('PT Scientia Integritas Utama');
     expect(book.category).toBe('Akuntansi');
+    expect(book.coverBuku).toBe('/images/books/akuntansi-forensik.png');
     expect(INITIAL_BOOKS.filter((b) => b.slug === book.slug)).toHaveLength(1);
   });
 

@@ -448,7 +448,7 @@ const RAW_BOOKS: Book[] = [
     linkPembelian: '#',
     bukuTerbaru: true,
     penerbit: 'PT Scientia Integritas Utama',
-    coverBuku: '',
+    coverBuku: '/images/books/akuntansi-forensik.png',
     badge: "Akuntansi Forensik",
     beratGram: 500
   },
