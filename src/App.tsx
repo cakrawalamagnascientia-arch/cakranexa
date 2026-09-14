@@ -57,9 +57,10 @@ import { ReaderView } from './components/reader/ReaderView';
 import { PlayerView } from './components/player/PlayerView';
 import { refreshDigitalFeature, useDigitalFeature } from './services/digitalFeature';
 import { useMemberSession } from './services/memberSession';
+import { PaymentResultView } from './components/PaymentResultView';
 
 // Label halaman pada sub-header (common:subheader.pages.*); halaman lain memakai slug apa adanya.
-type SubheaderPageKey = 'katalog' | 'katalogDetail' | 'penerbitan' | 'pelatihan' | 'jurnal' | 'tentangKami' | 'blog' | 'career' | 'karir' | 'checkout' | 'kontak';
+type SubheaderPageKey = 'katalog' | 'katalogDetail' | 'penerbitan' | 'pelatihan' | 'jurnal' | 'tentangKami' | 'blog' | 'career' | 'karir' | 'checkout' | 'kontak' | 'payment';
 const SUBHEADER_PAGE_KEYS: Partial<Record<ActivePage, SubheaderPageKey>> = {
   katalog: 'katalog',
   'katalog-detail': 'katalogDetail',
@@ -71,7 +72,8 @@ const SUBHEADER_PAGE_KEYS: Partial<Record<ActivePage, SubheaderPageKey>> = {
   career: 'career',
   karir: 'karir',
   checkout: 'checkout',
-  kontak: 'kontak'
+  kontak: 'kontak',
+  payment: 'payment'
 };
 
 /** Mengubah baris Supabase (snake_case + order_items) atau objek in-memory server menjadi Order frontend */
@@ -459,7 +461,7 @@ export default function App() {
       category: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogCategory : undefined,
       search: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogSearch : undefined,
       digitalItem: activePage === 'digital' || activePage === 'library' ? digitalItem : null,
-      query: activePage === 'account' || activePage === 'library' || (activePage === 'digital' && activeSubSection === 'checkout') || (activePage === 'membership' && activeSubSection === 'checkout') ? routeQuery : undefined
+      query: activePage === 'account' || activePage === 'library' || activePage === 'payment' || (activePage === 'digital' && activeSubSection === 'checkout') || (activePage === 'membership' && activeSubSection === 'checkout') ? routeQuery : undefined
     }, activePage === 'katalog' && !selectedBook && !selectedAuthor && (catalogSearch !== '' || catalogCategory !== 'all'));
   }, [activePage, activeSubSection, selectedBook, selectedAuthor, catalogCategory, catalogSearch, pendingBookSlug, digitalItem, routeQuery]);
 
@@ -1300,6 +1302,16 @@ export default function App() {
               : <MembershipView onNavigate={navigateTo} />
         )}
         {activePage === 'institutions' && <InstitutionsView />}
+
+        {/* HASIL PEMBAYARAN MIDTRANS (/payment/success, /payment/failed) */}
+        {activePage === 'payment' && (
+          <PaymentResultView
+            variant={activeSubSection === 'failed' ? 'failed' : 'success'}
+            query={routeQuery}
+            onNavigate={navigateTo}
+            onNavigatePath={navigateToPath}
+          />
+        )}
         {activePage === 'library' && (
           digitalCatalog.enabled && activeSubSection === 'read' && digitalItem
             ? <ReaderView key={digitalItem} productId={digitalItem} onExit={() => navigateTo('library')} />

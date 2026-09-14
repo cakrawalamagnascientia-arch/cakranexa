@@ -80,7 +80,8 @@
       "career": "career",
       "karir": "karir",
       "checkout": "checkout",
-      "kontak": "kontak"
+      "kontak": "kontak",
+      "payment": "status pembayaran"
     }
   },
   "toast": {

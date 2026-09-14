@@ -121,6 +121,12 @@
       "description": "CakraNexa membership terms: plans and prices, Founding Member pricing, billing and renewal, grace period, plan changes, cancellation, and Digital Reading Shelf access.",
       "keywords": "cakranexa membership terms, ebook subscription terms, cakrawala magna society",
       "imageAlt": "Cakrawala Magna Society Membership Terms"
+    },
+    "payment": {
+      "title": "Payment Status — CakraNexa",
+      "description": "Status of your CakraNexa order payment via Midtrans.",
+      "keywords": "cakranexa payment status",
+      "imageAlt": "CakraNexa Payment Status"
     }
   }
 }

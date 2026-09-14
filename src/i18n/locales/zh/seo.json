@@ -121,6 +121,12 @@
       "description": "CakraNexa 会员条款：方案与价格、创始会员价格、账单与续费、宽限期、更改方案、取消以及 Digital Reading Shelf 访问。",
       "keywords": "cakranexa 会员条款, 电子书订阅条款, cakrawala magna society",
       "imageAlt": "Cakrawala Magna Society 会员条款"
+    },
+    "payment": {
+      "title": "付款状态 — CakraNexa",
+      "description": "您通过 Midtrans 支付的 CakraNexa 订单的付款状态。",
+      "keywords": "cakranexa 付款状态",
+      "imageAlt": "CakraNexa 付款状态"
     }
   }
 }

@@ -14,6 +14,7 @@ import { DEFAULT_LANGUAGE, getCurrentLanguage, isAppLanguage, type AppLanguage }
  * /membership/checkout?plan=&cycle=, /membership/terms, /institutions, /library (Pustaka Saya, ?welcome=1),
  * /library/read/<id-produk>, /library/listen/<id-produk>.
  * Akun pembeli: /account/login|register|reset|update-password (?next=<path>), /account/membership (?invoice=).
+ * Hasil pembayaran Midtrans: /payment/success dan /payment/failed (?order_id=&transaction_status=).
  */
 export interface RouteState {
   page: ActivePage;
@@ -24,7 +25,7 @@ export interface RouteState {
   selectedAuthorId?: string | null;
   /** Halaman digital: slug buku, id produk (sampel), atau id produk (reader/player). */
   digitalItem?: string | null;
-  /** Query mentah (tanpa '?') yang dipertahankan untuk halaman akun dan checkout digital. */
+  /** Query mentah (tanpa '?') yang dipertahankan untuk halaman akun, checkout digital, dan hasil pembayaran. */
   query?: string;
 }
 
@@ -47,7 +48,8 @@ const PAGE_PATHS: Record<string, ActivePage> = {
   membership: 'membership',
   institutions: 'institutions',
   library: 'library',
-  account: 'account'
+  account: 'account',
+  payment: 'payment'
 };
 
 const VALID_SUBSECTIONS = new Set<string>([
@@ -133,6 +135,10 @@ export const parseLocation = (pathname: string = window.location.pathname, searc
   } else if (page === 'account') {
     state.subSection = (ACCOUNT_SUBSECTIONS.has(segments[1]) ? segments[1] : 'login') as SubSection;
     state.query = rawQuery;
+  } else if (page === 'payment') {
+    // /payment tanpa sub-path diperlakukan sebagai halaman sukses (status tetap dibaca dari server).
+    state.subSection = segments[1] === 'failed' ? 'failed' : 'success';
+    state.query = rawQuery;
   } else if (segments[1] && VALID_SUBSECTIONS.has(segments[1])) {
     state.subSection = segments[1] as SubSection;
   }
@@ -179,6 +185,7 @@ const buildBasePath = (state: RouteState): string => {
     const section = subSection && ACCOUNT_SUBSECTIONS.has(subSection) ? subSection : 'login';
     return withQuery(`${base}/${section}`);
   }
+  if (page === 'payment') return withQuery(`${base}/${subSection === 'failed' ? 'failed' : 'success'}`);
   if (subSection && VALID_SUBSECTIONS.has(subSection)) return `${base}/${subSection}`;
   return base;
 };

@@ -1887,7 +1887,7 @@ async function startServer() {
     const body = seo.noindex
       ? `User-agent: *\nDisallow: /\n`
       : `User-agent: *\nAllow: /\nDisallow: /api/\n${['', '/en', '/zh']
-        .flatMap((prefix) => ['/admin', '/checkout', '/digital/checkout', '/library', '/account'].map((path) => `Disallow: ${prefix}${path}`))
+        .flatMap((prefix) => ['/admin', '/checkout', '/digital/checkout', '/library', '/account', '/payment'].map((path) => `Disallow: ${prefix}${path}`))
         .join('\n')}\n`;
     res.header('Content-Type', 'text/plain');
     return res.send(`${body}\nSitemap: ${baseUrl}/sitemap.xml\n`);

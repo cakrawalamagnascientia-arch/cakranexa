@@ -121,6 +121,12 @@
       "description": "Ketentuan keanggotaan CakraNexa: paket dan harga, harga Founding Member, tagihan dan perpanjangan, masa tenggang, ubah paket, pembatalan, serta akses Digital Reading Shelf.",
       "keywords": "ketentuan keanggotaan cakranexa, syarat langganan ebook, cakrawala magna society",
       "imageAlt": "Ketentuan Keanggotaan Cakrawala Magna Society"
+    },
+    "payment": {
+      "title": "Status Pembayaran — CakraNexa",
+      "description": "Status pembayaran pesanan CakraNexa melalui Midtrans.",
+      "keywords": "status pembayaran cakranexa",
+      "imageAlt": "Status Pembayaran CakraNexa"
     }
   }
 }

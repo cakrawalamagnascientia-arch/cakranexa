@@ -151,7 +151,8 @@ export type ActivePage =
   | 'membership'
   | 'institutions'
   | 'library'
-  | 'account';
+  | 'account'
+  | 'payment';
 
 export type SubSection = 
   | 'all'
@@ -188,6 +189,8 @@ export type SubSection =
   | 'update-password'
   | 'terms'
   | 'membership'
+  | 'success'
+  | 'failed'
   | null;
 
 export interface SeoSettings {

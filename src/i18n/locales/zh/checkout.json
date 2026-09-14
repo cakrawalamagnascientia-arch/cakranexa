@@ -333,5 +333,47 @@
     "title": "成为 Cakrawala Magna Society 会员",
     "description": "开启电子书与有声书数字书架及更多会员权益，伴您开启下一次阅读。",
     "cta": "查看会员方案"
+  },
+  "paymentResult": {
+    "orderLabel": "订单号",
+    "trackingLabel": "运单号",
+    "checking": "正在查询付款状态…",
+    "checkAgain": "重新查询",
+    "backToCatalog": "返回目录",
+    "backToHome": "返回首页",
+    "contactWhatsApp": "通过 WhatsApp 联系客服",
+    "whatsappMessage": "您好，CakraNexa 客服，我想咨询订单 {{order}} 的付款情况。",
+    "whatsappMessageNoOrder": "您好，CakraNexa 客服，我想咨询我的付款情况。",
+    "success": {
+      "paidTitle": "付款成功",
+      "paidDescription": "感谢您的支持。我们已收到您的订单付款，发票和配送信息将发送至您的电子邮箱和 WhatsApp。",
+      "pendingTitle": "等待付款完成",
+      "pendingDescription": "您的订单已记录。如使用虚拟账户或 QRIS 付款，请按照 Midtrans 的说明完成转账。付款核实后，本页面将自动更新。",
+      "verifyingTitle": "正在核实付款",
+      "verifyingDescription": "感谢您的支持。我们正在等待 Midtrans 的确认，付款核实后将向您的电子邮箱发送确认。",
+      "digitalDescription": "感谢您的支持。Midtrans 确认付款后，电子书或有声书将立即出现在“我的书库”中，并向您的电子邮箱发送确认。",
+      "membershipDescription": "感谢您的支持。付款确认后，您的会员资格将自动生效，并向您的电子邮箱发送确认。",
+      "institutionDescription": "感谢您的支持。发票付款核实后，机构访问权限将被激活，并向机构联系人邮箱发送确认。",
+      "viewDigitalOrder": "查看订单状态",
+      "openLibrary": "打开我的书库",
+      "manageMembership": "管理会员"
+    },
+    "failed": {
+      "title": "付款未完成",
+      "description": "您的付款未能完成。",
+      "reasons": {
+        "deny": "交易被银行或发卡机构拒绝。",
+        "cancel": "付款已取消。",
+        "expire": "付款时限已过。",
+        "failure": "处理付款时出现问题。"
+      },
+      "orderKept": "订单 {{order}} 仍然有效。您可以重试，或联系客服获取帮助。",
+      "retryPrint": "继续购物",
+      "retryDigital": "重新付款",
+      "retryMembership": "支付会员账单",
+      "institutionHelp": "请通过发票邮件中的链接重新付款，或转账至发票上列出的账户。",
+      "alreadyPaidTitle": "付款已收到",
+      "alreadyPaidDescription": "该订单的最新状态显示付款已成功，您无需再次付款。"
+    }
   }
 }

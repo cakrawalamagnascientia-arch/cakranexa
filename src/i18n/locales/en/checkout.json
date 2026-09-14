@@ -334,5 +334,47 @@
     "title": "Become a Cakrawala Magna Society member",
     "description": "Unlock the digital e-book & audiobook shelf and other member benefits for your next reads.",
     "cta": "View membership plans"
+  },
+  "paymentResult": {
+    "orderLabel": "Order number",
+    "trackingLabel": "Tracking number",
+    "checking": "Checking payment status…",
+    "checkAgain": "Check again",
+    "backToCatalog": "Back to Catalog",
+    "backToHome": "Back to Home",
+    "contactWhatsApp": "Contact Admin on WhatsApp",
+    "whatsappMessage": "Hello CakraNexa Admin, I would like to ask about the payment for order {{order}}.",
+    "whatsappMessageNoOrder": "Hello CakraNexa Admin, I would like to ask about my payment.",
+    "success": {
+      "paidTitle": "Payment Successful",
+      "paidDescription": "Thank you. We have received the payment for your order. The invoice and shipping details are sent to your email and WhatsApp.",
+      "pendingTitle": "Waiting for Payment",
+      "pendingDescription": "Your order has been recorded. If you pay by Virtual Account or QRIS, complete the transfer following the Midtrans instructions. This page updates automatically once the payment is verified.",
+      "verifyingTitle": "Verifying Your Payment",
+      "verifyingDescription": "Thank you. We are waiting for confirmation from Midtrans. A confirmation is sent to your email once the payment is verified.",
+      "digitalDescription": "Thank you. Once Midtrans confirms the payment, your e-book or audiobook is available in My Library right away and a confirmation is sent to your email.",
+      "membershipDescription": "Thank you. Once the payment is confirmed, your membership is activated automatically and a confirmation is sent to your email.",
+      "institutionDescription": "Thank you. Once the invoice payment is verified, institutional access is activated and a confirmation is sent to the institution's contact email.",
+      "viewDigitalOrder": "View Order Status",
+      "openLibrary": "Open My Library",
+      "manageMembership": "Manage Membership"
+    },
+    "failed": {
+      "title": "Payment Not Completed",
+      "description": "Your payment could not be completed.",
+      "reasons": {
+        "deny": "The transaction was declined by the bank or card issuer.",
+        "cancel": "The payment was cancelled.",
+        "expire": "The payment time limit has expired.",
+        "failure": "Something went wrong while processing the payment."
+      },
+      "orderKept": "Order {{order}} is still recorded. You can try again or contact our admin for help.",
+      "retryPrint": "Continue Shopping",
+      "retryDigital": "Try Paying Again",
+      "retryMembership": "Pay Membership Invoice",
+      "institutionHelp": "Please pay again using the link in the invoice email, or transfer to the account listed on the invoice.",
+      "alreadyPaidTitle": "Payment Already Received",
+      "alreadyPaidDescription": "The latest status of this order shows the payment was successful. You do not need to pay again."
+    }
   }
 }

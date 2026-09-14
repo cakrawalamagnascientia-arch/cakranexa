@@ -333,5 +333,47 @@
     "title": "Jadi anggota Cakrawala Magna Society",
     "description": "Buka rak digital e-book & audiobook dan manfaat anggota lainnya untuk bacaan Anda berikutnya.",
     "cta": "Lihat paket keanggotaan"
+  },
+  "paymentResult": {
+    "orderLabel": "Nomor pesanan",
+    "trackingLabel": "Nomor resi",
+    "checking": "Memeriksa status pembayaran…",
+    "checkAgain": "Periksa lagi",
+    "backToCatalog": "Kembali ke Katalog",
+    "backToHome": "Kembali ke Beranda",
+    "contactWhatsApp": "Hubungi Admin via WhatsApp",
+    "whatsappMessage": "Halo Admin CakraNexa, saya ingin menanyakan pembayaran pesanan {{order}}.",
+    "whatsappMessageNoOrder": "Halo Admin CakraNexa, saya ingin menanyakan pembayaran saya.",
+    "success": {
+      "paidTitle": "Pembayaran Berhasil",
+      "paidDescription": "Terima kasih. Pembayaran pesanan Anda sudah kami terima. Faktur dan informasi pengiriman dikirim ke email dan WhatsApp Anda.",
+      "pendingTitle": "Menunggu Pembayaran Selesai",
+      "pendingDescription": "Pesanan Anda sudah tercatat. Bila membayar lewat Virtual Account atau QRIS, selesaikan transfer sesuai instruksi Midtrans. Halaman ini diperbarui otomatis setelah pembayaran terverifikasi.",
+      "verifyingTitle": "Pembayaran Sedang Diverifikasi",
+      "verifyingDescription": "Terima kasih. Kami sedang menunggu konfirmasi dari Midtrans. Konfirmasi dikirim ke email Anda setelah pembayaran terverifikasi.",
+      "digitalDescription": "Terima kasih. Setelah Midtrans mengonfirmasi pembayaran, e-book atau audiobook langsung tersedia di Pustaka Saya dan konfirmasi dikirim ke email Anda.",
+      "membershipDescription": "Terima kasih. Setelah pembayaran terkonfirmasi, keanggotaan Anda aktif otomatis dan konfirmasi dikirim ke email Anda.",
+      "institutionDescription": "Terima kasih. Setelah pembayaran invoice terverifikasi, akses institusi diaktifkan dan konfirmasi dikirim ke email kontak institusi.",
+      "viewDigitalOrder": "Lihat Status Pesanan",
+      "openLibrary": "Buka Pustaka Saya",
+      "manageMembership": "Kelola Keanggotaan"
+    },
+    "failed": {
+      "title": "Pembayaran Belum Berhasil",
+      "description": "Pembayaran Anda tidak dapat diselesaikan.",
+      "reasons": {
+        "deny": "Transaksi ditolak oleh bank atau penerbit kartu.",
+        "cancel": "Pembayaran dibatalkan.",
+        "expire": "Batas waktu pembayaran telah habis.",
+        "failure": "Terjadi kendala saat memproses pembayaran."
+      },
+      "orderKept": "Pesanan {{order}} tetap tercatat. Anda dapat mencoba lagi atau menghubungi admin untuk dibantu.",
+      "retryPrint": "Belanja Lagi",
+      "retryDigital": "Coba Bayar Lagi",
+      "retryMembership": "Bayar Tagihan Keanggotaan",
+      "institutionHelp": "Silakan bayar ulang lewat tautan pada email invoice, atau transfer ke rekening yang tercantum pada invoice.",
+      "alreadyPaidTitle": "Pembayaran Sudah Diterima",
+      "alreadyPaidDescription": "Status terbaru pesanan ini menunjukkan pembayaran sudah berhasil. Anda tidak perlu membayar lagi."
+    }
   }
 }

@@ -119,9 +119,18 @@ https://cakranexa.onrender.com/api/payment/midtrans-webhook
 - Server live tetap dalam mode production. **Jangan mengganti server live ke Sandbox**, karena checkout buku cetak pelanggan ikut menjadi transaksi uji. Fase 2 diuji langsung di produksi di balik flag (bagian 2a). Sandbox baru dipakai untuk fase 3 lewat server lokal + ngrok.
 - Satu URL untuk **buku cetak dan produk digital**. Pesanan berawalan `DIG-` diteruskan ke modul digital; alur buku cetak tidak berubah.
 - **Jangan** arahkan ke domain Vercel. Fungsi Vercel membalas 503 untuk pesanan `DIG-`, sehingga hak akses tidak pernah dibuat.
-- **Finish Redirect URL** tidak wajib untuk digital. Setiap pesanan digital mengirim `callbacks.finish` sendiri
-  (`<SITE_URL>/digital/checkout?order=<nomor>`), yang dipakai bila pembayaran berlangsung lewat halaman redirect
-  (mis. aplikasi e-wallet di ponsel).
+- **Redirect URL** (Settings → Payment → Snap Preferences, di Sandbox dan Production):
+
+  | Kolom | URL |
+  |---|---|
+  | Finish Redirect URL | `https://cakranexa.com/payment/success` |
+  | Unfinish Redirect URL | `https://cakranexa.com/payment/success` |
+  | Error Redirect URL | `https://cakranexa.com/payment/failed` |
+
+  - Halaman ini menampilkan hasil pembayaran buku cetak berdasarkan status dari server, bukan parameter URL.
+  - Pesanan yang masih menunggu diperiksa ulang tiap 5 detik.
+  - Pesanan `DIG-`, `SUB-`, dan `INST-` diarahkan ke halaman statusnya masing-masing.
+  - Pesanan digital dan keanggotaan tetap mengirim `callbacks.finish` sendiri, yang menimpa setelan dashboard.
 
 ### 4.3 Perilaku webhook
 Handler hanya menunggu operasi database, lalu langsung membalas. Email konfirmasi dikirim di latar. Midtrans bisa

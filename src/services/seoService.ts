@@ -130,7 +130,7 @@ export interface NextMetadata {
 
 /** Kunci halaman di seo:pages.* dan path-nya (tanpa prefix bahasa). */
 type SeoPageKey = 'catalog' | 'publishing' | 'training' | 'journal' | 'about' | 'blog' | 'career' | 'contact' | 'authors' | 'checkout'
-  | 'membership' | 'membershipTerms' | 'institutions' | 'library';
+  | 'membership' | 'membershipTerms' | 'institutions' | 'library' | 'payment';
 const SEO_PAGES: Partial<Record<ActivePage, { key: SeoPageKey; path: string }>> = {
   katalog: { key: 'catalog', path: '/katalog' },
   penerbitan: { key: 'publishing', path: '/penerbitan' },
@@ -144,17 +144,19 @@ const SEO_PAGES: Partial<Record<ActivePage, { key: SeoPageKey; path: string }>> 
   checkout: { key: 'checkout', path: '/checkout' },
   membership: { key: 'membership', path: '/membership' },
   institutions: { key: 'institutions', path: '/institutions' },
-  library: { key: 'library', path: '/library' }
+  library: { key: 'library', path: '/library' },
+  payment: { key: 'payment', path: '/payment/success' }
 };
 
-/** Halaman yang tidak diindeks mesin pencari: Pustaka Saya (personal) dan pratinjau sampel digital. */
 /**
  * Halaman pribadi/transaksional: Pustaka Saya (termasuk reader/player), akun pembeli (termasuk /account/membership),
- * checkout digital & keanggotaan, dan sampel. /membership dan /membership/terms tetap diindeks.
+ * checkout digital & keanggotaan, sampel, dan hasil pembayaran (/payment/*). /membership dan /membership/terms
+ * tetap diindeks.
  */
 const isNoIndexPage = (page: ActivePage, subSection?: SubSection): boolean =>
   page === 'library'
   || page === 'account'
+  || page === 'payment'
   || (page === 'digital' && (subSection === 'sample' || subSection === 'checkout'))
   || (page === 'membership' && subSection === 'checkout');
 
