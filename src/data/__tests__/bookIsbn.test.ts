@@ -22,6 +22,20 @@ describe('ISBN buku cetak', () => {
     expect(isbn13Valid(seed('book-4').isbn)).toBe(true);
   });
 
+  it('ISBN cetak terbit lainnya sesuai data redaksi dan valid', () => {
+    const bySlug = (slug: string) => INITIAL_BOOKS.find((b) => b.slug === slug)?.isbn;
+    const expected: Record<string, string> = {
+      'pajak-atas-sektor-konstruksi-di-indonesia-teori-dan-praktek': '978-634-05-4355-1',
+      'pajak-merger-dan-akuisisi-m-dan-a-di-indonesia-prinsip-dan-konsep': '978-634-05-3605-8',
+      'akuntansi-pajak-teori-dan-praktik-di-indonesia': '978-634-05-3785-7',
+      'thin-capitalization-di-indonesia-titik-temu-investasi-kepatuhan-dan-keadilan-pajak': '978-634-05-3878-6'
+    };
+    for (const [slug, isbn] of Object.entries(expected)) {
+      expect(bySlug(slug), slug).toBe(isbn);
+      expect(isbn13Valid(isbn), isbn).toBe(true);
+    }
+  });
+
   it('baris database lama yang kosong/"Dalam Pengajuan" memakai ISBN bawaan; ISBN dari admin dipertahankan', () => {
     expect(withSeedIsbn({ ...seed('book-3'), isbn: 'Dalam Pengajuan' }).isbn).toBe('978-634-05-5289-8');
     expect(withSeedIsbn({ ...seed('book-4'), isbn: '' }).isbn).toBe('978-634-05-5211-9');

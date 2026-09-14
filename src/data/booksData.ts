@@ -382,7 +382,7 @@ const RAW_BOOKS: Book[] = [
     slug: "pajak-atas-sektor-konstruksi-di-indonesia-teori-dan-praktek",
     author: "Edy Edwin P. Ginting & Joko Purnomo Raharjo",
     category: "Perpajakan",
-    isbn: "",
+    isbn: "978-634-05-4355-1",
     tahunTerbit: 2026,
     jumlahHalaman: 0,
     ukuranBuku: '155 x 230 mm (UNESCO B5)',
