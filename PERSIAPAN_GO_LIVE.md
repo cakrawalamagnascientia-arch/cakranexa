@@ -70,7 +70,7 @@ Yang **belum ada di PDF** dan masih perlu Anda lengkapi (lewat **Admin › Inven
 | Kolom | Status | Tampilan saat kosong |
 | :--- | :--- | :--- |
 | **Harga** | 6 judul belum ada (Pajak Pertambangan, Jejak Audit PPN, Treaty Shopping, Actus Reus, Rekayasa Keuangan, Bukti & Pembuktian) | Kartu & detail: "Harga menyusul", tombol beli diganti "Segera Terbit / Beri tahu saya (WA)"; server menolak pemesanan |
-| **ISBN** | 6 judul kosong, 4 judul "Dalam Pengajuan" | "ISBN menyusul" / "Dalam pengajuan" |
+| **ISBN** | 6 judul kosong, 2 judul "Dalam Pengajuan" (Reformulasi Subjek & Objek PPN) | "ISBN menyusul" / "Dalam pengajuan" |
 | **Jumlah halaman** | Semua belum ada (0) | Baris disembunyikan / "Menyusul" |
 | **Cover buku** | Belum ada file | Siapkan `public/images/books/book-1.jpg … book-21.jpg` (ID tetap: 1,2,3,4,5,10–21) ukuran 800×1130 px; jika belum ada, cover SVG otomatis tampil |
 | **Daftar isi** (`daftar_isi`, JSON array) | Kosong | Tab Daftar Isi: "akan segera ditambahkan" (bab dummy sudah dihapus) |

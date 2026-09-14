@@ -8,6 +8,7 @@ import { BOOK_TRANSLATIONS } from './contentTranslations';
  *
  * Konvensi nilai yang BELUM tersedia dari redaksi (bukan dummy):
  *  - isbn: ''  -> tampil "Belum tersedia";  'Dalam Pengajuan' -> tampil apa adanya
+ *    (isbn = ISBN buku cetak; baris Supabase yang masih kosong/"Dalam Pengajuan" diisi dari sini, lihat withSeedIsbn)
  *  - harga: 0  -> tampil "Harga menyusul", tombol beli dinonaktifkan (status Segera Terbit)
  *  - jumlahHalaman: 0 -> baris jumlah halaman disembunyikan
  *  - rating / reviewsCount / stock: tidak diisi -> UI tidak menampilkan angka palsu
@@ -58,7 +59,7 @@ const RAW_BOOKS: Book[] = [
     slug: "reformulasi-mekanisme-pajak-pertambahan-nilai-ppn-dalam-penanganan-tantangan-digitalisasi-di-indonesia",
     author: "Bonarsius Sipayung",
     category: "Perpajakan",
-    isbn: "Dalam Pengajuan",
+    isbn: "978-634-05-5289-8",
     tahunTerbit: 2026,
     jumlahHalaman: 0,
     ukuranBuku: '155 x 230 mm (UNESCO B5)',
@@ -77,7 +78,7 @@ const RAW_BOOKS: Book[] = [
     slug: "prinsip-prinsip-transfer-pricing-konsep-dan-aplikasi-di-indonesia",
     author: "Henry Dianto P. Sinaga & Andi Banua Adams",
     category: "Perpajakan",
-    isbn: "Dalam Pengajuan",
+    isbn: "978-634-05-5211-9",
     tahunTerbit: 2026,
     jumlahHalaman: 0,
     ukuranBuku: '155 x 230 mm (UNESCO B5)',
@@ -519,6 +520,21 @@ export const normalizeBookAuthors = (book: Book): Book => {
   return !book.author || book.author === seedAuthor ? { ...book, author: pdfAuthor } : book;
 };
 
+const isPendingIsbn = (isbn: string | undefined) => {
+  const value = (isbn || '').trim().toLowerCase();
+  return value === '' || value === 'dalam pengajuan';
+};
+
+/**
+ * ISBN cetak yang sudah terbit di data bawaan mengisi buku yang ISBN-nya masih kosong/"Dalam Pengajuan"
+ * (baris Supabase lama). ISBN yang sudah diisi admin tidak diubah.
+ */
+export const withSeedIsbn = (book: Book): Book => {
+  if (!isPendingIsbn(book.isbn)) return book;
+  const seedIsbn = INITIAL_BOOKS.find((candidate) => candidate.id === book.id)?.isbn;
+  return seedIsbn && !isPendingIsbn(seedIsbn) ? { ...book, isbn: seedIsbn } : book;
+};
+
 export const withLocalBookCover = (book: Book): Book => {
   const localBook = INITIAL_BOOKS.find((candidate) => candidate.id === book.id);
   // Cover lama (kosong, placeholder <id>.jpg, atau Unsplash) diganti cover lokal; cover yang diunggah admin dipertahankan.
@@ -528,7 +544,7 @@ export const withLocalBookCover = (book: Book): Book => {
   const coverBuku = hasOwnCover ? book.coverBuku : localBook?.coverBuku || book.coverBuku;
   const isScientiaIntegritasTitle = /\/images\/books\/(?:7|8|9|10|11|12|13|14|15|16|17)\./i.test(localBook?.coverBuku || coverBuku || '');
   return {
-    ...normalizeBookAuthors(book),
+    ...withSeedIsbn(normalizeBookAuthors(book)),
     coverBuku,
     ...(isScientiaIntegritasTitle && !book.penerbit ? { penerbit: 'PT Scientia Integritas Utama' } : {})
   };

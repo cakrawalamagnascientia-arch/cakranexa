@@ -10,7 +10,7 @@ import {
   InstitutionInquiryStatus,
   InstitutionType
 } from '../types';
-import { INITIAL_BOOKS, normalizeBookAuthors } from '../data/booksData';
+import { INITIAL_BOOKS, normalizeBookAuthors, withSeedIsbn } from '../data/booksData';
 import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthorProfile, authorNameKey } from '../data/authorsData';
 import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
 import { getAdminToken, clearAdminToken } from './adminAuth';
@@ -110,7 +110,7 @@ export interface CreateOrderResponse {
   paymentStatus?: OrderStatus;
 }
 
-const rowToBook = (row: any): Book => normalizeBookAuthors({
+const rowToBook = (row: any): Book => withSeedIsbn(normalizeBookAuthors({
   id: row.id,
   name: row.name,
   subtitle: row.subtitle || undefined,
@@ -141,7 +141,7 @@ const rowToBook = (row: any): Book => normalizeBookAuthors({
   isBestSeller: Boolean(row.is_best_seller),
   featured: Boolean(row.featured),
   i18n: row.i18n && typeof row.i18n === 'object' ? row.i18n : undefined
-});
+}));
 
 const rowToAuthor = (row: any): Author => normalizeAuthorProfile({
   id: row.id,
