@@ -276,7 +276,13 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
                 {t('payment.manual.noAccounts')}
               </div>
             ) : (
-              activeBankAccounts.map((acc) => (
+              [
+                { title: 'Pembayaran Lokal (IDR)', accounts: activeBankAccounts.filter((acc) => (acc.currency || 'IDR') === 'IDR') },
+                { title: 'Pembayaran Internasional (USD)', accounts: activeBankAccounts.filter((acc) => acc.currency === 'USD') }
+              ].filter((group) => group.accounts.length > 0).map((group) => (
+                <section key={group.title} className="space-y-2" aria-label={group.title}>
+                  <h5 className="text-[11px] font-bold uppercase tracking-wide text-slate-600">{group.title}</h5>
+                  {group.accounts.map((acc) => (
                 <div
                   key={acc.id}
                   className="flex items-center justify-between p-3.5 rounded-lg bg-white border border-slate-200 shadow-2xs"
@@ -284,7 +290,7 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
                   <div>
                     <div className="flex items-center gap-1.5">
                       <span className="text-[10px] font-bold text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
-                        {acc.bankName}
+                        {acc.bankName} · {acc.currency || 'IDR'}
                       </span>
                       {acc.branch && (
                         <span className="text-[10px] text-slate-500">({acc.branch})</span>
@@ -310,6 +316,8 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
                     <span>{copiedAccount === acc.id ? t('bank.copied') : t('bank.copyAccountNumber')}</span>
                   </button>
                 </div>
+                  ))}
+                </section>
               ))
             )}
           </div>

@@ -10,9 +10,18 @@ export const CheckoutBankAccountList: React.FC<{
   onCopy: (account: AdminBankAccount) => void;
 }> = ({ accounts, copiedId, onCopy }) => {
   const { t } = useTranslation('checkout');
+  const localAccounts = accounts.filter((account) => (account.currency || 'IDR') === 'IDR');
+  const internationalAccounts = accounts.filter((account) => account.currency === 'USD');
+  const groups = [
+    { key: 'local', title: 'Pembayaran Lokal (IDR)', accounts: localAccounts },
+    { key: 'international', title: 'Pembayaran Internasional (USD)', accounts: internationalAccounts }
+  ].filter((group) => group.accounts.length > 0);
   return (
-    <div className="space-y-2">
-      {accounts.map(acc => (
+    <div className="space-y-4">
+      {groups.map((group) => (
+        <section key={group.key} className="space-y-2" aria-label={group.title}>
+          <h4 className="text-[11px] font-bold uppercase tracking-wide text-slate-600">{group.title}</h4>
+          {group.accounts.map(acc => (
         <div key={acc.id} className="p-3 rounded-lg bg-white border border-slate-200 flex items-center justify-between shadow-2xs">
           <div>
             <div className="flex items-center gap-1.5">
@@ -31,6 +40,8 @@ export const CheckoutBankAccountList: React.FC<{
             <span>{copiedId === acc.id ? t('bank.copied') : t('bank.copyAccountNumber')}</span>
           </button>
         </div>
+          ))}
+        </section>
       ))}
     </div>
   );
