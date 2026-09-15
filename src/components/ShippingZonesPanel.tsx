@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MapPin, RotateCcw, Save, Search, Truck } from 'lucide-react';
+import { MapPin, RotateCcw, Save, Search, Truck, X } from 'lucide-react';
 import {
   DEFAULT_PRINT_CHECKOUT_SETTINGS,
   DEFAULT_SHIPPING_ZONES,
@@ -29,11 +29,17 @@ const OriginSearch: React.FC<{ onPick: (d: SignedShippingDestination) => void; d
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const search = async () => {
+  const search = async (value = query) => {
+    const normalized = value.trim();
+    if (normalized.length < 3) {
+      setResults([]);
+      setMessage(normalized ? 'Ketik minimal 3 karakter.' : null);
+      return;
+    }
     setBusy(true);
     setMessage(null);
     try {
-      const list = await searchShippingDestinations(query.trim());
+      const list = await searchShippingDestinations(normalized);
       setResults(list);
       if (list.length === 0) setMessage('Wilayah tidak ditemukan. Coba nama kecamatan/kelurahan lain atau kode pos.');
     } catch (err) {
@@ -43,6 +49,16 @@ const OriginSearch: React.FC<{ onPick: (d: SignedShippingDestination) => void; d
       setBusy(false);
     }
   };
+
+  useEffect(() => {
+    const normalized = query.trim();
+    if (disabled || normalized.length < 3) {
+      setResults([]);
+      return undefined;
+    }
+    const timer = window.setTimeout(() => void search(normalized), 400);
+    return () => window.clearTimeout(timer);
+  }, [query, disabled]);
 
   return (
     <div className="space-y-1.5">
@@ -55,7 +71,7 @@ const OriginSearch: React.FC<{ onPick: (d: SignedShippingDestination) => void; d
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
-              if (query.trim().length >= 3) void search();
+              if (query.trim().length >= 3) void search(query);
             }
           }}
           placeholder="Kecamatan/kelurahan gudang atau kode pos, mis. Menteng atau 10310"
@@ -63,7 +79,7 @@ const OriginSearch: React.FC<{ onPick: (d: SignedShippingDestination) => void; d
         <button
           type="button"
           disabled={disabled || busy || query.trim().length < 3}
-          onClick={() => void search()}
+          onClick={() => void search(query)}
           className="inline-flex shrink-0 items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
         >
           <Search className="h-3.5 w-3.5" />{busy ? 'Mencari…' : 'Cari'}
@@ -187,10 +203,21 @@ export const ShippingZonesPanel: React.FC = () => {
       <div className="space-y-3 rounded-lg border border-slate-200 p-3">
         <div className="space-y-1.5">
           <p className="text-xs font-bold text-slate-700">Lokasi asal pengiriman (gudang)</p>
+          <div className="flex items-center justify-between gap-2">
           <p className="flex items-center gap-1.5 text-xs text-slate-700">
             <MapPin className="h-3.5 w-3.5 text-[#D4AF37]" />
             {settings.origin ? <span data-origin-label>{destinationDisplay(settings.origin)}</span> : <span className="text-rose-700">Belum diatur</span>}
           </p>
+          {settings.origin && (
+            <button
+              type="button"
+              onClick={() => setSettings({ ...settings, origin: null })}
+              className="inline-flex items-center gap-1 rounded-md border border-rose-200 px-2 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-50"
+            >
+              <X className="h-3 w-3" /> Hapus asal
+            </button>
+          )}
+          </div>
           <OriginSearch disabled={rajaOngkirConfigured === false} onPick={(d) => setSettings({ ...settings, origin: { id: d.id, label: d.label } })} />
         </div>
         <div className="space-y-1.5">
