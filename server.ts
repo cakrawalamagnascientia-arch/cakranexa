@@ -735,12 +735,9 @@ const escapeHtml = (value: unknown): string => String(value ?? '')
   .replace(/"/g, '&quot;')
   .replace(/'/g, '&#39;');
 
-async function sendOrderNotificationEmail(order: any): Promise<void> {
-  if (!RESEND_API_KEY || ORDER_NOTIFICATION_EMAILS.length === 0) {
-    console.warn(`Order email skipped: ${!RESEND_API_KEY ? 'RESEND_API_KEY belum dikonfigurasi' : 'tidak ada penerima email yang valid'}.`);
-    return;
-  }
-  const itemRows = order.items.map((item: any) => `<li>${escapeHtml(item.book.name)} x ${item.quantity}</li>`).join('');
+async function sendResendOrderEmail(to: string[], order: any, items: any[], recipientLabel: string): Promise<void> {
+  if (!RESEND_API_KEY || to.length === 0) return;
+  const itemRows = items.map((item: any) => `<li>${escapeHtml(item.book.name)} x ${item.quantity}</li>`).join('');
   const html = `
     <h2>Pesanan Baru CakraNexa</h2>
     <p><strong>Order:</strong> ${escapeHtml(order.orderNumber)}</p>
@@ -751,6 +748,7 @@ async function sendOrderNotificationEmail(order: any): Promise<void> {
     <p><strong>Status:</strong> ${escapeHtml(order.paymentStatus)}</p>
     <p><strong>Total:</strong> Rp ${Number(order.total).toLocaleString('id-ID')}</p>
     <ul>${itemRows}</ul>
+    <p>Penerima: ${escapeHtml(recipientLabel)}</p>
     <p>Notifikasi ini dikirim otomatis oleh CakraNexa.</p>
   `;
   const response = await fetch('https://api.resend.com/emails', {
@@ -761,13 +759,51 @@ async function sendOrderNotificationEmail(order: any): Promise<void> {
     },
     body: JSON.stringify({
       from: EMAIL_FROM,
-      to: ORDER_NOTIFICATION_EMAILS,
+      to,
       subject: `[Pesanan Baru] ${order.orderNumber} - ${order.customer.name}`,
       html
     })
   });
   if (!response.ok) {
     throw new Error(`Resend email failed (${response.status}): ${await response.text()}`);
+  }
+}
+
+async function sendOrderNotificationEmail(order: any): Promise<void> {
+  if (!RESEND_API_KEY) {
+    console.warn('Order email skipped: RESEND_API_KEY belum dikonfigurasi.');
+    return;
+  }
+
+  // ORDER_NOTIFICATION_EMAILS adalah penerima operasional global. Penulis menerima
+  // hanya buku yang terhubung ke mereka melalui authors.email + book_authors.
+  if (ORDER_NOTIFICATION_EMAILS.length > 0) {
+    await sendResendOrderEmail(ORDER_NOTIFICATION_EMAILS, order, order.items, 'operasional CakraNexa');
+  }
+
+  try {
+    const [authors, relations] = await Promise.all([loadAuthors(), loadBookAuthors()]);
+    const authorsById = new Map(authors.map((author) => [author.id, author]));
+    const itemsByAuthor = new Map<string, { email: string; name: string; items: any[] }>();
+    for (const item of order.items) {
+      const linked = relations
+        .filter((relation) => relation.book_id === item.book.id)
+        .sort((a, b) => a.author_order - b.author_order);
+      for (const relation of linked) {
+        const author = authorsById.get(relation.author_id);
+        const email = author?.email?.trim().toLowerCase();
+        if (!author || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) continue;
+        const existing = itemsByAuthor.get(email) || { email, name: author.name, items: [] };
+        existing.items.push(item);
+        itemsByAuthor.set(email, existing);
+      }
+    }
+    for (const author of itemsByAuthor.values()) {
+      await sendResendOrderEmail([author.email], order, author.items, `Penulis: ${author.name}`);
+    }
+  } catch (err: any) {
+    // Gagal mengambil relasi penulis tidak boleh menggagalkan pembuatan order.
+    console.warn('[print] email notifikasi penulis dilewati:', err?.message || err);
   }
 }
 

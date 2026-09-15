@@ -225,9 +225,21 @@ Variabel `VITE_*` dibakar saat build, jadi perubahan nilainya memerlukan **build
 |---|---|---|---|
 | `RESEND_API_KEY` | ya | *(API key Resend, akses "Sending")* | **Rahasia.** Tanpa ini email hanya dicatat di log. |
 | `EMAIL_FROM` | opsional | `CakraNexa <info@cakranexa.com>` | Alamat pengirim; ini juga nilai bawaan di kode. Domainnya harus terverifikasi di Resend. |
-| `ORDER_NOTIFICATION_EMAILS` | opsional | `info@cakranexa.com,admin@contoh.com` | Penerima notifikasi pesanan dan anomali. Kosong = daftar bawaan di `server.ts` (enam alamat, termasuk `info@cakranexa.com`). |
+| `ORDER_NOTIFICATION_EMAILS` | opsional | `info@cakranexa.com,admin@contoh.com` | Penerima operasional untuk **semua** pesanan dan anomali. Jangan masukkan email penulis di sini bila penulis hanya boleh menerima order bukunya sendiri. |
 | `INSTITUTION_INQUIRY_EMAILS` | opsional | `institusi@contoh.com` | Kosong = sama dengan `ORDER_NOTIFICATION_EMAILS`. |
 | `SITE_URL` | ya | `https://www.cakranexa.com` | Dasar semua tautan di email. |
+
+### Notifikasi order ke penulis
+
+Email penulis tidak dikonfigurasi lewat `ORDER_NOTIFICATION_EMAILS`. Isi alamat email pada field `authors.email` di data penulis. Saat order dibuat, server membaca relasi `book_authors` dan mengirim email terpisah kepada setiap penulis yang bukunya dipesan; email tersebut hanya berisi item buku milik penulis itu.
+
+Saat menambah penulis:
+
+1. Simpan penulis di tabel `authors` dengan `email` yang valid.
+2. Hubungkan penulis ke buku melalui `book_authors`.
+3. Tidak perlu mengubah env Render, kecuali email tersebut juga memang harus menerima semua notifikasi operasional.
+
+`ORDER_NOTIFICATION_EMAILS` tetap dipakai untuk admin, Finance, dan alamat operasional yang perlu menerima seluruh order.
 
 **Email login Supabase** (konfirmasi pendaftaran, reset kata sandi, magic link): SMTP bawaan Supabase hanya mengirim ke anggota tim proyek (maksimal 2 email/jam), jadi wajib memakai SMTP Resend. Atur di Supabase → **Authentication → Emails → SMTP Settings**:
 
