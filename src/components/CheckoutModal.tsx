@@ -18,8 +18,8 @@ import {
   Receipt,
   MessageSquare
 } from 'lucide-react';
-import { CartItem, CustomerDetails, PaymentMethod, Order, ShippingMethod, PaymentSettings } from '../types';
-import { getStoredShippingMethods, generateCakraNexaTrackingNumber } from '../services/shippingService';
+import { CartItem, CustomerDetails, PaymentMethod, Order, PaymentSettings } from '../types';
+import { generateCakraNexaTrackingNumber } from '../services/shippingService';
 import { usePrintCheckoutConfig } from '../hooks/usePrintCheckoutConfig';
 import { PrintPaymentMethodPicker } from './PrintPaymentMethodPicker';
 import { CourierRateList, DestinationSearch, usePrintShipping } from './ShippingDestinationPicker';
@@ -37,7 +37,7 @@ import { generateOrderNumber, generateOrderId, nowIso } from '../utils/orderUtil
 import { useBookText, useFormatters } from '../i18n/hooks';
 import { getCurrentLanguage } from '../i18n/index';
 import { formatCurrency } from '../i18n/format';
-import { useManualTransferInstructions, useOrderLabels, useShippingMethodText } from '../i18n/orderLabels';
+import { useManualTransferInstructions, useOrderLabels } from '../i18n/orderLabels';
 import { getAccessToken } from '../services/memberSession';
 import { useMemberPrintDiscount } from '../hooks/useMemberPrintDiscount';
 import { memberPrintPrice, printSubtotal, printUnitPrice } from '../utils/memberPrice';
@@ -68,16 +68,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const { currency } = useFormatters();
   const bookText = useBookText();
   const { paymentMethodLabel } = useOrderLabels();
-  const shippingMethodText = useShippingMethodText();
   const manualTransferInstructions = useManualTransferInstructions();
   const activeItems = directBookBuy ? [directBookBuy] : items;
 
   // Stages: 'customer_details' | 'midtrans_snap' | 'order_complete'
   const [step, setStep] = useState<'customer_details' | 'midtrans_snap' | 'order_complete'>('customer_details');
 
-  const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>(() =>
-    getStoredShippingMethods().filter(m => m.isActive)
-  );
   const [paymentSettings, setPaymentSettings] = useState<PaymentSettings>(() =>
     getStoredPaymentSettings()
   );
@@ -85,17 +81,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const serverBankAccounts = usePublicBankAccounts(isOpen);
   const bankAccounts = resolveCheckoutBankAccounts(serverBankAccounts, paymentSettings.bankAccounts);
 
-  const [selectedCourierId, setSelectedCourierId] = useState<string>(() =>
-    shippingMethods[0]?.id || 'jne_reg'
-  );
-
   useEffect(() => {
     if (isOpen) {
-      const activeM = getStoredShippingMethods().filter(m => m.isActive);
-      setShippingMethods(activeM);
-      if (activeM.length > 0 && !activeM.some(m => m.id === selectedCourierId)) {
-        setSelectedCourierId(activeM[0].id);
-      }
       setPaymentSettings(getStoredPaymentSettings());
 
       // Trigger InitiateCheckout tracking event
@@ -106,7 +93,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   }, [isOpen]);
 
   const totalWeightGram = activeItems.reduce(
-    (sum, item) => sum + ((item.book.beratGram || 480) * item.quantity),
+    (sum, item) => sum + ((item.book.beratGram || 500) * item.quantity),
     0
   );
 
@@ -119,8 +106,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const memberUnitPrice = (item: CartItem) =>
     memberPricing.applies ? memberPrintPrice(item.book.harga, item.book.originalHarga, memberPricing.percent) : null;
 
-  const currentCourier = shippingMethods.find(m => m.id === selectedCourierId) || shippingMethods[0];
-
   // Customer Details Form State — tanpa data contoh (isian bawaan dulu ikut tercatat sebagai pesanan).
   // customer.courier disimpan di data pesanan dan dibaca admin: tetap Bahasa Indonesia ('id').
   const [customer, setCustomer] = useState<CustomerDetails>({
@@ -132,7 +117,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     city: '',
     district: '',
     postalCode: '',
-    courier: currentCourier ? `${currentCourier.name} (${currentCourier.service})` : '',
+    courier: '',
     notes: ''
   });
 
@@ -173,13 +158,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   useEffect(() => {
     if (!checkoutConfig.methods.includes(selectedMethod)) setSelectedMethod(checkoutConfig.methods[0] ?? 'bank_transfer');
   }, [checkoutConfig.methods, selectedMethod]);
-
-  // Label kurir pilihan (preferensi, tidak mengubah ongkir) disimpan ke pesanan untuk admin: tetap Bahasa Indonesia.
-  useEffect(() => {
-    if (currentCourier) {
-      setCustomer(prev => ({ ...prev, courier: `${currentCourier.name} (${currentCourier.service})` }));
-    }
-  }, [selectedCourierId, currentCourier]);
 
   if (!isOpen) return null;
 
@@ -528,20 +506,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   />
                 </div>
               </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">
-                  {t('printCheckout.courierPreference')}
-                </label>
-                <select
-                  value={selectedCourierId}
-                  onChange={(e) => setSelectedCourierId(e.target.value)}
-                  className="w-full text-xs p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#C5A059] bg-white font-medium"
-                >
-                  {shippingMethods.map((m) => (
-                    <option key={m.id} value={m.id}>{m.name} ({shippingMethodText(m).service})</option>
-                  ))}
-                </select>
-              </div>
+              <p className="text-[11px] text-slate-500">Kurir belum ditetapkan karena tarif RajaOngkir belum tersedia. Admin akan menentukan ekspedisi dan ongkir sebelum tagihan dikirim.</p>
               </>)}
             </div>
 

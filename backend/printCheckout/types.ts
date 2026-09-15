@@ -7,9 +7,9 @@ export const PRINT_ORDER_STATUSES = [
 ] as const;
 export type PrintOrderStatus = (typeof PRINT_ORDER_STATUSES)[number];
 
-/** Belum dibayar dan boleh dilunasi (kedaluwarsa tetap bisa dikonfirmasi bila dana ternyata masuk). */
-export const UNPAID_STATUSES: string[] = ['pending', 'awaiting_transfer', 'expired'];
-/** Admin boleh mengonfirmasi pembayaran untuk pesanan yang sempat ditutup (mis. transfer terlambat). */
+/** Belum dibayar dan masih dapat dilunasi. Pesanan expired harus checkout ulang. */
+export const UNPAID_STATUSES: string[] = ['pending', 'awaiting_transfer'];
+/** Status yang boleh dipulihkan admin; expired adalah terminal dan tidak boleh dibayar lagi. */
 export const ADMIN_PAYABLE_STATUSES: string[] = [...UNPAID_STATUSES, 'cancelled', 'failed'];
 export const PAID_STATUSES: string[] = ['paid', 'processing', 'shipped'];
 

@@ -14,14 +14,14 @@ import { INDONESIA_PROVINCES } from '../data/shippingZones';
 import { notificationService } from '../services/NotificationService';
 import { trackInitiateCheckout, trackPurchase } from '../services/trackingService';
 import { toTitleCase } from '../utils/formatters';
-import { generateCakraNexaTrackingNumber, getStoredShippingMethods } from '../services/shippingService';
+import { generateCakraNexaTrackingNumber } from '../services/shippingService';
 import { apiClient, ApiError } from '../services/apiClient';
 import { openSnapPayment } from '../services/midtransSnap';
 import { getStoredPaymentSettings } from '../services/paymentService';
 import { generateOrderNumber, generateOrderId, nowIso } from '../utils/orderUtils';
 import { useBookText, useCategoryLabel, useFormatters } from '../i18n/hooks';
 import { getCurrentLanguage } from '../i18n/index';
-import { useOrderLabels, useShippingMethodText } from '../i18n/orderLabels';
+import { useOrderLabels } from '../i18n/orderLabels';
 import { getAccessToken } from '../services/memberSession';
 import { useMemberPrintDiscount } from '../hooks/useMemberPrintDiscount';
 import { memberPrintPrice, printSubtotal } from '../utils/memberPrice';
@@ -65,7 +65,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
   const bookText = useBookText();
   const categoryLabel = useCategoryLabel();
   const { statusLabel } = useOrderLabels();
-  const shippingMethodText = useShippingMethodText();
   // Step state: 'form' | 'midtrans_simulation' | 'success'
   const [checkoutStep, setCheckoutStep] = useState<'form' | 'midtrans_simulation' | 'success'>('form');
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
@@ -91,13 +90,9 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
   // Shipping & Courier state
   const totalWeightGram = cartItems.reduce(
-    (acc, item) => acc + (item.book.beratGram || 480) * item.quantity,
+    (acc, item) => acc + (item.book.beratGram || 500) * item.quantity,
     0
   );
-  // Tanpa tarif kurir (zona / ongkir diisi admin) ekspedisi pilihan hanya preferensi untuk admin.
-  const courierOptions = getStoredShippingMethods().filter((m) => m.isActive);
-  const [selectedCourierId, setSelectedCourierId] = useState<string>(() => courierOptions[0]?.id ?? '');
-  const selectedCourier = courierOptions.find((m) => m.id === selectedCourierId) ?? courierOptions[0];
   const { config: checkoutConfig, loaded: checkoutConfigLoaded } = usePrintCheckoutConfig();
   const copies = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   // Ongkir (server menghitung ulang): tarif kurir RajaOngkir untuk kecamatan tujuan; saat tidak tersedia, cadangan
@@ -150,11 +145,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
       trackInitiateCheckout(cartItems, grandTotal);
     }
   }, []);
-
-  // Label kurir pilihan disimpan ke pesanan untuk admin: memakai data kurir apa adanya (Bahasa Indonesia).
-  useEffect(() => {
-    if (selectedCourier) setCustomer(prev => ({ ...prev, courier: `${selectedCourier.name} - ${selectedCourier.service}` }));
-  }, [selectedCourier?.id]);
 
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
@@ -549,18 +539,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   </div>
                   {manualShipping && <p className="text-slate-500">{shipping.manualNote}</p>}
                   {shippingEstimate && <p className="text-amber-700" data-shipping-estimate>{t('printCheckout.estimateNote')}</p>}
-                  <label className="block">
-                    <span className="mb-1 block font-bold text-slate-700">{t('printCheckout.courierPreference')}</span>
-                    <select
-                      value={selectedCourierId}
-                      onChange={(e) => setSelectedCourierId(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#D4AF37]"
-                    >
-                      {courierOptions.map((m) => (
-                        <option key={m.id} value={m.id}>{m.name} ({shippingMethodText(m).service})</option>
-                      ))}
-                    </select>
-                  </label>
+                  <p className="text-[11px] text-slate-500">Kurir belum ditetapkan karena tarif RajaOngkir belum tersedia. Admin akan menentukan ekspedisi dan ongkir sebelum tagihan dikirim.</p>
                   </>)}
                   {formErrors.courier && <p className="text-[11px] text-red-500">{formErrors.courier}</p>}
                 </div>

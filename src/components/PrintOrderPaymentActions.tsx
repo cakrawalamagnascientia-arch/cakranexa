@@ -27,7 +27,7 @@ export const PrintOrderPaymentActions: React.FC<{
 }> = ({ order, onChanged, notify }) => {
   const [busy, setBusy] = useState(false);
   const status = order.paymentStatus;
-  const awaiting = status === 'awaiting_transfer' || status === 'expired';
+  const awaiting = status === 'awaiting_transfer';
 
   const run = async (action: () => Promise<unknown>, message: string) => {
     setBusy(true);

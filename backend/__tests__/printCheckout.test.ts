@@ -294,7 +294,7 @@ describe('checkout buku cetak: transfer bank ke rekening PT', () => {
     expect(t.stock).toEqual({ 'book-a': 3 });
   });
 
-  it('poin 3: lewat 24 jam -> expired + email; admin memperpanjang -> kembali menunggu transfer; pesanan kedaluwarsa tetap bisa dikonfirmasi', async () => {
+  it('poin 3: lewat 24 jam -> expired + email; pesanan kedaluwarsa harus checkout ulang', async () => {
     const t = setup();
     const a = (await t.place()).body;
     const b = (await t.place()).body;
@@ -307,13 +307,12 @@ describe('checkout buku cetak: transfer bank ke rekening PT', () => {
     expect(expiredMails).toHaveLength(2);
     expect(expiredMails[0].html).toContain('buat pesanan baru');
 
-    const extend = await t.admin('post', `/api/admin/print-orders/${a.orderNumber}/extend`, {});
-    expect(extend.status).toBe(200);
-    expect(extend.body.order).toMatchObject({ payment_status: 'awaiting_transfer', due_extended_count: 1, expired_at: null });
-    expect(extend.body.order.payment_due_at).toBe(new Date(START + 49 * HOUR).toISOString());
-    expect(t.mailsWith('diperpanjang')).toHaveLength(1);
+    const detail = await request(t.app).get(`/api/orders/${a.orderNumber}/detail?t=${a.accessToken}`);
+    expect(detail.body).toMatchObject({ status: 'expired', canUploadProof: false, bankAccounts: [] });
+    expect((await t.admin('post', `/api/admin/print-orders/${a.orderNumber}/extend`, {})).status).toBe(409);
+    expect((await t.admin('post', `/api/admin/print-orders/${a.orderNumber}/confirm-payment`, {})).status).toBe(409);
 
-    expect((await t.admin('post', `/api/admin/print-orders/${b.orderNumber}/confirm-payment`, {})).body.order.payment_status).toBe('paid');
+    expect((await t.admin('post', `/api/admin/print-orders/${b.orderNumber}/confirm-payment`, {})).status).toBe(409);
     expect((await t.admin('post', `/api/admin/print-orders/${b.orderNumber}/extend`, {})).status).toBe(409);
   });
 

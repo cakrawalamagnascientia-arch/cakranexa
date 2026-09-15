@@ -705,7 +705,7 @@ export class PrintCheckoutService {
     if (!Number.isInteger(hours) || hours < 1 || hours > 168) throw fail(400, 'invalid_hours', 'Perpanjangan harus 1–168 jam.');
     const order = await this.deps.store.getOrder(orderId);
     if (!order) throw fail(404, 'order_not_found', 'Pesanan tidak ditemukan.');
-    if (!['awaiting_transfer', 'expired'].includes(order.payment_status)) throw fail(409, 'invalid_state', 'Hanya pesanan yang menunggu transfer atau kedaluwarsa yang bisa diperpanjang.');
+    if (order.payment_status !== 'awaiting_transfer') throw fail(409, 'invalid_state', 'Pesanan kedaluwarsa harus dibuat ulang dari checkout.');
     const nowMs = this.now().getTime();
     const base = Math.max(nowMs, order.payment_due_at ? Date.parse(order.payment_due_at) : nowMs);
     const updated = await this.deps.store.updateOrder(orderId, {
@@ -713,7 +713,7 @@ export class PrintCheckoutService {
       payment_due_at: new Date(base + hours * HOUR_MS).toISOString(),
       expired_at: null,
       due_extended_count: (order.due_extended_count ?? 0) + 1
-    }, ['awaiting_transfer', 'expired']);
+    }, ['awaiting_transfer']);
     if (!updated) throw fail(409, 'state_changed', 'Status pesanan berubah. Muat ulang.');
     const extended = { ...order, ...updated, order_items: order.order_items };
     await this.emailBuyer('extended', extended);
@@ -727,7 +727,7 @@ export class PrintCheckoutService {
     const order = await this.deps.store.getOrder(orderId);
     if (!order) throw fail(404, 'order_not_found', 'Pesanan tidak ditemukan.');
     // Koreksi: pesanan berongkir estimasi (zone_fallback) yang belum dibayar ditagih ulang dengan ongkir sebenarnya.
-    const correcting = order.shipping_source === 'zone_fallback' && ['awaiting_transfer', 'expired'].includes(order.payment_status);
+    const correcting = order.shipping_source === 'zone_fallback' && order.payment_status === 'awaiting_transfer';
     if (order.payment_status !== 'awaiting_shipping_quote' && !correcting) throw fail(409, 'invalid_state', 'Pesanan ini tidak sedang menunggu ongkos kirim.');
     const settings = await this.settings();
     const subtotal = Number(order.subtotal_amount ?? order.total_amount);
@@ -745,7 +745,7 @@ export class PrintCheckoutService {
       shipping_quoted_at: now.toISOString(),
       shipping_source: 'manual',
       expired_at: null
-    }, correcting ? ['awaiting_transfer', 'expired'] : ['awaiting_shipping_quote']);
+    }, correcting ? ['awaiting_transfer'] : ['awaiting_shipping_quote']);
     if (!updated) throw fail(409, 'state_changed', 'Status pesanan berubah. Muat ulang.');
     const quoted = { ...order, ...updated, order_items: order.order_items };
     await this.emailBuyer('quoted', quoted);
@@ -811,7 +811,7 @@ export class PrintCheckoutService {
   async orderDetail(orderId: string, token: unknown) {
     const order = await this.withLazyExpiry(await this.authorizedOrder(orderId, token));
     const [catalog, settings] = await Promise.all([this.deps.loadCatalog().catch(() => [] as Book[]), this.settings()]);
-    const showPayment = ['awaiting_transfer', 'expired'].includes(order.payment_status);
+    const showPayment = order.payment_status === 'awaiting_transfer';
     const total = Math.round(Number(order.total_amount));
     return {
       orderNumber: order.order_id,
@@ -855,7 +855,7 @@ export class PrintCheckoutService {
   async uploadProof(orderId: string, token: unknown, req: Request) {
     const order = await this.authorizedOrder(orderId, token);
     if (PAID_STATUSES.includes(order.payment_status)) throw fail(409, 'already_paid', 'Pembayaran pesanan ini sudah dikonfirmasi.');
-    if (!['awaiting_transfer', 'expired'].includes(order.payment_status)) throw fail(409, 'invalid_state', 'Pesanan ini belum menunggu transfer.');
+    if (order.payment_status !== 'awaiting_transfer') throw fail(409, 'invalid_state', 'Pesanan ini tidak lagi menerima pembayaran; silakan checkout ulang.');
     if (!this.deps.storage) throw fail(503, 'upload_unavailable', 'Unggah bukti sedang tidak tersedia. Kirim bukti lewat WhatsApp Finance.');
     const file = await receiveProof(req);
     const objectPath = `print-order-proofs/${order.order_id}/${this.now().getTime()}-${crypto.randomBytes(4).toString('hex')}.${file.extension}`;
