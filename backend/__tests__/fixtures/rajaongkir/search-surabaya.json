@@ -1,0 +1,106 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/destination/domestic-destination?search=surabaya&limit=10&offset=0"
+  },
+  "status": 200,
+  "body": {
+    "meta": {
+      "message": "Success Get Domestic Destinations",
+      "code": 200,
+      "status": "success"
+    },
+    "data": [
+      {
+        "id": 74945,
+        "label": "SURABAYA BARU, BANDAR SURABAYA, LAMPUNG TENGAH, LAMPUNG, 34159",
+        "province_name": "LAMPUNG",
+        "city_name": "LAMPUNG TENGAH",
+        "district_name": "BANDAR SURABAYA",
+        "subdistrict_name": "SURABAYA BARU",
+        "zip_code": "34159"
+      },
+      {
+        "id": 74946,
+        "label": "SURABAYA ILIR, BANDAR SURABAYA, LAMPUNG TENGAH, LAMPUNG, 34159",
+        "province_name": "LAMPUNG",
+        "city_name": "LAMPUNG TENGAH",
+        "district_name": "BANDAR SURABAYA",
+        "subdistrict_name": "SURABAYA ILIR",
+        "zip_code": "34159"
+      },
+      {
+        "id": 507,
+        "label": "SURABAYA, SAKRA TIMUR, LOMBOK TIMUR, NUSA TENGGARA BARAT (NTB), 83671",
+        "province_name": "NUSA TENGGARA BARAT (NTB)",
+        "city_name": "LOMBOK TIMUR",
+        "district_name": "SAKRA TIMUR",
+        "subdistrict_name": "SURABAYA",
+        "zip_code": "83671"
+      },
+      {
+        "id": 508,
+        "label": "SURABAYA UTARA, SAKRA TIMUR, LOMBOK TIMUR, NUSA TENGGARA BARAT (NTB), 83671",
+        "province_name": "NUSA TENGGARA BARAT (NTB)",
+        "city_name": "LOMBOK TIMUR",
+        "district_name": "SAKRA TIMUR",
+        "subdistrict_name": "SURABAYA UTARA",
+        "zip_code": "83671"
+      },
+      {
+        "id": 4923,
+        "label": "BABAKAN SURABAYA, KIARACONDONG, BANDUNG, JAWA BARAT, 40281",
+        "province_name": "JAWA BARAT",
+        "city_name": "BANDUNG",
+        "district_name": "KIARACONDONG",
+        "subdistrict_name": "BABAKAN SURABAYA",
+        "zip_code": "40281"
+      },
+      {
+        "id": 5606,
+        "label": "SURABAYA, BLUBUR LIMBANGAN, GARUT, JAWA BARAT, 44186",
+        "province_name": "JAWA BARAT",
+        "city_name": "GARUT",
+        "district_name": "BLUBUR LIMBANGAN",
+        "subdistrict_name": "SURABAYA",
+        "zip_code": "44186"
+      },
+      {
+        "id": 6644,
+        "label": "SURABAYA, SUNGAI SERUT, BENGKULU, BENGKULU, 38119",
+        "province_name": "BENGKULU",
+        "city_name": "BENGKULU",
+        "district_name": "SUNGAI SERUT",
+        "subdistrict_name": "SURABAYA",
+        "zip_code": "38119"
+      },
+      {
+        "id": 55360,
+        "label": "SURABAYA, MADANG SUKU III, OGAN KOMERING ULU TIMUR, SUMATERA SELATAN, 32366",
+        "province_name": "SUMATERA SELATAN",
+        "city_name": "OGAN KOMERING ULU TIMUR",
+        "district_name": "MADANG SUKU III",
+        "subdistrict_name": "SURABAYA",
+        "zip_code": "32366"
+      },
+      {
+        "id": 55514,
+        "label": "SURABAYA, BANDING AGUNG, OGAN KOMERING ULU SELATAN, SUMATERA SELATAN, 32274",
+        "province_name": "SUMATERA SELATAN",
+        "city_name": "OGAN KOMERING ULU SELATAN",
+        "district_name": "BANDING AGUNG",
+        "subdistrict_name": "SURABAYA",
+        "zip_code": "32274"
+      },
+      {
+        "id": 55515,
+        "label": "SURABAYA TIMUR, BANDING AGUNG, OGAN KOMERING ULU SELATAN, SUMATERA SELATAN, 32274",
+        "province_name": "SUMATERA SELATAN",
+        "city_name": "OGAN KOMERING ULU SELATAN",
+        "district_name": "BANDING AGUNG",
+        "subdistrict_name": "SURABAYA TIMUR",
+        "zip_code": "32274"
+      }
+    ]
+  }
+}

@@ -127,6 +127,12 @@
       "description": "Status pembayaran pesanan CakraNexa melalui Midtrans.",
       "keywords": "status pembayaran cakranexa",
       "imageAlt": "Status Pembayaran CakraNexa"
+    },
+    "order": {
+      "title": "Pesanan Buku — CakraNexa",
+      "description": "Instruksi pembayaran dan status pesanan buku CakraNexa.",
+      "keywords": "pesanan buku cakranexa",
+      "imageAlt": "Pesanan Buku CakraNexa"
     }
   }
 }

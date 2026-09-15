@@ -12,12 +12,12 @@ import { useCmsText } from './hooks';
  * dan checkout:shippingMethods.*. Nilai yang tidak dikenal ditampilkan apa adanya.
  */
 export const ORDER_STATUSES = [
-  'pending', 'paid', 'processing', 'shipped', 'failed', 'cancelled'
+  'pending', 'awaiting_transfer', 'awaiting_shipping_quote', 'paid', 'processing', 'shipped', 'failed', 'cancelled', 'expired'
 ] as const satisfies readonly OrderStatus[];
 
 export const PAYMENT_METHODS = [
   'bca_va', 'mandiri_bill', 'bni_va', 'bri_va', 'permata_va', 'qris', 'gopay', 'ovo', 'dana',
-  'shopeepay', 'linkaja', 'credit_card', 'manual_mandiri'
+  'shopeepay', 'linkaja', 'credit_card', 'manual_mandiri', 'bank_transfer'
 ] as const satisfies readonly PaymentMethod[];
 
 /** Metode yang punya label versi pendek (checkout:paymentMethodsShort.*), mis. daftar di CheckoutModal. */

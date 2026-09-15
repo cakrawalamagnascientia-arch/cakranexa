@@ -5,7 +5,10 @@
     "processing": "Processing",
     "shipped": "Shipped",
     "failed": "Failed",
-    "cancelled": "Cancelled"
+    "cancelled": "Cancelled",
+    "awaiting_transfer": "Awaiting Transfer",
+    "awaiting_shipping_quote": "Awaiting Shipping Quote",
+    "expired": "Expired"
   },
   "paymentMethods": {
     "bca_va": "BCA Virtual Account",
@@ -20,7 +23,8 @@
     "shopeepay": "ShopeePay",
     "linkaja": "LinkAja",
     "credit_card": "Credit/Debit Card",
-    "manual_mandiri": "Manual Bank Transfer"
+    "manual_mandiri": "Manual Bank Transfer",
+    "bank_transfer": "Bank transfer to our company account"
   },
   "paymentMethodsShort": {
     "mandiri_bill": "Mandiri Bill"
@@ -334,6 +338,115 @@
     "title": "Become a Cakrawala Magna Society member",
     "description": "Unlock the digital e-book & audiobook shelf and other member benefits for your next reads.",
     "cta": "View membership plans"
+  },
+  "printCheckout": {
+    "province": {
+      "label": "Destination Province *",
+      "placeholder": "Select a province",
+      "required": "Select the destination province"
+    },
+    "courierPreference": "Preferred courier (does not change the shipping cost)",
+    "shippingZone": "{{zone}} zone",
+    "shippingManual": "Set by our team",
+    "shippingManualNote": "Orders of {{min}} or more copies: our team calculates the shipping cost and emails you the invoice.",
+    "shippingPickProvince": "Select a province",
+    "shippingEstimate": "Estimate ({{zone}} zone)",
+    "estimateNote": "Courier rates cannot be loaded right now, so this shipping cost is an estimate from our zone table. Our team may correct it before you pay; any new invoice is sent to your email.",
+    "destination": {
+      "label": "Destination District / Subdistrict *",
+      "placeholder": "Type a district, subdistrict, or postal code",
+      "hint": "Type at least 3 letters, then pick the area from the list.",
+      "searching": "Searching areas…",
+      "noResults": "No area found. Try another name or the postal code.",
+      "error": "Area search is having trouble. Please try again.",
+      "change": "Change",
+      "manual": "Enter the address without search",
+      "required": "Pick the destination district/subdistrict from the list"
+    },
+    "rates": {
+      "title": "Choose a courier service",
+      "loading": "Calculating shipping cost…",
+      "pickDestination": "Pick the destination district",
+      "etd": "Estimated {{days}} days",
+      "weight": "Parcel weight {{kg}} kg",
+      "source": "Courier rates from RajaOngkir, recalculated when the order is placed.",
+      "manualNote": "Courier rates to this address cannot be loaded yet. You can still place the order: we will check the shipping cost directly with the courier and email you the invoice.",
+      "error": "Shipping cost could not be loaded.",
+      "retry": "Reload rates",
+      "required": "Choose a courier service"
+    },
+    "totalBeforeCode": "Total (before unique code)",
+    "uniqueCodeNote": "The final transfer amount includes a 3-digit unique code, slightly lower (by up to Rp999), and is shown once the order is placed.",
+    "paymentSingle": {
+      "title": "Payment Method",
+      "method": "Bank transfer to PT Cakrawala Magna Scientia",
+      "note": "The account number, exact amount, and {{hours}}-hour deadline are shown after you place the order and are also sent to your email."
+    },
+    "paymentChoose": "Choose a payment method",
+    "submit": "Place Order",
+    "offline": "We cannot reach the server yet. Check your connection and try again."
+  },
+  "orderPage": {
+    "title": "Order {{orderNumber}}",
+    "loading": "Loading your order…",
+    "notFound": "Order not found. Please open the link from your order email.",
+    "retry": "Try again",
+    "amountLabel": "Amount to transfer",
+    "exactNote": "Please transfer the exact amount, including the last 3 digits, so we can match your payment quickly.",
+    "copyAmount": "Copy amount",
+    "copied": "Copied",
+    "breakdown": {
+      "subtotal": "Books subtotal",
+      "shipping": "Shipping",
+      "shippingZone": "Shipping ({{zone}})",
+      "uniqueDiscount": "Unique code discount ({{code}})",
+      "total": "Total"
+    },
+    "transferTo": "Transfer to the following account",
+    "bank": "Bank",
+    "accountNumber": "Account number",
+    "accountHolder": "Account name",
+    "copyAccount": "Copy account number",
+    "deadline": "Payment deadline",
+    "deadlineNote": "{{hours}} hours after the invoice is issued. The order expires automatically if unpaid by the deadline.",
+    "confirmWhatsApp": "Confirm via WhatsApp",
+    "proof": {
+      "title": "Upload transfer receipt (optional)",
+      "hint": "A photo or screenshot of your transfer receipt (JPG, PNG, WebP, or PDF, max. 10 MB) helps our Finance team verify faster.",
+      "upload": "Upload receipt",
+      "uploading": "Uploading…",
+      "uploaded": "Receipt received on {{date}}. Our Finance team will verify your payment.",
+      "failed": "Upload failed. Please try again or send it via WhatsApp."
+    },
+    "awaitingQuote": {
+      "title": "Awaiting shipping cost",
+      "description": "Your order has {{min}} or more copies. Our team is calculating the shipping cost and will email you the invoice and payment instructions.",
+      "descriptionRates": "We are checking the shipping cost to your address directly with the courier. The invoice and payment instructions will be sent to your email."
+    },
+    "paid": {
+      "title": "Payment received",
+      "description": "Your order is being prepared. We will send the tracking number once the parcel is handed to the courier."
+    },
+    "shipped": {
+      "title": "Order shipped",
+      "tracking": "Tracking number: {{tracking}}"
+    },
+    "expired": {
+      "title": "Order expired",
+      "description": "We did not receive payment before the deadline. Please place a new order, or contact Finance if you have already transferred."
+    },
+    "closed": {
+      "title": "Order closed",
+      "description": "Contact us if you have any questions about this order."
+    },
+    "pending": {
+      "title": "Awaiting payment",
+      "description": "Complete the payment on the payment page that was opened. The status updates automatically."
+    },
+    "items": "Books ordered",
+    "shippingAddress": "Shipping address",
+    "backToCatalog": "Back to Catalog",
+    "contactWhatsApp": "Contact Finance via WhatsApp"
   },
   "paymentResult": {
     "orderLabel": "Order number",

@@ -5,7 +5,10 @@
     "processing": "处理中",
     "shipped": "已发货",
     "failed": "失败",
-    "cancelled": "已取消"
+    "cancelled": "已取消",
+    "awaiting_transfer": "等待转账",
+    "awaiting_shipping_quote": "等待运费报价",
+    "expired": "已过期"
   },
   "paymentMethods": {
     "bca_va": "BCA Virtual Account",
@@ -20,7 +23,8 @@
     "shopeepay": "ShopeePay",
     "linkaja": "LinkAja",
     "credit_card": "信用卡/借记卡",
-    "manual_mandiri": "银行转账"
+    "manual_mandiri": "银行转账",
+    "bank_transfer": "银行转账至公司账户"
   },
   "paymentMethodsShort": {
     "mandiri_bill": "Mandiri Bill"
@@ -333,6 +337,115 @@
     "title": "成为 Cakrawala Magna Society 会员",
     "description": "开启电子书与有声书数字书架及更多会员权益，伴您开启下一次阅读。",
     "cta": "查看会员方案"
+  },
+  "printCheckout": {
+    "province": {
+      "label": "收货省份 *",
+      "placeholder": "选择省份",
+      "required": "请选择收货省份"
+    },
+    "courierPreference": "首选快递（不影响运费）",
+    "shippingZone": "{{zone}} 区域",
+    "shippingManual": "由我们确定",
+    "shippingManualNote": "订购 {{min}} 本或以上：运费由我们的团队计算，账单将发送至您的邮箱。",
+    "shippingPickProvince": "选择省份",
+    "shippingEstimate": "预估运费（{{zone}} 区域）",
+    "estimateNote": "暂时无法加载快递运费，此运费为区域表预估。我们可能在您付款前更正，新账单将发送至您的邮箱。",
+    "destination": {
+      "label": "收货区/街道 *",
+      "placeholder": "输入区、街道或邮政编码",
+      "hint": "至少输入 3 个字母，然后从列表中选择地区。",
+      "searching": "正在搜索地区…",
+      "noResults": "未找到地区。请尝试其他名称或邮政编码。",
+      "error": "地区搜索暂时出现问题，请重试。",
+      "change": "更改",
+      "manual": "不使用搜索，手动填写地址",
+      "required": "请从列表中选择收货区/街道"
+    },
+    "rates": {
+      "title": "选择快递服务",
+      "loading": "正在计算运费…",
+      "pickDestination": "请选择收货区",
+      "etd": "预计 {{days}} 天",
+      "weight": "包裹重量 {{kg}} 公斤",
+      "source": "快递运费来自 RajaOngkir，下单时重新计算。",
+      "manualNote": "暂时无法加载寄往该地址的快递运费。您仍可下单：我们将直接向快递公司核实运费，并将账单发送至您的邮箱。",
+      "error": "无法加载运费。",
+      "retry": "重新加载运费",
+      "required": "请选择快递服务"
+    },
+    "totalBeforeCode": "合计（唯一码前）",
+    "uniqueCodeNote": "最终转账金额包含 3 位唯一码，略低（最多少 Rp999），下单后显示。",
+    "paymentSingle": {
+      "title": "付款方式",
+      "method": "银行转账至 PT Cakrawala Magna Scientia 账户",
+      "note": "下单后将显示账号、精确金额及 {{hours}} 小时付款期限，并同时发送至您的邮箱。"
+    },
+    "paymentChoose": "选择付款方式",
+    "submit": "提交订单",
+    "offline": "暂时无法连接服务器。请检查网络后重试。"
+  },
+  "orderPage": {
+    "title": "订单 {{orderNumber}}",
+    "loading": "正在加载订单…",
+    "notFound": "未找到订单。请打开订单邮件中的链接。",
+    "retry": "重试",
+    "amountLabel": "应转账金额",
+    "exactNote": "请按精确金额（含最后三位数）转账，以便我们快速核对。",
+    "copyAmount": "复制金额",
+    "copied": "已复制",
+    "breakdown": {
+      "subtotal": "图书小计",
+      "shipping": "运费",
+      "shippingZone": "运费（{{zone}}）",
+      "uniqueDiscount": "唯一码优惠（{{code}}）",
+      "total": "合计"
+    },
+    "transferTo": "请转账至以下账户",
+    "bank": "银行",
+    "accountNumber": "账号",
+    "accountHolder": "户名",
+    "copyAccount": "复制账号",
+    "deadline": "付款期限",
+    "deadlineNote": "账单开具后 {{hours}} 小时。逾期未付款，订单将自动过期。",
+    "confirmWhatsApp": "通过 WhatsApp 确认",
+    "proof": {
+      "title": "上传转账凭证（可选）",
+      "hint": "转账凭证的照片或截图（JPG、PNG、WebP 或 PDF，最大 10 MB）可帮助财务更快核实。",
+      "upload": "上传凭证",
+      "uploading": "正在上传…",
+      "uploaded": "已于 {{date}} 收到凭证。财务团队将核实您的付款。",
+      "failed": "上传失败。请重试或通过 WhatsApp 发送。"
+    },
+    "awaitingQuote": {
+      "title": "等待运费报价",
+      "description": "您的订单包含 {{min}} 本或以上。我们的团队正在计算运费，随后会将账单及付款说明发送至您的邮箱。",
+      "descriptionRates": "我们正在向快递公司核实寄往您地址的运费。账单及付款说明将发送至您的邮箱。"
+    },
+    "paid": {
+      "title": "已收到付款",
+      "description": "订单正在准备中。包裹交付快递后，我们会发送运单号。"
+    },
+    "shipped": {
+      "title": "订单已发货",
+      "tracking": "运单号：{{tracking}}"
+    },
+    "expired": {
+      "title": "订单已过期",
+      "description": "我们在付款期限前未收到付款。请重新下单；如您已转账，请联系财务。"
+    },
+    "closed": {
+      "title": "订单已关闭",
+      "description": "如对此订单有疑问，请联系我们。"
+    },
+    "pending": {
+      "title": "等待付款",
+      "description": "请在已打开的付款页面完成付款。状态会自动更新。"
+    },
+    "items": "订购的图书",
+    "shippingAddress": "收货地址",
+    "backToCatalog": "返回书目",
+    "contactWhatsApp": "通过 WhatsApp 联系财务"
   },
   "paymentResult": {
     "orderLabel": "订单号",

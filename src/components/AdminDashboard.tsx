@@ -74,6 +74,7 @@ import { MembershipAdminTab } from './MembershipAdminTab';
 import { Crown as MembershipIcon } from 'lucide-react';
 import { CmsDashboardManager } from './CmsDashboardManager';
 import { ShippingLabelModal } from './ShippingLabelModal';
+import { PrintOrderPaymentActions } from './PrintOrderPaymentActions';
 import { getStoredSeoSettings, saveStoredSeoSettings, DEFAULT_SEO_SETTINGS } from '../services/seoService';
 import { getStoredSiteContent, saveStoredSiteContent, resetSiteContentToDefault } from '../services/siteContentService';
 import { INITIAL_BOOKS } from '../data/booksData';
@@ -167,6 +168,8 @@ interface AdminDashboardProps {
   onResetSeedData: () => void;
   onViewBookDetail: (book: BookType) => void;
   onUpdateOrder?: (order: Order) => void;
+  /** Muat ulang pesanan dari server setelah aksi pembayaran (konfirmasi, ongkir, perpanjang, tanda uji). */
+  onReloadOrders?: () => void;
   seoSettings?: SeoSettings;
   onUpdateSeoSettings?: (settings: SeoSettings) => void;
   siteContent?: SiteContentSettings;
@@ -189,6 +192,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onResetSeedData,
   onViewBookDetail,
   onUpdateOrder,
+  onReloadOrders,
   seoSettings,
   onUpdateSeoSettings,
   siteContent,
@@ -1762,9 +1766,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Omzet Sirkulasi</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Omzet Lunas (tanpa uji)</span>
                 <span className="font-mono text-xl font-bold text-emerald-700">
-                  Rp {(orders || []).reduce((sum, o) => sum + (o?.total || 0), 0).toLocaleString('id-ID')}
+                  Rp {(orders || [])
+                    .filter((o) => ['paid', 'processing', 'shipped'].includes(o?.paymentStatus) && !o?.isTest)
+                    .reduce((sum, o) => sum + (o?.total || 0), 0)
+                    .toLocaleString('id-ID')}
                 </span>
               </div>
               <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-700">
@@ -1774,9 +1781,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Perlu Diproses</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Siap Dikirim (Lunas)</span>
                 <span className="font-mono text-xl font-bold text-amber-600">
-                  {(orders || []).filter(o => ['pending', 'paid', 'processing'].includes(o?.paymentStatus)).length} Pesanan
+                  {(orders || []).filter(o => ['paid', 'processing'].includes(o?.paymentStatus)).length} Pesanan
+                </span>
+                <span className="text-[10px] text-slate-400 block">
+                  Menunggu transfer {(orders || []).filter(o => o?.paymentStatus === 'awaiting_transfer').length} · menunggu ongkir {(orders || []).filter(o => o?.paymentStatus === 'awaiting_shipping_quote').length}
                 </span>
               </div>
               <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
@@ -1819,11 +1829,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 className="text-xs py-2 px-3 rounded-lg border border-slate-200 bg-white font-medium text-slate-700 focus:outline-none focus:border-slate-800 cursor-pointer w-full sm:w-auto"
               >
                 <option value="all">Semua Status ({(orders || []).length})</option>
-                <option value="pending">Pending</option>
+                <option value="awaiting_transfer">Menunggu Transfer</option>
+                <option value="awaiting_shipping_quote">Menunggu Ongkir</option>
+                <option value="pending">Pending (Gateway)</option>
                 <option value="paid">Paid (Terbayar)</option>
                 <option value="processing">Processing</option>
                 <option value="shipped">Shipped (Terkirim)</option>
-                <option value="failed">Failed / Cancelled</option>
+                <option value="expired">Kedaluwarsa</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="failed">Failed</option>
+                <option value="test">Pesanan Uji</option>
               </select>
             </div>
           </div>
@@ -1861,7 +1876,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           name.toLowerCase().includes(orderSearchQuery.toLowerCase()) ||
                           phone.toLowerCase().includes(orderSearchQuery.toLowerCase()) ||
                           city.toLowerCase().includes(orderSearchQuery.toLowerCase());
-                        const matchesStatus = orderStatusFilter === 'all' || ord?.paymentStatus === orderStatusFilter;
+                        const matchesStatus = orderStatusFilter === 'all'
+                          || (orderStatusFilter === 'test' ? Boolean(ord?.isTest) : ord?.paymentStatus === orderStatusFilter);
                         return matchesSearch && matchesStatus;
                       })
                       .map((ord) => {
@@ -2036,15 +2052,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     ? 'bg-blue-50 text-blue-700 border-blue-200'
                                     : ord?.paymentStatus === 'processing'
                                     ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                    : ord?.paymentStatus === 'failed' || ord?.paymentStatus === 'cancelled'
+                                    : ord?.paymentStatus === 'failed' || ord?.paymentStatus === 'cancelled' || ord?.paymentStatus === 'expired'
                                     ? 'bg-rose-50 text-rose-700 border-rose-200'
+                                    : ord?.paymentStatus === 'awaiting_transfer' || ord?.paymentStatus === 'awaiting_shipping_quote'
+                                    ? 'bg-sky-50 text-sky-700 border-sky-200'
                                     : 'bg-slate-100 text-slate-600 border-slate-200'
                                 }`}
                               >
+                                <option value="awaiting_transfer">MENUNGGU TRANSFER</option>
+                                <option value="awaiting_shipping_quote">MENUNGGU ONGKIR</option>
                                 <option value="pending">PENDING</option>
                                 <option value="paid">PAID</option>
                                 <option value="processing">PROCESSING</option>
                                 <option value="shipped">SHIPPED</option>
+                                <option value="expired">KEDALUWARSA</option>
                                 <option value="cancelled">CANCELLED</option>
                               </select>
 
@@ -2058,6 +2079,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   <span>Lihat Bukti</span>
                                 </button>
                               )}
+
+                              {/* Pembayaran transfer: konfirmasi, ongkir manual, perpanjang, bukti, tanda uji */}
+                              <PrintOrderPaymentActions order={ord} onChanged={() => onReloadOrders?.()} notify={showNotification} />
                             </td>
 
                             {/* Dispatcher Actions */}

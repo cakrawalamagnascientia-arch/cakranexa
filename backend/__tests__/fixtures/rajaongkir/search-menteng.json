@@ -1,0 +1,106 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/destination/domestic-destination?search=menteng&limit=10&offset=0"
+  },
+  "status": 200,
+  "body": {
+    "meta": {
+      "message": "Success Get Domestic Destinations",
+      "code": 200,
+      "status": "success"
+    },
+    "data": [
+      {
+        "id": 17620,
+        "label": "MENTENG, MENTENG, JAKARTA PUSAT, DKI JAKARTA, 10310",
+        "province_name": "DKI JAKARTA",
+        "city_name": "JAKARTA PUSAT",
+        "district_name": "MENTENG",
+        "subdistrict_name": "MENTENG",
+        "zip_code": "10310"
+      },
+      {
+        "id": 6569,
+        "label": "BOJONG MENTENG, RAWALUMBU, BEKASI, JAWA BARAT, 17117",
+        "province_name": "JAWA BARAT",
+        "city_name": "BEKASI",
+        "district_name": "RAWALUMBU",
+        "subdistrict_name": "BOJONG MENTENG",
+        "zip_code": "17117"
+      },
+      {
+        "id": 8127,
+        "label": "MENTENG, BOGOR BARAT - KOTA, BOGOR, JAWA BARAT, 16111",
+        "province_name": "JAWA BARAT",
+        "city_name": "BOGOR",
+        "district_name": "BOGOR BARAT - KOTA",
+        "subdistrict_name": "MENTENG",
+        "zip_code": "16111"
+      },
+      {
+        "id": 8284,
+        "label": "WARUNG MENTENG, CIJERUK, BOGOR, JAWA BARAT, 16740",
+        "province_name": "JAWA BARAT",
+        "city_name": "BOGOR",
+        "district_name": "CIJERUK",
+        "subdistrict_name": "WARUNG MENTENG",
+        "zip_code": "16740"
+      },
+      {
+        "id": 17580,
+        "label": "MENTENG ATAS, SETIA BUDI, JAKARTA SELATAN, DKI JAKARTA, 12960",
+        "province_name": "DKI JAKARTA",
+        "city_name": "JAKARTA SELATAN",
+        "district_name": "SETIA BUDI",
+        "subdistrict_name": "MENTENG ATAS",
+        "zip_code": "12960"
+      },
+      {
+        "id": 17587,
+        "label": "MENTENG DALAM, TEBET, JAKARTA SELATAN, DKI JAKARTA, 12870",
+        "province_name": "DKI JAKARTA",
+        "city_name": "JAKARTA SELATAN",
+        "district_name": "TEBET",
+        "subdistrict_name": "MENTENG DALAM",
+        "zip_code": "12870"
+      },
+      {
+        "id": 17617,
+        "label": "CIKINI, MENTENG, JAKARTA PUSAT, DKI JAKARTA, 10330",
+        "province_name": "DKI JAKARTA",
+        "city_name": "JAKARTA PUSAT",
+        "district_name": "MENTENG",
+        "subdistrict_name": "CIKINI",
+        "zip_code": "10330"
+      },
+      {
+        "id": 17618,
+        "label": "GONDANGDIA, MENTENG, JAKARTA PUSAT, DKI JAKARTA, 10350",
+        "province_name": "DKI JAKARTA",
+        "city_name": "JAKARTA PUSAT",
+        "district_name": "MENTENG",
+        "subdistrict_name": "GONDANGDIA",
+        "zip_code": "10350"
+      },
+      {
+        "id": 17619,
+        "label": "KEBON SIRIH, MENTENG, JAKARTA PUSAT, DKI JAKARTA, 10340",
+        "province_name": "DKI JAKARTA",
+        "city_name": "JAKARTA PUSAT",
+        "district_name": "MENTENG",
+        "subdistrict_name": "KEBON SIRIH",
+        "zip_code": "10340"
+      },
+      {
+        "id": 17621,
+        "label": "PEGANGSAAN, MENTENG, JAKARTA PUSAT, DKI JAKARTA, 10320",
+        "province_name": "DKI JAKARTA",
+        "city_name": "JAKARTA PUSAT",
+        "district_name": "MENTENG",
+        "subdistrict_name": "PEGANGSAAN",
+        "zip_code": "10320"
+      }
+    ]
+  }
+}

@@ -30,7 +30,8 @@ export const DEFAULT_GATEWAY_FEE_RATES: Record<string, GatewayFeeRate> = {
   dana: { pct: 2, flat: 0 },
   linkaja: { pct: 2, flat: 0 },
   credit_card: { pct: 2.9, flat: 2000 },
-  manual_mandiri: { pct: 0, flat: 0 }
+  manual_mandiri: { pct: 0, flat: 0 },
+  bank_transfer: { pct: 0, flat: 0 }
 };
 
 export interface PrintRoyaltyConfig {

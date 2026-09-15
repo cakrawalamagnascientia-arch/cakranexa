@@ -127,6 +127,12 @@
       "description": "Status of your CakraNexa order payment via Midtrans.",
       "keywords": "cakranexa payment status",
       "imageAlt": "CakraNexa Payment Status"
+    },
+    "order": {
+      "title": "Book Order — CakraNexa",
+      "description": "Payment instructions and status of your CakraNexa book order.",
+      "keywords": "cakranexa book order",
+      "imageAlt": "CakraNexa Book Order"
     }
   }
 }

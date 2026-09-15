@@ -49,7 +49,8 @@ const PAGE_PATHS: Record<string, ActivePage> = {
   institutions: 'institutions',
   library: 'library',
   account: 'account',
-  payment: 'payment'
+  payment: 'payment',
+  pesanan: 'order'
 };
 
 const VALID_SUBSECTIONS = new Set<string>([
@@ -141,6 +142,10 @@ export const parseLocation = (pathname: string = window.location.pathname, searc
     // /payment tanpa sub-path diperlakukan sebagai halaman sukses (status tetap dibaca dari server).
     state.subSection = segments[1] === 'failed' ? 'failed' : 'success';
     state.query = rawQuery;
+  } else if (page === 'order') {
+    // /pesanan/<nomor>?t=<token>: nomor pesanan disimpan di digitalItem, token di query.
+    state.digitalItem = segments[1] || null;
+    state.query = rawQuery;
   } else if (segments[1] && VALID_SUBSECTIONS.has(segments[1])) {
     state.subSection = segments[1] as SubSection;
   }
@@ -188,6 +193,7 @@ const buildBasePath = (state: RouteState): string => {
     return withQuery(`${base}/${section}`);
   }
   if (page === 'payment') return withQuery(`${base}/${subSection === 'failed' ? 'failed' : 'success'}`);
+  if (page === 'order') return withQuery(digitalItem ? `/pesanan/${encodeURIComponent(digitalItem)}` : '/pesanan');
   if (subSection && VALID_SUBSECTIONS.has(subSection)) return `${base}/${subSection}`;
   return base;
 };

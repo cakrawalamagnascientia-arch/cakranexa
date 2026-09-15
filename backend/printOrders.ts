@@ -4,7 +4,8 @@ import { ORDER_NOT_SAVED_MESSAGE } from './digital/errors';
 /**
  * Menyimpan pesanan buku cetak sebelum pembayaran dibuat. Transaksi Midtrans (Snap) dan email admin hanya dibuat
  * setelah baris orders dan order_items tersimpan; bila penyimpanan gagal, pembeli mendapat 503 dan tidak ada
- * transaksi pembayaran untuk pesanan yang tidak tercatat.
+ * transaksi pembayaran untuk pesanan yang tidak tercatat. Stok tidak dikurangi di sini: pengurangan stok adalah efek
+ * "lunas" (backend/printCheckout/service.ts markOrderPaid).
  */
 export { ORDER_NOT_SAVED_MESSAGE };
 
@@ -20,14 +21,13 @@ export interface PrintOrderDb {
   insertItems(rows: Record<string, unknown>[]): Promise<{ error: DbError | null }>;
   /** Baris orders sudah masuk tetapi order_items gagal: pesanan ditandai gagal (tidak dihapus). */
   markOrderFailed(orderId: string): Promise<{ error: DbError | null }>;
+  /** Dipakai markOrderPaid (efek lunas), bukan saat pesanan dibuat. */
   decrementStock(bookId: string, quantity: number): Promise<void>;
 }
 
 export interface PrintOrderRows {
   order: Record<string, unknown>;
   items: Record<string, unknown>[];
-  /** Hanya buku yang stoknya dikelola. */
-  stock: { bookId: string; quantity: number }[];
 }
 
 export interface PlacePrintOrderDeps {
@@ -81,7 +81,6 @@ export async function placePrintOrder(deps: PlacePrintOrderDeps, order: any, row
       });
       return notSaved;
     }
-    for (const { bookId, quantity } of rows.stock) await db.decrementStock(bookId, quantity);
   }
 
   // Midtrans Snap token hanya boleh dibuat dari backend yang memiliki Server Key.

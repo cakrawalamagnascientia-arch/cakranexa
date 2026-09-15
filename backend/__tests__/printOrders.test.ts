@@ -4,8 +4,7 @@ import { ORDER_NOT_SAVED_MESSAGE, placePrintOrder, type PrintOrderDb, type Print
 const ORDER = { orderNumber: 'CNX-202609-000001', paymentMethod: 'bca_va', total: 199000 };
 const ROWS: PrintOrderRows = {
   order: { order_id: ORDER.orderNumber, total_amount: 199000 },
-  items: [{ order_id: ORDER.orderNumber, book_id: 'book-28', quantity: 1 }],
-  stock: [{ bookId: 'book-28', quantity: 1 }]
+  items: [{ order_id: ORDER.orderNumber, book_id: 'book-28', quantity: 1 }]
 };
 
 const setup = (db: Partial<PrintOrderDb> | null) => {
@@ -31,7 +30,6 @@ describe('pesanan buku cetak: simpan dulu, baru buat transaksi Midtrans', () => 
     expect(t.createSnap).not.toHaveBeenCalled();
     expect(t.notifyAdmin).not.toHaveBeenCalled();
     expect(t.db!.insertItems).not.toHaveBeenCalled();
-    expect(t.db!.decrementStock).not.toHaveBeenCalled();
     expect(t.log.error).toHaveBeenCalledWith(expect.stringContaining('tidak tersimpan'), expect.objectContaining({
       orderId: ORDER.orderNumber, stage: 'orders', code: '23505', message: 'duplicate key value', details: 'Key (order_id) exists'
     }));
@@ -46,7 +44,7 @@ describe('pesanan buku cetak: simpan dulu, baru buat transaksi Midtrans', () => 
     expect(t.log.error).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ stage: 'orders', message: 'fetch failed' }));
   });
 
-  it('insert order_items gagal -> pesanan ditandai gagal (tidak dihapus), 503, tanpa Midtrans dan stok tidak berkurang', async () => {
+  it('insert order_items gagal -> pesanan ditandai gagal (tidak dihapus), 503, tanpa Midtrans', async () => {
     const t = setup({ insertItems: vi.fn(async () => { t.calls.push('order_items'); return { error: { message: 'violates foreign key', code: '23503' } }; }) });
     const result = await placePrintOrder(t.deps, ORDER, ROWS);
     expect(result).toMatchObject({ ok: false, status: 503 });
@@ -55,11 +53,12 @@ describe('pesanan buku cetak: simpan dulu, baru buat transaksi Midtrans', () => 
     expect(t.log.error).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ stage: 'order_items', code: '23503', markedFailed: true }));
   });
 
-  it('berhasil: urutan orders -> order_items -> stok -> Midtrans -> email admin', async () => {
+  it('berhasil: urutan orders -> order_items -> Midtrans -> email admin; stok tidak berkurang sebelum lunas', async () => {
     const t = setup({});
     const result = await placePrintOrder(t.deps, ORDER, ROWS);
     expect(result).toEqual({ ok: true, snapToken: 'snap-token' });
-    expect(t.calls).toEqual(['orders', 'order_items', 'stock', 'midtrans', 'email']);
+    expect(t.calls).toEqual(['orders', 'order_items', 'midtrans', 'email']);
+    expect(t.db!.decrementStock).not.toHaveBeenCalled();
     expect(t.db!.insertOrder).toHaveBeenCalledWith(ROWS.order);
     expect(t.db!.insertItems).toHaveBeenCalledWith(ROWS.items);
   });
@@ -69,7 +68,7 @@ describe('pesanan buku cetak: simpan dulu, baru buat transaksi Midtrans', () => 
     const result = await placePrintOrder(t.deps, { ...ORDER, paymentMethod: 'manual_mandiri' }, ROWS);
     expect(result).toEqual({ ok: true, snapToken: null });
     expect(t.createSnap).not.toHaveBeenCalled();
-    expect(t.calls).toEqual(['orders', 'order_items', 'stock', 'email']);
+    expect(t.calls).toEqual(['orders', 'order_items', 'email']);
   });
 
   it('email admin gagal tidak membatalkan pesanan yang sudah tersimpan', async () => {

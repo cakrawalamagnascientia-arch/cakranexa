@@ -53,6 +53,8 @@ export interface Phase2Deps {
   getInquiry?: (id: string) => Promise<InquiryRef | null>;
   /** Fase 4: penerima email internal institusi (mis. pemberitahuan perpanjangan H-45); bawaan adminEmails. */
   institutionAdminEmails?: string[];
+  /** Job lain yang ikut dijalankan POST /api/internal/cron (mis. kedaluwarsa pesanan cetak transfer manual). */
+  cronJobs?: Record<string, () => Promise<unknown>>;
   env?: NodeJS.ProcessEnv;
   /** Pengganti untuk tes otomatis. */
   overrides?: Partial<{
@@ -287,7 +289,8 @@ export const createDigitalPhase2 = (deps: Phase2Deps): DigitalPhase2 => {
   // Anomali: tab admin, pemeriksaan manual, dan endpoint cron.
   router.use(createAnomalyRouter(context, {
     membership: () => runMembershipJob(membership),
-    institution: () => runInstitutionJob(institution)
+    institution: () => runInstitutionJob(institution),
+    ...deps.cronJobs
   }));
 
   router.use(PHASE2_ROUTE_PREFIXES, digitalErrorHandler);

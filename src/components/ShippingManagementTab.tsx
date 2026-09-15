@@ -19,6 +19,7 @@ import {
   Gift
 } from 'lucide-react';
 import { ShippingMethod } from '../types';
+import { ShippingZonesPanel } from './ShippingZonesPanel';
 import {
   getStoredShippingMethods,
   saveStoredShippingMethods,
@@ -232,6 +233,9 @@ export const ShippingManagementTab: React.FC<ShippingManagementTabProps> = ({
         </div>
       )}
 
+      {/* ONGKIR CHECKOUT: tabel zona di server (sumber ongkir pesanan) */}
+      <ShippingZonesPanel />
+
       {/* HEADER BAR */}
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -248,7 +252,7 @@ export const ShippingManagementTab: React.FC<ShippingManagementTabProps> = ({
             Pengaturan Ekspedisi & Tarif Ongkir
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Atur kurir aktif, ongkos kirim per kilogram, estimasi tiba, serta ambang batas gratis ongkos kirim (Free Shipping) otomatis.
+            Daftar kurir di bawah menjadi pilihan ekspedisi pembeli dan label pengiriman. Tarif per kilogram di sini tidak lagi dipakai checkout: ongkir pesanan mengikuti tabel zona di atas.
           </p>
         </div>
 

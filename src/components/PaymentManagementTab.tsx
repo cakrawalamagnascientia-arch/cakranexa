@@ -27,6 +27,7 @@ import {
   DEFAULT_BANK_ACCOUNTS
 } from '../services/paymentService';
 import { getServerBankAccounts, saveServerBankAccounts } from '../services/institutionAdminApi';
+import { PaymentRoutingPanel } from './PaymentRoutingPanel';
 
 interface PaymentManagementTabProps {
   onPaymentSettingsUpdated?: (settings: PaymentSettings) => void;
@@ -283,7 +284,10 @@ export const PaymentManagementTab: React.FC<PaymentManagementTabProps> = ({
         </div>
       </div>
 
-      {/* 1. PAYMENT GATEWAYS TOGGLE SWITCHES */}
+      {/* METODE PEMBAYARAN CHECKOUT (payment_routing di server) */}
+      <PaymentRoutingPanel />
+
+      {/* 1. PAYMENT GATEWAYS TOGGLE SWITCHES (pengaturan lama, hanya browser ini) */}
       <div className="bg-white p-5 sm:p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div>
@@ -292,7 +296,7 @@ export const PaymentManagementTab: React.FC<PaymentManagementTabProps> = ({
               <span>Aktivasi Saluran Pembayaran (Payment Channels Toggle)</span>
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Saluran yang dinonaktifkan di sini otomatis disembunyikan dari halaman checkout publik pembeli.
+              Pengaturan lama yang hanya tersimpan di browser ini. Checkout buku cetak kini memakai "Metode Pembayaran Checkout Buku Cetak" di atas.
             </p>
           </div>
         </div>

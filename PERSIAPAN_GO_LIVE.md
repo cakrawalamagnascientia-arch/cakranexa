@@ -54,7 +54,7 @@ Persyaratan akun Midtrans produksi: akta/SK Kemenkumham PT, NIB, NPWP perusahaan
 | 13 | **GA4 Measurement ID** (`G-XXXXXXXX`) | Statistik pengunjung | Google Analytics → Admin → Data Streams; masukkan via **Admin › SEO & Tracking** (tidak perlu env) |
 | 14 | **Meta Pixel ID**, **GTM ID**, **Google Ads Conversion ID/Label** | Iklan & retargeting | Sama, via Admin › SEO & Tracking |
 | 15 | **Google Search Console** | Indexing | Verifikasi domain (DNS TXT), submit `https://cakranexa.com/sitemap.xml` |
-| 16 | **`RAJAONGKIR_API_KEY`** / Biteship | Ongkir real-time | Belum terintegrasi; saat ini tarif estimasi internal (bisa diedit di Admin › Pengiriman) |
+| 16 | **`RAJAONGKIR_API_KEY`** | Ongkir real-time (RajaOngkir/Komerce API V2) | Terintegrasi di checkout buku cetak; atur lokasi asal pengiriman di Admin › Management Pengiriman. Lihat `docs/SETUP-CHECKOUT-CETAK.md` |
 | 17 | WhatsApp Business API / Fonnte / Wablas | Notifikasi WA otomatis ke admin & pembeli | Belum terintegrasi (saat ini tombol wa.me manual) |
 | 18 | Resend / SMTP (mis. Brevo) | Email faktur otomatis | Belum terintegrasi |
 | 19 | Domain & DNS | `cakranexa.com` → Vercel (A/CNAME), `api.cakranexa.com` → Render (CNAME) opsional | Registrar/Cloudflare |

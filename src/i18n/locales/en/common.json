@@ -82,7 +82,8 @@
       "karir": "career",
       "checkout": "checkout",
       "kontak": "contact",
-      "payment": "payment status"
+      "payment": "payment status",
+      "order": "order"
     }
   },
   "toast": {

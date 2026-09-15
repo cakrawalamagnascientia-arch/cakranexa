@@ -58,9 +58,10 @@ import { PlayerView } from './components/player/PlayerView';
 import { refreshDigitalFeature, useDigitalFeature } from './services/digitalFeature';
 import { useMemberSession } from './services/memberSession';
 import { PaymentResultView } from './components/PaymentResultView';
+import { OrderStatusView } from './components/OrderStatusView';
 
 // Label halaman pada sub-header (common:subheader.pages.*); halaman lain memakai slug apa adanya.
-type SubheaderPageKey = 'katalog' | 'katalogDetail' | 'penerbitan' | 'pelatihan' | 'jurnal' | 'tentangKami' | 'blog' | 'career' | 'karir' | 'checkout' | 'kontak' | 'payment';
+type SubheaderPageKey = 'katalog' | 'katalogDetail' | 'penerbitan' | 'pelatihan' | 'jurnal' | 'tentangKami' | 'blog' | 'career' | 'karir' | 'checkout' | 'kontak' | 'payment' | 'order';
 const SUBHEADER_PAGE_KEYS: Partial<Record<ActivePage, SubheaderPageKey>> = {
   katalog: 'katalog',
   'katalog-detail': 'katalogDetail',
@@ -73,7 +74,8 @@ const SUBHEADER_PAGE_KEYS: Partial<Record<ActivePage, SubheaderPageKey>> = {
   karir: 'karir',
   checkout: 'checkout',
   kontak: 'kontak',
-  payment: 'payment'
+  payment: 'payment',
+  order: 'order'
 };
 
 /** Mengubah baris Supabase (snake_case + order_items) atau objek in-memory server menjadi Order frontend */
@@ -88,7 +90,10 @@ function mapServerOrder(r: any, books: Book[]): Order {
     id: r.id,
     orderNumber: r.order_id,
     items,
-    subtotal: Number(r.total_amount) - Number(r.shipping_fee || 0),
+    // Checkout transfer: subtotal tersimpan; total = subtotal + ongkir - potongan kode unik.
+    subtotal: r.subtotal_amount != null
+      ? Number(r.subtotal_amount)
+      : Number(r.total_amount) - Number(r.shipping_fee || 0) + Number(r.unique_discount || 0),
     shippingCost: Number(r.shipping_fee || 0),
     total: Number(r.total_amount),
     customer: {
@@ -96,8 +101,8 @@ function mapServerOrder(r: any, books: Book[]): Order {
       email: r.customer_email,
       phone: r.customer_phone,
       address,
-      province: '',
-      city: rest.replace(/\s*\(.*\)$/, ''),
+      province: r.province || '',
+      city: r.city || rest.replace(/\s*\(.*\)$/, ''),
       district: '',
       postalCode: (rest.match(/\((\d+)\)/) || [])[1] || '',
       courier: String(r.courier || '').split(' - ')[0],
@@ -111,7 +116,18 @@ function mapServerOrder(r: any, books: Book[]): Order {
     paymentProofUrl: r.payment_proof_url || undefined,
     createdAt: r.created_at,
     serverSynced: true,
-    language: r.language || undefined
+    language: r.language || undefined,
+    uniqueCode: r.unique_code ?? null,
+    uniqueDiscount: Number(r.unique_discount || 0),
+    paymentDueAt: r.payment_due_at ?? null,
+    paidAt: r.paid_at ?? null,
+    hasProof: Boolean(r.has_proof),
+    proofUploadedAt: r.payment_proof_uploaded_at ?? null,
+    isTest: Boolean(r.is_test),
+    shippingZone: r.shipping_zone ?? null,
+    shippingSource: r.shipping_source ?? null,
+    copies: r.copies ?? undefined,
+    dueExtendedCount: Number(r.due_extended_count || 0)
   };
 }
 
@@ -324,21 +340,25 @@ export default function App() {
     return [];
   });
 
-  // Muat riwayat pesanan dari server (Supabase) saat admin login
+  // Muat riwayat pesanan dari server (Supabase) saat admin login; dipakai ulang setelah aksi pembayaran di Dispatcher.
+  const reloadOrders = React.useCallback(async () => {
+    if (!isAdminAuthenticated()) return;
+    try {
+      const rows = await apiClient.getOrders();
+      const mapped: Order[] = rows.map((r: any) => mapServerOrder(r, books));
+      setOrders((prev) => {
+        const byNumber = new Map(prev.map((o) => [o.orderNumber, o]));
+        mapped.forEach((o) => byNumber.set(o.orderNumber, { ...(byNumber.get(o.orderNumber) || {}), ...o }));
+        return [...byNumber.values()].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+      });
+    } catch (err) {
+      console.warn('Gagal memuat pesanan dari server:', err);
+    }
+  }, [books]);
+
   useEffect(() => {
-    const load = async () => {
-      if (!isAdminAuthenticated()) return;
-      try {
-        const rows = await apiClient.getOrders();
-        const mapped: Order[] = rows.map((r: any) => mapServerOrder(r, books));
-        setOrders((prev) => {
-          const byNumber = new Map(prev.map((o) => [o.orderNumber, o]));
-          mapped.forEach((o) => byNumber.set(o.orderNumber, { ...(byNumber.get(o.orderNumber) || {}), ...o }));
-          return [...byNumber.values()].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
-        });
-      } catch (err) {
-        console.warn('Gagal memuat pesanan dari server:', err);
-      }
+    const load = () => {
+      void reloadOrders();
     };
     load();
     window.addEventListener('cakranexa_admin_auth_changed', load);
@@ -465,8 +485,8 @@ export default function App() {
       selectedAuthorId: activePage === 'katalog' && selectedAuthor ? selectedAuthor.id : null,
       category: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogCategory : undefined,
       search: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogSearch : undefined,
-      digitalItem: activePage === 'digital' || activePage === 'library' ? digitalItem : null,
-      query: activePage === 'account' || activePage === 'library' || activePage === 'payment' || (activePage === 'digital' && activeSubSection === 'checkout') || (activePage === 'membership' && activeSubSection === 'checkout') ? routeQuery : undefined
+      digitalItem: activePage === 'digital' || activePage === 'library' || activePage === 'order' ? digitalItem : null,
+      query: activePage === 'account' || activePage === 'library' || activePage === 'payment' || activePage === 'order' || (activePage === 'digital' && activeSubSection === 'checkout') || (activePage === 'membership' && activeSubSection === 'checkout') ? routeQuery : undefined
     }, activePage === 'katalog' && !selectedBook && !selectedAuthor && (catalogSearch !== '' || catalogCategory !== 'all'));
   }, [activePage, activeSubSection, selectedBook, selectedAuthor, catalogCategory, catalogSearch, pendingBookSlug, digitalItem, routeQuery]);
 
@@ -773,9 +793,18 @@ export default function App() {
 
   const handleUpdateOrder = (updatedOrder: Order) => {
     setOrders((prev) => prev.map((o) => (o.id === updatedOrder.id ? updatedOrder : o)));
-    apiClient.updateOrder(updatedOrder).catch((err) => {
+    // Server menerapkan efek lunas (markOrderPaid) saat status berubah ke lunas/dikirim; muat ulang agar tampilan sama.
+    apiClient.updateOrder(updatedOrder).then(() => reloadOrders()).catch((err) => {
       showNotification(err instanceof ApiError ? t('toast.orderUpdateFailed', { message: err.message }) : t('toast.orderUpdateOffline'));
+      void reloadOrders();
     });
+  };
+
+  // Checkout transfer bank: tutup checkout lalu buka halaman pesanan (/pesanan/<nomor>?t=...) berisi instruksi transfer.
+  const openOrderPage = (path: string) => {
+    setIsCheckoutOpen(false);
+    setDirectBookBuy(null);
+    navigateToPath(path);
   };
 
   // Admin CRUD operations — state lokal diperbarui optimistis, lalu disinkronkan ke backend (Supabase).
@@ -1317,6 +1346,10 @@ export default function App() {
             onNavigatePath={navigateToPath}
           />
         )}
+        {/* PESANAN BUKU CETAK (/pesanan/<nomor>?t=...): instruksi transfer, bukti transfer, dan status */}
+        {activePage === 'order' && (
+          <OrderStatusView key={digitalItem ?? 'order'} orderNumber={digitalItem} query={routeQuery} onNavigate={navigateTo} />
+        )}
         {activePage === 'library' && (
           digitalCatalog.enabled && activeSubSection === 'read' && digitalItem
             ? <ReaderView key={digitalItem} productId={digitalItem} onExit={() => navigateTo('library')} />
@@ -1358,6 +1391,7 @@ export default function App() {
             onResetSeedData={handleResetSeedData}
             onViewBookDetail={handleSelectBook}
             onUpdateOrder={handleUpdateOrder}
+            onReloadOrders={() => void reloadOrders()}
             seoSettings={seoSettings}
             onUpdateSeoSettings={setSeoSettings}
             siteContent={siteContent}
@@ -1383,6 +1417,7 @@ export default function App() {
                   navigateTo('katalog');
                 }}
                 onOpenMembership={() => navigateTo('membership')}
+                onOpenOrderPage={openOrderPage}
               />
             </div>
           </div>
@@ -1415,6 +1450,7 @@ export default function App() {
           setDirectBookBuy(null);
           navigateTo('membership');
         }}
+        onOpenOrderPage={openOrderPage}
       />
 
       {/* Quick Search Modal (Cmd+K / Search Icon) */}

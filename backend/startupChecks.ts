@@ -63,7 +63,13 @@ export const REQUIRED_SCHEMA: SchemaRequirement[] = [
   { migration: 'src/db/institution_phase4_migration.sql', table: 'institution_members', columns: ['disabled_by'] },
   { migration: 'src/db/institution_phase4_migration.sql', table: 'institution_join_codes' },
   { migration: 'src/db/institution_phase4_migration.sql', table: 'institution_events' },
-  { migration: 'src/db/institution_phase4_migration.sql', table: 'institution_usage_daily' }
+  { migration: 'src/db/institution_phase4_migration.sql', table: 'institution_usage_daily' },
+  // Checkout buku cetak (backend/printCheckout): setiap pesanan baru menulis kolom ini; pengaturan & payment_routing.
+  { migration: 'src/db/print_checkout_migration.sql', table: 'orders', columns: ['subtotal_amount', 'unique_code', 'unique_discount', 'payment_due_at', 'paid_at', 'payment_proof_path', 'shipping_zone', 'shipping_source', 'shipping_destination_id', 'shipping_weight_gram'] },
+  { migration: 'src/db/print_checkout_migration.sql', table: 'print_checkout_settings' },
+  { migration: 'src/db/print_checkout_migration.sql', table: 'print_checkout_settings', columns: ['fallback_mode', 'origin_id', 'origin_label', 'couriers', 'packaging_gram', 'daily_quota'] },
+  { migration: 'src/db/print_checkout_migration.sql', table: 'shipping_api_usage' },
+  { migration: 'src/db/print_checkout_migration.sql', table: 'payment_routing' }
 ];
 
 export interface MissingSchemaObject {

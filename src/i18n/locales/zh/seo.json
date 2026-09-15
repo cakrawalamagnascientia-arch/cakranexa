@@ -127,6 +127,12 @@
       "description": "您通过 Midtrans 支付的 CakraNexa 订单的付款状态。",
       "keywords": "cakranexa 付款状态",
       "imageAlt": "CakraNexa 付款状态"
+    },
+    "order": {
+      "title": "图书订单 — CakraNexa",
+      "description": "CakraNexa 图书订单的付款说明和状态。",
+      "keywords": "cakranexa 图书订单",
+      "imageAlt": "CakraNexa 图书订单"
     }
   }
 }

@@ -5,7 +5,10 @@
     "processing": "Diproses",
     "shipped": "Dikirim",
     "failed": "Gagal",
-    "cancelled": "Dibatalkan"
+    "cancelled": "Dibatalkan",
+    "awaiting_transfer": "Menunggu Transfer",
+    "awaiting_shipping_quote": "Menunggu Ongkos Kirim",
+    "expired": "Kedaluwarsa"
   },
   "paymentMethods": {
     "bca_va": "BCA Virtual Account",
@@ -20,7 +23,8 @@
     "shopeepay": "ShopeePay",
     "linkaja": "LinkAja",
     "credit_card": "Kartu Kredit/Debit",
-    "manual_mandiri": "Transfer Manual Bank"
+    "manual_mandiri": "Transfer Manual Bank",
+    "bank_transfer": "Transfer Bank ke rekening PT"
   },
   "paymentMethodsShort": {
     "mandiri_bill": "Mandiri Bill"
@@ -333,6 +337,115 @@
     "title": "Jadi anggota Cakrawala Magna Society",
     "description": "Buka rak digital e-book & audiobook dan manfaat anggota lainnya untuk bacaan Anda berikutnya.",
     "cta": "Lihat paket keanggotaan"
+  },
+  "printCheckout": {
+    "province": {
+      "label": "Provinsi Tujuan *",
+      "placeholder": "Pilih provinsi",
+      "required": "Pilih provinsi tujuan pengiriman"
+    },
+    "courierPreference": "Ekspedisi pilihan (tidak mengubah ongkos kirim)",
+    "shippingZone": "Zona {{zone}}",
+    "shippingManual": "Ditentukan admin",
+    "shippingManualNote": "Pesanan {{min}} eksemplar atau lebih: ongkos kirim dihitung admin, lalu tagihan dikirim ke email Anda.",
+    "shippingPickProvince": "Pilih provinsi",
+    "shippingEstimate": "Estimasi zona {{zone}}",
+    "estimateNote": "Tarif kurir belum dapat dimuat, jadi ongkos kirim ini estimasi dari tabel zona. Admin dapat mengoreksinya sebelum Anda membayar; tagihan baru dikirim ke email Anda.",
+    "destination": {
+      "label": "Kecamatan / Kelurahan Tujuan *",
+      "placeholder": "Ketik kecamatan, kelurahan, atau kode pos",
+      "hint": "Ketik minimal 3 huruf, lalu pilih wilayah dari daftar.",
+      "searching": "Mencari wilayah…",
+      "noResults": "Wilayah tidak ditemukan. Coba nama lain atau kode pos.",
+      "error": "Pencarian wilayah sedang bermasalah. Coba lagi.",
+      "change": "Ubah",
+      "manual": "Isi alamat tanpa pencarian",
+      "required": "Pilih kecamatan/kelurahan tujuan dari daftar"
+    },
+    "rates": {
+      "title": "Pilih layanan kurir",
+      "loading": "Menghitung ongkos kirim…",
+      "pickDestination": "Pilih kecamatan tujuan",
+      "etd": "Estimasi {{days}} hari",
+      "weight": "Berat kiriman {{kg}} kg",
+      "source": "Tarif kurir dari RajaOngkir, dihitung ulang saat pesanan dibuat.",
+      "manualNote": "Tarif kurir ke alamat ini belum dapat dimuat. Anda tetap bisa membuat pesanan: ongkos kirim kami cek langsung ke kurir, lalu tagihan dikirim ke email Anda.",
+      "error": "Ongkos kirim belum dapat dimuat.",
+      "retry": "Muat ulang tarif",
+      "required": "Pilih layanan kurir"
+    },
+    "totalBeforeCode": "Total (sebelum kode unik)",
+    "uniqueCodeNote": "Nominal transfer akhir memakai kode unik 3 digit, sedikit lebih hemat (hingga Rp999), dan tampil setelah pesanan dibuat.",
+    "paymentSingle": {
+      "title": "Metode Pembayaran",
+      "method": "Transfer Bank ke rekening PT Cakrawala Magna Scientia",
+      "note": "Nomor rekening, nominal persis, dan batas waktu {{hours}} jam tampil setelah pesanan dibuat dan juga dikirim ke email Anda."
+    },
+    "paymentChoose": "Pilih metode pembayaran",
+    "submit": "Buat Pesanan",
+    "offline": "Server belum dapat dihubungi. Periksa koneksi Anda lalu coba lagi."
+  },
+  "orderPage": {
+    "title": "Pesanan {{orderNumber}}",
+    "loading": "Memuat pesanan…",
+    "notFound": "Pesanan tidak ditemukan. Buka tautan dari email pesanan Anda.",
+    "retry": "Coba lagi",
+    "amountLabel": "Jumlah yang harus ditransfer",
+    "exactNote": "Transfer tepat sampai 3 digit terakhir agar pembayaran cepat dicocokkan.",
+    "copyAmount": "Salin nominal",
+    "copied": "Tersalin",
+    "breakdown": {
+      "subtotal": "Subtotal buku",
+      "shipping": "Ongkos kirim",
+      "shippingZone": "Ongkos kirim ({{zone}})",
+      "uniqueDiscount": "Potongan kode unik ({{code}})",
+      "total": "Total"
+    },
+    "transferTo": "Transfer ke rekening berikut",
+    "bank": "Bank",
+    "accountNumber": "Nomor rekening",
+    "accountHolder": "Atas nama",
+    "copyAccount": "Salin nomor rekening",
+    "deadline": "Batas waktu pembayaran",
+    "deadlineNote": "{{hours}} jam sejak tagihan terbit. Pesanan otomatis kedaluwarsa bila belum dibayar sampai batas waktu.",
+    "confirmWhatsApp": "Konfirmasi via WhatsApp",
+    "proof": {
+      "title": "Unggah bukti transfer (opsional)",
+      "hint": "Foto atau screenshot bukti transfer (JPG, PNG, WebP, atau PDF, maks. 10 MB) membantu Finance memverifikasi lebih cepat.",
+      "upload": "Unggah bukti",
+      "uploading": "Mengunggah…",
+      "uploaded": "Bukti transfer diterima {{date}}. Tim Finance akan memverifikasi pembayaran Anda.",
+      "failed": "Bukti gagal diunggah. Coba lagi atau kirim lewat WhatsApp."
+    },
+    "awaitingQuote": {
+      "title": "Menunggu ongkos kirim",
+      "description": "Pesanan Anda berisi {{min}} eksemplar atau lebih. Tim kami menghitung ongkos kirim, lalu mengirim tagihan dan instruksi pembayaran ke email Anda.",
+      "descriptionRates": "Ongkos kirim ke alamat Anda sedang kami cek langsung ke kurir. Tagihan dan instruksi pembayaran akan dikirim ke email Anda."
+    },
+    "paid": {
+      "title": "Pembayaran diterima",
+      "description": "Pesanan sedang disiapkan. Nomor resi dikirim setelah paket diserahkan ke kurir."
+    },
+    "shipped": {
+      "title": "Pesanan dikirim",
+      "tracking": "Nomor resi: {{tracking}}"
+    },
+    "expired": {
+      "title": "Pesanan kedaluwarsa",
+      "description": "Pembayaran belum kami terima sampai batas waktu. Silakan buat pesanan baru, atau hubungi Finance bila Anda sudah mentransfer."
+    },
+    "closed": {
+      "title": "Pesanan ditutup",
+      "description": "Hubungi kami bila ada pertanyaan tentang pesanan ini."
+    },
+    "pending": {
+      "title": "Menunggu pembayaran",
+      "description": "Selesaikan pembayaran lewat halaman pembayaran yang telah dibuka. Status diperbarui otomatis."
+    },
+    "items": "Buku dipesan",
+    "shippingAddress": "Alamat pengiriman",
+    "backToCatalog": "Kembali ke Katalog",
+    "contactWhatsApp": "Hubungi Finance via WhatsApp"
   },
   "paymentResult": {
     "orderLabel": "Nomor pesanan",

@@ -81,7 +81,8 @@
       "karir": "招聘",
       "checkout": "结算",
       "kontak": "联系我们",
-      "payment": "付款状态"
+      "payment": "付款状态",
+      "order": "订单"
     }
   },
   "toast": {

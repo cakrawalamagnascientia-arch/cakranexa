@@ -81,7 +81,8 @@
       "karir": "karir",
       "checkout": "checkout",
       "kontak": "kontak",
-      "payment": "status pembayaran"
+      "payment": "status pembayaran",
+      "order": "pesanan"
     }
   },
   "toast": {

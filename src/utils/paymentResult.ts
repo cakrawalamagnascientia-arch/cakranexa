@@ -9,7 +9,7 @@ const ORDER_ID_RE = /^[A-Za-z0-9._-]{3,80}$/;
 
 /** Status pesanan buku cetak (GET /api/orders/:id/status) yang berarti sudah dibayar / gagal. */
 export const PAID_ORDER_STATUSES = new Set(['paid', 'processing', 'shipped']);
-export const FAILED_ORDER_STATUSES = new Set(['failed', 'cancelled']);
+export const FAILED_ORDER_STATUSES = new Set(['failed', 'cancelled', 'expired']);
 
 export const paymentOrderKind = (orderId: string | null): PaymentOrderKind => {
   if (!orderId) return 'unknown';

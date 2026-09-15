@@ -1,0 +1,32 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/calculate/domestic-cost",
+    "body": "origin=17620&destination=69234&weight=980&courier=jne%3Apos%3Asicepat&price=lowest"
+  },
+  "status": 200,
+  "body": {
+    "meta": {
+      "message": "Success Calculate Domestic Shipping cost",
+      "code": 200,
+      "status": "success"
+    },
+    "data": [
+      { "name": "SiCepat Express", "code": "sicepat", "service": "HALU", "description": "Harga Mulai Lima Ribu", "cost": 17500, "etd": "3-4 day" },
+      { "name": "POS Indonesia (POS)", "code": "pos", "service": "Pos Reguler", "description": "240", "cost": 18000, "etd": "2 day" },
+      { "name": "SiCepat Express", "code": "sicepat", "service": "REG", "description": "Reguler", "cost": 18000, "etd": "2-3 day" },
+      { "name": "Jalur Nugraha Ekakurir (JNE)", "code": "jne", "service": "REG", "description": "Layanan Reguler", "cost": 20000, "etd": "1 day" },
+      { "name": "POS Indonesia (POS)", "code": "pos", "service": "Pos Nextday", "description": "447", "cost": 37000, "etd": "1 day" },
+      { "name": "Jalur Nugraha Ekakurir (JNE)", "code": "jne", "service": "YES", "description": "Yakin Esok Sampai", "cost": 44000, "etd": "1 day" },
+      { "name": "POS Indonesia (POS)", "code": "pos", "service": "POS KARGO", "description": "Pjb", "cost": 57000, "etd": "7-14 day" },
+      { "name": "SiCepat Express", "code": "sicepat", "service": "GOKIL", "description": "Cargo Per Kg (Minimal 10kg)", "cost": 60000, "etd": "2-4 day" },
+      { "name": "Jalur Nugraha Ekakurir (JNE)", "code": "jne", "service": "JTR", "description": "JNE Trucking", "cost": 65000, "etd": "3 day" },
+      { "name": "POS Indonesia (POS)", "code": "pos", "service": "PAKETPOS DANGEROUS GOODS", "description": "Pdg", "cost": 70000, "etd": "3 day" },
+      { "name": "POS Indonesia (POS)", "code": "pos", "service": "PAKETPOS VALUABLE GOODS", "description": "Pvg", "cost": 70000, "etd": "3 day" },
+      { "name": "Jalur Nugraha Ekakurir (JNE)", "code": "jne", "service": "SPS", "description": "Super Speed", "cost": 483000, "etd": "0 day" },
+      { "name": "Jalur Nugraha Ekakurir (JNE)", "code": "jne", "service": "JTR<130", "description": "JNE Trucking", "cost": 600000, "etd": "3 day" },
+      { "name": "Jalur Nugraha Ekakurir (JNE)", "code": "jne", "service": "JTR>130", "description": "JNE Trucking", "cost": 850000, "etd": "3 day" },
+      { "name": "Jalur Nugraha Ekakurir (JNE)", "code": "jne", "service": "JTR>200", "description": "JNE Trucking", "cost": 1100000, "etd": "3 day" }
+    ]
+  }
+}

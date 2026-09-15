@@ -83,27 +83,21 @@ const adminRequest = async <T>(path: string, init: RequestInit = {}): Promise<T>
   return res.json() as Promise<T>;
 };
 
-export interface ShippingCalculationRequest {
-  originPostalCode?: string;
-  destinationPostalCode: string;
-  weightInGrams: number;
-  couriers?: string[];
-}
-
-export interface ShippingCalculationResponse {
-  courier: string;
-  service: string;
-  description: string;
-  cost: number;
-  etd: string;
-}
-
 export interface CreateOrderResponse {
   success: boolean;
   orderId: string;
   snapToken?: string | null;
-  paymentMode: 'midtrans_production' | 'midtrans_sandbox' | 'unavailable' | 'offline';
+  paymentMode: 'midtrans_production' | 'midtrans_sandbox' | 'manual' | 'unavailable' | 'offline';
   total?: number;
+  /** Transfer bank: halaman pesanan pembeli (/pesanan/<nomor>?t=...) berisi instruksi transfer. */
+  orderPath?: string;
+  accessToken?: string;
+  paymentMethod?: string;
+  uniqueCode?: number | null;
+  uniqueDiscount?: number;
+  paymentDueAt?: string | null;
+  shippingZone?: string | null;
+  manualShippingQuote?: boolean;
   subtotal?: number;
   shippingCost?: number;
   /** Ada bila server menerapkan harga member buku cetak (fase 3 Langkah 7). */
@@ -411,6 +405,14 @@ export const apiClient = {
         subtotal: data.subtotal,
         shippingCost: data.shippingCost,
         paymentStatus: data.paymentStatus,
+        orderPath: data.orderPath,
+        accessToken: data.accessToken,
+        paymentMethod: data.paymentMethod,
+        uniqueCode: data.uniqueCode ?? null,
+        uniqueDiscount: data.uniqueDiscount ?? 0,
+        paymentDueAt: data.paymentDueAt ?? null,
+        shippingZone: data.shippingZone ?? null,
+        manualShippingQuote: Boolean(data.manualShippingQuote),
         ...(data.memberDiscount ? { memberDiscount: data.memberDiscount } : {})
       };
     } catch (err) {
@@ -452,30 +454,6 @@ export const apiClient = {
     } catch {
       return null;
     }
-  },
-
-  // ==========================================================================
-  // SHIPPING
-  // ==========================================================================
-  async calculateShippingRates(req: ShippingCalculationRequest): Promise<ShippingCalculationResponse[]> {
-    try {
-      const res = await fetchWithTimeout(apiUrl('/api/shipping/calculate'), {
-        method: 'POST',
-        headers: jsonHeaders(),
-        body: JSON.stringify(req)
-      });
-      if (res.ok) return await res.json();
-    } catch {
-      // fallback
-    }
-    const baseMultiplier = Math.max(1, Math.ceil(req.weightInGrams / 1000));
-    return [
-      { courier: 'JNE', service: 'REG', description: 'Layanan Reguler', cost: 18000 * baseMultiplier, etd: '2-3 Hari' },
-      { courier: 'JNE', service: 'YES', description: 'Yakin Esok Sampai', cost: 32000 * baseMultiplier, etd: '1 Hari' },
-      { courier: 'SiCepat', service: 'SIUNT', description: 'SiUntung Reguler', cost: 17000 * baseMultiplier, etd: '2-3 Hari' },
-      { courier: 'POS Indonesia', service: 'Pos Kilat Khusus', description: 'Pos Kilat Khusus Nasional', cost: 16000 * baseMultiplier, etd: '2-4 Hari' },
-      { courier: 'J&T Express', service: 'EZ', description: 'J&T Regular Express', cost: 19000 * baseMultiplier, etd: '2-3 Hari' }
-    ];
   },
 
   // ==========================================================================

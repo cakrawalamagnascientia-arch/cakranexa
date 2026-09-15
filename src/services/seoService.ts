@@ -130,7 +130,7 @@ export interface NextMetadata {
 
 /** Kunci halaman di seo:pages.* dan path-nya (tanpa prefix bahasa). */
 type SeoPageKey = 'catalog' | 'publishing' | 'training' | 'journal' | 'about' | 'blog' | 'career' | 'contact' | 'authors' | 'checkout'
-  | 'membership' | 'membershipTerms' | 'institutions' | 'library' | 'payment';
+  | 'membership' | 'membershipTerms' | 'institutions' | 'library' | 'payment' | 'order';
 const SEO_PAGES: Partial<Record<ActivePage, { key: SeoPageKey; path: string }>> = {
   katalog: { key: 'catalog', path: '/katalog' },
   penerbitan: { key: 'publishing', path: '/penerbitan' },
@@ -145,7 +145,8 @@ const SEO_PAGES: Partial<Record<ActivePage, { key: SeoPageKey; path: string }>> 
   membership: { key: 'membership', path: '/membership' },
   institutions: { key: 'institutions', path: '/institutions' },
   library: { key: 'library', path: '/library' },
-  payment: { key: 'payment', path: '/payment/success' }
+  payment: { key: 'payment', path: '/payment/success' },
+  order: { key: 'order', path: '/pesanan' }
 };
 
 /**
@@ -157,6 +158,7 @@ const isNoIndexPage = (page: ActivePage, subSection?: SubSection): boolean =>
   page === 'library'
   || page === 'account'
   || page === 'payment'
+  || page === 'order'
   || (page === 'digital' && (subSection === 'sample' || subSection === 'checkout'))
   || (page === 'membership' && subSection === 'checkout');
 

@@ -82,6 +82,10 @@ export interface CustomerDetails {
   postalCode: string;
   courier: string;
   shippingService?: string;
+  /** Kode kurir RajaOngkir layanan yang dipilih (jne, pos, ...). */
+  courierCode?: string;
+  /** Kecamatan/kelurahan tujuan dari pencarian RajaOngkir (ditandatangani server). */
+  destination?: import('./data/shippingRates').SignedShippingDestination | null;
   notes?: string;
 }
 
@@ -98,9 +102,24 @@ export type PaymentMethod =
   | 'shopeepay'
   | 'linkaja'
   | 'credit_card'
-  | 'manual_mandiri';
+  | 'manual_mandiri'
+  /** Transfer bank ke rekening PT (admin_bank_accounts); dikonfirmasi admin. Menggantikan 'manual_mandiri'. */
+  | 'bank_transfer';
 
-export type OrderStatus = 'pending' | 'paid' | 'processing' | 'shipped' | 'failed' | 'cancelled';
+/**
+ * awaiting_transfer = menunggu transfer manual (batas waktu payment_due_at); awaiting_shipping_quote = pesanan besar
+ * menunggu ongkir dari admin; expired = tidak dibayar sampai batas waktu. 'processing' = sudah lunas, sedang disiapkan.
+ */
+export type OrderStatus =
+  | 'pending'
+  | 'awaiting_transfer'
+  | 'awaiting_shipping_quote'
+  | 'paid'
+  | 'processing'
+  | 'shipped'
+  | 'failed'
+  | 'cancelled'
+  | 'expired';
 
 export interface Order {
   id: string;
@@ -130,6 +149,24 @@ export interface Order {
   language?: AppLanguage;
   /** Harga member buku cetak yang diterapkan server (fase 3 Langkah 7); tidak ada = harga katalog biasa. */
   memberDiscount?: { percent: number; planCode: string };
+  /** Transfer manual: kode unik 3 digit dan potongannya (total = subtotal + ongkir - potongan). */
+  uniqueCode?: number | null;
+  uniqueDiscount?: number;
+  /** Batas waktu transfer (ISO); lewat batas -> status expired. */
+  paymentDueAt?: string | null;
+  paidAt?: string | null;
+  /** Pembeli sudah mengunggah bukti transfer (bucket privat). */
+  hasProof?: boolean;
+  proofUploadedAt?: string | null;
+  isTest?: boolean;
+  /** Id zona ongkir (src/data/shippingZones.ts). */
+  shippingZone?: string | null;
+  /** rajaongkir | zone_fallback (ongkir estimasi tabel zona, admin bisa mengoreksi) | manual. */
+  shippingSource?: string | null;
+  copies?: number;
+  dueExtendedCount?: number;
+  /** Tautan halaman pesanan untuk pembeli (/pesanan/<nomor>?t=...), hanya ada di browser pembeli. */
+  orderPath?: string;
 }
 
 export type ActivePage = 
@@ -152,7 +189,9 @@ export type ActivePage =
   | 'institutions'
   | 'library'
   | 'account'
-  | 'payment';
+  | 'payment'
+  /** Halaman pesanan buku cetak untuk pembeli: /pesanan/<nomor>?t=<token> (instruksi transfer, bukti transfer). */
+  | 'order';
 
 export type SubSection = 
   | 'all'

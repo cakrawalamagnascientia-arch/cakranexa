@@ -19,7 +19,12 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { CartItem, CustomerDetails, PaymentMethod, Order, ShippingMethod, PaymentSettings } from '../types';
-import { getStoredShippingMethods, calculateShippingFee, generateCakraNexaTrackingNumber } from '../services/shippingService';
+import { getStoredShippingMethods, generateCakraNexaTrackingNumber } from '../services/shippingService';
+import { usePrintCheckoutConfig } from '../hooks/usePrintCheckoutConfig';
+import { PrintPaymentMethodPicker } from './PrintPaymentMethodPicker';
+import { CourierRateList, DestinationSearch, usePrintShipping } from './ShippingDestinationPicker';
+import { regionName, type SignedShippingDestination } from '../data/shippingRates';
+import { INDONESIA_PROVINCES } from '../data/shippingZones';
 import { getStoredPaymentSettings } from '../services/paymentService';
 import { usePublicBankAccounts } from '../hooks/usePublicBankAccounts';
 import { resolveCheckoutBankAccounts } from '../utils/checkoutBankAccounts';
@@ -46,6 +51,8 @@ interface CheckoutModalProps {
   directBookBuy?: CartItem | null;
   /** Buka halaman /membership dari tawaran keanggotaan setelah pesanan sukses (fase 3 Langkah 6). */
   onOpenMembership?: () => void;
+  /** Transfer bank: buka halaman pesanan (/pesanan/<nomor>?t=...) berisi instruksi transfer setelah pesanan dibuat. */
+  onOpenOrderPage?: (path: string) => void;
 }
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
@@ -54,7 +61,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   items,
   onOrderSuccess,
   directBookBuy,
-  onOpenMembership
+  onOpenMembership,
+  onOpenOrderPage
 }) => {
   const { t } = useTranslation(['checkout', 'common']);
   const { currency } = useFormatters();
@@ -112,44 +120,66 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     memberPricing.applies ? memberPrintPrice(item.book.harga, item.book.originalHarga, memberPricing.percent) : null;
 
   const currentCourier = shippingMethods.find(m => m.id === selectedCourierId) || shippingMethods[0];
-  const shippingCalculation = currentCourier
-    ? calculateShippingFee(currentCourier, totalWeightGram, '10430', subtotal)
-    : { fee: 15000, isFree: false, originalFee: 15000 };
-  const shippingCost = shippingCalculation.fee;
-  const total = payableSubtotal + shippingCost;
 
-  // Customer Details Form State
+  // Customer Details Form State — tanpa data contoh (isian bawaan dulu ikut tercatat sebagai pesanan).
   // customer.courier disimpan di data pesanan dan dibaca admin: tetap Bahasa Indonesia ('id').
   const [customer, setCustomer] = useState<CustomerDetails>({
-    name: 'Dr. Ahmad Fauzi, S.E., M.Ak.',
-    email: 'ahmad.fauzi@universitas.ac.id',
+    name: '',
+    email: '',
     phone: '',
-    address: 'Jl. Salemba Raya No. 4, Senen',
-    province: 'DKI Jakarta',
-    city: 'Jakarta Pusat',
-    district: 'Senen',
-    postalCode: '10430',
-    courier: currentCourier ? `${currentCourier.name} (${currentCourier.service}) - ${formatCurrency(shippingCost, 'id')}` : 'JNE Regular - Rp 15.000',
-    notes: 'Mohon kemas dengan bubble wrap tebal dan box kardus buku.'
+    address: '',
+    province: '',
+    city: '',
+    district: '',
+    postalCode: '',
+    courier: currentCourier ? `${currentCourier.name} (${currentCourier.service})` : '',
+    notes: ''
   });
 
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('bca_va');
+  // Ongkir (server menghitung ulang dan menolak angka yang berbeda): tarif kurir RajaOngkir untuk kecamatan tujuan;
+  // saat tidak tersedia, cadangan tabel zona (ongkir estimasi) atau diisi admin. Pesanan besar selalu diisi admin.
+  const { config: checkoutConfig, loaded: checkoutConfigLoaded } = usePrintCheckoutConfig(isOpen);
+  const shipping = usePrintShipping(checkoutConfig, activeItems, customer, isOpen);
+  const {
+    courierMode,
+    courier: courierShipping,
+    manual: manualShipping,
+    estimate: shippingEstimate,
+    cost: shippingCost,
+    label: shippingLabel,
+    display: shippingDisplay
+  } = shipping;
+  const total = payableSubtotal + shippingCost;
+  const chooseDestination = (destination: SignedShippingDestination | null) => {
+    courierShipping.setDestination(destination);
+    setCustomer((prev) => ({
+      ...prev,
+      destination,
+      province: destination ? regionName(destination.province) : '',
+      city: destination ? regionName(destination.city) : '',
+      district: destination ? regionName(destination.district) : '',
+      postalCode: destination?.zipCode ?? ''
+    }));
+  };
+
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('bank_transfer');
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
   const [copiedVA, setCopiedVA] = useState(false);
   const [copiedBankAcc, setCopiedBankAcc] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'info' | 'error'; text: string } | null>(null);
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
-  // Update customer.courier label whenever current courier or shipping cost changes
-  // (disimpan ke pesanan untuk admin: sengaja tetap Bahasa Indonesia)
+  // Metode yang dimatikan admin (payment_routing) tidak bisa dipilih: kembali ke metode aktif pertama.
+  useEffect(() => {
+    if (!checkoutConfig.methods.includes(selectedMethod)) setSelectedMethod(checkoutConfig.methods[0] ?? 'bank_transfer');
+  }, [checkoutConfig.methods, selectedMethod]);
+
+  // Label kurir pilihan (preferensi, tidak mengubah ongkir) disimpan ke pesanan untuk admin: tetap Bahasa Indonesia.
   useEffect(() => {
     if (currentCourier) {
-      setCustomer(prev => ({
-        ...prev,
-        courier: `${currentCourier.name} (${currentCourier.service}) - ${shippingCalculation.isFree ? 'Gratis Ongkir' : formatCurrency(shippingCost, 'id')}`
-      }));
+      setCustomer(prev => ({ ...prev, courier: `${currentCourier.name} (${currentCourier.service})` }));
     }
-  }, [selectedCourierId, shippingCost, shippingCalculation.isFree, currentCourier]);
+  }, [selectedCourierId, currentCourier]);
 
   if (!isOpen) return null;
 
@@ -160,8 +190,20 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
   const handleProceedToPayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customer.name || !customer.email || !customer.phone || !customer.address) {
+    if (!customer.name || !customer.email || !customer.phone || !customer.address || (!courierMode && (!customer.city || !customer.postalCode))) {
       showToast('error', t('modal.toast.incompleteAddress'));
+      return;
+    }
+    if (courierMode && !courierShipping.destination) {
+      showToast('error', t('printCheckout.destination.required'));
+      return;
+    }
+    if (courierMode && courierShipping.state.status === 'ok' && !courierShipping.selected) {
+      showToast('error', t('printCheckout.rates.required'));
+      return;
+    }
+    if (!courierMode && !customer.province) {
+      showToast('error', t('printCheckout.province.required'));
       return;
     }
     if (isCreatingOrder) return;
@@ -175,9 +217,18 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       subtotal: payableSubtotal,
       shippingCost,
       total,
-      customer,
+      // Tarif kurir: layanan yang dipilih ikut dikirim; server menghitung ulang dan menolak tarif yang berbeda.
+      customer: courierMode
+        ? {
+          ...customer,
+          destination: courierShipping.destination,
+          courier: courierShipping.selected?.courierName ?? '',
+          courierCode: courierShipping.selected?.courier ?? '',
+          shippingService: courierShipping.selected?.service ?? ''
+        }
+        : customer,
       paymentMethod: selectedMethod,
-      paymentStatus: selectedMethod === 'manual_mandiri' ? 'processing' : 'pending',
+      paymentStatus: selectedMethod === 'bank_transfer' ? 'awaiting_transfer' : 'pending',
       createdAt: nowIso()
     };
 
@@ -191,6 +242,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     } catch (err) {
       setIsCreatingOrder(false);
       showToast('error', err instanceof ApiError ? err.message : t('modal.toast.orderFailed'));
+      // Tarif kurir berubah (409): muat ulang tarif agar pembeli memilih ulang.
+      if (courierMode && (err as { status?: number }).status === 409) courierShipping.reload();
+      return;
+    }
+    // Pesanan hanya sah bila tercatat di server (instruksi transfer & kode unik dibuat server).
+    if (result.paymentMode === 'offline') {
+      setIsCreatingOrder(false);
+      showToast('error', t('printCheckout.offline'));
       return;
     }
 
@@ -199,8 +258,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       subtotal: result.subtotal ?? draftOrder.subtotal,
       shippingCost: result.shippingCost ?? draftOrder.shippingCost,
       total: result.total ?? draftOrder.total,
+      paymentMethod: (result.paymentMethod as PaymentMethod | undefined) ?? draftOrder.paymentMethod,
+      paymentStatus: result.paymentStatus ?? draftOrder.paymentStatus,
+      uniqueCode: result.uniqueCode ?? null,
+      uniqueDiscount: result.uniqueDiscount ?? 0,
+      paymentDueAt: result.paymentDueAt ?? null,
+      orderPath: result.orderPath,
       snapToken: result.snapToken || undefined,
-      serverSynced: result.paymentMode !== 'offline',
+      serverSynced: true,
       paymentMode: result.paymentMode,
       // Bahasa pelanggan: konfirmasi WhatsApp ke pelanggan ditulis dalam bahasa ini.
       language: getCurrentLanguage(),
@@ -208,6 +273,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     };
     setCreatedOrder(newOrder);
     setIsCreatingOrder(false);
+
+    // Transfer bank / menunggu ongkir: instruksi ada di halaman pesanan (juga dikirim ke email pembeli).
+    if (result.orderPath && !newOrder.snapToken) {
+      onOrderSuccess(newOrder);
+      onOpenOrderPage?.(result.orderPath);
+      return;
+    }
 
     if (newOrder.snapToken) {
       const opened = await openSnapPayment(newOrder.snapToken, {
@@ -373,6 +445,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     placeholder="0812xxxxxxxx"
                   />
                 </div>
+                {!courierMode && (
                 <div>
                   <label className="text-xs font-semibold text-slate-700 block mb-1">
                     {t('modal.form.city.label')}
@@ -386,6 +459,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     placeholder="Jakarta Pusat"
                   />
                 </div>
+                )}
               </div>
 
               <div>
@@ -402,45 +476,73 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 />
               </div>
 
+              {courierMode ? (
+                <div className="space-y-3">
+                  <DestinationSearch
+                    value={courierShipping.destination}
+                    onChange={chooseDestination}
+                    onUnavailable={shipping.useManualAddress}
+                    labelClassName="text-xs font-semibold text-slate-700 block mb-1"
+                    inputClassName="w-full text-xs p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#C5A059]"
+                  />
+                  {courierShipping.destination && (
+                    <CourierRateList
+                      state={courierShipping.state}
+                      selected={courierShipping.selected}
+                      onSelect={courierShipping.select}
+                      onRetry={courierShipping.reload}
+                      minCopies={checkoutConfig.manualQuoteMinCopies}
+                    />
+                  )}
+                </div>
+              ) : (<>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-semibold text-slate-700 block mb-1">
-                    {t('modal.form.postalCode.label')}
+                    {t('printCheckout.province.label')}
+                  </label>
+                  <select
+                    required
+                    value={customer.province}
+                    onChange={(e) => setCustomer({ ...customer, province: e.target.value })}
+                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#C5A059] bg-white font-medium"
+                  >
+                    <option value="">{t('printCheckout.province.placeholder')}</option>
+                    {INDONESIA_PROVINCES.map((province) => (
+                      <option key={province} value={province}>{province}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">
+                    {t('modal.form.postalCode.label')} *
                   </label>
                   <input
                     type="text"
+                    required
+                    inputMode="numeric"
                     value={customer.postalCode}
                     onChange={(e) => setCustomer({ ...customer, postalCode: e.target.value })}
                     className="w-full text-xs p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#C5A059]"
                     placeholder="10430"
                   />
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-700 block mb-1">
-                    {t('modal.form.courier.label')}
-                  </label>
-                  <select
-                    value={selectedCourierId}
-                    onChange={(e) => setSelectedCourierId(e.target.value)}
-                    className="w-full text-xs p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#C5A059] bg-white font-medium"
-                  >
-                    {shippingMethods.map((m) => {
-                      const calc = calculateShippingFee(m, totalWeightGram, customer.postalCode || '10430', subtotal);
-                      const text = shippingMethodText(m);
-                      return (
-                        <option key={m.id} value={m.id}>
-                          {t('modal.form.courier.option', {
-                            name: m.name,
-                            service: text.service,
-                            fee: calc.isFree ? t('modal.form.courier.free') : currency(calc.fee),
-                            days: text.estimatedDays
-                          })}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
               </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">
+                  {t('printCheckout.courierPreference')}
+                </label>
+                <select
+                  value={selectedCourierId}
+                  onChange={(e) => setSelectedCourierId(e.target.value)}
+                  className="w-full text-xs p-2.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#C5A059] bg-white font-medium"
+                >
+                  {shippingMethods.map((m) => (
+                    <option key={m.id} value={m.id}>{m.name} ({shippingMethodText(m).service})</option>
+                  ))}
+                </select>
+              </div>
+              </>)}
             </div>
 
             {/* Total Summary */}
@@ -463,23 +565,44 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 </div>
               )}
               <div className="flex justify-between text-slate-400">
-                <span>{t('modal.summary.shippingCost')}</span>
-                <span className="font-mono text-white">{currency(shippingCost)}</span>
+                <span>
+                  {t('modal.summary.shippingCost')}
+                  {shippingLabel && <span className="block text-[10px] text-slate-500">{shippingLabel}</span>}
+                </span>
+                <span className="font-mono text-white">
+                  {shippingDisplay}
+                </span>
               </div>
+              {manualShipping && !courierMode && (
+                <p className="text-[10px] text-slate-400">{shipping.manualNote}</p>
+              )}
+              {shippingEstimate && !courierMode && (
+                <p className="text-[10px] text-amber-300" data-shipping-estimate>{t('printCheckout.estimateNote')}</p>
+              )}
               <div className="pt-2 border-t border-white/20 flex justify-between text-sm font-bold text-[#DFBF64]">
-                <span>{t('modal.summary.total')}</span>
+                <span>{selectedMethod === 'bank_transfer' && checkoutConfig.uniqueCodeEnabled && !manualShipping ? t('printCheckout.totalBeforeCode') : t('modal.summary.total')}</span>
                 <span className="font-mono text-base">{currency(total)}</span>
               </div>
+              {selectedMethod === 'bank_transfer' && checkoutConfig.uniqueCodeEnabled && !manualShipping && (
+                <p className="text-[10px] text-slate-400">{t('printCheckout.uniqueCodeNote')}</p>
+              )}
             </div>
+
+            <PrintPaymentMethodPicker
+              methods={checkoutConfig.methods}
+              selected={selectedMethod}
+              onSelect={setSelectedMethod}
+              transferDueHours={checkoutConfig.transferDueHours}
+            />
 
             {/* Submit CTA */}
             <button
               id="btn-submit-order-snap"
               type="submit"
-              disabled={isCreatingOrder}
+              disabled={isCreatingOrder || !checkoutConfigLoaded || (courierMode && courierShipping.state.status === 'loading')}
               className="disabled:opacity-60 disabled:cursor-wait w-full py-3.5 px-4 rounded-xl bg-[#D4AF37] hover:bg-[#c5a059] text-[#0F172A] font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>{t('modal.buyNow')}</span>
+              <span>{selectedMethod === 'bank_transfer' ? t('printCheckout.submit') : t('modal.buyNow')}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>

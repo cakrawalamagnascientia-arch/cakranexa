@@ -317,7 +317,8 @@ Backend Express (`server.ts`) melayani endpoint REST berikut:
 | `GET` | `/api/orders/:id/status` | Status bayar & resi satu pesanan (tanpa data pribadi) | Publik |
 | `POST` | `/api/orders` | Buat pesanan. Server **menghitung ulang total dari harga katalog**, memeriksa stok, mengurangi stok, dan membuat Snap token Midtrans | Publik |
 | `PATCH`| `/api/orders/:id` | Update status pembayaran (`pending/paid/processing/shipped/failed/cancelled`) & nomor resi | **Admin** |
-| `POST` | `/api/shipping/calculate` | Estimasi ongkir multi-kurir (tarif internal; RajaOngkir belum terintegrasi) | Publik |
+| `GET` | `/api/shipping/destinations?q=` | Cari kecamatan/kelurahan tujuan (RajaOngkir) | Publik (dibatasi per IP) |
+| `POST` | `/api/shipping/quote` | Tarif kurir RajaOngkir untuk isi keranjang (berat dari katalog; cadangan tabel zona saat tidak tersedia) | Publik (dibatasi per IP) |
 | `POST` | `/api/payment/midtrans-webhook` | Notifikasi Midtrans — **signature SHA-512 diverifikasi**, status disimpan ke Supabase | Midtrans |
 | `GET` | `/api/seo` | Konfigurasi SEO, meta tags, & tracking ID | Publik |
 | `POST` | `/api/seo` | Simpan konfigurasi SEO | **Admin** |

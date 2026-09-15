@@ -68,7 +68,16 @@ WITH required (urutan, migration, object, kind) AS (
         (8, 'src/db/institution_phase4_migration.sql', 'access_sessions.institution_id', 'column'),
         (8, 'src/db/institution_phase4_migration.sql', 'reading_events.institution_id', 'column'),
         (8, 'src/db/institution_phase4_migration.sql', 'next_institution_invoice_number', 'function'),
-        (8, 'src/db/institution_phase4_migration.sql', 'institution_claim_session', 'function')
+        (8, 'src/db/institution_phase4_migration.sql', 'institution_claim_session', 'function'),
+        (9, 'src/db/print_checkout_migration.sql', 'orders.subtotal_amount', 'column'),
+        (9, 'src/db/print_checkout_migration.sql', 'orders.unique_code', 'column'),
+        (9, 'src/db/print_checkout_migration.sql', 'orders.payment_due_at', 'column'),
+        (9, 'src/db/print_checkout_migration.sql', 'orders.payment_proof_path', 'column'),
+        (9, 'src/db/print_checkout_migration.sql', 'orders.shipping_source', 'column'),
+        (9, 'src/db/print_checkout_migration.sql', 'print_checkout_settings.origin_id', 'column'),
+        (9, 'src/db/print_checkout_migration.sql', 'shipping_api_usage', 'table'),
+        (9, 'src/db/print_checkout_migration.sql', 'print_checkout_settings', 'table'),
+        (9, 'src/db/print_checkout_migration.sql', 'payment_routing', 'table')
 )
 SELECT
     urutan,

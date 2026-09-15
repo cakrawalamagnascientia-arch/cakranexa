@@ -6,7 +6,13 @@ import dotenv from 'dotenv';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { INITIAL_BOOKS, normalizeBookAuthors } from './src/data/booksData';
 import { BANK_ID_RE, publicBankAccounts, rowToBankAccount, type BankAccountRow } from './backend/bankAccounts';
-import { placePrintOrder, supabasePrintOrderDb } from './backend/printOrders';
+import { PrintCheckoutService } from './backend/printCheckout/service';
+import { createPrintCheckoutRouter } from './backend/printCheckout/router';
+import { MemoryPrintOrderStore, SupabasePrintOrderStore } from './backend/printCheckout/store';
+import { createRajaOngkirClient, rajaOngkirKeyFromEnv } from './backend/printCheckout/rajaongkir';
+import { ShippingApiUsage } from './backend/printCheckout/apiUsage';
+import { createSupabaseAssetStorage } from './backend/digital/storage';
+import { DEFAULT_FINANCE_WHATSAPP } from './src/utils/transferConfirmation';
 import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthorProfile, authorNameKey } from './src/data/authorsData';
 import type {
   Book,
@@ -110,7 +116,6 @@ let processingTools: Record<string, boolean> | null = null;
 // IN-MEMORY FALLBACK STORE (single source of truth = src/data/booksData.ts)
 // ============================================================================
 let inMemoryBooks: Book[] = INITIAL_BOOKS.map((b) => ({ ...b }));
-let inMemoryOrders: any[] = [];
 let inMemoryAuthors: Author[] = INITIAL_AUTHORS.map((a) => ({ ...a }));
 let inMemoryBookAuthors: Array<{ id?: string; book_id: string; author_id: string; author_order: number; created_at?: string }> = INITIAL_BOOK_AUTHORS.map((r, idx) => ({
   id: `ba-${idx}-${Math.random().toString(36).slice(2, 8)}`,
@@ -674,14 +679,7 @@ const verifyMidtransSignature = (n: any): boolean => {
   return typeof n.signature_key === 'string' && safeEqual(expected, n.signature_key);
 };
 
-const mapMidtransStatus = (transactionStatus: string, fraudStatus?: string): string => {
-  if (transactionStatus === 'capture') return fraudStatus === 'challenge' ? 'pending' : 'paid';
-  if (transactionStatus === 'settlement') return 'paid';
-  if (['cancel', 'deny', 'expire'].includes(transactionStatus)) return 'cancelled';
-  if (transactionStatus === 'failure') return 'failed';
-  return 'pending';
-};
-
+// Status notifikasi Midtrans pesanan cetak dipetakan di backend/printCheckout/service.ts (mapMidtransStatus).
 async function createSnapTransaction(order: any): Promise<string | null> {
   if (!MIDTRANS_ENABLED) return null;
   try {
@@ -773,23 +771,7 @@ async function sendOrderNotificationEmail(order: any): Promise<void> {
   }
 }
 
-async function updateOrderStatus(orderId: string, paymentStatus?: string, trackingNumber?: string) {
-  const idx = inMemoryOrders.findIndex((o) => o.orderNumber === orderId || o.id === orderId);
-  if (idx >= 0) {
-    inMemoryOrders[idx] = {
-      ...inMemoryOrders[idx],
-      paymentStatus: paymentStatus ?? inMemoryOrders[idx].paymentStatus,
-      trackingNumber: trackingNumber !== undefined ? trackingNumber : inMemoryOrders[idx].trackingNumber
-    };
-  }
-  if (supabaseAdmin) {
-    const patch: Record<string, any> = { updated_at: new Date().toISOString() };
-    if (paymentStatus) patch.payment_status = paymentStatus;
-    if (trackingNumber !== undefined) patch.tracking_number = trackingNumber;
-    const { error } = await supabaseAdmin.from('orders').update(patch).eq('order_id', orderId);
-    if (error) console.warn('Supabase order update warning:', error.message);
-  }
-}
+// Status pesanan buku cetak diubah lewat backend/printCheckout (markOrderPaid dan update bersyarat).
 
 // ============================================================================
 // SERVER
@@ -849,6 +831,22 @@ async function startServer() {
     if (!response.ok) throw new Error(`Resend email failed (${response.status}): ${await response.text()}`);
   };
 
+  // Rekening aktif dari CMS (admin_bank_accounts): invoice institusi fase 4 dan instruksi transfer pesanan cetak.
+  const listCompanyBankAccounts = async () => {
+    if (!supabaseAdmin) return [];
+    const { data, error } = await supabaseAdmin.from('admin_bank_accounts').select('*').eq('is_active', true)
+      .order('is_default', { ascending: false }).order('created_at', { ascending: true });
+    if (error) throw new Error(`Supabase admin_bank_accounts: ${error.message}`);
+    return (data || []).map((row: any) => ({
+      bankName: String(row.bank_name),
+      accountNumber: String(row.account_number),
+      accountHolder: String(row.account_holder),
+      branch: row.branch ? String(row.branch) : null
+    }));
+  };
+  // Kedaluwarsa pesanan cetak (transfer manual) ikut POST /api/internal/cron; diisi setelah layanan checkout dibuat.
+  let runPrintOrderJob: () => Promise<unknown> = async () => ({ skipped: true });
+
   const digitalPhase2 = createDigitalPhase2({
     supabaseAdmin,
     supabaseUrl,
@@ -860,18 +858,7 @@ async function startServer() {
         : null;
     },
     // Fase 4 (invoice institusi): rekening aktif dari CMS dan identitas penerbit dari konten CMS.
-    listBankAccounts: async () => {
-      if (!supabaseAdmin) return [];
-      const { data, error } = await supabaseAdmin.from('admin_bank_accounts').select('*').eq('is_active', true)
-        .order('is_default', { ascending: false }).order('created_at', { ascending: true });
-      if (error) throw new Error(`Supabase admin_bank_accounts: ${error.message}`);
-      return (data || []).map((row: any) => ({
-        bankName: String(row.bank_name),
-        accountNumber: String(row.account_number),
-        accountHolder: String(row.account_holder),
-        branch: row.branch ? String(row.branch) : null
-      }));
-    },
+    listBankAccounts: listCompanyBankAccounts,
     getCompanyProfile: async () => {
       const content = (await loadSiteContent().catch(() => null)) || {};
       const footer = content.footer || {};
@@ -903,10 +890,65 @@ async function startServer() {
     mailer: { send: sendResendEmail },
     adminEmails: ORDER_NOTIFICATION_EMAILS,
     institutionAdminEmails: INSTITUTION_INQUIRY_EMAILS,
-    midtrans: { enabled: MIDTRANS_ENABLED, serverKey: MIDTRANS_SERVER_KEY, snapUrl: MIDTRANS_SNAP_URL, isProduction: MIDTRANS_IS_PRODUCTION }
+    midtrans: { enabled: MIDTRANS_ENABLED, serverKey: MIDTRANS_SERVER_KEY, snapUrl: MIDTRANS_SNAP_URL, isProduction: MIDTRANS_IS_PRODUCTION },
+    cronJobs: { printOrders: () => runPrintOrderJob() }
   });
   app.use(digitalPhase2.router);
   if (digitalPhase2.enabled) console.log(`📚 Produk digital fase 2 aktif (penyimpanan: ${digitalPhase2.context?.store.kind}).`);
+
+  // ==========================================================================
+  // PESANAN BUKU CETAK (backend/printCheckout): checkout transfer bank, ongkir RajaOngkir, halaman pesanan, admin
+  // ==========================================================================
+  // Stok katalog di memori ikut berkurang saat pesanan lunas (efek markOrderPaid).
+  const reduceInMemoryStock = (bookId: string, quantity: number) => {
+    const i = inMemoryBooks.findIndex((b) => b.id === bookId);
+    if (i >= 0 && typeof inMemoryBooks[i].stock === 'number') inMemoryBooks[i].stock = Math.max(0, (inMemoryBooks[i].stock as number) - quantity);
+  };
+  const printOrderStore = supabaseAdmin
+    ? new SupabasePrintOrderStore(supabaseAdmin, reduceInMemoryStock)
+    : new MemoryPrintOrderStore(reduceInMemoryStock);
+  // Bukti transfer pembeli disimpan di bucket privat yang sama dengan aset digital.
+  const printOrderStorage = digitalPhase2.context?.storage
+    ?? (supabaseAdmin ? createSupabaseAssetStorage(supabaseAdmin, process.env.DIGITAL_ASSETS_BUCKET || 'digital-assets') : null);
+  // Tautan halaman pesanan pembeli ditandatangani (HMAC nomor pesanan); ganti rahasia = tautan lama tidak berlaku.
+  const printOrderTokenSecret = process.env.ACCESS_TOKEN_SECRET || process.env.ADMIN_API_KEY || (() => {
+    console.warn('⚠️  ACCESS_TOKEN_SECRET belum di-set: tautan halaman pesanan cetak hanya berlaku sampai server restart.');
+    return crypto.randomBytes(32).toString('hex');
+  })();
+  // Ongkir buku cetak dari RajaOngkir (Komerce API V2), env RAJAONGKIR_API_KEY. Nilai key tidak pernah dicetak;
+  // RAJAONGKIR_BASE_URL hanya untuk uji dengan server tiruan. Setiap permintaan sungguhan dihitung terhadap kuota harian
+  // (tabel shipping_api_usage, batas di pengaturan admin); kuota habis -> cadangan tanpa memanggil API.
+  const rajaOngkirKey = rajaOngkirKeyFromEnv(process.env);
+  const shippingApiUsage = new ShippingApiUsage({ store: printOrderStore, limit: async () => (await printCheckout.settings()).dailyQuota });
+  const shippingRatesClient = rajaOngkirKey
+    ? createRajaOngkirClient({ apiKey: rajaOngkirKey, baseUrl: process.env.RAJAONGKIR_BASE_URL || undefined, meter: shippingApiUsage })
+    : null;
+  console.log(rajaOngkirKey
+    ? '🚚 Ongkir RajaOngkir aktif (env RAJAONGKIR_API_KEY).'
+    : '⚠️  RAJAONGKIR_API_KEY belum di-set: ongkir buku cetak memakai cadangan (tabel zona atau tahan pesanan, sesuai pengaturan).');
+  const printCheckout = new PrintCheckoutService({
+    store: printOrderStore,
+    storage: printOrderStorage,
+    loadCatalog: loadBooks,
+    memberPrintDiscount: async (authorization) => (await digitalPhase2.memberPrintDiscount?.(authorization)) ?? null,
+    memberPrintPrice,
+    royaltyConfig: PRINT_ROYALTY_CONFIG,
+    isTestBuyer: (email) => digitalPhase2.feature.isBeta(email),
+    createSnap: createSnapTransaction,
+    notifyAdmin: sendOrderNotificationEmail,
+    sendMail: sendResendEmail,
+    listBankAccounts: listCompanyBankAccounts,
+    adminEmails: ORDER_NOTIFICATION_EMAILS,
+    midtrans: { enabled: MIDTRANS_ENABLED, isProduction: MIDTRANS_IS_PRODUCTION },
+    siteUrl: process.env.SITE_URL || 'https://cakranexa.com',
+    financeWhatsapp: process.env.FINANCE_WHATSAPP || DEFAULT_FINANCE_WHATSAPP,
+    companyName: 'PT Cakrawala Magna Scientia',
+    tokenSecret: printOrderTokenSecret,
+    shippingRates: shippingRatesClient,
+    apiUsage: shippingRatesClient ? shippingApiUsage : null
+  });
+  runPrintOrderJob = () => printCheckout.runJob();
+  app.use(createPrintCheckoutRouter(printCheckout, requireAdmin));
 
   // ==========================================================================
   // HEALTH & AUTH
@@ -925,8 +967,10 @@ async function startServer() {
       midtransEnabled: MIDTRANS_ENABLED,
       midtransMode: MIDTRANS_IS_PRODUCTION ? 'production' : 'sandbox',
       adminConfigured: Boolean(ADMIN_PASSWORD),
+      rajaongkirConfigured: printCheckout.rajaOngkirConfigured,
       booksCount: inMemoryBooks.length,
-      ordersCount: inMemoryOrders.length
+      // Pesanan di memori (mode lokal tanpa Supabase); null = pesanan disimpan di Supabase.
+      ordersCount: printOrderStore instanceof MemoryPrintOrderStore ? printOrderStore.orders.length : null
     });
   });
 
@@ -1012,192 +1056,14 @@ async function startServer() {
   // ==========================================================================
   // ORDERS
   // ==========================================================================
-  // GET /api/orders (Admin) — berisi data pribadi pelanggan
-  app.get('/api/orders', requireAdmin, async (_req, res) => {
-    try {
-      if (supabaseAdmin) {
-        const { data, error } = await supabaseAdmin
-          .from('orders')
-          .select('*, order_items(*)')
-          .order('created_at', { ascending: false });
-        if (!error && data) return res.json(data);
-      }
-      return res.json(inMemoryOrders);
-    } catch {
-      return res.json(inMemoryOrders);
-    }
-  });
-
-  // GET /api/orders/:id/status (Publik) — pelanggan cek status pesanannya sendiri; tanpa PII
-  app.get('/api/orders/:id/status', async (req, res) => {
-    const { id } = req.params;
-    const local = inMemoryOrders.find((o) => o.orderNumber === id);
-    if (local) return res.json({ orderNumber: id, paymentStatus: local.paymentStatus, trackingNumber: local.trackingNumber || null });
-    if (supabaseAdmin) {
-      const { data } = await supabaseAdmin.from('orders').select('payment_status, tracking_number').eq('order_id', id).maybeSingle();
-      if (data) return res.json({ orderNumber: id, paymentStatus: data.payment_status, trackingNumber: data.tracking_number });
-    }
-    return res.status(404).json({ error: 'Pesanan tidak ditemukan' });
-  });
-
-  // POST /api/orders (Publik) — validasi & hitung ulang total di server (anti manipulasi harga)
-  app.post('/api/orders', async (req, res) => {
-    try {
-      const order = req.body;
-      const c = order?.customer;
-      if (!order?.orderNumber || !Array.isArray(order.items) || order.items.length === 0) {
-        return res.status(400).json({ error: 'Pesanan tidak valid: item kosong.' });
-      }
-      if (!c?.name || !c?.phone || !c?.email || !c?.address || !c?.city || !c?.postalCode) {
-        return res.status(400).json({ error: 'Data pelanggan belum lengkap.' });
-      }
-      if (inMemoryOrders.some((o) => o.orderNumber === order.orderNumber)) {
-        return res.status(409).json({ error: 'Nomor pesanan sudah terdaftar.' });
-      }
-
-      // Harga member (fase 3 Langkah 7, flag ENABLE_MEMBER_PRINT_DISCOUNT) untuk anggota aktif yang mengirim token login.
-      // Flag mati / bukan anggota -> null, dan alur di bawah identik dengan sebelumnya.
-      const memberDiscount = (await digitalPhase2.memberPrintDiscount?.(req.headers.authorization)) ?? null;
-
-      // Hitung ulang subtotal dari harga katalog server, bukan dari client
-      const catalog = await loadBooks();
-      let subtotal = 0;
-      const items = order.items.map((it: any) => {
-        const book = catalog.find((b) => b.id === it?.book?.id);
-        if (!book) throw Object.assign(new Error(`Buku ${it?.book?.id} tidak ditemukan di katalog.`), { status: 400 });
-        const qty = Math.max(1, Math.floor(Number(it.quantity) || 1));
-        if (!book.harga || book.harga <= 0) {
-          throw Object.assign(new Error(`"${book.name}" belum dapat dipesan (harga belum ditetapkan / segera terbit).`), { status: 400 });
-        }
-        if (typeof book.stock === 'number' && book.stock < qty) {
-          throw Object.assign(new Error(`Stok "${book.name}" tidak mencukupi (tersisa ${book.stock}).`), { status: 409 });
-        }
-        const unitPrice = memberDiscount ? memberPrintPrice(book.harga, book.originalHarga, memberDiscount.percent) : null;
-        subtotal += (unitPrice ?? book.harga) * qty;
-        return unitPrice !== null ? { book, quantity: qty, unitPrice } : { book, quantity: qty };
-      });
-      const shippingCost = Math.max(0, Number(order.shippingCost) || 0);
-      const total = subtotal + shippingCost;
-      // Data royalti (fase 5) hanya ditulis ke tabel pesanan; harga, total, dan respons tidak berubah.
-      const royalty = printOrderRoyaltyFields({
-        items: items.map(({ book, quantity, unitPrice }: any) => ({ harga: book.harga, originalHarga: book.originalHarga, unitPrice: unitPrice ?? book.harga, quantity })),
-        subtotal,
-        total,
-        paymentMethod: order.paymentMethod,
-        memberPrice: Boolean(memberDiscount),
-        isTest: digitalPhase2.feature.isBeta(c.email),
-        config: PRINT_ROYALTY_CONFIG
-      });
-
-      const normalized = {
-        ...order,
-        items,
-        subtotal,
-        shippingCost,
-        total,
-        paymentStatus: order.paymentMethod === 'manual_mandiri' ? 'processing' : 'pending',
-        // Bahasa pelanggan saat checkout (untuk pesan WhatsApp ke pelanggan); nilai lain -> 'id'.
-        language: ['id', 'en', 'zh'].includes(order.language) ? order.language : 'id',
-        createdAt: new Date().toISOString(),
-        ...(memberDiscount ? { memberDiscount } : {})
-      };
-      // Simpan pesanan dulu; Snap dan email admin hanya dibuat bila orders + order_items tersimpan (lihat backend/printOrders.ts).
-      const placed = await placePrintOrder({
-        db: supabaseAdmin ? supabasePrintOrderDb(supabaseAdmin) : null,
-        createSnap: createSnapTransaction,
-        notifyAdmin: sendOrderNotificationEmail
-      }, normalized, {
-        order: {
-          order_id: normalized.orderNumber,
-          customer_name: c.name,
-          customer_phone: c.phone,
-          customer_email: c.email,
-          shipping_address: `${c.address}, ${c.district ? c.district + ', ' : ''}${c.city}, ${c.province || ''} (${c.postalCode})`,
-          courier: `${c.courier || '-'} - ${c.shippingService || 'Reguler'}`,
-          shipping_fee: shippingCost,
-          total_amount: total,
-          payment_method: normalized.paymentMethod,
-          payment_status: normalized.paymentStatus,
-          va_number: normalized.vaNumber || null,
-          payment_proof_url: normalized.paymentProofUrl || null,
-          tracking_number: normalized.trackingNumber || null,
-          customer_notes: c.notes || null,
-          language: normalized.language,
-          ...royalty.order
-        },
-        items: items.map(({ book, quantity, unitPrice }: any, index: number) => ({
-          order_id: normalized.orderNumber,
-          book_id: book.id,
-          quantity,
-          unit_price: unitPrice ?? book.harga,
-          subtotal: (unitPrice ?? book.harga) * quantity,
-          ...royalty.items[index]
-        })),
-        // Stok hanya dikurangi untuk buku yang stoknya dikelola.
-        stock: items.filter(({ book }: any) => typeof book.stock === 'number').map(({ book, quantity }: any) => ({ bookId: book.id, quantity }))
-      });
-      if (!placed.ok) return res.status(placed.status).json({ error: placed.error });
-      const snapToken = placed.snapToken;
-
-      inMemoryOrders.unshift(normalized);
-
-      // Kurangi stok in-memory
-      items.forEach(({ book, quantity }: any) => {
-        const i = inMemoryBooks.findIndex((b) => b.id === book.id);
-        if (i >= 0 && typeof inMemoryBooks[i].stock === 'number') inMemoryBooks[i].stock = Math.max(0, (inMemoryBooks[i].stock as number) - quantity);
-      });
-
-      return res.status(201).json({
-        success: true,
-        orderId: normalized.orderNumber,
-        subtotal,
-        shippingCost,
-        total,
-        paymentStatus: normalized.paymentStatus,
-        snapToken,
-        paymentMode: snapToken ? (MIDTRANS_IS_PRODUCTION ? 'midtrans_production' : 'midtrans_sandbox') : 'unavailable',
-        ...(memberDiscount ? { memberDiscount } : {})
-      });
-    } catch (err: any) {
-      console.error('Order creation error:', err);
-      return res.status(err.status || 500).json({ error: err.message });
-    }
-  });
-
-  // PATCH /api/orders/:id (Admin) — status pembayaran / nomor resi
-  app.patch('/api/orders/:id', requireAdmin, async (req, res) => {
-    const { id } = req.params;
-    const { paymentStatus, trackingNumber } = req.body || {};
-    const allowed = ['pending', 'paid', 'processing', 'shipped', 'failed', 'cancelled'];
-    if (paymentStatus && !allowed.includes(paymentStatus)) {
-      return res.status(400).json({ error: `paymentStatus harus salah satu dari: ${allowed.join(', ')}` });
-    }
-    await updateOrderStatus(id, paymentStatus, trackingNumber);
-    return res.json({ success: true, message: 'Status pesanan berhasil diperbarui' });
-  });
+  // Rute pesanan buku cetak (buat pesanan, status, halaman pesanan pembeli, admin) ada di
+  // backend/printCheckout/router.ts dan dipasang setelah modul digital.
 
   // ==========================================================================
   // SHIPPING
   // ==========================================================================
-  app.post('/api/shipping/calculate', (req, res) => {
-    const { destinationPostalCode, weightInGrams } = req.body || {};
-    const weight = Number(weightInGrams) || 500;
-    const baseMultiplier = Math.max(1, Math.ceil(weight / 1000));
-    const firstDigit = parseInt(String(destinationPostalCode || '').charAt(0), 10);
-    const isOuterJava = !Number.isNaN(firstDigit) && firstDigit > 6; // 7x-9x: Kalimantan, Bali/NTT, Sulawesi, Maluku, Papua
-    const isSumatera = !Number.isNaN(firstDigit) && firstDigit >= 2 && firstDigit <= 3;
-    const zoneBonus = isOuterJava ? 15000 : isSumatera ? 9000 : 0;
-    const outerEtd = isOuterJava || isSumatera;
-
-    const rates = [
-      { courier: 'JNE', service: 'REG', description: 'Layanan Reguler Nasional', cost: (18000 + zoneBonus) * baseMultiplier, etd: outerEtd ? '3-5 Hari' : '2-3 Hari' },
-      { courier: 'JNE', service: 'YES', description: 'Yakin Esok Sampai', cost: Math.round((32000 + zoneBonus * 1.5) * baseMultiplier), etd: '1 Hari' },
-      { courier: 'SiCepat', service: 'SIUNT', description: 'SiUntung Tarif Ekonomis', cost: (17000 + zoneBonus) * baseMultiplier, etd: outerEtd ? '3-5 Hari' : '2-3 Hari' },
-      { courier: 'POS Indonesia', service: 'Pos Kilat Khusus', description: 'Jangkauan Hingga Pelosok Nusantara', cost: (16000 + zoneBonus) * baseMultiplier, etd: outerEtd ? '4-6 Hari' : '2-4 Hari' },
-      { courier: 'J&T Express', service: 'EZ', description: 'J&T Regular Express', cost: (19000 + zoneBonus) * baseMultiplier, etd: outerEtd ? '3-5 Hari' : '2-3 Hari' }
-    ];
-    return res.json(rates);
-  });
+  // Ongkir buku cetak dari RajaOngkir: GET /api/shipping/destinations dan POST /api/shipping/rates di
+  // backend/printCheckout/router.ts. Tarif estimasi internal (/api/shipping/calculate) sudah dihapus.
 
   // ==========================================================================
   // PAYMENT WEBHOOK (Midtrans)
@@ -1254,10 +1120,17 @@ async function startServer() {
         return res.status(500).json({ error: 'Gagal memproses notifikasi.' });
       }
     }
-    const targetStatus = mapMidtransStatus(String(n.transaction_status), n.fraud_status);
-    await updateOrderStatus(String(n.order_id), targetStatus);
-    console.log(`💳 Midtrans webhook: ${n.order_id} -> ${n.transaction_status} (${targetStatus})`);
-    return res.json({ status: 'success', received: true });
+    // Pesanan buku cetak: lunas lewat markOrderPaid (fungsi yang sama dengan konfirmasi admin; nominal dicocokkan);
+    // notifikasi yang datang terlambat tidak menimpa pesanan yang sudah lunas.
+    try {
+      const result = await printCheckout.handleMidtransNotification(n);
+      console.log(`💳 Midtrans webhook: ${n.order_id} -> ${n.transaction_status} (${result.status})`);
+      return res.status(result.status).json(result.body);
+    } catch (err: any) {
+      // 500 -> Midtrans mengirim ulang; markOrderPaid idempoten.
+      console.error('[print] webhook Midtrans gagal diproses:', n.order_id, err?.message || err);
+      return res.status(500).json({ error: 'Gagal memproses notifikasi.' });
+    }
   });
 
   // ==========================================================================
@@ -2048,6 +1921,13 @@ async function startServer() {
   if (process.env.VERCEL !== '1') {
     // Job produk digital (antrian pemrosesan aset) hanya di server yang selalu berjalan.
     digitalPhase2.startJobs?.();
+    // Pesanan cetak transfer manual yang lewat batas waktu -> expired + email (juga lewat POST /api/internal/cron).
+    if (process.env.PRINT_ORDER_JOB !== 'false') {
+      const timer = setInterval(() => {
+        runPrintOrderJob().catch((err) => console.warn('[print] job kedaluwarsa gagal:', err?.message || err));
+      }, 15 * 60 * 1000);
+      timer.unref?.();
+    }
     app.listen(PORT, HOST, () => {
       console.log(`🚀 CakraNexa Express Server running on http://${HOST}:${PORT} [${IS_PRODUCTION ? 'production' : 'development'}]`);
       console.log(`🔐 Admin login: ${ADMIN_PASSWORD ? 'aktif' : 'NONAKTIF (set ADMIN_PASSWORD)'} | 💳 Midtrans: ${MIDTRANS_ENABLED ? (MIDTRANS_IS_PRODUCTION ? 'production' : 'sandbox') : 'tidak tersedia'}`);

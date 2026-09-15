@@ -1,0 +1,81 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/calculate/domestic-cost",
+    "body": "origin=17620&destination=74945&weight=1000&courier=jne%3Apos%3Atiki%3Asicepat%3Ajnt%3Aanteraja"
+  },
+  "status": 200,
+  "body": {
+    "meta": {
+      "message": "Success Calculate Domestic Shipping cost",
+      "code": 200,
+      "status": "success"
+    },
+    "data": [
+      {
+        "name": "AnterAja",
+        "code": "anteraja",
+        "service": "REG",
+        "description": "Anteraja Regular",
+        "cost": 40300,
+        "etd": "2-4 day"
+      },
+      {
+        "name": "J&T Express",
+        "code": "jnt",
+        "service": "EZ",
+        "description": "Reguler",
+        "cost": 36000,
+        "etd": ""
+      },
+      {
+        "name": "Jalur Nugraha Ekakurir (JNE)",
+        "code": "jne",
+        "service": "JTR",
+        "description": "JNE Trucking",
+        "cost": 105000,
+        "etd": "5 day"
+      },
+      {
+        "name": "Jalur Nugraha Ekakurir (JNE)",
+        "code": "jne",
+        "service": "REG",
+        "description": "Layanan Reguler",
+        "cost": 32000,
+        "etd": "4 day"
+      },
+      {
+        "name": "POS Indonesia (POS)",
+        "code": "pos",
+        "service": "Pos Reguler",
+        "description": "240",
+        "cost": 36000,
+        "etd": "4 day"
+      },
+      {
+        "name": "SiCepat Express",
+        "code": "sicepat",
+        "service": "GOKIL",
+        "description": "Cargo Per Kg (Minimal 10kg)",
+        "cost": 330000,
+        "etd": "4-6 day"
+      },
+      {
+        "name": "SiCepat Express",
+        "code": "sicepat",
+        "service": "HALU",
+        "description": "Harga Mulai Lima Ribu",
+        "cost": 37100,
+        "etd": "6-7 day"
+      },
+      {
+        "name": "SiCepat Express",
+        "code": "sicepat",
+        "service": "REG",
+        "description": "Reguler",
+        "cost": 39100,
+        "etd": "3-5 day"
+      }
+    ]
+  }
+}
