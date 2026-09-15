@@ -18,6 +18,12 @@ export class DigitalHttpError extends Error {
 /** Pelanggaran keunikan di penyimpanan (mis. idempotency key, sesi aktif ganda). */
 export class ConflictError extends Error {}
 
+/**
+ * Pesanan/tagihan gagal disimpan: tidak ada transaksi pembayaran yang dibuat dan pembeli mendapat 503
+ * (checkout buku cetak, produk digital, dan keanggotaan).
+ */
+export const ORDER_NOT_SAVED_MESSAGE = 'Pesanan belum dapat diproses, coba lagi.';
+
 export const httpError = (status: number, code: string, message: string, extra?: Record<string, unknown>) =>
   new DigitalHttpError(status, code, message, extra);
 

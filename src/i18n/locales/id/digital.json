@@ -82,6 +82,7 @@
     "tryAgain": "Coba lagi",
     "errors": {
       "already_owned": "Anda sudah memiliki produk ini. Bukalah dari Pustaka Saya.",
+      "order_not_saved": "Pesanan belum dapat diproses, coba lagi.",
       "product_unavailable": "Sebagian produk belum dapat dibeli.",
       "suspended": "Akses produk ini sedang ditangguhkan. Hubungi kami untuk bantuan.",
       "payment_unavailable": "Pembayaran online belum tersedia. Silakan coba lagi nanti.",
@@ -904,6 +905,7 @@
     "back": "Kembali ke paket keanggotaan",
     "errors": {
       "terms_required": "Setujui ketentuan keanggotaan terlebih dahulu.",
+      "order_not_saved": "Pendaftaran belum dapat diproses, coba lagi.",
       "license_required": "Setujui ketentuan lisensi digital terlebih dahulu.",
       "already_subscribed": "Anda sudah memiliki keanggotaan aktif. Gunakan Ubah paket di halaman Keanggotaan Saya.",
       "plan_unavailable": "Paket ini tidak tersedia.",
@@ -1078,6 +1080,7 @@
     },
     "errors": {
       "payment_required": "Selesaikan tagihan yang tertunggak lebih dulu.",
+      "order_not_saved": "Perubahan paket belum dapat diproses, coba lagi.",
       "no_subscription": "Anda belum memiliki keanggotaan aktif.",
       "no_change": "Paket dan periode sama dengan yang berjalan.",
       "canceled": "Batalkan pembatalan lebih dulu untuk menjadwalkan perubahan paket.",

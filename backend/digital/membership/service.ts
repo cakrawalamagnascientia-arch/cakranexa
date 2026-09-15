@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { ConflictError, httpError } from '../errors';
+import { ConflictError, httpError, ORDER_NOT_SAVED_MESSAGE } from '../errors';
 import type { DigitalContext } from '../context';
 import { mapMidtransToOrderStatus, verifyMidtransSignature, type MidtransClient } from '../checkout';
 import { OPEN_SUBSCRIPTION_STATUSES } from '../store';
@@ -496,38 +496,52 @@ export class MembershipService {
         idempotencyKey: key,
         isTest
       });
-    } catch (err) {
-      if (claimed) await this.store.releaseFoundingSlot(plan.id);
+    } catch (err: any) {
+      if (claimed) await this.releaseFoundingQuietly(plan.id);
       if (err instanceof ConflictError) throw httpError(409, 'subscription_in_progress', 'Pendaftaran lain sedang diproses. Muat ulang halaman.');
-      throw err;
+      console.error('[membership] Langganan tidak tersimpan; transaksi pembayaran tidak dibuat:', { userId: user.id, planCode, error: err?.message || err });
+      throw httpError(503, 'order_not_saved', ORDER_NOT_SAVED_MESSAGE);
     }
 
-    let invoice = await this.store.createInvoice({
-      subscriptionId: sub.id,
-      userId: user.id,
-      kind: 'initial',
-      planId: plan.id,
-      billingCycle: cycle,
-      periodStart: nowIso,
-      periodEnd: periodEndFor(nowIso, cycle),
-      amount,
-      status: 'issued',
-      orderRef: newOrderRef(now),
-      midtransOrderId: null,
-      midtransSnapToken: null,
-      snapRedirectUrl: null,
-      snapCreatedAt: null,
-      midtransTransactionId: null,
-      paymentType: null,
-      claimsFounding: claimed,
-      isFoundingPrice: claimed,
-      issuedAt: nowIso,
-      paidAt: null,
-      dueAt: new Date(now.getTime() + this.cfg.pendingTtlHours * HOUR_MS).toISOString(),
-      attempt: 0,
-      failureReason: null,
-      isTest
-    });
+    let invoice: InvoiceRecord;
+    try {
+      invoice = await this.store.createInvoice({
+        subscriptionId: sub.id,
+        userId: user.id,
+        kind: 'initial',
+        planId: plan.id,
+        billingCycle: cycle,
+        periodStart: nowIso,
+        periodEnd: periodEndFor(nowIso, cycle),
+        amount,
+        status: 'issued',
+        orderRef: newOrderRef(now),
+        midtransOrderId: null,
+        midtransSnapToken: null,
+        snapRedirectUrl: null,
+        snapCreatedAt: null,
+        midtransTransactionId: null,
+        paymentType: null,
+        claimsFounding: claimed,
+        isFoundingPrice: claimed,
+        issuedAt: nowIso,
+        paidAt: null,
+        dueAt: new Date(now.getTime() + this.cfg.pendingTtlHours * HOUR_MS).toISOString(),
+        attempt: 0,
+        failureReason: null,
+        isTest
+      });
+    } catch (err: any) {
+      // Tagihan tidak tersimpan: langganan pending ditutup dan kursi Founding dilepas, tanpa transaksi pembayaran.
+      console.error('[membership] Tagihan tidak tersimpan; transaksi pembayaran tidak dibuat:', { subscriptionId: sub.id, userId: user.id, error: err?.message || err });
+      try {
+        await this.voidPending(sub, 'invoice_error');
+      } catch (cleanupErr: any) {
+        console.error('[membership] Gagal menutup langganan pending:', { subscriptionId: sub.id, error: cleanupErr?.message || cleanupErr });
+      }
+      if (claimed) await this.releaseFoundingQuietly(plan.id);
+      throw httpError(503, 'order_not_saved', ORDER_NOT_SAVED_MESSAGE);
+    }
     await this.event(sub, 'created', { planCode, cycle, method, amount, founding: claimed });
     try {
       invoice = await this.prepareSnap(invoice, sub, plan);
@@ -580,6 +594,15 @@ export class MembershipService {
     }, ['issued', 'failed']);
     if (!updated) throw httpError(409, 'invoice_closed', 'Tagihan ini sudah tidak dapat dibayar.');
     return updated;
+  }
+
+  /** Lepas kursi Founding tanpa menutupi error asal (dipakai saat penyimpanan gagal). */
+  private async releaseFoundingQuietly(planId: string): Promise<void> {
+    try {
+      await this.store.releaseFoundingSlot(planId);
+    } catch (err: any) {
+      console.error('[membership] Gagal melepas kursi Founding:', { planId, error: err?.message || err });
+    }
   }
 
   async voidInvoice(invoice: InvoiceRecord, reason: string): Promise<InvoiceRecord | null> {
@@ -1138,32 +1161,40 @@ export class MembershipService {
     const claimed = cycle === 'yearly' && target.foundingPriceYearly !== null && target.foundingCap !== null ? await this.store.claimFoundingSlot(target.id) : false;
     const price = claimed ? target.foundingPriceYearly! : priceFor(target, cycle);
     const amount = Math.max(0, price - credit);
-    let invoice = await this.store.createInvoice({
-      subscriptionId: sub.id,
-      userId: sub.userId,
-      kind: 'upgrade',
-      planId: target.id,
-      billingCycle: cycle,
-      periodStart: nowIso,
-      periodEnd: periodEndFor(nowIso, cycle),
-      amount,
-      status: 'issued',
-      orderRef: newOrderRef(now),
-      midtransOrderId: null,
-      midtransSnapToken: null,
-      snapRedirectUrl: null,
-      snapCreatedAt: null,
-      midtransTransactionId: null,
-      paymentType: null,
-      claimsFounding: claimed,
-      isFoundingPrice: claimed,
-      issuedAt: nowIso,
-      paidAt: null,
-      dueAt: new Date(now.getTime() + this.cfg.pendingTtlHours * HOUR_MS).toISOString(),
-      attempt: 0,
-      failureReason: null,
-      isTest: sub.isTest
-    });
+    let invoice: InvoiceRecord;
+    try {
+      invoice = await this.store.createInvoice({
+        subscriptionId: sub.id,
+        userId: sub.userId,
+        kind: 'upgrade',
+        planId: target.id,
+        billingCycle: cycle,
+        periodStart: nowIso,
+        periodEnd: periodEndFor(nowIso, cycle),
+        amount,
+        status: 'issued',
+        orderRef: newOrderRef(now),
+        midtransOrderId: null,
+        midtransSnapToken: null,
+        snapRedirectUrl: null,
+        snapCreatedAt: null,
+        midtransTransactionId: null,
+        paymentType: null,
+        claimsFounding: claimed,
+        isFoundingPrice: claimed,
+        issuedAt: nowIso,
+        paidAt: null,
+        dueAt: new Date(now.getTime() + this.cfg.pendingTtlHours * HOUR_MS).toISOString(),
+        attempt: 0,
+        failureReason: null,
+        isTest: sub.isTest
+      });
+    } catch (err: any) {
+      // Tagihan upgrade tidak tersimpan: kursi Founding dilepas, tanpa transaksi pembayaran; keanggotaan berjalan tidak berubah.
+      console.error('[membership] Tagihan upgrade tidak tersimpan; transaksi pembayaran tidak dibuat:', { subscriptionId: sub.id, target: target.code, error: err?.message || err });
+      if (claimed) await this.releaseFoundingQuietly(target.id);
+      throw httpError(503, 'order_not_saved', ORDER_NOT_SAVED_MESSAGE);
+    }
     if (amount <= 0) {
       await this.applyPaid(invoice, EMPTY_PAYMENT, null);
       return { invoice: null, applied: true, credit, price, subscription: await this.publicSubscription((await this.store.getSubscription(sub.id))!) };

@@ -30,7 +30,7 @@ interface MembershipCheckoutViewProps {
 const PLAN_CODES: PlanCode[] = ['free', 'reader', 'professional', 'author'];
 const ERROR_CODES = [
   'terms_required', 'license_required', 'already_subscribed', 'plan_unavailable', 'payment_unavailable', 'payment_error',
-  'subscription_in_progress', 'email_required', 'snap_unavailable', 'digital_disabled', 'network', 'invalid_whatsapp'
+  'subscription_in_progress', 'email_required', 'snap_unavailable', 'digital_disabled', 'network', 'invalid_whatsapp', 'order_not_saved'
 ];
 
 const newIdempotencyKey = () =>

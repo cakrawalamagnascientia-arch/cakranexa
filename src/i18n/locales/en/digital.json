@@ -82,6 +82,7 @@
     "tryAgain": "Try again",
     "errors": {
       "already_owned": "You already own this title. Open it from My Library.",
+      "order_not_saved": "Your order could not be processed yet. Please try again.",
       "product_unavailable": "Some titles cannot be purchased yet.",
       "suspended": "Access to this title is suspended. Please contact us for help.",
       "payment_unavailable": "Online payment is not available yet. Please try again later.",
@@ -908,6 +909,7 @@
     "back": "Back to membership plans",
     "errors": {
       "terms_required": "Please accept the membership terms first.",
+      "order_not_saved": "Your sign-up could not be processed yet. Please try again.",
       "license_required": "Please accept the digital licence terms first.",
       "already_subscribed": "You already have an active membership. Use Change plan on My Membership.",
       "plan_unavailable": "This plan is not available.",
@@ -1082,6 +1084,7 @@
     },
     "errors": {
       "payment_required": "Please settle the outstanding invoice first.",
+      "order_not_saved": "Your plan change could not be processed yet. Please try again.",
       "no_subscription": "You do not have an active membership.",
       "no_change": "The plan and billing period are the same as now.",
       "canceled": "Undo the cancellation first to schedule a plan change.",

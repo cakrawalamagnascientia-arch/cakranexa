@@ -39,7 +39,7 @@ interface AccountMembershipViewProps {
 const ERROR_CODES = [
   'payment_required', 'no_subscription', 'no_change', 'canceled', 'already_canceled', 'nothing_to_resume', 'period_ended',
   'state_changed', 'invoice_closed', 'invoice_not_found', 'plan_unavailable', 'payment_unavailable', 'payment_error',
-  'no_pending_change', 'invalid_request', 'snap_unavailable', 'network', 'digital_disabled', 'invalid_whatsapp'
+  'no_pending_change', 'invalid_request', 'snap_unavailable', 'network', 'digital_disabled', 'invalid_whatsapp', 'order_not_saved'
 ];
 
 const STATUS_CLASS: Record<string, string> = {

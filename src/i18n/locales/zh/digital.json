@@ -82,6 +82,7 @@
     "tryAgain": "重试",
     "errors": {
       "already_owned": "您已拥有该产品，请从“我的书库”打开。",
+      "order_not_saved": "订单暂时无法处理，请重试。",
       "product_unavailable": "部分产品暂不可购买。",
       "suspended": "该产品的访问已被暂停，请联系我们。",
       "payment_unavailable": "在线支付暂不可用，请稍后再试。",
@@ -904,6 +905,7 @@
     "back": "返回会员方案",
     "errors": {
       "terms_required": "请先同意会员条款。",
+      "order_not_saved": "注册暂时无法处理，请重试。",
       "license_required": "请先同意数字许可条款。",
       "already_subscribed": "您已有有效会员。请在“我的会员”页面使用“更改方案”。",
       "plan_unavailable": "该方案暂不可用。",
@@ -1078,6 +1080,7 @@
     },
     "errors": {
       "payment_required": "请先结清未付账单。",
+      "order_not_saved": "套餐变更暂时无法处理，请重试。",
       "no_subscription": "您没有有效的会员。",
       "no_change": "方案和计费周期与当前相同。",
       "canceled": "请先撤销取消，再安排方案变更。",

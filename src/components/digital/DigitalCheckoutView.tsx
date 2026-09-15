@@ -138,7 +138,7 @@ export const DigitalCheckoutView: React.FC<DigitalCheckoutViewProps> = ({ query 
   };
 
   const errorMessage = (code: string) => {
-    const known = ['already_owned', 'product_unavailable', 'suspended', 'payment_unavailable', 'payment_error', 'license_required', 'snap_unavailable', 'order_not_found'];
+    const known = ['already_owned', 'product_unavailable', 'suspended', 'payment_unavailable', 'payment_error', 'license_required', 'snap_unavailable', 'order_not_found', 'order_not_saved'];
     return known.includes(code) ? t(`checkout.errors.${code as 'unknown'}`) : t('checkout.errors.unknown');
   };
 

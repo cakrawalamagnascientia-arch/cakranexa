@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { INITIAL_BOOKS, normalizeBookAuthors } from './src/data/booksData';
 import { BANK_ID_RE, publicBankAccounts, rowToBankAccount, type BankAccountRow } from './backend/bankAccounts';
+import { placePrintOrder, supabasePrintOrderDb } from './backend/printOrders';
 import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthorProfile, authorNameKey } from './src/data/authorsData';
 import type {
   Book,
@@ -1100,16 +1101,13 @@ async function startServer() {
         createdAt: new Date().toISOString(),
         ...(memberDiscount ? { memberDiscount } : {})
       };
-      inMemoryOrders.unshift(normalized);
-
-      // Kurangi stok in-memory
-      items.forEach(({ book, quantity }: any) => {
-        const i = inMemoryBooks.findIndex((b) => b.id === book.id);
-        if (i >= 0 && typeof inMemoryBooks[i].stock === 'number') inMemoryBooks[i].stock = Math.max(0, (inMemoryBooks[i].stock as number) - quantity);
-      });
-
-      if (supabaseAdmin) {
-        const { error: orderError } = await supabaseAdmin.from('orders').insert({
+      // Simpan pesanan dulu; Snap dan email admin hanya dibuat bila orders + order_items tersimpan (lihat backend/printOrders.ts).
+      const placed = await placePrintOrder({
+        db: supabaseAdmin ? supabasePrintOrderDb(supabaseAdmin) : null,
+        createSnap: createSnapTransaction,
+        notifyAdmin: sendOrderNotificationEmail
+      }, normalized, {
+        order: {
           order_id: normalized.orderNumber,
           customer_name: c.name,
           customer_phone: c.phone,
@@ -1126,36 +1124,28 @@ async function startServer() {
           customer_notes: c.notes || null,
           language: normalized.language,
           ...royalty.order
-        });
-        if (orderError) {
-          console.error('Supabase order insert error:', orderError.message);
-        } else {
-          await supabaseAdmin.from('order_items').insert(
-            items.map(({ book, quantity, unitPrice }: any, index: number) => ({
-              order_id: normalized.orderNumber,
-              book_id: book.id,
-              quantity,
-              unit_price: unitPrice ?? book.harga,
-              subtotal: (unitPrice ?? book.harga) * quantity,
-              ...royalty.items[index]
-            }))
-          );
-          // Kurangi stok via RPC (lihat schema.sql: decrement_book_stock)
-          for (const { book, quantity } of items) {
-            if (typeof book.stock !== 'number') continue; // stok tidak dikelola untuk buku ini
-            await supabaseAdmin.rpc('decrement_book_stock', { p_book_id: book.id, p_qty: quantity });
-          }
-        }
-      }
+        },
+        items: items.map(({ book, quantity, unitPrice }: any, index: number) => ({
+          order_id: normalized.orderNumber,
+          book_id: book.id,
+          quantity,
+          unit_price: unitPrice ?? book.harga,
+          subtotal: (unitPrice ?? book.harga) * quantity,
+          ...royalty.items[index]
+        })),
+        // Stok hanya dikurangi untuk buku yang stoknya dikelola.
+        stock: items.filter(({ book }: any) => typeof book.stock === 'number').map(({ book, quantity }: any) => ({ bookId: book.id, quantity }))
+      });
+      if (!placed.ok) return res.status(placed.status).json({ error: placed.error });
+      const snapToken = placed.snapToken;
 
-      // Midtrans Snap token hanya boleh dibuat dari backend yang memiliki Server Key.
-      const snapToken = normalized.paymentMethod === 'manual_mandiri' ? null : await createSnapTransaction(normalized);
+      inMemoryOrders.unshift(normalized);
 
-      try {
-        await sendOrderNotificationEmail(normalized);
-      } catch (emailError) {
-        console.error('Order email notification failed:', emailError);
-      }
+      // Kurangi stok in-memory
+      items.forEach(({ book, quantity }: any) => {
+        const i = inMemoryBooks.findIndex((b) => b.id === book.id);
+        if (i >= 0 && typeof inMemoryBooks[i].stock === 'number') inMemoryBooks[i].stock = Math.max(0, (inMemoryBooks[i].stock as number) - quantity);
+      });
 
       return res.status(201).json({
         success: true,

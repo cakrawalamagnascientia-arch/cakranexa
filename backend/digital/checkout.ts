@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import express, { type Router } from 'express';
-import { asyncRoute, ConflictError, httpError } from './errors';
+import { asyncRoute, ConflictError, httpError, ORDER_NOT_SAVED_MESSAGE } from './errors';
 import { LICENSE_VERSION } from './config';
 import { purchaseConfirmationEmail } from './email';
 import { isEntitlementUsable, ownsPermanently } from './entitlements';
@@ -182,12 +182,15 @@ export const createCheckoutRouter = (ctx: DigitalContext, midtrans: MidtransClie
         isTest: ctx.feature.isBeta(user.email),
         items: orderItems
       });
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof ConflictError) {
         const raced = await ctx.store.getOrderByIdempotencyKey(idempotencyKey);
         if (raced && raced.userId === user.id) return res.json({ order: publicOrder(raced), reused: true });
+        throw err;
       }
-      throw err;
+      // Pesanan tidak tersimpan: tidak ada transaksi pembayaran untuk pesanan yang tidak tercatat.
+      console.error('[digital] Pesanan tidak tersimpan; transaksi pembayaran tidak dibuat:', { userId: user.id, idempotencyKey, error: err?.message || err });
+      throw httpError(503, 'order_not_saved', ORDER_NOT_SAVED_MESSAGE);
     }
 
     try {
