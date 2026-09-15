@@ -9,8 +9,9 @@ import { BANK_ID_RE, publicBankAccounts, rowToBankAccount, type BankAccountRow }
 import { PrintCheckoutService } from './backend/printCheckout/service';
 import { createPrintCheckoutRouter } from './backend/printCheckout/router';
 import { MemoryPrintOrderStore, SupabasePrintOrderStore } from './backend/printCheckout/store';
-import { createRajaOngkirClient, rajaOngkirKeyFromEnv } from './backend/printCheckout/rajaongkir';
+import { createRajaOngkirClient, rajaOngkirKeyFromEnv, type RajaOngkirClient } from './backend/printCheckout/rajaongkir';
 import { ShippingApiUsage } from './backend/printCheckout/apiUsage';
+import { DEFAULT_PRINT_CHECKOUT_SETTINGS } from './src/data/shippingZones';
 import { createSupabaseAssetStorage } from './backend/digital/storage';
 import { DEFAULT_FINANCE_WHATSAPP } from './src/utils/transferConfirmation';
 import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthorProfile, authorNameKey } from './src/data/authorsData';
@@ -955,14 +956,21 @@ async function startServer() {
   // RAJAONGKIR_BASE_URL hanya untuk uji dengan server tiruan. Setiap permintaan sungguhan dihitung terhadap kuota harian
   // (tabel shipping_api_usage, batas di pengaturan admin); kuota habis -> cadangan tanpa memanggil API.
   const rajaOngkirKey = rajaOngkirKeyFromEnv(process.env);
-  const shippingApiUsage = new ShippingApiUsage({ store: printOrderStore, limit: async () => (await printCheckout.settings()).dailyQuota });
-  const shippingRatesClient = rajaOngkirKey
+  // Baca kuota langsung dari store agar meter tidak bergantung pada printCheckout
+  // yang dibuat beberapa baris kemudian.
+  const shippingQuotaLimit = async (): Promise<number> => {
+    const stored = await printOrderStore.getSettings();
+    const limit = Number(stored?.dailyQuota);
+    return Number.isInteger(limit) && limit > 0 ? limit : DEFAULT_PRINT_CHECKOUT_SETTINGS.dailyQuota;
+  };
+  const shippingApiUsage: ShippingApiUsage = new ShippingApiUsage({ store: printOrderStore, limit: shippingQuotaLimit });
+  const shippingRatesClient: RajaOngkirClient | null = rajaOngkirKey
     ? createRajaOngkirClient({ apiKey: rajaOngkirKey, baseUrl: process.env.RAJAONGKIR_BASE_URL || undefined, meter: shippingApiUsage })
     : null;
   console.log(rajaOngkirKey
     ? '🚚 Ongkir RajaOngkir aktif (env RAJAONGKIR_API_KEY).'
     : '⚠️  RAJAONGKIR_API_KEY belum di-set: ongkir buku cetak memakai cadangan (tabel zona atau tahan pesanan, sesuai pengaturan).');
-  const printCheckout = new PrintCheckoutService({
+  const printCheckout: PrintCheckoutService = new PrintCheckoutService({
     store: printOrderStore,
     storage: printOrderStorage,
     loadCatalog: loadBooks,
