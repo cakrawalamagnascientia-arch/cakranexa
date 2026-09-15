@@ -203,7 +203,7 @@ export const printOrderEmail = (kind: PrintOrderEmailKind, d: PrintOrderEmailDat
   if (PAYMENT_KINDS.includes(kind)) {
     const waText = transferConfirmationText({ orderNumber: d.orderNumber, amount: d.total, buyerName: d.buyerName });
     const accounts = d.bankAccounts.map((b) =>
-      `<tr><td style="padding:4px 12px 4px 0">${escapeHtml(b.bankName)}${b.branch ? ` (${escapeHtml(b.branch)})` : ''}</td>` +
+      `<tr><td style="padding:4px 12px 4px 0">${escapeHtml(b.bankName)}${b.currency ? ` (${escapeHtml(b.currency)})` : ''}${b.branch ? ` - ${escapeHtml(b.branch)}` : ''}</td>` +
       `<td style="padding:4px 12px 4px 0;font-family:monospace;font-weight:bold">${escapeHtml(b.accountNumber)}</td>` +
       `<td style="padding:4px 0">${escapeHtml(b.accountHolder)}</td></tr>`).join('');
     payment = `

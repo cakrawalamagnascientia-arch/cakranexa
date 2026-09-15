@@ -240,6 +240,7 @@ export interface CompanyBankAccount {
   accountNumber: string;
   accountHolder: string;
   branch: string | null;
+  currency?: 'IDR' | 'USD';
 }
 
 /** Identitas penerbit di kepala invoice (CMS: nama perusahaan, alamat & kontak footer, NPWP). */

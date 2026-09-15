@@ -9,6 +9,7 @@ export type BankAccountRow = {
   account_number: string;
   account_holder: string;
   branch: string | null;
+  currency?: string | null;
   is_active: boolean;
   is_default: boolean;
 };
@@ -22,6 +23,7 @@ export const rowToBankAccount = (row: any) => ({
   accountNumber: row.account_number,
   accountHolder: row.account_holder,
   branch: row.branch || undefined,
+  currency: String(row.currency || 'IDR').toUpperCase() === 'USD' ? 'USD' : 'IDR',
   isActive: row.is_active !== false,
   isDefault: Boolean(row.is_default)
 });

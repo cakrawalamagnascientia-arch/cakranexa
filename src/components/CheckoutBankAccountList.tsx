@@ -16,7 +16,7 @@ export const CheckoutBankAccountList: React.FC<{
         <div key={acc.id} className="p-3 rounded-lg bg-white border border-slate-200 flex items-center justify-between shadow-2xs">
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-bold text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">{acc.bankName}</span>
+              <span className="text-[10px] font-bold text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">{acc.bankName} · {acc.currency || 'IDR'}</span>
               {acc.branch && <span className="text-[10px] text-slate-500">({acc.branch})</span>}
             </div>
             <span className="font-mono text-sm font-bold text-slate-900 block mt-1">{acc.accountNumber}</span>

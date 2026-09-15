@@ -5,7 +5,7 @@ Checkout buku cetak sebelum Xendit, dengan ongkir RajaOngkir. Kode: `backend/pri
 
 ## 1. Database
 
-1. Jalankan `src/db/print_checkout_migration.sql` di Supabase SQL Editor, setelah migration fase 4. Aman diulang.
+1. Jalankan `src/db/print_checkout_migration.sql` di Supabase SQL Editor, setelah migration fase 4. Aman diulang. Untuk rekening internasional, jalankan juga `src/db/bank_account_currency_migration.sql`.
 2. Jalankan `src/db/check_schema.sql`: 70 baris harus `ada = true` (urutan 9 = migration ini).
 3. Server Render menolak start sebelum migration dijalankan (`backend/startupChecks.ts`), jadi jalankan migration **sebelum** deploy.
 
@@ -26,6 +26,8 @@ Pratinjau dulu dengan `SELECT` yang ditulis di komentar. Pesanan uji lain ditand
 | `SITE_URL` | ya | Awal tautan halaman pesanan di email (mis. `https://cakranexa.com`). |
 | `FINANCE_WHATSAPP` | opsional | Nomor WhatsApp Finance untuk tombol konfirmasi. Bawaan +62 852-8614-6806. |
 | `ORDER_NOTIFICATION_EMAILS` | disarankan | Penerima email "Pesanan Baru" dan "Bukti Transfer". Tanpa env ini dipakai daftar bawaan di `server.ts`. |
+
+Rekening transfer manual mendukung IDR dan USD. Rekening USD Mandiri `167-00-1171867-2` atas nama PT Cakrawala Magna Scientia ditambahkan oleh `src/db/bank_account_currency_migration.sql` dan ditampilkan terpisah dengan label USD.
 | `CRON_SECRET` | opsional | `POST /api/internal/cron` juga menjalankan job kedaluwarsa pesanan cetak (berguna saat server Render tidur). |
 | `PRINT_ORDER_JOB` | opsional | `false` mematikan timer 15 menit di server (job tetap bisa lewat cron atau tombol admin). |
 

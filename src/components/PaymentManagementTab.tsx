@@ -51,6 +51,7 @@ export const PaymentManagementTab: React.FC<PaymentManagementTabProps> = ({
   const [formAccountNumber, setFormAccountNumber] = useState('');
   const [formAccountHolder, setFormAccountHolder] = useState('PT CAKRAWALA MAGNA SCIENTIA');
   const [formBranch, setFormBranch] = useState('KC Jakarta Salemba Raya');
+  const [formCurrency, setFormCurrency] = useState<'IDR' | 'USD'>('IDR');
   const [formIsActive, setFormIsActive] = useState(true);
   const [formIsDefault, setFormIsDefault] = useState(false);
 
@@ -154,6 +155,7 @@ export const PaymentManagementTab: React.FC<PaymentManagementTabProps> = ({
     setFormAccountNumber('');
     setFormAccountHolder('PT CAKRAWALA MAGNA SCIENTIA');
     setFormBranch('');
+    setFormCurrency('IDR');
     setFormIsActive(true);
     setFormIsDefault(false);
     setIsBankModalOpen(true);
@@ -168,6 +170,7 @@ export const PaymentManagementTab: React.FC<PaymentManagementTabProps> = ({
     setFormAccountNumber(acc.accountNumber);
     setFormAccountHolder(acc.accountHolder);
     setFormBranch(acc.branch || '');
+    setFormCurrency(acc.currency || 'IDR');
     setFormIsActive(acc.isActive);
     setFormIsDefault(acc.isDefault ?? false);
     setIsBankModalOpen(true);
@@ -193,6 +196,7 @@ export const PaymentManagementTab: React.FC<PaymentManagementTabProps> = ({
             accountNumber: formAccountNumber.trim(),
             accountHolder: formAccountHolder.trim(),
             branch: formBranch.trim() || undefined,
+            currency: formCurrency,
             isActive: formIsActive,
             isDefault: formIsDefault
           };
@@ -211,6 +215,7 @@ export const PaymentManagementTab: React.FC<PaymentManagementTabProps> = ({
         accountNumber: formAccountNumber.trim(),
         accountHolder: formAccountHolder.trim(),
         branch: formBranch.trim() || undefined,
+        currency: formCurrency,
         isActive: formIsActive,
         isDefault: formIsDefault
       };
@@ -479,14 +484,14 @@ export const PaymentManagementTab: React.FC<PaymentManagementTabProps> = ({
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-slate-900 text-xs sm:text-sm">{acc.bankName}</h4>
+                      <h4 className="font-bold text-slate-900 text-xs sm:text-sm">{acc.bankName} · {acc.currency || 'IDR'}</h4>
                       {acc.isDefault && (
                         <span className="text-[9px] font-semibold bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded border border-slate-300 uppercase">
                           Utama
                         </span>
                       )}
                     </div>
-                    <span className="text-[11px] text-slate-500">{acc.branch || 'Kantor Cabang Resmi'}</span>
+                    <span className="text-[11px] text-slate-500">{acc.currency || 'IDR'} · {acc.branch || 'Kantor Cabang Resmi'}</span>
                   </div>
                 </div>
 
@@ -744,6 +749,18 @@ export const PaymentManagementTab: React.FC<PaymentManagementTabProps> = ({
                 <span className="text-[10px] text-slate-400 mt-0.5 block">
                   Preset resmi: PT CAKRAWALA MAGNA SCIENTIA (dapat disesuaikan jika perlu)
                 </span>
+              </div>
+
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Mata Uang Rekening:</label>
+                <select
+                  value={formCurrency}
+                  onChange={e => setFormCurrency(e.target.value as 'IDR' | 'USD')}
+                  className="w-full p-2.5 rounded-lg border border-slate-300 text-slate-900 focus:outline-none focus:border-slate-800 bg-white"
+                >
+                  <option value="IDR">IDR - Rupiah</option>
+                  <option value="USD">USD - US Dollar</option>
+                </select>
               </div>
 
               <div>

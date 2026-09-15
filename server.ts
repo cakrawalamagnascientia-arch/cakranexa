@@ -42,6 +42,7 @@ import { INSTITUTION_TYPES, INSTITUTION_INQUIRY_STATUSES, INSTITUTION_INQUIRY_LI
 import { createDigitalPhase2, isInstitutionNotification, isMembershipNotification, memberPrintPrice } from './backend/digital';
 import { loadPrintRoyaltyConfig, printOrderRoyaltyFields } from './backend/printOrderRoyalty';
 import { checkProcessingTools, checkSupabase, evaluateStartup, type SupabaseCheckResult } from './backend/startupChecks';
+import type { CompanyBankAccount } from './backend/digital/institution/types';
 
 // Load environment variables
 dotenv.config();
@@ -869,7 +870,7 @@ async function startServer() {
   };
 
   // Rekening aktif dari CMS (admin_bank_accounts): invoice institusi fase 4 dan instruksi transfer pesanan cetak.
-  const listCompanyBankAccounts = async () => {
+  const listCompanyBankAccounts = async (): Promise<CompanyBankAccount[]> => {
     if (!supabaseAdmin) return [];
     const { data, error } = await supabaseAdmin.from('admin_bank_accounts').select('*').eq('is_active', true)
       .order('is_default', { ascending: false }).order('created_at', { ascending: true });
@@ -878,7 +879,8 @@ async function startServer() {
       bankName: String(row.bank_name),
       accountNumber: String(row.account_number),
       accountHolder: String(row.account_holder),
-      branch: row.branch ? String(row.branch) : null
+      branch: row.branch ? String(row.branch) : null,
+      currency: String(row.currency || 'IDR').toUpperCase() === 'USD' ? 'USD' : 'IDR'
     }));
   };
   // Kedaluwarsa pesanan cetak (transfer manual) ikut POST /api/internal/cron; diisi setelah layanan checkout dibuat.
@@ -1760,7 +1762,7 @@ async function startServer() {
   app.get('/api/bank-accounts', async (_req, res) => {
     if (!supabaseAdmin) return res.set('Cache-Control', 'no-store').json({ accounts: [], persisted: false });
     const { data, error } = await supabaseAdmin.from('admin_bank_accounts')
-      .select('id, bank_name, bank_code, account_number, account_holder, branch, is_active, is_default')
+      .select('id, bank_name, bank_code, account_number, account_holder, branch, currency, is_active, is_default')
       .eq('is_active', true)
       .order('is_default', { ascending: false }).order('created_at', { ascending: true });
     if (error) return res.set('Cache-Control', 'no-store').status(503).json({ error: 'Rekening belum dapat dimuat.' });
@@ -1790,6 +1792,7 @@ async function startServer() {
         account_number: text(account?.accountNumber, 64),
         account_holder: text(account?.accountHolder, 128),
         branch: text(account?.branch, 128) || null,
+        currency: String(account?.currency || 'IDR').toUpperCase() === 'USD' ? 'USD' : 'IDR',
         is_active: account?.isActive !== false,
         is_default: account?.isDefault === true
       };

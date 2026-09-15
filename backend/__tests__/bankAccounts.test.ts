@@ -24,8 +24,8 @@ describe('rekening bank perusahaan (admin_bank_accounts)', () => {
     ];
     const accounts = publicBankAccounts(rows);
     expect(accounts).toEqual([
-      { id: 'acc-mandiri', bankName: 'Bank Mandiri', bankCode: 'MANDIRI', accountNumber: '000-00-1111111-1', accountHolder: 'PT UJI CAKRANEXA', branch: 'KC Uji', isActive: true, isDefault: true },
-      { id: 'acc-bca', bankName: 'BCA', bankCode: 'BCA', accountNumber: '000-111-2222', accountHolder: 'PT UJI CAKRANEXA', branch: undefined, isActive: true, isDefault: false }
+      { id: 'acc-mandiri', bankName: 'Bank Mandiri', bankCode: 'MANDIRI', accountNumber: '000-00-1111111-1', accountHolder: 'PT UJI CAKRANEXA', branch: 'KC Uji', currency: 'IDR', isActive: true, isDefault: true },
+      { id: 'acc-bca', bankName: 'BCA', bankCode: 'BCA', accountNumber: '000-111-2222', accountHolder: 'PT UJI CAKRANEXA', branch: undefined, currency: 'IDR', isActive: true, isDefault: false }
     ]);
     expect(JSON.stringify(accounts)).not.toMatch(/created_at|updated_at|Bank Lama/);
   });

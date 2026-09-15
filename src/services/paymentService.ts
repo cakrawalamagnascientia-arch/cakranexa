@@ -8,8 +8,20 @@ export const DEFAULT_BANK_ACCOUNTS: AdminBankAccount[] = [
     accountNumber: '167-00-1164499-3',
     accountHolder: 'PT CAKRAWALA MAGNA SCIENTIA',
     branch: '',
+    currency: 'IDR',
     isActive: true,
     isDefault: true
+  },
+  {
+    id: 'acc-mandiri-usd',
+    bankName: 'Bank Mandiri',
+    bankCode: 'MANDIRI',
+    accountNumber: '167-00-1171867-2',
+    accountHolder: 'PT CAKRAWALA MAGNA SCIENTIA',
+    branch: '',
+    currency: 'USD',
+    isActive: true,
+    isDefault: false
   }
 ];
 

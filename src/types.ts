@@ -298,6 +298,7 @@ export interface AdminBankAccount {
   accountNumber: string;
   accountHolder: string;
   branch?: string;
+  currency?: 'IDR' | 'USD';
   isActive: boolean;
   isDefault?: boolean;
 }
