@@ -6,15 +6,18 @@ Disallow: /checkout
 Disallow: /digital/checkout
 Disallow: /library
 Disallow: /account
+Disallow: /payment
 Disallow: /en/admin
 Disallow: /en/checkout
 Disallow: /en/digital/checkout
 Disallow: /en/library
 Disallow: /en/account
+Disallow: /en/payment
 Disallow: /zh/admin
 Disallow: /zh/checkout
 Disallow: /zh/digital/checkout
 Disallow: /zh/library
 Disallow: /zh/account
+Disallow: /zh/payment
 
 Sitemap: https://cakranexa.com/sitemap.xml
