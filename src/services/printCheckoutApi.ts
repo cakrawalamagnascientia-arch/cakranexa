@@ -29,6 +29,7 @@ export interface OrderBankAccount {
   accountNumber: string;
   accountHolder: string;
   branch: string | null;
+  currency?: 'IDR' | 'USD';
 }
 
 export interface PrintOrderDetail {

@@ -62,16 +62,24 @@ export const TransferInstructions: React.FC<{
 
       <div>
         <h3 className="mb-2 text-sm font-bold text-slate-900">{t('orderPage.transferTo')}</h3>
-        <div className="space-y-2">
-          {detail.bankAccounts.map((account) => (
+        <div className="space-y-4">
+          {[
+            { title: 'Pembayaran Lokal (IDR)', accounts: detail.bankAccounts.filter((account) => (account.currency || 'IDR') === 'IDR') },
+            { title: 'Pembayaran Internasional (USD)', accounts: detail.bankAccounts.filter((account) => account.currency === 'USD') }
+          ].filter((group) => group.accounts.length > 0).map((group) => (
+            <section key={group.title} className="space-y-2" aria-label={group.title}>
+              <h4 className="text-[11px] font-bold uppercase tracking-wide text-slate-600">{group.title}</h4>
+              {group.accounts.map((account) => (
             <div key={account.accountNumber} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white p-3">
               <div className="text-sm">
-                <span className="block text-[11px] text-slate-500">{t('orderPage.bank')}: <strong className="text-slate-800">{account.bankName}</strong>{account.branch ? ` (${account.branch})` : ''}</span>
+                <span className="block text-[11px] text-slate-500">{t('orderPage.bank')}: <strong className="text-slate-800">{account.bankName} · {account.currency || 'IDR'}</strong>{account.branch ? ` (${account.branch})` : ''}</span>
                 <span className="block font-mono text-base font-bold text-slate-900">{account.accountNumber}</span>
                 <span className="block text-[11px] text-slate-500">{t('orderPage.accountHolder')}: <strong className="text-slate-800">{account.accountHolder}</strong></span>
               </div>
               {copyButton(`account-${account.accountNumber}`, account.accountNumber.replace(/[^0-9]/g, ''), t('orderPage.copyAccount'))}
             </div>
+              ))}
+            </section>
           ))}
         </div>
       </div>
