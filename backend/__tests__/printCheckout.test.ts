@@ -285,13 +285,20 @@ describe('checkout buku cetak: transfer bank ke rekening PT', () => {
     expect(await t.status(other.orderNumber)).toBe('pending');
     expect(await t.service.handleMidtransNotification({ order_id: 'CNX-TIDAK-ADA', transaction_status: 'settlement', gross_amount: '1.00' })).toMatchObject({ status: 404 });
 
-    // Dropdown "shipped" untuk pesanan yang belum lunas tetap lewat markOrderPaid (stok & email sekali).
+    // Dispatcher harus mengonfirmasi pembayaran dan memiliki resi sebelum mengirim notifikasi shipped.
     const shipped = (await t.place()).body.orderNumber;
+    expect((await t.admin('patch', `/api/orders/${shipped}`, { paymentStatus: 'shipped', trackingNumber: 'JNE123' })).status).toBe(409);
+    expect((await t.admin('post', `/api/admin/print-orders/${shipped}/confirm-payment`, {})).status).toBe(200);
+    expect((await t.admin('patch', `/api/orders/${shipped}`, { paymentStatus: 'shipped' })).status).toBe(400);
     expect((await t.admin('patch', `/api/orders/${shipped}`, { paymentStatus: 'shipped', trackingNumber: 'JNE123' })).status).toBe(200);
     const row = await t.store.getOrder(shipped);
     expect(row).toMatchObject({ payment_status: 'shipped', tracking_number: 'JNE123', payment_confirmed_by: 'admin' });
     expect(row!.paid_at).toBeTruthy();
     expect(t.stock).toEqual({ 'book-a': 3 });
+    expect(t.mailsWith('telah dikirim')).toHaveLength(1);
+    expect(t.mails.at(-1)!.html).toContain('JNE123');
+    expect((await t.admin('patch', `/api/orders/${shipped}`, { paymentStatus: 'shipped', trackingNumber: 'JNE123' })).status).toBe(200);
+    expect(t.mailsWith('telah dikirim')).toHaveLength(1);
   });
 
   it('poin 3: lewat 24 jam -> expired + email; pesanan kedaluwarsa harus checkout ulang', async () => {

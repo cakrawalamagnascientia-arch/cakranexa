@@ -7,7 +7,7 @@ import { formatUniqueCode } from './uniqueCode';
  * Email instruksi memuat nomor pesanan, nominal PERSIS termasuk ongkir dan kode unik, rekening PT, batas waktu,
  * tombol konfirmasi WhatsApp Finance, dan tautan halaman pesanan untuk mengunggah bukti transfer.
  */
-export type PrintOrderEmailKind = 'instructions' | 'quoted' | 'extended' | 'awaitingQuote' | 'paid' | 'expired';
+export type PrintOrderEmailKind = 'instructions' | 'quoted' | 'extended' | 'awaitingQuote' | 'paid' | 'expired' | 'shipped';
 
 export interface PrintOrderEmailData {
   language: string;
@@ -44,7 +44,8 @@ const TEXT = {
       extended: (n: string) => `Batas waktu pembayaran pesanan ${n} diperpanjang`,
       awaitingQuote: (n: string) => `Pesanan ${n} diterima, menunggu ongkos kirim`,
       paid: (n: string) => `Pembayaran pesanan ${n} diterima`,
-      expired: (n: string) => `Pesanan ${n} kedaluwarsa`
+      expired: (n: string) => `Pesanan ${n} kedaluwarsa`,
+      shipped: (n: string) => `Pesanan ${n} telah dikirim`
     },
     intro: {
       instructions: 'Terima kasih, pesanan Anda sudah kami terima. Selesaikan transfer sebelum batas waktu agar pesanan segera kami proses.',
@@ -53,7 +54,8 @@ const TEXT = {
       awaitingQuote: (min: number) => `Pesanan Anda berisi ${min} eksemplar atau lebih, sehingga ongkos kirim dihitung manual oleh tim kami. Tagihan beserta instruksi pembayaran akan kami kirim ke email ini.`,
       awaitingQuoteRates: 'Terima kasih, pesanan Anda sudah kami terima. Ongkos kirim ke alamat Anda sedang kami cek langsung ke kurir. Tagihan beserta instruksi pembayaran akan kami kirim ke email ini.',
       paid: 'Pembayaran Anda telah kami terima dan konfirmasi. Pesanan sedang disiapkan; nomor resi kami kirim setelah paket diserahkan ke kurir.',
-      expired: 'Kami belum menerima pembayaran sampai batas waktu, sehingga pesanan ini kami tutup. Silakan buat pesanan baru. Bila Anda sudah mentransfer, hubungi Finance lewat WhatsApp dan sertakan bukti transfer.'
+      expired: 'Kami belum menerima pembayaran sampai batas waktu, sehingga pesanan ini kami tutup. Silakan buat pesanan baru. Bila Anda sudah mentransfer, hubungi Finance lewat WhatsApp dan sertakan bukti transfer.',
+      shipped: 'Pesanan Anda sudah diserahkan kepada ekspedisi dan sedang dikirim. Gunakan nomor resi berikut untuk pelacakan.'
     },
     greeting: (name: string) => `Halo ${name},`,
     orderNumber: 'Nomor pesanan',
@@ -84,7 +86,8 @@ const TEXT = {
       extended: (n: string) => `Payment deadline for order ${n} extended`,
       awaitingQuote: (n: string) => `Order ${n} received, awaiting shipping cost`,
       paid: (n: string) => `Payment for order ${n} received`,
-      expired: (n: string) => `Order ${n} has expired`
+      expired: (n: string) => `Order ${n} has expired`,
+      shipped: (n: string) => `Order ${n} has been shipped`
     },
     intro: {
       instructions: 'Thank you, we have received your order. Please complete the bank transfer before the deadline so we can process it.',
@@ -93,7 +96,8 @@ const TEXT = {
       awaitingQuote: (min: number) => `Your order has ${min} or more copies, so our team calculates the shipping cost manually. We will send the invoice and payment instructions to this email address.`,
       awaitingQuoteRates: 'Thank you, we have received your order. We are checking the shipping cost to your address directly with the courier and will send the invoice and payment instructions to this email address.',
       paid: 'We have received and confirmed your payment. Your order is being prepared; we will send the tracking number once the parcel is handed to the courier.',
-      expired: 'We did not receive payment before the deadline, so this order has been closed. Please place a new order. If you have already transferred, contact our Finance team on WhatsApp with your transfer receipt.'
+      expired: 'We did not receive payment before the deadline, so this order has been closed. Please place a new order. If you have already transferred, contact our Finance team on WhatsApp with your transfer receipt.',
+      shipped: 'Your order has been handed to the courier and is on its way. Use the tracking number below to follow the delivery.'
     },
     greeting: (name: string) => `Dear ${name},`,
     orderNumber: 'Order number',
@@ -124,7 +128,8 @@ const TEXT = {
       extended: (n: string) => `订单 ${n} 付款期限已延长`,
       awaitingQuote: (n: string) => `订单 ${n} 已收到，等待运费报价`,
       paid: (n: string) => `订单 ${n} 已收到付款`,
-      expired: (n: string) => `订单 ${n} 已过期`
+      expired: (n: string) => `订单 ${n} 已过期`,
+      shipped: (n: string) => `订单 ${n} 已发货`
     },
     intro: {
       instructions: '感谢您的订购，我们已收到您的订单。请在付款期限前完成银行转账，以便我们尽快处理订单。',
@@ -133,7 +138,8 @@ const TEXT = {
       awaitingQuote: (min: number) => `您的订单包含 ${min} 本或以上，运费将由我们的团队人工计算。账单及付款说明将发送至此邮箱。`,
       awaitingQuoteRates: '感谢您的订单。我们正在向快递公司核实寄往您地址的运费，账单及付款说明将发送至此邮箱。',
       paid: '我们已收到并确认您的付款。订单正在准备中；包裹交付快递后，我们会发送运单号。',
-      expired: '我们在付款期限前未收到付款，因此该订单已关闭。请重新下单。如您已转账，请通过 WhatsApp 联系财务并附上转账凭证。'
+      expired: '我们在付款期限前未收到付款，因此该订单已关闭。请重新下单。如您已转账，请通过 WhatsApp 联系财务并附上转账凭证。',
+      shipped: '您的订单已交给快递公司，正在配送中。请使用以下运单号查询物流。'
     },
     greeting: (name: string) => `${name}，您好：`,
     orderNumber: '订单号',
@@ -221,7 +227,7 @@ export const printOrderEmail = (kind: PrintOrderEmailKind, d: PrintOrderEmailDat
   const expiredContact = kind === 'expired'
     ? `<p><a href="${escapeHtml(whatsappLink(d.financeWhatsapp, transferConfirmationText({ orderNumber: d.orderNumber, amount: d.total, buyerName: d.buyerName })))}">${escapeHtml(t.confirmWhatsApp)}</a></p>`
     : '';
-  const tracking = kind === 'paid' && d.trackingNumber ? `<p><strong>${escapeHtml(t.tracking)}:</strong> ${escapeHtml(d.trackingNumber)}</p>` : '';
+  const tracking = (kind === 'paid' || kind === 'shipped') && d.trackingNumber ? `<p><strong>${escapeHtml(t.tracking)}:</strong> ${escapeHtml(d.trackingNumber)}</p>` : '';
 
   const html = `
 <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#0F172A;max-width:600px">

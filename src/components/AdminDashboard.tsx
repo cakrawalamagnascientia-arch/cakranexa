@@ -57,7 +57,6 @@ import { apiClient } from '../services/apiClient';
 import { notificationService } from '../services/NotificationService';
 import { resolveImageUrl, handleImageError } from '../utils/imageUtils';
 import { toTitleCase } from '../utils/formatters';
-import { generateCakraNexaTrackingNumber } from '../services/shippingService';
 import { formatOrderDate } from '../utils/orderUtils';
 import { SeoSettingsTab } from './SeoSettingsTab';
 import { SeoAnalysisTab } from './SeoAnalysisTab';
@@ -388,19 +387,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     } else {
       showNotification(`Nomor resi untuk ${order?.orderNumber || 'pesanan'} dihapus.`);
     }
-  };
-
-  const handleGenerateAutoTracking = (order: Order) => {
-    const autoResi = generateCakraNexaTrackingNumber();
-    const updated: Order = {
-      ...order,
-      trackingNumber: autoResi,
-      paymentStatus: 'shipped' // Auto-update to shipped
-    };
-    if (onUpdateOrder) {
-      onUpdateOrder(updated);
-    }
-    showNotification(`Nomor resi otomatis ${autoResi} dibuat. Status pesanan diubah menjadi DIKIRIM.`);
   };
 
   const handleDispatchWhatsApp = async (order: Order) => {
@@ -1961,17 +1947,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                         <X className="w-3 h-3" />
                                       </button>
                                     </div>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        const autoCode = generateCakraNexaTrackingNumber();
-                                        setEditingTrackingValue(autoCode);
-                                      }}
-                                      className="text-[10px] text-[#DFBF64] hover:text-[#c9a84a] font-semibold flex items-center gap-1 cursor-pointer"
-                                    >
-                                      <RefreshCw className="w-2.5 h-2.5" />
-                                      <span>Isi Resi Otomatis CNX</span>
-                                    </button>
                                   </div>
                                 ) : ord?.trackingNumber ? (
                                   <div className="flex items-center gap-1.5 flex-wrap">
@@ -2006,14 +1981,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     <span className="text-[10px] font-medium text-slate-400 italic">
                                       Belum ada resi
                                     </span>
-                                    <button
-                                      onClick={() => handleGenerateAutoTracking(ord)}
-                                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#DFBF64]/15 text-[#9e8334] hover:bg-[#DFBF64]/25 border border-[#DFBF64]/30 cursor-pointer transition-colors"
-                                      title="Buat Resi Otomatis & Ubah Status ke DIKIRIM"
-                                    >
-                                      <Barcode className="w-2.5 h-2.5" />
-                                      <span>Auto Resi</span>
-                                    </button>
                                     <button
                                       onClick={() => {
                                         setEditingTrackingOrderId(ord?.id);

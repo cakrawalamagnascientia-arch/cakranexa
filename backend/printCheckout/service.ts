@@ -774,6 +774,13 @@ export class PrintCheckoutService {
       throw fail(400, 'invalid_status', `paymentStatus harus salah satu dari: ${PRINT_ORDER_STATUSES.join(', ')}`);
     }
     let current = order.payment_status;
+    const requestedTracking = body?.trackingNumber === undefined ? order.tracking_number : text(body.trackingNumber, 100) || null;
+    if (paymentStatus === 'shipped' && !requestedTracking) {
+      throw fail(400, 'tracking_required', 'Nomor resi wajib diisi sebelum pesanan ditandai dikirim.');
+    }
+    if (paymentStatus === 'shipped' && !PAID_STATUSES.includes(current)) {
+      throw fail(409, 'payment_required', 'Konfirmasi pembayaran terlebih dahulu sebelum menandai pesanan dikirim.');
+    }
     if (paymentStatus && PAID_STATUSES.includes(paymentStatus) && !PAID_STATUSES.includes(current)) {
       if (current === 'awaiting_shipping_quote') throw fail(409, 'invalid_state', 'Isi ongkos kirim terlebih dahulu sebelum mengonfirmasi pembayaran.');
       const paid = await this.markOrderPaid(orderId, { by: 'admin', allowClosed: true });
@@ -781,8 +788,14 @@ export class PrintCheckoutService {
     }
     const patch: Partial<PrintOrderRow> = {};
     if (paymentStatus && paymentStatus !== current) patch.payment_status = paymentStatus;
-    if (body?.trackingNumber !== undefined) patch.tracking_number = body.trackingNumber ? text(body.trackingNumber, 100) : null;
-    if (Object.keys(patch).length > 0) await this.deps.store.updateOrder(orderId, patch);
+    if (body?.trackingNumber !== undefined) patch.tracking_number = requestedTracking;
+    if (paymentStatus === 'shipped' && current !== 'shipped') patch.payment_status = 'shipped';
+    if (Object.keys(patch).length > 0) {
+      const updated = await this.deps.store.updateOrder(orderId, patch);
+      if (updated && paymentStatus === 'shipped' && current !== 'shipped') {
+        await this.emailBuyer('shipped', { ...order, ...updated, order_items: order.order_items });
+      }
+    }
     return { success: true, message: 'Status pesanan berhasil diperbarui' };
   }
 
