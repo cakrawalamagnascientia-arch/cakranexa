@@ -234,42 +234,53 @@ export const ShippingLabelModal: React.FC<ShippingLabelModalProps> = ({
 
     try {
       const element = labelContentRef.current;
-      
+      // Capture the full label, not the scroll viewport, and wait for QR/fonts first.
+      await document.fonts?.ready;
+      await Promise.all(Array.from(element.querySelectorAll('img')).map((image) => image.decode?.().catch(() => undefined)));
       const canvas = await html2canvas(element, {
-        scale: 2.5,
+        scale: 2,
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        windowWidth: Math.max(element.scrollWidth, element.offsetWidth),
+        windowHeight: Math.max(element.scrollHeight, element.offsetHeight),
+        scrollX: 0,
+        scrollY: 0
       });
 
-      const imgData = canvas.toDataURL('image/png');
       const cleanOrderId = (order.orderNumber || order.id || 'ORDER').replace(/#/g, '').replace(/[^a-zA-Z0-9_-]/g, '_');
+      const isA6 = paperFormat === 'a6';
+      const pageWidth = isA6 ? 100 : 210;
+      const pageHeight = isA6 ? 150 : 297;
+      const margin = isA6 ? 2 : 10;
+      const contentWidth = pageWidth - margin * 2;
+      const contentHeight = pageHeight - margin * 2;
+      const sourcePageHeight = Math.max(1, Math.floor(canvas.width * contentHeight / contentWidth));
+      const pageCount = Math.max(1, Math.ceil(canvas.height / sourcePageHeight));
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: isA6 ? [pageWidth, pageHeight] : 'a4' });
 
-      if (paperFormat === 'a6') {
-        // Standard Thermal 100mm x 150mm
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: [100, 150]
-        });
-        pdf.addImage(imgData, 'PNG', 0, 0, 100, 150);
-        const filename = `Resi_CakraNexa_${cleanOrderId}.pdf`;
-        pdf.save(filename);
-      } else {
-        // Standard A4 Document
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: 'a4'
-        });
-        // Center on A4 page (210 x 297 mm)
-        pdf.addImage(imgData, 'PNG', 15, 15, 180, 267);
-        const filename = `Resi_CakraNexa_${cleanOrderId}_A4.pdf`;
-        pdf.save(filename);
+      for (let page = 0; page < pageCount; page += 1) {
+        if (page > 0) pdf.addPage(isA6 ? [pageWidth, pageHeight] : 'a4', 'portrait');
+        const sourceY = page * sourcePageHeight;
+        const sourceHeight = Math.min(sourcePageHeight, canvas.height - sourceY);
+        const slice = document.createElement('canvas');
+        slice.width = canvas.width;
+        slice.height = sourceHeight;
+        const context = slice.getContext('2d');
+        if (!context) throw new Error('Canvas PDF tidak tersedia di browser ini.');
+        context.fillStyle = '#ffffff';
+        context.fillRect(0, 0, slice.width, slice.height);
+        context.drawImage(canvas, 0, sourceY, canvas.width, sourceHeight, 0, 0, slice.width, slice.height);
+        const renderedHeight = contentWidth * sourceHeight / canvas.width;
+        const x = margin;
+        const y = margin;
+        pdf.addImage(slice.toDataURL('image/png'), 'PNG', x, y, contentWidth, renderedHeight, undefined, 'FAST');
       }
+
+      pdf.save(`Resi_CakraNexa_${cleanOrderId}${isA6 ? '' : '_A4'}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Gagal membuat file PDF. Silakan gunakan opsi Cetak Langsung.');
+      alert('Gagal membuat file PDF. Silakan coba lagi atau gunakan opsi Cetak Langsung.');
     } finally {
       setIsGeneratingPdf(false);
     }
