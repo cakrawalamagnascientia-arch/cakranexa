@@ -21,6 +21,9 @@ import {
 import { CartItem, CustomerDetails, PaymentMethod, Order, ShippingMethod, PaymentSettings } from '../types';
 import { getStoredShippingMethods, calculateShippingFee, generateCakraNexaTrackingNumber } from '../services/shippingService';
 import { getStoredPaymentSettings } from '../services/paymentService';
+import { usePublicBankAccounts } from '../hooks/usePublicBankAccounts';
+import { resolveCheckoutBankAccounts } from '../utils/checkoutBankAccounts';
+import { CheckoutBankAccountList } from './CheckoutBankAccountList';
 import { trackInitiateCheckout, trackPurchase } from '../services/trackingService';
 import { toTitleCase } from '../utils/formatters';
 import { apiClient, ApiError } from '../services/apiClient';
@@ -70,6 +73,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [paymentSettings, setPaymentSettings] = useState<PaymentSettings>(() =>
     getStoredPaymentSettings()
   );
+  // Rekening transfer manual dari server (CMS → admin_bank_accounts); rekening bawaan dipakai sampai server menjawab.
+  const serverBankAccounts = usePublicBankAccounts(isOpen);
+  const bankAccounts = resolveCheckoutBankAccounts(serverBankAccounts, paymentSettings.bankAccounts);
 
   const [selectedCourierId, setSelectedCourierId] = useState<string>(() =>
     shippingMethods[0]?.id || 'jne_reg'
@@ -561,32 +567,15 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       {t('modal.snap.companyAccount')}
                     </span>
                   </div>
-                  <div className="space-y-2">
-                    {paymentSettings.bankAccounts.filter(b => b.isActive).map(acc => (
-                      <div key={acc.id} className="p-3 rounded-lg bg-white border border-slate-200 flex items-center justify-between shadow-2xs">
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-bold text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">{acc.bankName}</span>
-                            {acc.branch && <span className="text-[10px] text-slate-500">({acc.branch})</span>}
-                          </div>
-                          <span className="font-mono text-sm font-bold text-slate-900 block mt-1">{acc.accountNumber}</span>
-                          <span className="text-[10px] text-slate-500 block">{t('bank.accountHolder', { name: acc.accountHolder })}</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            navigator.clipboard?.writeText(acc.accountNumber.replace(/[^0-9]/g, ''));
-                            setCopiedBankAcc(acc.id);
-                            setTimeout(() => setCopiedBankAcc(null), 2000);
-                          }}
-                          className="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs text-slate-700 font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
-                        >
-                          {copiedBankAcc === acc.id ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
-                          <span>{copiedBankAcc === acc.id ? t('bank.copied') : t('bank.copyAccountNumber')}</span>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                  <CheckoutBankAccountList
+                    accounts={bankAccounts}
+                    copiedId={copiedBankAcc}
+                    onCopy={(acc) => {
+                      navigator.clipboard?.writeText(acc.accountNumber.replace(/[^0-9]/g, ''));
+                      setCopiedBankAcc(acc.id);
+                      setTimeout(() => setCopiedBankAcc(null), 2000);
+                    }}
+                  />
                   <div className="text-slate-700 text-[11px] bg-white p-2.5 rounded-lg border border-slate-200 leading-relaxed">
                     <strong className="text-slate-900 font-semibold block mb-0.5">{t('modal.snap.instructionsLabel')}</strong>
                     {manualTransferInstructions(paymentSettings.manualTransferInstructions)}

@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { PaymentMethod, PaymentSettings, AdminBankAccount } from '../types';
 import { getStoredPaymentSettings } from '../services/paymentService';
+import { usePublicBankAccounts } from '../hooks/usePublicBankAccounts';
+import { resolveCheckoutBankAccounts } from '../utils/checkoutBankAccounts';
 import { useManualTransferInstructions, useOrderLabels } from '../i18n/orderLabels';
 
 interface PaymentMethodsProps {
@@ -90,7 +92,9 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
     }
   };
 
-  const activeBankAccounts = settings.bankAccounts.filter(acc => acc.isActive);
+  // Rekening transfer manual dari server (CMS → admin_bank_accounts); rekening bawaan dipakai sampai server menjawab.
+  const serverBankAccounts = usePublicBankAccounts();
+  const activeBankAccounts = resolveCheckoutBankAccounts(serverBankAccounts, settings.bankAccounts);
 
   return (
     <div className="space-y-4">

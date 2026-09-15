@@ -5,6 +5,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { INITIAL_BOOKS, normalizeBookAuthors } from './src/data/booksData';
+import { BANK_ID_RE, publicBankAccounts, rowToBankAccount, type BankAccountRow } from './backend/bankAccounts';
 import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthorProfile, authorNameKey } from './src/data/authorsData';
 import type {
   Book,
@@ -1847,17 +1848,16 @@ async function startServer() {
   // ==========================================================================
   // REKENING BANK PERUSAHAAN (CMS tab Pembayaran) — juga sumber rekening pada invoice institusi fase 4
   // ==========================================================================
-  type BankAccountRow = { id: string; bank_name: string; bank_code: string; account_number: string; account_holder: string; branch: string | null; is_active: boolean; is_default: boolean };
-  const BANK_ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
-  const rowToBankAccount = (row: any) => ({
-    id: row.id,
-    bankName: row.bank_name,
-    bankCode: row.bank_code,
-    accountNumber: row.account_number,
-    accountHolder: row.account_holder,
-    branch: row.branch || undefined,
-    isActive: row.is_active !== false,
-    isDefault: Boolean(row.is_default)
+  // GET /api/bank-accounts (Publik) — rekening aktif untuk transfer manual di checkout buku cetak.
+  // persisted:false = database belum terhubung; frontend memakai rekening bawaan.
+  app.get('/api/bank-accounts', async (_req, res) => {
+    if (!supabaseAdmin) return res.set('Cache-Control', 'no-store').json({ accounts: [], persisted: false });
+    const { data, error } = await supabaseAdmin.from('admin_bank_accounts')
+      .select('id, bank_name, bank_code, account_number, account_holder, branch, is_active, is_default')
+      .eq('is_active', true)
+      .order('is_default', { ascending: false }).order('created_at', { ascending: true });
+    if (error) return res.set('Cache-Control', 'no-store').status(503).json({ error: 'Rekening belum dapat dimuat.' });
+    return res.set('Cache-Control', 'public, max-age=60').json({ accounts: publicBankAccounts(data || []), persisted: true });
   });
 
   app.get('/api/admin/bank-accounts', requireAdmin, async (_req, res) => {

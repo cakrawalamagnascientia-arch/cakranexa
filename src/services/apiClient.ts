@@ -8,7 +8,8 @@ import {
   PublicDigitalProduct,
   InstitutionInquiry,
   InstitutionInquiryStatus,
-  InstitutionType
+  InstitutionType,
+  AdminBankAccount
 } from '../types';
 import { INITIAL_BOOKS, normalizeBookAuthors, withSeedIsbn } from '../data/booksData';
 import { INITIAL_AUTHORS, INITIAL_BOOK_AUTHORS, normalizeAuthorProfile, authorNameKey } from '../data/authorsData';
@@ -211,6 +212,21 @@ export const apiClient = {
     try {
       const res = await fetchWithTimeout(apiUrl('/api/health'), { headers: jsonHeaders() }, 6000);
       return res.ok ? res.json() : null;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * Rekening perusahaan aktif untuk transfer manual di checkout buku cetak (publik, dari admin_bank_accounts).
+   * null bila server tidak terjangkau atau belum tersambung ke database; pemanggil memakai rekening bawaan.
+   */
+  async getPublicBankAccounts(): Promise<AdminBankAccount[] | null> {
+    try {
+      const res = await fetchWithTimeout(apiUrl('/api/bank-accounts'), { headers: jsonHeaders() }, CATALOG_SYNC_TIMEOUT_MS);
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data?.persisted && Array.isArray(data.accounts) ? (data.accounts as AdminBankAccount[]) : null;
     } catch {
       return null;
     }
