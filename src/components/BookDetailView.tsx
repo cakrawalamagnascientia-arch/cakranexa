@@ -306,12 +306,15 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 {isPurchasable ? (
-                  <>
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                    <span className="text-xs text-emerald-300 font-medium">
-                      {typeof book?.stock === 'number' ? t('pricing.inStock', { count: book.stock }) : t('pricing.availableOnDemand')}
-                    </span>
-                  </>
+                  // Tanpa angka stok, status ketersediaan tidak ditampilkan.
+                  typeof book?.stock === 'number' ? (
+                    <>
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+                      <span className="text-xs text-emerald-300 font-medium">
+                        {t('pricing.inStock', { count: book.stock })}
+                      </span>
+                    </>
+                  ) : null
                 ) : (
                   <>
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />

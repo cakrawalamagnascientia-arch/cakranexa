@@ -27,7 +27,6 @@
     "save": "Save {{percent}}%",
     "inStock_one": "In Stock ({{count}} Copy)",
     "inStock_other": "In Stock ({{count}} Copies)",
-    "availableOnDemand": "Available — Pre-order / Print on Demand",
     "forthcoming": "Forthcoming — price & ISBN to be announced",
     "paymentNote": "Official & Secure Payment Methods: Virtual Account Transfer, QRIS & Credit Card."
   },

@@ -25,7 +25,6 @@
     "officialPrintPrice": "纸质书官方定价",
     "save": "节省 {{percent}}%",
     "inStock_other": "现货供应（{{count}} 册）",
-    "availableOnDemand": "可供订购 — 预购 / 按需印刷",
     "forthcoming": "即将出版 — 价格与 ISBN 待公布",
     "paymentNote": "官方安全支付方式：Virtual Account 转账、QRIS 及信用卡。"
   },

@@ -25,7 +25,6 @@
     "officialPrintPrice": "Harga Resmi Buku Cetak",
     "save": "Hemat {{percent}}%",
     "inStock_other": "Stok Tersedia ({{count}} Eksemplar)",
-    "availableOnDemand": "Tersedia — Pre-order / Cetak Sesuai Pesanan",
     "forthcoming": "Segera Terbit — harga & ISBN akan diumumkan",
     "paymentNote": "Metode Pembayaran Resmi & Aman: Transfer Virtual Account, QRIS & Kartu Kredit."
   },
