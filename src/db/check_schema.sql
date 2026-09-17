@@ -79,11 +79,7 @@ WITH required (urutan, migration, object, kind) AS (
         (9, 'src/db/print_checkout_migration.sql', 'print_checkout_settings', 'table'),
         (9, 'src/db/print_checkout_migration.sql', 'payment_routing', 'table'),
         (10, 'src/db/manuscript_contracts_migration.sql', 'manuscript_contracts', 'table'),
-        (10, 'src/db/manuscript_contracts_migration.sql', 'manuscript_payments', 'table'),
-        (11, 'src/db/manuscript_admin_migration.sql', 'authors.user_id', 'column'),
-        (11, 'src/db/manuscript_admin_migration.sql', 'author_account_links', 'table'),
-        (11, 'src/db/manuscript_admin_migration.sql', 'manuscript_contract_addenda', 'table'),
-        (11, 'src/db/manuscript_admin_migration.sql', 'manuscript_reminders', 'table')
+        (10, 'src/db/manuscript_contracts_migration.sql', 'manuscript_payments', 'table')
 )
 SELECT
     urutan,

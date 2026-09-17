@@ -70,8 +70,7 @@ import { TabletSmartphone as DigitalProductsIcon, Building2 as InstitutionIcon, 
 import { DigitalAccessTab } from './DigitalAccessTab';
 import { DigitalAnomaliesTab } from './DigitalAnomaliesTab';
 import { MembershipAdminTab } from './MembershipAdminTab';
-import { Crown as MembershipIcon, FileSignature as ManuscriptIcon } from 'lucide-react';
-import { ManuscriptContractsTab } from './ManuscriptContractsTab';
+import { Crown as MembershipIcon } from 'lucide-react';
 import { CmsDashboardManager } from './CmsDashboardManager';
 import { ShippingLabelModal } from './ShippingLabelModal';
 import { PrintOrderPaymentActions } from './PrintOrderPaymentActions';
@@ -200,7 +199,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onNavigateHome,
   onGoBack
 }) => {
-  const [activeTab, setActiveTab] = useState<'analytics' | 'inventory' | 'orders' | 'shipping' | 'payments' | 'cms' | 'seo-settings' | 'seo-analysis' | 'authors' | 'digital-products' | 'digital-access' | 'digital-anomalies' | 'membership' | 'institutions' | 'institution-inquiries' | 'manuscripts'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'inventory' | 'orders' | 'shipping' | 'payments' | 'cms' | 'seo-settings' | 'seo-analysis' | 'authors' | 'digital-products' | 'digital-access' | 'digital-anomalies' | 'membership' | 'institutions' | 'institution-inquiries'>('analytics');
   // Pengguna yang dibuka di tab "Entitlement & Akses" (mis. dari tab Anomali).
   const [digitalAccessUserId, setDigitalAccessUserId] = useState<string | null>(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -1077,22 +1076,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="flex items-center gap-2.5">
               <InstitutionIcon className={`w-4 h-4 ${activeTab === 'institution-inquiries' ? 'text-[#DFBF64]' : 'text-slate-400'}`} />
               <span>Permintaan Institusi</span>
-            </div>
-          </button>
-
-          {/* Kontrak naskah jual putus (fase 5R) */}
-          <button
-            id="sidebar-btn-manuscripts"
-            onClick={() => { setActiveTab('manuscripts'); setIsMobileSidebarOpen(false); }}
-            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-              activeTab === 'manuscripts'
-                ? 'bg-slate-800 text-[#DFBF64] font-semibold'
-                : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <ManuscriptIcon className={`w-4 h-4 ${activeTab === 'manuscripts' ? 'text-[#DFBF64]' : 'text-slate-400'}`} />
-              <span>Kontrak Naskah</span>
             </div>
           </button>
 
@@ -2258,11 +2241,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* PERMINTAAN INSTITUSI (/institutions) */}
       {activeTab === 'institution-inquiries' && (
         <InstitutionInquiriesTab />
-      )}
-
-      {/* KONTRAK NASKAH JUAL PUTUS (fase 5R) */}
-      {activeTab === 'manuscripts' && (
-        <ManuscriptContractsTab />
       )}
 
       </main>

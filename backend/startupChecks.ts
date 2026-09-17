@@ -72,12 +72,7 @@ export const REQUIRED_SCHEMA: SchemaRequirement[] = [
   { migration: 'src/db/print_checkout_migration.sql', table: 'payment_routing' },
   // Fase 5R (docs/PHASE-5-BRIEF.md): kontrak naskah jual putus dan jadwal honor.
   { migration: 'src/db/manuscript_contracts_migration.sql', table: 'manuscript_contracts' },
-  { migration: 'src/db/manuscript_contracts_migration.sql', table: 'manuscript_payments' },
-  // Fase 5R Langkah 2: akun login penulis, addendum, pengingat kontrak.
-  { migration: 'src/db/manuscript_admin_migration.sql', table: 'authors', columns: ['user_id', 'user_link_source', 'user_linked_at'] },
-  { migration: 'src/db/manuscript_admin_migration.sql', table: 'author_account_links' },
-  { migration: 'src/db/manuscript_admin_migration.sql', table: 'manuscript_contract_addenda' },
-  { migration: 'src/db/manuscript_admin_migration.sql', table: 'manuscript_reminders' }
+  { migration: 'src/db/manuscript_contracts_migration.sql', table: 'manuscript_payments' }
 ];
 
 export interface MissingSchemaObject {
