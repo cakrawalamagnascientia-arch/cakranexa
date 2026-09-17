@@ -47,7 +47,7 @@ import {
 import { INSTITUTION_TYPES, INSTITUTION_INQUIRY_STATUSES, INSTITUTION_INQUIRY_LIMITS } from './src/data/membership';
 import { createDigitalPhase2, isInstitutionNotification, isMembershipNotification, memberPrintPrice } from './backend/digital';
 import { loadPrintRoyaltyConfig, printOrderRoyaltyFields } from './backend/printOrderRoyalty';
-import { checkProcessingTools, checkSupabase, evaluateStartup, type SupabaseCheckResult } from './backend/startupChecks';
+import { checkProcessingTools, checkSupabase, createTableReadProbe, evaluateStartup, type SupabaseCheckResult } from './backend/startupChecks';
 import type { CompanyBankAccount } from './backend/digital/institution/types';
 
 // Load environment variables
@@ -1032,7 +1032,10 @@ async function startServer() {
   // ==========================================================================
   // HEALTH & AUTH
   // ==========================================================================
-  app.get('/api/health', (_req, res) => {
+  // Bukti tabel pesanan benar-benar terbaca (SELECT id LIMIT 0, di-cache 60 detik); null = pesanan di memori (tanpa Supabase).
+  const ordersTableProbe = supabaseAdmin ? createTableReadProbe(supabaseAdmin, 'orders') : null;
+  app.get('/api/health', async (_req, res) => {
+    const ordersTable = ordersTableProbe ? await ordersTableProbe() : null;
     res.json({
       status: 'ok',
       service: 'PT CAKRAWALA MAGNA SCIENTIA (CakraNexa) Backend API',
@@ -1048,8 +1051,11 @@ async function startServer() {
       adminConfigured: Boolean(ADMIN_PASSWORD),
       rajaongkirConfigured: printCheckout.rajaOngkirConfigured,
       booksCount: inMemoryBooks.length,
-      // Pesanan di memori (mode lokal tanpa Supabase); null = pesanan disimpan di Supabase.
-      ordersCount: printOrderStore instanceof MemoryPrintOrderStore ? printOrderStore.orders.length : null
+      // Penyimpanan pesanan cetak dan bukti tabel orders terbaca. Jumlah pesanan tidak dilaporkan (endpoint publik).
+      ordersStore: printOrderStore instanceof MemoryPrintOrderStore ? 'memory' : 'supabase',
+      ordersTableReadable: ordersTable ? ordersTable.readable : null,
+      ordersTableCheckedAt: ordersTable?.checkedAt ?? null,
+      ...(ordersTable && !ordersTable.readable ? { ordersTableError: ordersTable.errorCode } : {})
     });
   });
 
