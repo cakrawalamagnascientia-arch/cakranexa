@@ -409,6 +409,21 @@ export const createAccessRouter = (ctx: DigitalContext): Router => {
     res.json(await devicesOverview(ctx, user.id, currentDeviceHash((req.body || {}).currentDeviceId)));
   }));
 
+  // Beranda digital: "Lanjutkan membaca" — judul dengan progres 1–99% (termasuk judul rak keanggotaan), terbaru dulu.
+  router.get('/api/library/continue', ctx.requireUser, libraryLimiter, asyncRoute(async (req, res) => {
+    const progress = (await ctx.store.listProgress(req.digitalUser!.id))
+      .filter((p) => p.percent > 0 && p.percent < 99)
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+      .slice(0, 12);
+    const items: Array<{ productId: string; format: ProductRecord['format']; bookId: string; percent: number; position: number; updatedAt: string }> = [];
+    for (const p of progress) {
+      const product = await ctx.store.getProduct(p.productId);
+      if (!product || !product.isActive) continue;
+      items.push({ productId: product.id, format: product.format, bookId: product.bookId, percent: p.percent, position: p.position, updatedAt: p.updatedAt });
+    }
+    res.json({ items });
+  }));
+
   // Pustaka Saya: semua produk yang pernah diberikan ke user (kecuali yang dicabut), status akses, dan progres.
   router.get('/api/library', ctx.requireUser, libraryLimiter, asyncRoute(async (req, res) => {
     const user = req.digitalUser!;

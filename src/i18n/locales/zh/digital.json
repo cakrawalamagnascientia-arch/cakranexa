@@ -894,7 +894,8 @@
     "digitalDetail": "数字详情",
     "membership": "会员",
     "institutions": "机构",
-    "library": "我的书库"
+    "library": "我的书库",
+    "home": "数字首页"
   },
   "membershipCheckout": {
     "title": "加入会员",
@@ -1154,5 +1155,60 @@
       "saved": "此号码的 WhatsApp 提醒已开启。",
       "off": "WhatsApp 提醒已关闭，提醒仍会通过电子邮件发送。"
     }
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "CakraNexa 数字阅读",
+      "titleLine1": "印度尼西亚学术图书，",
+      "titleLine2": "随时随地为您所用。",
+      "subtitle": "一个方案，即可阅读和收听 CakraNexa 出版的税务、会计、法律和经济类电子书与有声书。",
+      "benefits": {
+        "shelf": "持续扩充的电子书与有声书书架",
+        "samples": "每本书均可免费试读或试听",
+        "devices": "两台设备，随处接续",
+        "sync": "电子书与有声书之间切换不丢失进度（Gold 及以上）",
+        "print": "纸质书照常出售，会员享折扣"
+      },
+      "startFree": "免费开始",
+      "viewPlans": "查看方案",
+      "openLibrary": "打开我的书库",
+      "mockupReading": "正在阅读",
+      "mockupChapter": "第 {{number}} 章",
+      "mockupListening": "继续收听"
+    },
+    "shelves": {
+      "continue": "继续阅读",
+      "newArrivals": "新上架",
+      "popular": "本月热门",
+      "comingSoon": "即将上架",
+      "comingSoonPlan": "您的 {{plan}} 方案开放日期",
+      "comingSoonVisitor": "最早开放日期（Platinum）。Gold 晚 45 天，Silver 晚 90 天。",
+      "seeAll": "查看全部",
+      "previous": "向左滚动",
+      "next": "向右滚动",
+      "empty": "数字书目正在准备中。您可以先浏览试读内容和会员方案。"
+    }
+  },
+  "card": {
+    "includedIn": "{{plan}} 方案可读",
+    "sample": "试读",
+    "soon": "即将推出",
+    "opensOn": "{{date}} 开放",
+    "progress": "已完成 {{percent}}%",
+    "open": "打开《{{title}}》"
+  },
+  "digitalNav": {
+    "label": "数字区导航",
+    "home": "数字首页",
+    "audiobook": "有声书",
+    "ebook": "电子书",
+    "categories": "分类",
+    "join": "加入会员",
+    "startFree": "免费开始",
+    "myLibrary": "我的书库",
+    "more": "更多",
+    "moreSite": "CakraNexa 网站",
+    "signOut": "退出",
+    "allCategories": "全部分类"
   }
 }

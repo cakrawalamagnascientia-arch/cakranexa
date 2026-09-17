@@ -28,6 +28,13 @@ export const goToLibraryItem = (format: DigitalFormat, productId: string): void 
 
 export const goToLibrary = (): void => navigateToAppPath(buildPath({ page: 'library' }));
 
+/** Beranda digital fase 6 (/digital). */
+export const goToDigitalHome = (): void => navigateToAppPath(buildPath({ page: 'digital' }));
+
+/** Daftar e-book/audiobook, opsional terfilter kategori (/digital/<format>?kategori=...). */
+export const goToDigitalListing = (format: DigitalFormat, category?: string): void =>
+  navigateToAppPath(buildPath({ page: 'digital', subSection: format, query: category ? `kategori=${encodeURIComponent(category)}` : undefined }));
+
 export const goToMembership = (): void => navigateToAppPath(buildPath({ page: 'membership' }));
 
 export const goToMembershipCheckout = (planCode: string, cycle: 'monthly' | 'yearly'): void =>

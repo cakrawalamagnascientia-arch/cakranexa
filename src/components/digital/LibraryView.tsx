@@ -53,7 +53,7 @@ const LibraryCard: React.FC<{ item: LibraryItem }> = ({ item }) => {
         type="button"
         id={`btn-library-open-${item.productId}`}
         onClick={() => goToLibraryItem(item.format, item.productId)}
-        className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#D4AF37] px-3 py-2 text-xs font-bold text-slate-950 transition-colors hover:bg-[#c5a059] cursor-pointer"
+        className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-gold-500 px-3 py-2 text-xs font-bold text-slate-950 transition-colors hover:bg-gold-600 cursor-pointer"
       >
         {label}
         <ArrowRight className="h-3.5 w-3.5" />
@@ -85,7 +85,7 @@ const LibraryCard: React.FC<{ item: LibraryItem }> = ({ item }) => {
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="inline-flex items-center gap-1 rounded bg-slate-900 px-1.5 py-0.5 text-[9px] font-semibold text-[#DFBF64]">
+          <span className="inline-flex items-center gap-1 rounded bg-slate-900 px-1.5 py-0.5 text-[9px] font-semibold text-gold-400">
             <FormatIcon format={item.format} className="h-3 w-3" />
             {fmt.formatLabel(item.format)}
           </span>
@@ -104,7 +104,7 @@ const LibraryCard: React.FC<{ item: LibraryItem }> = ({ item }) => {
         {status === 'active' && percent > 0 && (
           <div className="mt-2">
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}>
-              <div className="h-full rounded-full bg-[#D4AF37]" style={{ width: `${Math.min(100, percent)}%` }} />
+              <div className="h-full rounded-full bg-gold-500" style={{ width: `${Math.min(100, percent)}%` }} />
             </div>
             <p className="mt-0.5 text-[10px] text-slate-500">{t('myLibrary.progress', { percent })}</p>
           </div>
@@ -127,7 +127,7 @@ const ShelfTile: React.FC<{ item: ShelfCard; note?: string; action: React.ReactN
     <li id={`shelf-item-${item.productId}`} className="flex gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-xs">
       <img src={resolveImageUrl(catalogBook?.coverBuku || item.coverUrl, 'book', item.bookId)} alt="" draggable={false} className="h-28 w-20 shrink-0 rounded-md border border-slate-100 bg-slate-50 object-cover" />
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="inline-flex w-fit items-center gap-1 rounded bg-slate-900 px-1.5 py-0.5 text-[9px] font-semibold text-[#DFBF64]">
+        <span className="inline-flex w-fit items-center gap-1 rounded bg-slate-900 px-1.5 py-0.5 text-[9px] font-semibold text-gold-400">
           <FormatIcon format={item.format} className="h-3 w-3" />
           {fmt.formatLabel(item.format)}
         </span>
@@ -146,7 +146,7 @@ const openButton = (item: ShelfCard, label: string) => (
     type="button"
     id={`btn-shelf-open-${item.productId}`}
     onClick={() => goToLibraryItem(item.format, item.productId)}
-    className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#D4AF37] px-3 py-2 text-xs font-bold text-slate-950 transition-colors hover:bg-[#c5a059] cursor-pointer"
+    className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-gold-500 px-3 py-2 text-xs font-bold text-slate-950 transition-colors hover:bg-gold-600 cursor-pointer"
   >
     {label}
     <ArrowRight className="h-3.5 w-3.5" />
@@ -274,7 +274,7 @@ const ShelfPanel: React.FC<{ onNavigate: NavigateFn; waitForMembership: boolean 
                       id={`btn-pick-${item.productId}`}
                       disabled={busy !== null}
                       onClick={() => void choose(item)}
-                      className="w-full rounded-lg border border-[#D4AF37] px-3 py-2 text-xs font-bold text-slate-900 transition-colors hover:bg-[#D4AF37]/10 disabled:opacity-60 cursor-pointer"
+                      className="w-full rounded-lg border border-gold-500 px-3 py-2 text-xs font-bold text-slate-900 transition-colors hover:bg-gold-500/10 disabled:opacity-60 cursor-pointer"
                     >
                       {t('myLibrary.pick.choose')}
                     </button>
@@ -292,7 +292,7 @@ const ShelfPanel: React.FC<{ onNavigate: NavigateFn; waitForMembership: boolean 
           <h2 className="mt-3 text-base font-bold text-slate-900">{t('myLibrary.shelf.noneTitle')}</h2>
           <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">{t('myLibrary.shelf.noneDescription')}</p>
           <div className="mt-5 flex flex-wrap justify-center gap-2">
-            <button type="button" id="btn-shelf-membership" onClick={goToMembership} className="rounded-lg bg-[#D4AF37] px-4 py-2 text-xs font-bold text-slate-950 hover:bg-[#c5a059] cursor-pointer">
+            <button type="button" id="btn-shelf-membership" onClick={goToMembership} className="rounded-lg bg-gold-500 px-4 py-2 text-xs font-bold text-slate-950 hover:bg-gold-600 cursor-pointer">
               {t('myLibrary.shelf.noneCta')}
             </button>
             <button type="button" onClick={() => onNavigate('digital', 'ebook')} className="rounded-lg border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer">
@@ -305,7 +305,7 @@ const ShelfPanel: React.FC<{ onNavigate: NavigateFn; waitForMembership: boolean 
       {shelf.upcoming.length > 0 && (
         <section id="library-upcoming">
           <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
-            <CalendarClock className="h-5 w-5 text-[#9A7B38]" aria-hidden="true" />
+            <CalendarClock className="h-5 w-5 text-gold-700" aria-hidden="true" />
             {t('myLibrary.upcoming.title')}
           </h2>
           <p className="mt-1 text-sm text-slate-600">{t('myLibrary.upcoming.description')}</p>
@@ -338,20 +338,20 @@ const WelcomePanel: React.FC<{ maxDevices: number; onDismiss: () => void }> = ({
     { icon: CreditCard, title: t('myLibrary.onboarding.step3Title'), body: t('myLibrary.onboarding.step3') }
   ];
   return (
-    <section id="library-welcome" className="relative mt-6 rounded-2xl border border-[#D4AF37]/40 bg-[#D4AF37]/5 p-5">
+    <section id="library-welcome" className="relative mt-6 rounded-2xl border border-gold-500/40 bg-gold-500/5 p-5">
       <button type="button" onClick={onDismiss} aria-label={t('myLibrary.onboarding.dismiss')} className="absolute right-3 top-3 rounded p-1 text-slate-500 hover:bg-white cursor-pointer">
         <X className="h-4 w-4" />
       </button>
       <h2 className="flex items-center gap-2 pr-8 text-base font-bold text-slate-900">
-        <Sparkles className="h-5 w-5 text-[#9A7B38]" aria-hidden="true" />
+        <Sparkles className="h-5 w-5 text-gold-700" aria-hidden="true" />
         {t('myLibrary.onboarding.title')}
       </h2>
       <ol className="mt-4 grid gap-3 sm:grid-cols-3">
         {steps.map(({ icon: Icon, title, body }, index) => (
           <li key={title} className="rounded-xl border border-slate-200 bg-white p-4">
             <p className="flex items-center gap-2 text-sm font-bold text-slate-900">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#D4AF37] text-xs font-bold text-slate-950">{index + 1}</span>
-              <Icon className="h-4 w-4 text-[#9A7B38]" aria-hidden="true" />
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gold-500 text-xs font-bold text-slate-950">{index + 1}</span>
+              <Icon className="h-4 w-4 text-gold-700" aria-hidden="true" />
               {title}
             </p>
             <p className="mt-2 text-xs leading-relaxed text-slate-600">{body}</p>
@@ -394,7 +394,7 @@ const DevicesPanel: React.FC = () => {
   return (
     <section id="library-devices" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
       <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
-        <MonitorSmartphone className="h-5 w-5 text-[#9A7B38]" aria-hidden="true" />
+        <MonitorSmartphone className="h-5 w-5 text-gold-700" aria-hidden="true" />
         {t('myLibrary.devicesTitle')}
       </h2>
       <p className="mt-1 text-xs text-slate-500">{t('myLibrary.devicesSummary', { used: overview.devices.length, max: overview.maxDevices })}</p>
@@ -407,7 +407,7 @@ const DevicesPanel: React.FC = () => {
               <div className="min-w-0">
                 <p className="font-semibold text-slate-900 [overflow-wrap:anywhere]">
                   {d.label}
-                  {d.isCurrent && <span className="ml-2 text-xs font-normal text-[#9A7B38]">{t('access.deviceLimit.current')}</span>}
+                  {d.isCurrent && <span className="ml-2 text-xs font-normal text-gold-700">{t('access.deviceLimit.current')}</span>}
                 </p>
                 <p className="text-xs text-slate-500">{t('access.deviceLimit.lastSeen', { date: date(new Date(d.lastSeen)) })}</p>
               </div>
@@ -447,7 +447,7 @@ const OrdersPanel: React.FC = () => {
   return (
     <section id="library-orders" className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
       <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
-        <Receipt className="h-5 w-5 text-[#9A7B38]" aria-hidden="true" />
+        <Receipt className="h-5 w-5 text-gold-700" aria-hidden="true" />
         {t('myLibrary.ordersTitle')}
       </h2>
       {orders.length === 0 ? (
@@ -463,7 +463,7 @@ const OrdersPanel: React.FC = () => {
               <div className="flex items-center gap-3">
                 <span className="font-semibold text-slate-900">{currency(order.amount)}</span>
                 <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-700">{t(`myLibrary.orderStatus.${order.status}`)}</span>
-                <button type="button" onClick={() => goToDigitalOrder(order.orderNumber)} className="text-xs font-semibold text-[#9A7B38] hover:underline cursor-pointer">
+                <button type="button" onClick={() => goToDigitalOrder(order.orderNumber)} className="text-xs font-semibold text-gold-700 hover:underline cursor-pointer">
                   {t('myLibrary.viewOrder')}
                 </button>
               </div>
@@ -554,7 +554,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
     <div id="library-page" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 text-left">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#D4AF37]/40 bg-[#D4AF37]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#9A7B38]">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-gold-500/40 bg-gold-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-gold-700">
             <Library className="h-3.5 w-3.5" aria-hidden="true" />
             {t('library.badge')}
           </span>
@@ -574,7 +574,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
       {!showMember && !member.isLoading && (
         <section className="mt-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-start gap-3">
-            <LogIn className="mt-0.5 h-5 w-5 shrink-0 text-[#9A7B38]" aria-hidden="true" />
+            <LogIn className="mt-0.5 h-5 w-5 shrink-0 text-gold-700" aria-hidden="true" />
             <div className="min-w-0">
               <h2 className="text-base font-bold text-slate-900">{t('library.signInTitle')}</h2>
               <p className="mt-1 text-sm text-slate-600">{t('library.signInDescription')}</p>
@@ -587,7 +587,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
                   type="button"
                   id="btn-library-sign-in"
                   onClick={() => onNavigate('account', 'login')}
-                  className="rounded-lg bg-[#D4AF37] px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-[#c5a059] cursor-pointer"
+                  className="rounded-lg bg-gold-500 px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-gold-600 cursor-pointer"
                 >
                   {t('account.loginCta')}
                 </button>
@@ -646,7 +646,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
       )}
 
       {/* Promosi keanggotaan */}
-      <section className="mt-8 flex flex-col gap-4 rounded-2xl border border-slate-800 bg-[#0F172A] p-6 text-white sm:flex-row sm:items-center sm:justify-between">
+      <section className="mt-8 flex flex-col gap-4 rounded-2xl border border-slate-800 bg-navy-900 p-6 text-white sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h2 className="text-lg font-bold">{t('library.promoTitle')}</h2>
           <p className="mt-1 text-sm text-slate-300">{t('library.promoDescription')}</p>
@@ -655,7 +655,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
           type="button"
           id="btn-library-membership"
           onClick={() => onNavigate('membership')}
-          className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#D4AF37] px-4 py-2.5 text-xs font-bold text-slate-950 transition-colors hover:bg-[#c5a059] cursor-pointer"
+          className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-gold-500 px-4 py-2.5 text-xs font-bold text-slate-950 transition-colors hover:bg-gold-600 cursor-pointer"
         >
           {t('library.promoCta')}
           <ArrowRight className="h-3.5 w-3.5" />

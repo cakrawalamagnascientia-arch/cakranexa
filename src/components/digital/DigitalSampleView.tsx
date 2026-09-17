@@ -100,14 +100,14 @@ export const DigitalSampleView: React.FC<DigitalSampleViewProps> = ({ entry, onN
         type="button"
         id="btn-sample-back-detail"
         onClick={() => onBackToDetail(entry)}
-        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-xs transition-all hover:bg-slate-200/80 hover:text-[#0F172A] sm:text-sm cursor-pointer"
+        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-xs transition-all hover:bg-slate-200/80 hover:text-navy-900 sm:text-sm cursor-pointer"
       >
-        <ArrowLeft className="h-4 w-4 text-[#DFBF64]" />
+        <ArrowLeft className="h-4 w-4 text-gold-400" />
         <span>{t('sample.backToDetail')}</span>
       </button>
 
       <header className="mt-6">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#D4AF37]/40 bg-[#D4AF37]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#9A7B38]">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-gold-500/40 bg-gold-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-gold-700">
           <FormatIcon format={product.format} className="h-3.5 w-3.5" />
           {t('sample.badge')}
         </span>

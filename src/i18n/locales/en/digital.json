@@ -898,7 +898,8 @@
     "digitalDetail": "Digital details",
     "membership": "Membership",
     "institutions": "Institutions",
-    "library": "My Library"
+    "library": "My Library",
+    "home": "Digital home"
   },
   "membershipCheckout": {
     "title": "Join the membership",
@@ -1158,5 +1159,60 @@
       "saved": "WhatsApp reminders are on for this number.",
       "off": "WhatsApp reminders are off. Reminders are still sent by email."
     }
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "CakraNexa Digital",
+      "titleLine1": "Indonesian scholarly books,",
+      "titleLine2": "whenever you need them.",
+      "subtitle": "Read e-books and listen to audiobooks on tax, accounting, law, and economics from CakraNexa in one plan.",
+      "benefits": {
+        "shelf": "A growing shelf of e-books and audiobooks",
+        "samples": "Free samples for every title",
+        "devices": "Two devices, pick up anywhere",
+        "sync": "Switch between e-book and audio without losing your place (Gold and up)",
+        "print": "Print books stay available, with a member discount"
+      },
+      "startFree": "Start free",
+      "viewPlans": "See plans",
+      "openLibrary": "Open My Library",
+      "mockupReading": "Now reading",
+      "mockupChapter": "Chapter {{number}}",
+      "mockupListening": "Resume audio"
+    },
+    "shelves": {
+      "continue": "Continue reading",
+      "newArrivals": "New on the shelf",
+      "popular": "Popular this month",
+      "comingSoon": "Coming to the shelf",
+      "comingSoonPlan": "Open dates for your {{plan}} plan",
+      "comingSoonVisitor": "Earliest open dates (Platinum). Gold opens 45 days later, Silver 90 days later.",
+      "seeAll": "See all",
+      "previous": "Scroll left",
+      "next": "Scroll right",
+      "empty": "Digital titles are being prepared. Meanwhile, explore samples and membership plans."
+    }
+  },
+  "card": {
+    "includedIn": "Included in {{plan}}",
+    "sample": "Sample",
+    "soon": "Soon",
+    "opensOn": "Opens {{date}}",
+    "progress": "{{percent}}% done",
+    "open": "Open {{title}}"
+  },
+  "digitalNav": {
+    "label": "Digital area navigation",
+    "home": "Digital home",
+    "audiobook": "Audiobooks",
+    "ebook": "E-books",
+    "categories": "Categories",
+    "join": "Join",
+    "startFree": "Start free",
+    "myLibrary": "My Library",
+    "more": "More",
+    "moreSite": "CakraNexa site",
+    "signOut": "Sign out",
+    "allCategories": "All categories"
   }
 }

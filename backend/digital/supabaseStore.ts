@@ -976,6 +976,11 @@ export class SupabaseDigitalStore implements DigitalStore {
     return (data || []).map(toFamilyMember);
   }
 
+  async popularProducts(since: string, limit: number) {
+    const data = check(await this.db.rpc('digital_popular_products', { p_since: since, p_limit: limit }), 'popularProducts');
+    return ((data as any[]) || []).map((r) => ({ productId: String(r.digital_product_id), readers: Number(r.readers) || 0 }));
+  }
+
   async removeFamilyMember(id: string, removedAt: string) {
     const data = check(await this.db.from('family_members').update({ status: 'removed', removed_at: removedAt })
       .eq('id', id).eq('status', 'active').select('*').maybeSingle(), 'removeFamilyMember');

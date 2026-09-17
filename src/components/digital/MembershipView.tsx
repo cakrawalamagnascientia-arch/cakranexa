@@ -33,7 +33,7 @@ interface MembershipViewProps {
   onNavigate: (page: ActivePage, subSection?: SubSection) => void;
 }
 
-const primaryButton = 'inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#D4AF37] px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-[#c5a059] cursor-pointer';
+const primaryButton = 'inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-gold-500 px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-gold-600 cursor-pointer';
 const secondaryButton = 'inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 transition-colors hover:bg-slate-50 cursor-pointer';
 
 /**
@@ -149,7 +149,7 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
   return (
     <div id="membership-page" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 text-left">
       <section className="mx-auto max-w-3xl text-center">
-        <span className="inline-flex items-center rounded-full border border-[#D4AF37]/40 bg-[#D4AF37]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#9A7B38]">
+        <span className="inline-flex items-center rounded-full border border-gold-500/40 bg-gold-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-gold-700">
           {t('membership.badge')}
         </span>
         <h1 className="mt-3 text-2xl font-bold leading-tight text-slate-900 sm:text-3xl md:text-4xl">{t('membership.title')}</h1>
@@ -197,19 +197,19 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
               key={plan.code}
               id={`membership-plan-${key}`}
               className={`relative flex flex-col rounded-2xl border bg-white p-5 shadow-xs ${
-                highlighted ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/30' : 'border-slate-200'
+                highlighted ? 'border-gold-500 ring-2 ring-gold-500/30' : 'border-slate-200'
               }`}
             >
               <div className="flex min-h-6 flex-wrap gap-1.5">
                 {highlighted && (
-                  <span className="rounded-full bg-[#D4AF37] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-950">
+                  <span className="rounded-full bg-gold-500 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-950">
                     {t('membership.recommended')}
                   </span>
                 )}
                 {founding && (
                   <span
                     id={`founding-badge-${key}`}
-                    className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${seatsLeft ? 'bg-slate-900 text-[#DFBF64]' : 'bg-slate-200 text-slate-600'}`}
+                    className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${seatsLeft ? 'bg-slate-900 text-gold-400' : 'bg-slate-200 text-slate-600'}`}
                   >
                     {!seatsLeft
                       ? t('membership.foundingSoldOut')
@@ -236,7 +236,7 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
                     </div>
                     {showFoundingPrice && founding ? (
                       <div className="mt-1.5 space-y-0.5 text-[11px]">
-                        <p className="font-semibold text-[#9A7B38]">{t('membership.founding.firstYear', { cap: number(founding.cap) })}</p>
+                        <p className="font-semibold text-gold-700">{t('membership.founding.firstYear', { cap: number(founding.cap) })}</p>
                         <p className="text-slate-500">{t('membership.founding.renewal', { price: currency(plan.priceYearly) })}</p>
                       </div>
                     ) : cycle === 'yearly' ? (
@@ -245,14 +245,14 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
                         {founding && seatsLeft && !data.foundingEligible && <p className="mt-1 text-[11px] text-slate-500">{t('membership.foundingNotEligible')}</p>}
                       </>
                     ) : founding && seatsLeft ? (
-                      <p className="mt-1.5 text-[11px] text-[#9A7B38]">{t('membership.founding.annualOnly', { price: currency(founding.priceYearly) })}</p>
+                      <p className="mt-1.5 text-[11px] text-gold-700">{t('membership.founding.annualOnly', { price: currency(founding.priceYearly) })}</p>
                     ) : null}
                   </>
                 )}
               </div>
 
               {plan.shelfAccess === 'full' && (
-                <p className="mt-3 inline-flex items-center gap-1.5 self-start rounded-lg bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-[#DFBF64]">
+                <p className="mt-3 inline-flex items-center gap-1.5 self-start rounded-lg bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-gold-400">
                   <Library className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                   {t('membership.includesShelf')}
                 </p>
@@ -291,7 +291,7 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
       </div>
       <div className="mt-4 flex flex-col items-center gap-1 text-center text-xs text-slate-500">
         {!data.purchaseEnabled && <p>{t('membership.phase2Note')}</p>}
-        <button type="button" id="btn-membership-terms" onClick={goToMembershipTerms} className="font-semibold text-[#9A7B38] underline-offset-2 hover:underline cursor-pointer">
+        <button type="button" id="btn-membership-terms" onClick={goToMembershipTerms} className="font-semibold text-gold-700 underline-offset-2 hover:underline cursor-pointer">
           {t('membership.termsLink')}
         </button>
       </div>
@@ -306,7 +306,7 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
               <tr className="bg-slate-900 text-white">
                 <th scope="col" className="w-36 px-3 py-3 font-semibold">{t('membership.access.feature')}</th>
                 {accessColumns.map((column) => (
-                  <th key={column} scope="col" className={`px-3 py-3 font-semibold ${column === 'professional' ? 'bg-[#D4AF37] text-slate-950' : ''}`}>
+                  <th key={column} scope="col" className={`px-3 py-3 font-semibold ${column === 'professional' ? 'bg-gold-500 text-slate-950' : ''}`}>
                     {columnName(column)}
                   </th>
                 ))}
@@ -317,7 +317,7 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
                 <tr key={row} className="border-t border-slate-200 align-top">
                   <th scope="row" className="bg-slate-50 px-3 py-3 font-semibold text-slate-900">{t(`membership.access.rows.${row}`)}</th>
                   {accessColumns.map((column) => (
-                    <td key={column} className={`px-3 py-3 text-slate-700 ${column === 'professional' ? 'bg-[#D4AF37]/5 font-medium text-slate-900' : ''}`}>
+                    <td key={column} className={`px-3 py-3 text-slate-700 ${column === 'professional' ? 'bg-gold-500/5 font-medium text-slate-900' : ''}`}>
                       {accessCell(row, column)}
                     </td>
                   ))}
@@ -337,13 +337,13 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
       </section>
 
       {/* Kebijakan frontlist */}
-      <section id="membership-frontlist" className="mt-12 rounded-2xl border border-slate-800 bg-[#0F172A] p-6 text-white sm:p-8">
+      <section id="membership-frontlist" className="mt-12 rounded-2xl border border-slate-800 bg-navy-900 p-6 text-white sm:p-8">
         <h2 className="text-xl font-bold">{t('membership.frontlist.title')}</h2>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300">{t('membership.frontlist.body', FRONTLIST_DAYS)}</p>
         <ol className="mt-6 grid gap-3 sm:grid-cols-3">
           {(['step1', 'step2', 'step3'] as const).map((step, index) => (
             <li key={step} className="flex items-start gap-3 rounded-xl border border-slate-700 bg-slate-900/60 p-4">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#D4AF37] text-xs font-bold text-slate-950">{index + 1}</span>
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gold-500 text-xs font-bold text-slate-950">{index + 1}</span>
               <span className="text-sm text-slate-200">{t(`membership.frontlist.${step}`, FRONTLIST_DAYS)}</span>
             </li>
           ))}
@@ -354,7 +354,7 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
       {data.flags.extendedBenefits && (
         <section id="membership-loyalty" className="mt-12">
           <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900">
-            <Award className="h-5 w-5 shrink-0 text-[#9A7B38]" aria-hidden="true" />
+            <Award className="h-5 w-5 shrink-0 text-gold-700" aria-hidden="true" />
             {t('membership.loyalty.title')}
           </h2>
           <p className="mt-1 max-w-3xl text-sm text-slate-600">{t('membership.loyalty.subtitle')}</p>
@@ -362,7 +362,7 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
             {LOYALTY_STATUSES.map((status) => (
               <li key={status.key} id={`loyalty-${status.key}`} className="rounded-xl border border-slate-200 bg-white p-4">
                 <h3 className="text-sm font-bold text-slate-900">{t(`membership.loyalty.statuses.${status.key}.name`)}</h3>
-                <p className="mt-1 text-xs font-semibold text-[#9A7B38]">
+                <p className="mt-1 text-xs font-semibold text-gold-700">
                   {status.minAnnualSpend > 0 ? t('membership.loyalty.spend', { amount: currency(status.minAnnualSpend) }) : t('membership.loyalty.joined')}
                 </p>
                 <p className="mt-2 text-xs text-slate-600">{t(`membership.loyalty.statuses.${status.key}.benefit`)}</p>
@@ -415,7 +415,7 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
       {/* Institution & Library Network */}
       <section className="mt-12 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 items-start gap-3">
-          <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-[#9A7B38]" aria-hidden="true" />
+          <Building2 className="mt-0.5 h-6 w-6 shrink-0 text-gold-700" aria-hidden="true" />
           <div className="min-w-0">
             <h2 className="text-base font-bold text-slate-900">{t('membership.institutionsCta.title')}</h2>
             <p className="mt-1 text-sm text-slate-600">{t('membership.institutionsCta.description')}</p>

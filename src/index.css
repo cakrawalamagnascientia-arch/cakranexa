@@ -17,6 +17,11 @@
   --color-gold-100: #FBF7EE;
   --color-gold-50: #FDFCF7;
   --color-slate-cream: #F8FAFC;
+  /* Krem hangat area digital fase 6 (bukan slate). */
+  --color-cream-50: #FBF8F1;
+  --color-cream-100: #F5EFE3;
+  --color-cream-200: #EADFCB;
+  --font-heading: "Playfair Display", Georgia, "Times New Roman", serif;
   --color-charcoal: #1E293B;
 }
 
@@ -46,6 +51,25 @@
   html[data-lang="zh"] *, html[data-lang="zh"] *::before, html[data-lang="zh"] *::after {
     font-family: 'Poppins', 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif !important;
   }
+
+  /* Area digital fase 6: judul memakai serif (Playfair Display; Mandarin: Noto Serif SC). Body tetap Poppins.
+     Harus di layer base yang sama: !important di dalam layer mengalahkan !important di luar layer, jadi
+     spesifisitas yang lebih tinggi di sini yang menentukan. */
+  .digital-area h1, .digital-area h2, .digital-area .font-heading {
+    font-family: 'Playfair Display', Georgia, 'Times New Roman', serif !important;
+    letter-spacing: -0.01em;
+  }
+  html[data-lang="zh"] .digital-area h1, html[data-lang="zh"] .digital-area h2, html[data-lang="zh"] .digital-area .font-heading {
+    font-family: 'Playfair Display', 'Noto Serif SC', 'Songti SC', 'SimSun', serif !important;
+  }
+}
+
+/* Rak horizontal: gulir tanpa scrollbar yang mengganggu. */
+.shelf-track {
+  scrollbar-width: none;
+}
+.shelf-track::-webkit-scrollbar {
+  display: none;
 }
 
 /* Luxury Corporate Book Spine & Minimal Presentation */

@@ -6,25 +6,31 @@ import { useDigitalCatalog, type DigitalEntry } from '../../hooks/useDigitalCata
 import { useBookText, useCategoryLabel } from '../../i18n/hooks';
 import { DIGITAL_FORMATS } from '../../data/digitalProducts';
 import { FormatIcon } from './FormatIcon';
-import { DigitalProductCard } from './DigitalProductCard';
+import { DigitalShelfCard } from './DigitalShelfCard';
+import { useShelfRules } from '../../hooks/useShelfRules';
+import { inclusionBadge } from '../../data/digitalShelf';
 
 const CATEGORIES: BookCategory[] = ['Akuntansi', 'Perpajakan', 'Hukum', 'Ekonomi & Bisnis', 'Filsafat', 'Teologia'];
 type AvailabilityFilter = 'all' | DigitalAvailability;
 
 interface DigitalListingViewProps {
   format: DigitalFormat;
+  /** Kategori awal dari URL (?kategori=), mis. dari menu Kategori atau "Lihat semua" di beranda digital. */
+  initialCategory?: string | null;
   onNavigate: (page: ActivePage, subSection?: SubSection) => void;
   onOpenProduct: (entry: DigitalEntry) => void;
-  onOpenSample: (entry: DigitalEntry) => void;
+  /** Tidak dipakai kartu fase 6 (sampel dibuka dari halaman buku); dipertahankan untuk kompatibilitas pemanggil. */
+  onOpenSample?: (entry: DigitalEntry) => void;
 }
 
-/** Halaman /digital/ebook dan /digital/audiobook: hero, filter kategori & ketersediaan, pencarian, grid kartu. */
-export const DigitalListingView: React.FC<DigitalListingViewProps> = ({ format, onNavigate, onOpenProduct, onOpenSample }) => {
+/** Halaman /digital/ebook dan /digital/audiobook: hero, filter kategori & ketersediaan, pencarian, grid kartu rak (2:3). */
+export const DigitalListingView: React.FC<DigitalListingViewProps> = ({ format, initialCategory = null, onNavigate, onOpenProduct }) => {
   const { t } = useTranslation('digital');
   const categoryLabel = useCategoryLabel();
   const bookText = useBookText();
   const { entries } = useDigitalCatalog();
-  const [category, setCategory] = useState<string>('all');
+  const rules = useShelfRules();
+  const [category, setCategory] = useState<string>(initialCategory && (CATEGORIES as string[]).includes(initialCategory) ? initialCategory : 'all');
   const [availability, setAvailability] = useState<AvailabilityFilter>('all');
   const [query, setQuery] = useState('');
 
@@ -62,10 +68,10 @@ export const DigitalListingView: React.FC<DigitalListingViewProps> = ({ format, 
   return (
     <div id={`digital-listing-${format}`} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 text-left">
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-2xl border border-slate-800 bg-[#0F172A] p-6 text-white shadow-sm sm:p-8">
-        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#D4AF37]/10 blur-3xl" />
+      <section className="relative overflow-hidden rounded-2xl border border-slate-800 bg-navy-900 p-6 text-white shadow-sm sm:p-8">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-gold-500/10 blur-3xl" />
         <div className="relative max-w-3xl">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#D4AF37]/40 bg-[#D4AF37]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#DFBF64]">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-gold-500/40 bg-gold-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-gold-400">
             <FormatIcon format={format} className="h-3.5 w-3.5" />
             {t(`listing.${format}.badge`)}
           </span>
@@ -83,7 +89,7 @@ export const DigitalListingView: React.FC<DigitalListingViewProps> = ({ format, 
                 aria-selected={item === format}
                 onClick={() => item !== format && onNavigate('digital', item)}
                 className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
-                  item === format ? 'bg-[#D4AF37] text-slate-950' : 'text-slate-300 hover:text-white'
+                  item === format ? 'bg-gold-500 text-slate-950' : 'text-slate-300 hover:text-white'
                 }`}
               >
                 <FormatIcon format={item} className="h-3.5 w-3.5" />
@@ -96,7 +102,7 @@ export const DigitalListingView: React.FC<DigitalListingViewProps> = ({ format, 
             <button
               type="button"
               onClick={() => onNavigate('membership')}
-              className="font-semibold text-[#DFBF64] hover:underline cursor-pointer"
+              className="font-semibold text-gold-400 hover:underline cursor-pointer"
             >
               {t('listing.membershipLink')}
             </button>
@@ -116,7 +122,7 @@ export const DigitalListingView: React.FC<DigitalListingViewProps> = ({ format, 
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('listing.filters.searchPlaceholder')}
-              className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20"
+              className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-500/20"
             />
           </label>
           <div role="radiogroup" aria-label={t('listing.filters.availability')} className="inline-flex self-start rounded-lg border border-slate-200 bg-white p-1 md:self-auto">
@@ -156,7 +162,7 @@ export const DigitalListingView: React.FC<DigitalListingViewProps> = ({ format, 
         <div className="flex items-center justify-between gap-3 text-xs text-slate-500">
           <span id="digital-result-count">{t('listing.resultCount', { count: visible.length })}</span>
           {hasFilters && (
-            <button type="button" onClick={resetFilters} className="font-semibold text-[#9A7B38] hover:underline cursor-pointer">
+            <button type="button" onClick={resetFilters} className="font-semibold text-gold-700 hover:underline cursor-pointer">
               {t('listing.filters.reset')}
             </button>
           )}
@@ -165,9 +171,15 @@ export const DigitalListingView: React.FC<DigitalListingViewProps> = ({ format, 
 
       {/* Grid */}
       {visible.length > 0 ? (
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 sm:gap-x-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {visible.map((entry) => (
-            <DigitalProductCard key={entry.product.id} entry={entry} onOpen={onOpenProduct} onOpenSample={onOpenSample} />
+            <DigitalShelfCard
+              key={entry.product.id}
+              layout="grid"
+              entry={entry}
+              badge={inclusionBadge(entry.product, rules.today, rules.frontlist)}
+              onOpen={onOpenProduct}
+            />
           ))}
         </div>
       ) : (

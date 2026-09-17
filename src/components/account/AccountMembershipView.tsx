@@ -163,10 +163,10 @@ export const AccountMembershipView: React.FC<AccountMembershipViewProps> = ({ qu
     return (
       <div id="account-membership-login" className="max-w-xl mx-auto px-4 sm:px-6 py-10 md:py-14 text-left">
         <div className={card}>
-          <Lock className="h-6 w-6 text-[#9A7B38]" aria-hidden="true" />
+          <Lock className="h-6 w-6 text-gold-700" aria-hidden="true" />
           <h1 className="mt-3 text-xl font-bold text-slate-900">{t('accountMembership.loginTitle')}</h1>
           <p className="mt-1 text-sm text-slate-600">{t('accountMembership.loginDescription')}</p>
-          <button type="button" onClick={() => goToLogin()} className="mt-5 rounded-lg bg-[#D4AF37] px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-[#c5a059] cursor-pointer">{t('account.loginCta')}</button>
+          <button type="button" onClick={() => goToLogin()} className="mt-5 rounded-lg bg-gold-500 px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-gold-600 cursor-pointer">{t('account.loginCta')}</button>
         </div>
       </div>
     );
@@ -209,7 +209,7 @@ export const AccountMembershipView: React.FC<AccountMembershipViewProps> = ({ qu
         <section id="account-membership-none" className={`${card} mt-6`}>
           <h2 className="text-base font-bold text-slate-900">{t('accountMembership.none.title')}</h2>
           <p className="mt-1 text-sm text-slate-600">{t('accountMembership.none.description')}</p>
-          <button type="button" onClick={goToMembership} className="mt-4 rounded-lg bg-[#D4AF37] px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-[#c5a059] cursor-pointer">{t('accountMembership.none.cta')}</button>
+          <button type="button" onClick={goToMembership} className="mt-4 rounded-lg bg-gold-500 px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-gold-600 cursor-pointer">{t('accountMembership.none.cta')}</button>
         </section>
       ) : (
         <>
@@ -220,7 +220,7 @@ export const AccountMembershipView: React.FC<AccountMembershipViewProps> = ({ qu
               <span id="account-membership-status" data-status={sub.status} className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${STATUS_CLASS[sub.status]}`}>
                 {t(`accountMembership.status.${sub.status}`)}
               </span>
-              {sub.isFounding && <span className="rounded-full bg-slate-900 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#DFBF64]">{t('membership.foundingMember')}</span>}
+              {sub.isFounding && <span className="rounded-full bg-slate-900 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold-400">{t('membership.foundingMember')}</span>}
             </div>
             <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
               <div><dt className="text-xs text-slate-500">{t('accountMembership.fields.cycle')}</dt><dd className="font-semibold text-slate-900">{cycleName(sub.billingCycle)}</dd></div>
@@ -247,14 +247,14 @@ export const AccountMembershipView: React.FC<AccountMembershipViewProps> = ({ qu
               )}
             </dl>
             {sub.isFounding && sub.foundingEndsAt && sub.regularYearlyPrice !== null && !ended && (
-              <p className="mt-4 rounded-lg bg-[#D4AF37]/10 px-3 py-2 text-xs text-[#7A5F24]">
+              <p className="mt-4 rounded-lg bg-gold-500/10 px-3 py-2 text-xs text-[#7A5F24]">
                 {t('accountMembership.foundingUntil', { date: fmtDate(sub.foundingEndsAt), price: currency(sub.regularYearlyPrice) })}
               </p>
             )}
             {sub.pendingChange && (
               <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700">
                 <span>{t('accountMembership.pendingChange', { date: fmtDate(sub.pendingChange.effectiveAt), plan: planName(sub.pendingChange.planCode), cycle: cycleName(sub.pendingChange.billingCycle) })}</span>
-                <button type="button" disabled={busy !== null} onClick={() => void run('cancelChange', async () => { await cancelMembershipChange(); await load(); })} className="font-semibold text-[#9A7B38] underline cursor-pointer">
+                <button type="button" disabled={busy !== null} onClick={() => void run('cancelChange', async () => { await cancelMembershipChange(); await load(); })} className="font-semibold text-gold-700 underline cursor-pointer">
                   {t('accountMembership.cancelChange')}
                 </button>
               </div>
@@ -294,7 +294,7 @@ export const AccountMembershipView: React.FC<AccountMembershipViewProps> = ({ qu
               </p>
               {invoice.dueAt && <p className="text-xs text-slate-500">{t('accountMembership.openInvoice.due', { date: fmtDate(invoice.dueAt) })}</p>}
               <div className="mt-3 flex flex-wrap gap-2">
-                <button type="button" id="btn-membership-pay-invoice" disabled={busy !== null} onClick={() => void run('pay', () => payInvoice(invoice))} className={`${button} bg-[#D4AF37] text-slate-950 hover:bg-[#c5a059]`}>
+                <button type="button" id="btn-membership-pay-invoice" disabled={busy !== null} onClick={() => void run('pay', () => payInvoice(invoice))} className={`${button} bg-gold-500 text-slate-950 hover:bg-gold-600`}>
                   {busy === 'pay' ? t('membershipCheckout.paying') : t('accountMembership.openInvoice.pay')}
                 </button>
                 <button type="button" disabled={busy !== null} onClick={() => void run('refresh', () => refresh(invoice))} className={`${button} inline-flex items-center gap-1.5 border border-slate-300 text-slate-800 hover:bg-slate-50`}>
@@ -436,7 +436,7 @@ export const AccountMembershipView: React.FC<AccountMembershipViewProps> = ({ qu
           {/* Riwayat tagihan */}
           <section id="account-membership-invoices" className={`${card} mt-4`}>
             <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-900">
-              <Receipt className="h-4 w-4 text-[#9A7B38]" aria-hidden="true" />
+              <Receipt className="h-4 w-4 text-gold-700" aria-hidden="true" />
               {t('accountMembership.invoices.title')}
             </h2>
             {me.invoices.length === 0 ? (
@@ -453,7 +453,7 @@ export const AccountMembershipView: React.FC<AccountMembershipViewProps> = ({ qu
                       <span className="font-semibold text-slate-900">{currency(inv.amount)}</span>
                       <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-700">{t(`accountMembership.invoiceStatus.${inv.status}`)}</span>
                       {inv.status === 'paid' && (
-                        <button type="button" onClick={() => void run(`receipt-${inv.id}`, () => openMembershipReceipt(inv.id, language))} className="text-xs font-semibold text-[#9A7B38] hover:underline cursor-pointer">
+                        <button type="button" onClick={() => void run(`receipt-${inv.id}`, () => openMembershipReceipt(inv.id, language))} className="text-xs font-semibold text-gold-700 hover:underline cursor-pointer">
                           {t('accountMembership.invoices.receipt')}
                         </button>
                       )}

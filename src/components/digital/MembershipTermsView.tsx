@@ -37,7 +37,7 @@ export const MembershipTermsView: React.FC<MembershipTermsViewProps> = ({ onNavi
 
   return (
     <div id="membership-terms-page" className="max-w-3xl mx-auto px-4 sm:px-6 py-8 md:py-12 text-left">
-      <button type="button" onClick={() => onNavigate('membership')} className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#9A7B38] hover:underline cursor-pointer">
+      <button type="button" onClick={() => onNavigate('membership')} className="inline-flex items-center gap-1.5 text-xs font-semibold text-gold-700 hover:underline cursor-pointer">
         <ArrowLeft className="h-3.5 w-3.5" />
         {t('membershipTerms.back')}
       </button>

@@ -151,11 +151,11 @@ export const DigitalCheckoutView: React.FC<DigitalCheckoutViewProps> = ({ query 
     return (
       <div id="digital-checkout-login" className="max-w-xl mx-auto px-4 sm:px-6 py-10 md:py-14 text-left">
         <div className={card}>
-          <Lock className="h-6 w-6 text-[#9A7B38]" aria-hidden="true" />
+          <Lock className="h-6 w-6 text-gold-700" aria-hidden="true" />
           <h1 className="mt-3 text-xl font-bold text-slate-900">{t('checkout.loginTitle')}</h1>
           <p className="mt-1 text-sm text-slate-600">{t('checkout.loginDescription')}</p>
           <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-            <button type="button" id="btn-checkout-login" onClick={() => goToLogin()} className="rounded-lg bg-[#D4AF37] px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-[#c5a059] cursor-pointer">{t('account.loginCta')}</button>
+            <button type="button" id="btn-checkout-login" onClick={() => goToLogin()} className="rounded-lg bg-gold-500 px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-gold-600 cursor-pointer">{t('account.loginCta')}</button>
             <button type="button" onClick={() => goToLogin(undefined, 'register')} className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 cursor-pointer">{t('account.registerCta')}</button>
           </div>
         </div>
@@ -168,11 +168,11 @@ export const DigitalCheckoutView: React.FC<DigitalCheckoutViewProps> = ({ query 
     return (
       <div id="digital-checkout-closed" className="max-w-xl mx-auto px-4 sm:px-6 py-10 md:py-14 text-left">
         <div className={card}>
-          <Crown className="h-6 w-6 text-[#9A7B38]" aria-hidden="true" />
+          <Crown className="h-6 w-6 text-gold-700" aria-hidden="true" />
           <h1 className="mt-3 text-xl font-bold text-slate-900">{t('checkout.unitSalesClosed.title')}</h1>
           <p className="mt-1 text-sm text-slate-600">{t('checkout.unitSalesClosed.description')}</p>
           <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-            <button type="button" id="btn-checkout-plans" onClick={goToMembership} className="rounded-lg bg-[#D4AF37] px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-[#c5a059] cursor-pointer">{t('common.viewPlans')}</button>
+            <button type="button" id="btn-checkout-plans" onClick={goToMembership} className="rounded-lg bg-gold-500 px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-gold-600 cursor-pointer">{t('common.viewPlans')}</button>
             <button type="button" onClick={goToLibrary} className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 cursor-pointer">{t('checkout.unitSalesClosed.library')}</button>
           </div>
         </div>
@@ -187,7 +187,7 @@ export const DigitalCheckoutView: React.FC<DigitalCheckoutViewProps> = ({ query 
       ? <CheckCircle2 className="h-7 w-7 text-emerald-600" />
       : status && ['failed', 'cancelled', 'expired', 'refunded'].includes(status)
         ? <XCircle className="h-7 w-7 text-rose-600" />
-        : <Clock className="h-7 w-7 animate-pulse text-[#9A7B38]" />;
+        : <Clock className="h-7 w-7 animate-pulse text-gold-700" />;
     return (
       <div id="digital-checkout-status" className="max-w-xl mx-auto px-4 sm:px-6 py-10 md:py-14 text-left">
         <div className={card}>
@@ -213,7 +213,7 @@ export const DigitalCheckoutView: React.FC<DigitalCheckoutViewProps> = ({ query 
           )}
           <div className="mt-5 flex flex-col gap-2 sm:flex-row">
             {status === 'paid' && (
-              <button type="button" id="btn-checkout-open-library" onClick={goToLibrary} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#D4AF37] px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-[#c5a059] cursor-pointer">
+              <button type="button" id="btn-checkout-open-library" onClick={goToLibrary} className="inline-flex items-center justify-center gap-2 rounded-lg bg-gold-500 px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-gold-600 cursor-pointer">
                 <Library className="h-4 w-4" />{t('checkout.openLibrary')}
               </button>
             )}
@@ -282,7 +282,7 @@ export const DigitalCheckoutView: React.FC<DigitalCheckoutViewProps> = ({ query 
                   checked={extraIds.includes(product.id)}
                   onChange={(e) => setExtraIds((prev) => (e.target.checked ? [...prev, product.id] : prev.filter((id) => id !== product.id)))}
                 />
-                <FormatIcon format={product.format} className="h-4 w-4 text-[#9A7B38]" />
+                <FormatIcon format={product.format} className="h-4 w-4 text-gold-700" />
                 <span>{t('checkout.bundleOffer', { format: fmt.formatLabel(product.format), price: currency(product.price) })}</span>
               </label>
             ))}
@@ -333,7 +333,7 @@ export const DigitalCheckoutView: React.FC<DigitalCheckoutViewProps> = ({ query 
         id="btn-checkout-pay"
         onClick={() => void pay()}
         disabled={working || purchasable.length === 0 || member.isLoading}
-        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#D4AF37] px-5 py-3 text-base font-bold text-slate-950 transition-colors hover:bg-[#c5a059] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gold-500 px-5 py-3 text-base font-bold text-slate-950 transition-colors hover:bg-gold-600 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
       >
         {working ? t('checkout.paying') : t('checkout.pay', { total: currency(total) })}
       </button>

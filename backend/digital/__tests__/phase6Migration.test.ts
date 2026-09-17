@@ -13,10 +13,12 @@ import { DEFAULT_PAYMENT_ROUTING } from '../../../src/data/paymentRouting';
  */
 const root = path.resolve(__dirname, '../../..');
 const MIGRATION = 'src/db/membership_phase6_migration.sql';
-const sql = fs.readFileSync(path.join(root, MIGRATION), 'utf8');
+// Line ending dinormalkan: checkout Windows (core.autocrlf) menulis file SQL dengan CRLF.
+const readText = (file: string) => fs.readFileSync(path.join(root, file), 'utf8').replace(/\r\n/g, '\n');
+const sql = readText(MIGRATION);
 const code = sql.replace(/--.*$/gm, '');
-const phase3 = fs.readFileSync(path.join(root, 'src/db/membership_phase3_migration.sql'), 'utf8');
-const checkSchema = fs.readFileSync(path.join(root, 'src/db/check_schema.sql'), 'utf8');
+const phase3 = readText('src/db/membership_phase3_migration.sql');
+const checkSchema = readText('src/db/check_schema.sql');
 
 const block = (start: string): string => {
   const at = code.indexOf(start);
@@ -100,6 +102,24 @@ describe('migration fase 6 Langkah 1', () => {
       expect(code).toMatch(new RegExp(`CREATE POLICY "${table}_select_own" ON ${table} FOR SELECT TO authenticated`));
     }
     expect(code).toContain('GRANT EXECUTE ON FUNCTION membership_audio_seconds(UUID, UUID, TIMESTAMPTZ, TIMESTAMPTZ) TO service_role');
+  });
+
+  it('satu sesi aktif per pengguna: sesi ganda lama ditutup lalu indeks unik parsial; fungsi populer hanya untuk server', () => {
+    const close = code.indexOf("end_reason = 'single_session'");
+    const index = code.indexOf('CREATE UNIQUE INDEX IF NOT EXISTS access_sessions_one_active_user');
+    expect(close).toBeGreaterThan(0);
+    expect(index).toBeGreaterThan(close);
+    expect(code).toMatch(/access_sessions_one_active_user\s+ON access_sessions \(user_id\) WHERE ended_at IS NULL/);
+    expect(code).toContain('GRANT EXECUTE ON FUNCTION digital_popular_products(TIMESTAMPTZ, INTEGER) TO service_role');
+    expect(code).toContain('REVOKE ALL ON FUNCTION digital_popular_products(TIMESTAMPTZ, INTEGER) FROM PUBLIC, anon, authenticated');
+  });
+
+  it('badan fungsi memakai kutip $$ yang berpasangan', () => {
+    expect(code).not.toMatch(/^AS \$\s*$/m);
+    expect(code).not.toMatch(/^\$;\s*$/m);
+    const opens = code.match(/\bAS \$\$/g)?.length ?? 0;
+    expect(opens).toBeGreaterThanOrEqual(4);
+    expect(code.match(/^\$\$;/gm)?.length).toBe(opens);
   });
 
   it('tidak menghapus data; kredit instansi 40 -> 20 hanya bila masih nilai bawaan', () => {

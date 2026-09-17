@@ -43,6 +43,7 @@ import i18n, { changeAppLanguage, getCurrentLanguage, isAppLanguage } from './i1
 import { useBookText, useCategoryLabel, useCmsText } from './i18n/hooks';
 import { buildDigitalCatalog, DigitalCatalogContext, useDigitalProducts, type DigitalEntry } from './hooks/useDigitalCatalog';
 import { DigitalListingView } from './components/digital/DigitalListingView';
+import { DigitalHomeView } from './components/digital/DigitalHomeView';
 import { DigitalDetailView } from './components/digital/DigitalDetailView';
 import { DigitalSampleView } from './components/digital/DigitalSampleView';
 import { MembershipView } from './components/digital/MembershipView';
@@ -488,7 +489,7 @@ export default function App() {
       category: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogCategory : undefined,
       search: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogSearch : undefined,
       digitalItem: activePage === 'digital' || activePage === 'library' || activePage === 'order' ? digitalItem : null,
-      query: activePage === 'account' || activePage === 'library' || activePage === 'payment' || activePage === 'order' || (activePage === 'digital' && activeSubSection === 'checkout') || (activePage === 'membership' && activeSubSection === 'checkout') ? routeQuery : undefined
+      query: activePage === 'account' || activePage === 'library' || activePage === 'payment' || activePage === 'order' || (activePage === 'digital' && (activeSubSection === 'checkout' || ((activeSubSection === 'ebook' || activeSubSection === 'audiobook') && !digitalItem))) || (activePage === 'membership' && activeSubSection === 'checkout') ? routeQuery : undefined
     }, activePage === 'katalog' && !selectedBook && !selectedAuthor && (catalogSearch !== '' || catalogCategory !== 'all'));
   }, [activePage, activeSubSection, selectedBook, selectedAuthor, catalogCategory, catalogSearch, pendingBookSlug, digitalItem, routeQuery]);
 
@@ -1005,7 +1006,9 @@ export default function App() {
       ? tDigital('checkout.subheader')
       : activeSubSection === 'sample'
       ? tDigital('subheader.sample')
-      : digitalItem ? tDigital('subheader.digitalDetail') : tDigital(`subheader.${digitalFormat}`)
+      : digitalItem ? tDigital('subheader.digitalDetail')
+      : activeSubSection === 'ebook' || activeSubSection === 'audiobook' ? tDigital(`subheader.${digitalFormat}`)
+      : tDigital('subheader.home')
     : activePage === 'account'
       ? tDigital('account.subheader')
       : activePage === 'membership' || activePage === 'institutions' || activePage === 'library'
@@ -1041,6 +1044,7 @@ export default function App() {
       {activePage !== 'admin' && (
         <Navbar
           activePage={activePage}
+          subSection={activeSubSection ?? undefined}
           onNavigate={navigateTo}
           cartCount={cartTotalCount}
           onOpenCart={() => setIsCartOpen(true)}
@@ -1074,7 +1078,8 @@ export default function App() {
       )}
 
       {/* Main Content Router */}
-      <main className="flex-grow">
+      {/* Area digital fase 6: judul serif (index.css .digital-area). */}
+      <main className={`flex-grow ${['digital', 'membership', 'institutions', 'library'].includes(activePage) ? 'digital-area' : ''}`}>
         
         {/* VIEW 1: BERANDA (HOME) */}
         {(activePage === 'beranda' || activePage === 'home') && (
@@ -1318,14 +1323,17 @@ export default function App() {
               onOpenSample={openDigitalSample}
               onOpenPrintBook={handleSelectBook}
             />
-          ) : (
+          ) : activeSubSection === 'ebook' || activeSubSection === 'audiobook' ? (
             <DigitalListingView
-              key={digitalFormat}
+              key={`${digitalFormat}:${routeQuery}`}
               format={digitalFormat}
+              initialCategory={new URLSearchParams(routeQuery).get('kategori')}
               onNavigate={navigateTo}
               onOpenProduct={openDigitalProduct}
               onOpenSample={openDigitalSample}
             />
+          ) : (
+            <DigitalHomeView onOpenProduct={openDigitalProduct} />
           )
         )}
 

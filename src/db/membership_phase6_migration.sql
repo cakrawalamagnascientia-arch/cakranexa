@@ -22,6 +22,9 @@
 --   * period_title_picks: jatah judul e-book per bulan (Silver 2, Gold 6); kuota dijaga trigger.
 --   * family_members: akun keluarga Platinum (maks. family_accounts per langganan); dijaga trigger.
 --   * institution_config.eba_pct 40 -> 20 (hanya bila masih nilai bawaan 40); default kolom kontrak 20.
+--   * Satu sesi baca/dengar aktif per pengguna (indeks unik parsial, seperti kursi instansi). Sesi terbuka ganda dari
+--     sebelum aturan ini ditutup (end_reason 'single_session'), kecuali yang terbaru per pengguna.
+--   * digital_popular_products: judul terpopuler (jumlah pembaca berbeda) untuk rak "Populer bulan ini".
 --   Tidak ada data yang dihapus. entitlements source 'purchase' lama tetap dibaca.
 -- ============================================================================
 
@@ -278,9 +281,40 @@ UPDATE institution_config SET value = '20', description = 'Persen biaya tahunan 
  WHERE key = 'eba_pct' AND value = '40'::jsonb;
 ALTER TABLE institution_contracts ALTER COLUMN eba_pct SET DEFAULT 20;
 
--- 7. HAK EKSEKUSI & ROW LEVEL SECURITY ----------------------------------------------------------
+-- 7. SATU SESI AKTIF PER PENGGUNA ------------------------------------------------------------------
+UPDATE access_sessions s
+   SET ended_at = NOW(), end_reason = 'single_session'
+ WHERE s.ended_at IS NULL
+   AND EXISTS (
+       SELECT 1 FROM access_sessions o
+        WHERE o.user_id = s.user_id
+          AND o.ended_at IS NULL
+          AND (o.last_heartbeat, o.id) > (s.last_heartbeat, s.id)
+   );
+CREATE UNIQUE INDEX IF NOT EXISTS access_sessions_one_active_user
+    ON access_sessions (user_id) WHERE ended_at IS NULL;
+
+-- 8. JUDUL POPULER ------------------------------------------------------------------------------------
+-- Hanya urutan produk (tanpa data pengguna); dipanggil server untuk rak publik "Populer bulan ini".
+CREATE OR REPLACE FUNCTION digital_popular_products(p_since TIMESTAMPTZ, p_limit INTEGER DEFAULT 20)
+RETURNS TABLE (digital_product_id UUID, readers BIGINT)
+LANGUAGE sql
+STABLE
+SET search_path = public
+AS $$
+    SELECT e.digital_product_id, COUNT(DISTINCT e.user_id)::BIGINT AS readers
+      FROM reading_events e
+     WHERE e.created_at >= p_since
+     GROUP BY e.digital_product_id
+     ORDER BY readers DESC, e.digital_product_id
+     LIMIT LEAST(GREATEST(COALESCE(p_limit, 20), 1), 100);
+$$;
+
+-- 9. HAK EKSEKUSI & ROW LEVEL SECURITY ----------------------------------------------------------
 REVOKE ALL ON FUNCTION membership_audio_seconds(UUID, UUID, TIMESTAMPTZ, TIMESTAMPTZ) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION membership_audio_seconds(UUID, UUID, TIMESTAMPTZ, TIMESTAMPTZ) TO service_role;
+REVOKE ALL ON FUNCTION digital_popular_products(TIMESTAMPTZ, INTEGER) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION digital_popular_products(TIMESTAMPTZ, INTEGER) TO service_role;
 
 ALTER TABLE period_title_picks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE family_members ENABLE ROW LEVEL SECURITY;

@@ -23,6 +23,7 @@ import { useCategoryLabel } from '../i18n/hooks';
 import { useDigitalCatalog } from '../hooks/useDigitalCatalog';
 import { signOut, useMemberSession } from '../services/memberSession';
 import { DIGITAL_FORMATS } from '../data/digitalProducts';
+import { DigitalNavbar } from './digital/DigitalNavbar';
 
 /** Halaman yang termasuk menu "Digital" (untuk garis aktif di navbar). */
 const DIGITAL_PAGES: ActivePage[] = ['digital', 'membership', 'institutions', 'library'];
@@ -94,6 +95,20 @@ export const Navbar: React.FC<NavbarProps> = ({
       setOpenDropdown(null);
     }, 150);
   };
+
+  // Area digital fase 6 (beranda digital, keanggotaan, institusi, Pustaka Saya): navbar khusus; menu lama di "Lainnya".
+  if (isDigitalActive) {
+    return (
+      <DigitalNavbar
+        activePage={activePage}
+        subSection={subSection}
+        onNavigate={(page, sub) => onNavigate(page, sub)}
+        cartCount={cartCount}
+        onOpenCart={onOpenCart}
+        onOpenSearch={onOpenSearch}
+      />
+    );
+  }
 
   const categories: BookCategory[] = [
     'Akuntansi',

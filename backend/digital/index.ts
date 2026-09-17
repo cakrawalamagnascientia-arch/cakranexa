@@ -160,6 +160,7 @@ export const createDigitalPhase2 = (deps: Phase2Deps): DigitalPhase2 => {
     return value;
   };
 
+  const contextRef: { current: DigitalContext | null } = { current: null };
   const verifier = deps.overrides?.verifier ?? createSupabaseTokenVerifier({
     supabaseUrl: deps.supabaseUrl,
     jwtSecret: env.SUPABASE_JWT_SECRET
@@ -180,6 +181,24 @@ export const createDigitalPhase2 = (deps: Phase2Deps): DigitalPhase2 => {
     // unitSales: pembelian satuan e-book/audiobook terbuka lewat payment_routing (fase 6: bawaan tertutup).
     const unitSales = digitalUnitSalesEnabled(await paymentRouting(), { midtransEnabled: deps.midtrans.enabled });
     res.json({ enabled: feature.allows(email), beta: !feature.enabled && feature.isBeta(email), unitSales });
+  });
+
+  // Beranda digital: urutan judul terpopuler 30 hari terakhir (hanya id produk, tanpa jumlah atau data pengguna).
+  let popularCache: { at: number; ids: string[] } | null = null;
+  router.get('/api/digital/popular', async (_req, res) => {
+    const store = contextRef.current?.store;
+    if (!store) return res.json({ productIds: [] });
+    if (!popularCache || Date.now() - popularCache.at > 10 * 60 * 1000) {
+      try {
+        const since = new Date((contextRef.current!.now()).getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        popularCache = { at: Date.now(), ids: (await store.popularProducts(since, 20)).map((p) => p.productId) };
+      } catch (err: any) {
+        console.warn('[digital] judul populer gagal dimuat:', err?.message || err);
+        return res.json({ productIds: popularCache?.ids ?? [] });
+      }
+    }
+    res.set('Cache-Control', 'public, max-age=300');
+    res.json({ productIds: popularCache.ids });
   });
 
   // Respons API fase 2 (token sesi, URL playlist bertoken, data pribadi) tidak boleh disimpan cache browser/proxy.
@@ -255,6 +274,7 @@ export const createDigitalPhase2 = (deps: Phase2Deps): DigitalPhase2 => {
   };
   // Fase 6: cakupan rak per paket, tanggal buka per paket, kuota audio.
   context.membership = new MembershipAccess(context);
+  contextRef.current = context;
 
   // Akun: identitas dari JWT Supabase. Tidak terkena flag agar penguji beta bisa masuk saat fitur masih tertutup.
   router.get('/api/account/me', requireAccount, (req, res) => {

@@ -1912,6 +1912,7 @@ async function startServer() {
       { path: '/karir', freq: 'weekly', prio: '0.6' },
       { path: '/kontak', freq: 'monthly', prio: '0.6' },
       // Katalog digital fase 1 selalu publik; flag DIGITAL_ENABLED hanya mengatur pembelian & akses (fase 2).
+      { path: '/digital', freq: 'daily', prio: '0.85' },
       { path: '/digital/ebook', freq: 'weekly', prio: '0.8' },
       { path: '/digital/audiobook', freq: 'weekly', prio: '0.75' },
       { path: '/membership', freq: 'monthly', prio: '0.7' },

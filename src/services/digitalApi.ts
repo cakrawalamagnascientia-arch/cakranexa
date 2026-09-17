@@ -201,3 +201,27 @@ export interface LibraryItem {
 
 export const getLibrary = () =>
   memberRequest<{ items: LibraryItem[]; devices: { count: number; max: number } }>('/api/library');
+
+/** Beranda digital: judul yang sedang dibaca/didengar (progres 1–99%), terbaru dulu. */
+export interface ContinueItem {
+  productId: string;
+  format: 'ebook' | 'audiobook';
+  bookId: string;
+  percent: number;
+  position: number;
+  updatedAt: string;
+}
+
+export const getContinueReading = () => memberRequest<{ items: ContinueItem[] }>('/api/library/continue');
+
+/** Beranda digital: urutan judul terpopuler 30 hari terakhir (publik). Gagal = rak tidak ditampilkan. */
+export const getPopularProductIds = async (): Promise<string[]> => {
+  try {
+    const res = await fetchWithTimeout(apiUrl('/api/digital/popular'), {}, 10000);
+    if (!res.ok) return [];
+    const body = await res.json();
+    return Array.isArray(body?.productIds) ? body.productIds.filter((id: unknown): id is string => typeof id === 'string') : [];
+  } catch {
+    return [];
+  }
+};

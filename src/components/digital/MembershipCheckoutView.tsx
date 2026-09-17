@@ -138,11 +138,11 @@ export const MembershipCheckoutView: React.FC<MembershipCheckoutViewProps> = ({ 
   if (!member.isLoading && !member.isLoggedIn) {
     return wrap(
       <>
-        <Lock className="h-6 w-6 text-[#9A7B38]" aria-hidden="true" />
+        <Lock className="h-6 w-6 text-gold-700" aria-hidden="true" />
         <h1 className="mt-3 text-xl font-bold text-slate-900">{t('membershipCheckout.loginTitle')}</h1>
         <p className="mt-1 text-sm text-slate-600">{t('membershipCheckout.loginDescription')}</p>
         <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-          <button type="button" id="btn-membership-login" onClick={() => goToLogin()} className="rounded-lg bg-[#D4AF37] px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-[#c5a059] cursor-pointer">{t('account.loginCta')}</button>
+          <button type="button" id="btn-membership-login" onClick={() => goToLogin()} className="rounded-lg bg-gold-500 px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-gold-600 cursor-pointer">{t('account.loginCta')}</button>
           <button type="button" onClick={() => goToLogin(undefined, 'register')} className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 cursor-pointer">{t('account.registerCta')}</button>
         </div>
       </>,
@@ -157,7 +157,7 @@ export const MembershipCheckoutView: React.FC<MembershipCheckoutViewProps> = ({ 
   if (confirming) {
     return wrap(
       <>
-        <Clock className="h-7 w-7 animate-pulse text-[#9A7B38]" aria-hidden="true" />
+        <Clock className="h-7 w-7 animate-pulse text-gold-700" aria-hidden="true" />
         <h1 className="mt-3 text-xl font-bold text-slate-900">{t('membershipCheckout.confirmingTitle')}</h1>
         <p className="mt-1 text-sm text-slate-600">{t('membershipCheckout.confirmingDescription')}</p>
       </>,
@@ -171,7 +171,7 @@ export const MembershipCheckoutView: React.FC<MembershipCheckoutViewProps> = ({ 
         <CheckCircle2 className="h-7 w-7 text-emerald-600" aria-hidden="true" />
         <h1 className="mt-3 text-xl font-bold text-slate-900">{t('membershipCheckout.alreadyMemberTitle')}</h1>
         <p className="mt-1 text-sm text-slate-600">{t('membershipCheckout.errors.already_subscribed')}</p>
-        <button type="button" onClick={() => goToAccountMembership()} className="mt-5 rounded-lg bg-[#D4AF37] px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-[#c5a059] cursor-pointer">{t('membershipCheckout.manage')}</button>
+        <button type="button" onClick={() => goToAccountMembership()} className="mt-5 rounded-lg bg-gold-500 px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-gold-600 cursor-pointer">{t('membershipCheckout.manage')}</button>
       </>,
       'membership-checkout-member'
     );
@@ -183,7 +183,7 @@ export const MembershipCheckoutView: React.FC<MembershipCheckoutViewProps> = ({ 
         <CheckCircle2 className="h-7 w-7 text-emerald-600" aria-hidden="true" />
         <h1 className="mt-3 text-xl font-bold text-slate-900">{t('membershipCheckout.freeTitle')}</h1>
         <p className="mt-1 text-sm text-slate-600">{t('membershipCheckout.freeDescription')}</p>
-        <button type="button" onClick={goToLibrary} className="mt-5 rounded-lg bg-[#D4AF37] px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-[#c5a059] cursor-pointer">{t('checkout.openLibrary')}</button>
+        <button type="button" onClick={goToLibrary} className="mt-5 rounded-lg bg-gold-500 px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-gold-600 cursor-pointer">{t('checkout.openLibrary')}</button>
       </>,
       'membership-checkout-free'
     );
@@ -217,12 +217,12 @@ export const MembershipCheckoutView: React.FC<MembershipCheckoutViewProps> = ({ 
             <h2 className="mt-1 text-lg font-bold text-slate-900 [overflow-wrap:anywhere]">{planName}</h2>
             <p className="mt-0.5 text-xs text-slate-500">{t('membership.devices', { n: plan.maxDevices })}</p>
           </div>
-          <button type="button" onClick={goToMembership} className="text-xs font-semibold text-[#9A7B38] hover:underline cursor-pointer">{t('membershipCheckout.change')}</button>
+          <button type="button" onClick={goToMembership} className="text-xs font-semibold text-gold-700 hover:underline cursor-pointer">{t('membershipCheckout.change')}</button>
         </div>
 
         <div role="radiogroup" aria-label={t('membershipCheckout.cycle')} className="mt-4 grid gap-2 sm:grid-cols-2">
           {(['yearly', 'monthly'] as const).map((value) => (
-            <label key={value} className={`flex cursor-pointer items-center justify-between gap-2 rounded-xl border px-4 py-3 text-sm ${cycle === value ? 'border-[#D4AF37] bg-[#D4AF37]/5' : 'border-slate-200'}`}>
+            <label key={value} className={`flex cursor-pointer items-center justify-between gap-2 rounded-xl border px-4 py-3 text-sm ${cycle === value ? 'border-gold-500 bg-gold-500/5' : 'border-slate-200'}`}>
               <span className="flex items-center gap-2">
                 <input type="radio" name="membership-cycle" id={`cycle-${value}`} checked={cycle === value} onChange={() => setCycle(value)} />
                 {t(`membership.billing.${value === 'yearly' ? 'annual' : 'monthly'}`)}
@@ -234,7 +234,7 @@ export const MembershipCheckoutView: React.FC<MembershipCheckoutViewProps> = ({ 
 
         <div className="mt-4 border-t border-slate-100 pt-4">
           {foundingApplies && founding && (
-            <p className="mb-2 inline-flex rounded-full bg-slate-900 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#DFBF64]">
+            <p className="mb-2 inline-flex rounded-full bg-slate-900 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold-400">
               {founding.remaining === null ? t('membership.foundingMember') : t('membership.foundingSeats', { count: number(founding.remaining) })}
             </p>
           )}
@@ -259,7 +259,7 @@ export const MembershipCheckoutView: React.FC<MembershipCheckoutViewProps> = ({ 
         <p className="mt-1 text-xs text-slate-600">{autodebit ? t('membershipCheckout.honestNote') : t('membershipCheckout.honestNoteManual')}</p>
         <div role="radiogroup" aria-label={t('membershipCheckout.methodTitle')} className="mt-3 space-y-2">
           {PAYMENT_METHODS.map((m) => (
-            <label key={m} className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 ${method === m ? 'border-[#D4AF37] bg-[#D4AF37]/5' : 'border-slate-200'}`}>
+            <label key={m} className={`flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 ${method === m ? 'border-gold-500 bg-gold-500/5' : 'border-slate-200'}`}>
               <input type="radio" name="membership-method" id={`method-${m}`} className="mt-1" checked={method === m} onChange={() => setMethod(m)} />
               <span className="min-w-0">
                 <span className="block text-sm font-semibold text-slate-900">{t(`membershipCheckout.methods.${m}.label`)}</span>
@@ -307,7 +307,7 @@ export const MembershipCheckoutView: React.FC<MembershipCheckoutViewProps> = ({ 
           <input type="checkbox" id="membership-terms" className="mt-1" checked={termsAccepted} onChange={(e) => { setTermsAccepted(e.target.checked); if (e.target.checked && errorCode === 'terms_required') setErrorCode(null); }} />
           <span>
             {t('membershipCheckout.termsAccept')}{' '}
-            <button type="button" onClick={goToMembershipTerms} className="font-semibold text-[#9A7B38] underline-offset-2 hover:underline cursor-pointer">{t('membership.termsLink')}</button>
+            <button type="button" onClick={goToMembershipTerms} className="font-semibold text-gold-700 underline-offset-2 hover:underline cursor-pointer">{t('membership.termsLink')}</button>
           </span>
         </label>
         <label className="flex cursor-pointer items-start gap-2 text-sm text-slate-800">
@@ -339,7 +339,7 @@ export const MembershipCheckoutView: React.FC<MembershipCheckoutViewProps> = ({ 
         id="btn-membership-pay"
         onClick={() => void pay()}
         disabled={working}
-        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#D4AF37] px-5 py-3 text-base font-bold text-slate-950 transition-colors hover:bg-[#c5a059] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gold-500 px-5 py-3 text-base font-bold text-slate-950 transition-colors hover:bg-gold-600 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
       >
         {working ? t('membershipCheckout.paying') : t('membershipCheckout.pay', { total: currency(total) })}
       </button>

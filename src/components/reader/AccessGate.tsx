@@ -10,7 +10,7 @@ type EndedReason = typeof ENDED_REASONS[number];
 const ERROR_CODES = ['network', 'rate_limited', 'product_not_found'] as const;
 type KnownErrorCode = typeof ERROR_CODES[number];
 
-const primaryButton = 'rounded-lg bg-[#D4AF37] px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-[#c5a059] disabled:opacity-60 cursor-pointer';
+const primaryButton = 'rounded-lg bg-gold-500 px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-gold-600 disabled:opacity-60 cursor-pointer';
 
 const GateCard: React.FC<{ dark: boolean; icon: React.ReactNode; title: string; children?: React.ReactNode; id?: string }> = ({ dark, icon, title, children, id }) => (
   <div className="flex h-full items-center justify-center overflow-y-auto p-4">
@@ -18,7 +18,7 @@ const GateCard: React.FC<{ dark: boolean; icon: React.ReactNode; title: string; 
       id={id}
       className={`w-full max-w-md rounded-2xl border p-6 text-left shadow-sm ${dark ? 'border-slate-800 bg-slate-900 text-slate-100' : 'border-slate-200 bg-white text-slate-900'}`}
     >
-      <div className="text-[#9A7B38]">{icon}</div>
+      <div className="text-gold-700">{icon}</div>
       <h2 className="mt-3 text-lg font-bold">{title}</h2>
       {children}
     </div>
@@ -114,7 +114,7 @@ export const AccessGate: React.FC<AccessGateProps> = ({ state, productId, dark =
                 <div className="min-w-0">
                   <p className="font-semibold [overflow-wrap:anywhere]">
                     {device.label}
-                    {device.isCurrent && <span className="ml-2 text-xs font-normal text-[#9A7B38]">{t('access.deviceLimit.current')}</span>}
+                    {device.isCurrent && <span className="ml-2 text-xs font-normal text-gold-700">{t('access.deviceLimit.current')}</span>}
                   </p>
                   <p className={`text-xs ${muted}`}>{t('access.deviceLimit.lastSeen', { date: date(new Date(device.lastSeen)) })}</p>
                 </div>

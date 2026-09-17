@@ -105,7 +105,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ mode, query, onChangeMode, o
     'update-password': { title: t('account.updateTitle'), subtitle: t('account.updateSubtitle'), submit: t('account.submitUpdate'), icon: <KeyRound className="h-5 w-5" /> }
   };
   const view = titles[mode];
-  const inputClass = 'mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20';
+  const inputClass = 'mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-500/20';
   const labelClass = 'block text-xs font-semibold text-slate-700';
   const showForm = !(notice && (mode === 'register' || mode === 'reset'));
   const needsRecoverySession = mode === 'update-password' && !member.isLoading && !member.isLoggedIn && !notice;
@@ -113,7 +113,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ mode, query, onChangeMode, o
   return (
     <div id={`account-${mode}`} className="max-w-md mx-auto px-4 sm:px-6 py-10 md:py-16 text-left">
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <div className="flex items-center gap-2 text-[#9A7B38]">{view.icon}</div>
+        <div className="flex items-center gap-2 text-gold-700">{view.icon}</div>
         <h1 className="mt-3 text-xl font-bold text-slate-900 sm:text-2xl">{view.title}</h1>
         <p className="mt-1 text-sm text-slate-600">{view.subtitle}</p>
 
@@ -170,7 +170,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ mode, query, onChangeMode, o
               type="submit"
               id="account-submit"
               disabled={working}
-              className="w-full rounded-lg bg-[#D4AF37] px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-[#c5a059] disabled:cursor-wait disabled:opacity-70 cursor-pointer"
+              className="w-full rounded-lg bg-gold-500 px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-gold-600 disabled:cursor-wait disabled:opacity-70 cursor-pointer"
             >
               {working ? t('account.working') : view.submit}
             </button>
@@ -180,15 +180,15 @@ export const AuthView: React.FC<AuthViewProps> = ({ mode, query, onChangeMode, o
         <div className="mt-6 flex flex-col gap-2 border-t border-slate-100 pt-4 text-xs">
           {mode === 'login' && (
             <>
-              <button type="button" id="account-to-register" onClick={() => onChangeMode('register')} className="text-left font-semibold text-[#9A7B38] hover:underline cursor-pointer">{t('account.toRegister')}</button>
+              <button type="button" id="account-to-register" onClick={() => onChangeMode('register')} className="text-left font-semibold text-gold-700 hover:underline cursor-pointer">{t('account.toRegister')}</button>
               <button type="button" id="account-to-reset" onClick={() => onChangeMode('reset')} className="text-left text-slate-600 hover:underline cursor-pointer">{t('account.forgot')}</button>
             </>
           )}
           {mode === 'register' && (
-            <button type="button" id="account-to-login" onClick={() => onChangeMode('login')} className="text-left font-semibold text-[#9A7B38] hover:underline cursor-pointer">{t('account.toLogin')}</button>
+            <button type="button" id="account-to-login" onClick={() => onChangeMode('login')} className="text-left font-semibold text-gold-700 hover:underline cursor-pointer">{t('account.toLogin')}</button>
           )}
           {(mode === 'reset' || mode === 'update-password') && (
-            <button type="button" onClick={() => onChangeMode('login')} className="text-left font-semibold text-[#9A7B38] hover:underline cursor-pointer">{t('account.backToLogin')}</button>
+            <button type="button" onClick={() => onChangeMode('login')} className="text-left font-semibold text-gold-700 hover:underline cursor-pointer">{t('account.backToLogin')}</button>
           )}
         </div>
       </div>

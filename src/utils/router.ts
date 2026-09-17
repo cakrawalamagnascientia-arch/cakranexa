@@ -9,7 +9,7 @@ import { DEFAULT_LANGUAGE, getCurrentLanguage, isAppLanguage, type AppLanguage }
  * Bahasa ditentukan oleh prefix URL: tanpa prefix = Bahasa Indonesia, /en = English, /zh = Mandarin
  * (mis. /katalog, /en/katalog, /zh/katalog). Dashboard admin selalu tanpa prefix.
  *
- * Produk digital: /digital/ebook, /digital/audiobook (daftar), /digital/<format>/<slug-buku> (detail),
+ * Produk digital: /digital (beranda fase 6), /digital/ebook, /digital/audiobook (daftar, ?kategori=), /digital/<format>/<slug-buku> (detail),
  * /digital/sample/<id-produk> (sampel), /digital/checkout?items=... (checkout). Keanggotaan: /membership,
  * /membership/checkout?plan=&cycle=, /membership/terms, /institutions, /library (Pustaka Saya, ?welcome=1),
  * /library/read/<id-produk>, /library/listen/<id-produk>.
@@ -117,10 +117,12 @@ export const parseLocation = (pathname: string = window.location.pathname, searc
     } else if (section === 'sample' && segments[2]) {
       state.subSection = 'sample';
       state.digitalItem = segments[2];
-    } else {
-      state.subSection = section === 'audiobook' ? 'audiobook' : 'ebook';
-      if ((section === 'ebook' || section === 'audiobook') && segments[2]) state.digitalItem = segments[2];
+    } else if (section === 'ebook' || section === 'audiobook') {
+      state.subSection = section;
+      if (segments[2]) state.digitalItem = segments[2];
+      else if (rawQuery) state.query = rawQuery;
     }
+    // Tanpa bagian (atau bagian tak dikenal): beranda digital.
   } else if (page === 'library') {
     if ((segments[1] === 'read' || segments[1] === 'listen') && segments[2]) {
       state.subSection = segments[1];
@@ -176,8 +178,8 @@ const buildBasePath = (state: RouteState): string => {
   if (page === 'digital') {
     if (subSection === 'checkout') return withQuery(`${base}/checkout`);
     if (subSection === 'sample' && digitalItem) return `${base}/sample/${encodeURIComponent(digitalItem)}`;
-    const format = subSection === 'audiobook' ? 'audiobook' : 'ebook';
-    return digitalItem ? `${base}/${format}/${encodeURIComponent(digitalItem)}` : `${base}/${format}`;
+    if (subSection !== 'ebook' && subSection !== 'audiobook') return base;
+    return digitalItem ? `${base}/${subSection}/${encodeURIComponent(digitalItem)}` : withQuery(`${base}/${subSection}`);
   }
   if (page === 'library') {
     if ((subSection === 'read' || subSection === 'listen') && digitalItem) return `${base}/${subSection}/${encodeURIComponent(digitalItem)}`;

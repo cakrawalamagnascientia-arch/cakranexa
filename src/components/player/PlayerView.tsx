@@ -133,7 +133,7 @@ export const PlayerView: React.FC<PlayerViewProps> = ({ productId, onExit }) => 
         <p role="alert">
           {metaError === 'not_ready' ? t('player.notReady') : metaError === 'wrong_format' ? t('player.wrongFormat') : t('access.error.generic')}
         </p>
-        <button type="button" onClick={onExit} className="rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-bold text-slate-950 cursor-pointer">{t('access.backToLibrary')}</button>
+        <button type="button" onClick={onExit} className="rounded-lg bg-gold-500 px-4 py-2 text-sm font-bold text-slate-950 cursor-pointer">{t('access.backToLibrary')}</button>
       </div>
     );
   } else if (!meta) {
@@ -149,10 +149,10 @@ export const PlayerView: React.FC<PlayerViewProps> = ({ productId, onExit }) => 
             {cover ? (
               <img src={cover} alt="" draggable={false} className="h-48 w-36 shrink-0 rounded-lg object-cover shadow-2xl" />
             ) : (
-              <div className="flex h-48 w-36 shrink-0 items-center justify-center rounded-lg bg-slate-800"><Headphones className="h-10 w-10 text-[#DFBF64]" /></div>
+              <div className="flex h-48 w-36 shrink-0 items-center justify-center rounded-lg bg-slate-800"><Headphones className="h-10 w-10 text-gold-400" /></div>
             )}
             <div className="min-w-0">
-              <p className="text-[11px] font-bold uppercase tracking-widest text-[#DFBF64]">Audiobook</p>
+              <p className="text-[11px] font-bold uppercase tracking-widest text-gold-400">Audiobook</p>
               <h1 className="mt-1 text-xl font-bold [overflow-wrap:anywhere] sm:text-2xl">{meta.title}</h1>
               <p className="text-sm text-slate-300">{meta.author}</p>
               <p className="mt-2 text-[11px] text-slate-500">{t('player.licensedTo', { name: meta.watermark.name, email: meta.watermark.email })}</p>

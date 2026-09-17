@@ -894,7 +894,8 @@
     "digitalDetail": "Detail digital",
     "membership": "Keanggotaan",
     "institutions": "Institusi",
-    "library": "Pustaka Saya"
+    "library": "Pustaka Saya",
+    "home": "Beranda digital"
   },
   "membershipCheckout": {
     "title": "Daftar keanggotaan",
@@ -1154,5 +1155,60 @@
       "saved": "Pengingat WhatsApp aktif untuk nomor ini.",
       "off": "Pengingat WhatsApp dimatikan. Pengingat tetap dikirim lewat email."
     }
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "CakraNexa Digital",
+      "titleLine1": "Buku ilmiah Indonesia,",
+      "titleLine2": "kapan saja Anda butuh.",
+      "subtitle": "Baca e-book dan dengarkan audiobook pajak, akuntansi, hukum, dan ekonomi dari penerbit CakraNexa dalam satu paket.",
+      "benefits": {
+        "shelf": "Rak e-book dan audiobook yang terus bertambah",
+        "samples": "Sampel gratis untuk setiap judul",
+        "devices": "Dua perangkat, lanjutkan di mana saja",
+        "sync": "Pindah dari e-book ke audio tanpa kehilangan posisi (Gold ke atas)",
+        "print": "Buku cetak tetap tersedia, dengan diskon anggota"
+      },
+      "startFree": "Mulai gratis",
+      "viewPlans": "Lihat paket",
+      "openLibrary": "Buka Pustaka Saya",
+      "mockupReading": "Sedang dibaca",
+      "mockupChapter": "Bab {{number}}",
+      "mockupListening": "Lanjutkan audio"
+    },
+    "shelves": {
+      "continue": "Lanjutkan membaca",
+      "newArrivals": "Baru masuk rak",
+      "popular": "Populer bulan ini",
+      "comingSoon": "Segera masuk rak",
+      "comingSoonPlan": "Tanggal buka untuk paket {{plan}}",
+      "comingSoonVisitor": "Tanggal buka paling awal (Platinum). Paket Gold +45 hari, Silver +90 hari.",
+      "seeAll": "Lihat semua",
+      "previous": "Geser ke kiri",
+      "next": "Geser ke kanan",
+      "empty": "Judul digital sedang disiapkan. Sementara itu, jelajahi sampel dan paket keanggotaan."
+    }
+  },
+  "card": {
+    "includedIn": "Termasuk {{plan}}",
+    "sample": "Sampel",
+    "soon": "Segera",
+    "opensOn": "Buka {{date}}",
+    "progress": "{{percent}}% selesai",
+    "open": "Buka {{title}}"
+  },
+  "digitalNav": {
+    "label": "Navigasi area digital",
+    "home": "Beranda digital",
+    "audiobook": "Audiobook",
+    "ebook": "E-book",
+    "categories": "Kategori",
+    "join": "Gabung",
+    "startFree": "Mulai gratis",
+    "myLibrary": "Pustaka Saya",
+    "more": "Lainnya",
+    "moreSite": "Situs CakraNexa",
+    "signOut": "Keluar",
+    "allCategories": "Semua kategori"
   }
 }

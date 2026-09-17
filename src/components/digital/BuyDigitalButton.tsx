@@ -39,7 +39,7 @@ export const BuyDigitalButton: React.FC<BuyDigitalButtonProps> = ({ product, id,
         id={id}
         data-unit-sales="off"
         onClick={goToMembership}
-        className={`inline-flex w-full flex-wrap items-center justify-center gap-1.5 rounded-lg bg-[#D4AF37] font-bold text-slate-950 shadow-xs transition-colors hover:bg-[#c5a059] cursor-pointer ${sizeClass} ${className}`}
+        className={`inline-flex w-full flex-wrap items-center justify-center gap-1.5 rounded-lg bg-gold-500 font-bold text-slate-950 shadow-xs transition-colors hover:bg-gold-600 cursor-pointer ${sizeClass} ${className}`}
       >
         <Crown className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
         <span className="[overflow-wrap:anywhere]">{t('common.viewPlans')}</span>
@@ -53,7 +53,7 @@ export const BuyDigitalButton: React.FC<BuyDigitalButtonProps> = ({ product, id,
       id={id}
       disabled={!purchasable}
       onClick={() => goToDigitalCheckout([product.id])}
-      className={`inline-flex w-full flex-wrap items-center justify-center gap-1.5 rounded-lg bg-[#D4AF37] font-bold text-slate-950 shadow-xs transition-colors hover:bg-[#c5a059] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer ${sizeClass} ${className}`}
+      className={`inline-flex w-full flex-wrap items-center justify-center gap-1.5 rounded-lg bg-gold-500 font-bold text-slate-950 shadow-xs transition-colors hover:bg-gold-600 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer ${sizeClass} ${className}`}
     >
       <ShoppingCart className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
       <span className="[overflow-wrap:anywhere]">{label}</span>

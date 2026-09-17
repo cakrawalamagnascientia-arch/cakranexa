@@ -127,7 +127,7 @@ export const InstitutionsView: React.FC = () => {
 
   const inputClass = (invalid: boolean) =>
     `mt-1 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 ${
-      invalid ? 'border-rose-400 focus:ring-rose-200' : 'border-slate-300 focus:border-[#D4AF37] focus:ring-[#D4AF37]/20'
+      invalid ? 'border-rose-400 focus:ring-rose-200' : 'border-slate-300 focus:border-gold-500 focus:ring-gold-500/20'
     }`;
   const labelClass = 'block text-xs font-semibold text-slate-700';
   const fieldError = (field: FieldName) =>
@@ -140,15 +140,15 @@ export const InstitutionsView: React.FC = () => {
   return (
     <div id="institutions-page" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 text-left">
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-2xl border border-slate-800 bg-[#0F172A] p-6 text-white shadow-sm sm:p-8">
-        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#D4AF37]/10 blur-3xl" />
+      <section className="relative overflow-hidden rounded-2xl border border-slate-800 bg-navy-900 p-6 text-white shadow-sm sm:p-8">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-gold-500/10 blur-3xl" />
         <div className="relative max-w-3xl">
-          <span className="inline-flex items-center rounded-full border border-[#D4AF37]/40 bg-[#D4AF37]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#DFBF64]">
+          <span className="inline-flex items-center rounded-full border border-gold-500/40 bg-gold-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-gold-400">
             {t('institutions.badge')}
           </span>
           <h1 className="mt-3 text-2xl font-bold leading-tight sm:text-3xl md:text-4xl">{t('institutions.title')}</h1>
           <p className="mt-3 text-sm text-slate-300 sm:text-base">{t('institutions.subtitle')}</p>
-          <p className="mt-3 text-sm font-semibold text-[#DFBF64]">{t('institutions.pricingNote')}</p>
+          <p className="mt-3 text-sm font-semibold text-gold-400">{t('institutions.pricingNote')}</p>
           <p className="mt-1 text-xs text-slate-300">
             {t('institutions.foundingNote', { percent: INSTITUTION_PROGRAM.founding.discountPercent, cap: INSTITUTION_PROGRAM.founding.cap })}
           </p>
@@ -156,7 +156,7 @@ export const InstitutionsView: React.FC = () => {
             type="button"
             id="btn-institutions-hero-quote"
             onClick={scrollToForm}
-            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#D4AF37] px-5 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-[#c5a059] cursor-pointer"
+            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-gold-500 px-5 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-gold-600 cursor-pointer"
           >
             {t('institutions.requestQuote')}
             <ArrowRight className="h-4 w-4" />
@@ -177,11 +177,11 @@ export const InstitutionsView: React.FC = () => {
               key={tier.key}
               id={`institution-tier-${tier.key}`}
               className={`flex flex-col rounded-2xl border bg-white p-5 shadow-xs ${
-                tier.highlighted ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/30' : 'border-slate-200'
+                tier.highlighted ? 'border-gold-500 ring-2 ring-gold-500/30' : 'border-slate-200'
               }`}
             >
               <h3 className="text-lg font-bold text-slate-900 [overflow-wrap:anywhere]">{t(`institutions.tiers.${tier.key}.name`)}</h3>
-              <p className="mt-1 text-sm font-semibold text-[#9A7B38]">
+              <p className="mt-1 text-sm font-semibold text-gold-700">
                 {tier.concurrentUsers ? t('institutions.concurrentUsers', { count: tier.concurrentUsers }) : t('institutions.concurrentUsersCustom')}
               </p>
               <p className="mt-2 text-xs text-slate-600">{t(`institutions.tiers.${tier.key}.description`)}</p>
@@ -223,7 +223,7 @@ export const InstitutionsView: React.FC = () => {
       <section className="mt-12 grid gap-6 rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8 lg:grid-cols-2">
         <div>
           <h2 className="flex items-center gap-2 text-xl font-bold text-slate-900">
-            <Wallet className="h-5 w-5 shrink-0 text-[#9A7B38]" aria-hidden="true" />
+            <Wallet className="h-5 w-5 shrink-0 text-gold-700" aria-hidden="true" />
             {t('institutions.wallet.title')}
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-slate-600">
@@ -377,7 +377,7 @@ export const InstitutionsView: React.FC = () => {
                 type="submit"
                 id="btn-institution-inquiry-submit"
                 disabled={status === 'submitting'}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#D4AF37] px-5 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-[#c5a059] disabled:cursor-wait disabled:opacity-70 cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-gold-500 px-5 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-gold-600 disabled:cursor-wait disabled:opacity-70 cursor-pointer"
               >
                 <Send className="h-4 w-4" aria-hidden="true" />
                 {status === 'submitting' ? t('institutions.form.submitting') : t('institutions.form.submit')}

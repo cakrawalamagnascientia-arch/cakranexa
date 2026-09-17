@@ -331,7 +331,8 @@ export class MemoryDigitalStore implements DigitalStore {
   }
 
   async insertSession(row: NewSession) {
-    if (this.sessions.some((s) => s.userId === row.userId && s.productId === row.productId && !s.endedAt)) {
+    // Satu sesi terbuka per pengguna (indeks access_sessions_one_active_user).
+    if (this.sessions.some((s) => s.userId === row.userId && !s.endedAt)) {
       throw new ConflictError('session_exists');
     }
     const session: SessionRecord = {
@@ -736,6 +737,20 @@ export class MemoryDigitalStore implements DigitalStore {
       .filter((m) => (!f.ownerSubscriptionId || m.ownerSubscriptionId === f.ownerSubscriptionId) && (!f.userId || m.userId === f.userId)
         && (!f.status || m.status === f.status))
       .map(clone);
+  }
+
+  async popularProducts(since: string, limit: number) {
+    const from = Date.parse(since);
+    const readers = new Map<string, Set<string>>();
+    for (const e of this.events) {
+      if (Date.parse(e.createdAt) < from) continue;
+      if (!readers.has(e.productId)) readers.set(e.productId, new Set());
+      readers.get(e.productId)!.add(e.userId);
+    }
+    return [...readers.entries()]
+      .map(([productId, users]) => ({ productId, readers: users.size }))
+      .sort((a, b) => b.readers - a.readers || a.productId.localeCompare(b.productId))
+      .slice(0, limit);
   }
 
   async removeFamilyMember(id: string, removedAt: string) {

@@ -10,7 +10,9 @@ import { getShelfStatus } from '../../data/digitalProducts';
 import { DIGITAL_SHELF_PLANS } from '../../data/membership';
 import { FormatIcon } from './FormatIcon';
 import { BuyDigitalButton } from './BuyDigitalButton';
-import { DigitalProductCard } from './DigitalProductCard';
+import { DigitalShelfCard } from './DigitalShelfCard';
+import { useShelfRules } from '../../hooks/useShelfRules';
+import { inclusionBadge } from '../../data/digitalShelf';
 import { useDigitalFormatters } from './useDigitalFormatters';
 
 interface DigitalDetailViewProps {
@@ -37,6 +39,7 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
   const categoryLabel = useCategoryLabel();
   const fmt = useDigitalFormatters();
   const { entries } = useDigitalCatalog();
+  const shelfRules = useShelfRules();
 
   if (!entry) {
     return (
@@ -101,9 +104,9 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
         type="button"
         id="btn-digital-back-listing"
         onClick={() => onNavigate('digital', product.format)}
-        className="mb-6 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-xs transition-all hover:bg-slate-200/80 hover:text-[#0F172A] sm:text-sm cursor-pointer"
+        className="mb-6 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-xs transition-all hover:bg-slate-200/80 hover:text-navy-900 sm:text-sm cursor-pointer"
       >
-        <ArrowLeft className="h-4 w-4 text-[#DFBF64]" />
+        <ArrowLeft className="h-4 w-4 text-gold-400" />
         <span>{t('detail.backToListing', { format: formatLabel })}</span>
       </button>
 
@@ -134,7 +137,7 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
               onClick={() => onOpenSample(entry)}
               className="mx-auto mt-4 flex w-full max-w-xs items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white py-2.5 text-sm font-semibold text-slate-800 transition-colors hover:bg-slate-50 cursor-pointer"
             >
-              <FormatIcon format={product.format} className="h-4 w-4 text-[#9A7B38]" />
+              <FormatIcon format={product.format} className="h-4 w-4 text-gold-700" />
               {sampleLabel}
             </button>
           )}
@@ -145,7 +148,7 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
           <header>
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-600">
               <span>{categoryLabel(book.category)}</span>
-              <span className="inline-flex items-center gap-1 rounded bg-slate-900 px-2 py-0.5 text-[10px] text-[#DFBF64]">
+              <span className="inline-flex items-center gap-1 rounded bg-slate-900 px-2 py-0.5 text-[10px] text-gold-400">
                 <FormatIcon format={product.format} className="h-3 w-3" />
                 {formatLabel}
               </span>
@@ -182,7 +185,7 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
             <h2 id="digital-how-to-get" className="mb-3 text-lg font-bold text-slate-900">{t('detail.howToGet.title')}</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="flex flex-col rounded-xl border border-slate-800 bg-slate-900 p-5 text-white">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-[#DFBF64]">{t('detail.howToGet.buyTitle')}</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-gold-400">{t('detail.howToGet.buyTitle')}</h3>
                 <p className="mt-2 flex-1 text-xs text-slate-300">{t('detail.howToGet.buyDescription')}</p>
                 <div className="mt-4">
                   {isAvailable ? (
@@ -248,9 +251,15 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
       {related.length > 0 && (
         <section className="mt-12">
           <h2 className="mb-4 text-lg font-bold text-slate-900">{t('detail.related', { format: formatLabel })}</h2>
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-4 lg:grid-cols-5">
             {related.map((item) => (
-              <DigitalProductCard key={item.product.id} entry={item} onOpen={onOpenProduct} onOpenSample={onOpenSample} />
+              <DigitalShelfCard
+                key={item.product.id}
+                layout="grid"
+                entry={item}
+                badge={inclusionBadge(item.product, shelfRules.today, shelfRules.frontlist)}
+                onOpen={onOpenProduct}
+              />
             ))}
           </div>
         </section>

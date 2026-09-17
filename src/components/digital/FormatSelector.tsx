@@ -44,7 +44,7 @@ export const FormatSelector: React.FC<FormatSelectorProps> = ({ bookId, selected
               onClick={() => onSelect(format)}
               className={`flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg border px-1.5 py-2 text-[11px] font-semibold transition-colors sm:text-xs ${
                 isSelected
-                  ? 'border-[#D4AF37] bg-[#D4AF37]/15 text-[#DFBF64]'
+                  ? 'border-gold-500 bg-gold-500/15 text-gold-400'
                   : enabled
                     ? 'cursor-pointer border-slate-700 bg-slate-800 text-white hover:border-slate-500'
                     : 'cursor-not-allowed border-slate-800 bg-slate-900/60 text-slate-500'
@@ -77,7 +77,7 @@ export const DigitalFormatPanel: React.FC<DigitalFormatPanelProps> = ({ product,
   return (
     <div className="space-y-4">
       <div>
-        <div className="text-2xl font-bold tracking-tight text-[#DFBF64] sm:text-3xl">{formatLabel}</div>
+        <div className="text-2xl font-bold tracking-tight text-gold-400 sm:text-3xl">{formatLabel}</div>
         <p className="mt-1 text-[11px] text-slate-400">{t('formatSelector.digitalNote')}</p>
       </div>
       <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2">

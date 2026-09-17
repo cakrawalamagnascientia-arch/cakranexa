@@ -89,7 +89,7 @@ const NoteDialog: React.FC<NoteDialogProps> = ({ title, initialColor, initialTex
               aria-checked={color === c}
               aria-label={t(`reader.colors.${c}`)}
               onClick={() => setColor(c)}
-              className={`h-8 w-8 rounded-full cursor-pointer ${SWATCH_CLASS[c]} ${color === c ? 'ring-2 ring-[#D4AF37] ring-offset-2' : ''}`}
+              className={`h-8 w-8 rounded-full cursor-pointer ${SWATCH_CLASS[c]} ${color === c ? 'ring-2 ring-gold-500 ring-offset-2' : ''}`}
             />
           ))}
         </div>
@@ -115,7 +115,7 @@ const NoteDialog: React.FC<NoteDialogProps> = ({ title, initialColor, initialTex
           ) : <span />}
           <div className="flex gap-2">
             <button type="button" onClick={onCancel} className="rounded-lg px-3 py-1.5 text-xs font-semibold hover:underline cursor-pointer">{t('reader.cancel')}</button>
-            <button type="button" onClick={() => onSave(color, text)} className="rounded-lg bg-[#D4AF37] px-3 py-1.5 text-xs font-bold text-slate-950 hover:bg-[#c5a059] cursor-pointer">
+            <button type="button" onClick={() => onSave(color, text)} className="rounded-lg bg-gold-500 px-3 py-1.5 text-xs font-bold text-slate-950 hover:bg-gold-600 cursor-pointer">
               {t('reader.saveNote')}
             </button>
           </div>
@@ -409,7 +409,7 @@ export const ReaderView: React.FC<ReaderViewProps> = ({ productId, onExit }) => 
         <p role="alert">
           {metaError === 'not_ready' ? t('reader.notReady') : metaError === 'wrong_format' ? t('reader.wrongFormat') : t('access.error.generic')}
         </p>
-        <button type="button" onClick={onExit} className="rounded-lg bg-[#D4AF37] px-4 py-2 text-sm font-bold text-slate-950 cursor-pointer">{t('access.backToLibrary')}</button>
+        <button type="button" onClick={onExit} className="rounded-lg bg-gold-500 px-4 py-2 text-sm font-bold text-slate-950 cursor-pointer">{t('access.backToLibrary')}</button>
       </div>
     );
   } else if (!meta) {
@@ -607,7 +607,7 @@ export const ReaderView: React.FC<ReaderViewProps> = ({ productId, onExit }) => 
                       style={{ userSelect: 'text' }}
                       className={`min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-sm ${dark ? 'border-slate-700 bg-slate-800' : 'border-slate-300 bg-white'}`}
                     />
-                    <button type="submit" className="rounded-lg bg-[#D4AF37] px-3 py-1.5 text-xs font-bold text-slate-950 cursor-pointer">{t('reader.searchSubmit')}</button>
+                    <button type="submit" className="rounded-lg bg-gold-500 px-3 py-1.5 text-xs font-bold text-slate-950 cursor-pointer">{t('reader.searchSubmit')}</button>
                   </form>
                   <div className="mt-3" aria-live="polite">
                     {searchState === 'loading' && <p className={muted}>{t('reader.searching')}</p>}
@@ -623,7 +623,7 @@ export const ReaderView: React.FC<ReaderViewProps> = ({ productId, onExit }) => 
                               onClick={() => jump(result.page)}
                               className={`w-full rounded-lg px-2 py-1.5 text-left cursor-pointer ${dark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}
                             >
-                              <span className="block text-xs font-semibold text-[#9A7B38]">{t('reader.searchResultPage', { page: result.page })}</span>
+                              <span className="block text-xs font-semibold text-gold-700">{t('reader.searchResultPage', { page: result.page })}</span>
                               <span className={`block text-xs [overflow-wrap:anywhere] ${dark ? 'text-slate-300' : 'text-slate-700'}`}>{result.snippet}</span>
                             </button>
                           </li>

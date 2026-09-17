@@ -431,7 +431,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
               onBlur={commitSeek}
               aria-label={t('player.seek')}
               aria-valuetext={`${formatTime(shownTime)} / ${formatTime(duration)}`}
-              className="w-full cursor-pointer accent-[#D4AF37]"
+              className="w-full cursor-pointer accent-gold-500"
             />
             <div className="mt-1 flex justify-between font-mono text-[11px] text-slate-400">
               <span>{formatTime(shownTime)}</span>
@@ -452,7 +452,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
               type="button"
               id={audioId ? `${audioId}-toggle` : undefined}
               onClick={togglePlay}
-              className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#D4AF37] text-slate-950 shadow-lg transition-colors hover:bg-[#c5a059] cursor-pointer"
+              className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gold-500 text-slate-950 shadow-lg transition-colors hover:bg-gold-600 cursor-pointer"
               aria-label={playing ? t('player.pause') : t('player.play')}
               title={playing ? t('player.pause') : t('player.play')}
             >
@@ -519,7 +519,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
           {!compact && (
             <div className="mt-5">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-[#DFBF64]">{t('player.chapters')}</h2>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-gold-400">{t('player.chapters')}</h2>
               {chapters.length === 0 ? (
                 <p className="mt-2 text-xs text-slate-400">{t('player.noChapters')}</p>
               ) : (
@@ -530,7 +530,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                         type="button"
                         onClick={() => seekTo(chapter.start)}
                         aria-current={index === currentChapter ? 'true' : undefined}
-                        className={`flex w-full items-baseline justify-between gap-3 px-3 py-2 text-left text-sm transition-colors cursor-pointer ${index === currentChapter ? 'bg-[#D4AF37]/15 text-[#DFBF64]' : 'text-slate-200 hover:bg-white/5'}`}
+                        className={`flex w-full items-baseline justify-between gap-3 px-3 py-2 text-left text-sm transition-colors cursor-pointer ${index === currentChapter ? 'bg-gold-500/15 text-gold-400' : 'text-slate-200 hover:bg-white/5'}`}
                       >
                         <span className="min-w-0 [overflow-wrap:anywhere]">{chapter.title}</span>
                         <span className="shrink-0 font-mono text-[11px] text-slate-400">{formatTime(chapter.start)}</span>

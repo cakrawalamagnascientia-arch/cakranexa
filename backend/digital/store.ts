@@ -148,6 +148,7 @@ export interface DigitalStore {
 
   // Sesi
   findOpenSession(userId: string, productId: string): Promise<SessionRecord | null>;
+  /** ConflictError bila pengguna sudah punya sesi terbuka (satu sesi aktif per pengguna, fase 6). */
   getSession(id: string): Promise<SessionRecord | null>;
   getSessionByTokenHash(tokenHash: string): Promise<SessionRecord | null>;
   insertSession(row: NewSession): Promise<SessionRecord>;
@@ -221,4 +222,6 @@ export interface DigitalStore {
   addFamilyMember(row: { ownerSubscriptionId: string; userId: string }): Promise<FamilyMemberRecord>;
   listFamilyMembers(filter: { ownerSubscriptionId?: string; userId?: string; status?: FamilyMemberRecord['status'] }): Promise<FamilyMemberRecord[]>;
   removeFamilyMember(id: string, removedAt: string): Promise<FamilyMemberRecord | null>;
+  /** Produk dengan pembaca/pendengar berbeda terbanyak sejak `since` (rak "Populer bulan ini"). */
+  popularProducts(since: string, limit: number): Promise<Array<{ productId: string; readers: number }>>;
 }
