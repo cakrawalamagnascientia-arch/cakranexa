@@ -163,10 +163,6 @@ export interface Order {
   shippingZone?: string | null;
   /** rajaongkir | zone_fallback (ongkir estimasi tabel zona, admin bisa mengoreksi) | manual. */
   shippingSource?: string | null;
-  /** Transfer bank: 'USD' = pembeli membayar dari luar negeri ke rekening USD (tanpa kode unik, 5 hari kerja). */
-  transferCurrency?: 'IDR' | 'USD' | null;
-  /** Catatan Finance: jumlah USD yang diterima. */
-  usdAmountReceived?: number | null;
   copies?: number;
   dueExtendedCount?: number;
   /** Tautan halaman pesanan untuk pembeli (/pesanan/<nomor>?t=...), hanya ada di browser pembeli. */
@@ -303,8 +299,6 @@ export interface AdminBankAccount {
   accountHolder: string;
   branch?: string;
   currency?: 'IDR' | 'USD';
-  /** Kode SWIFT rekening USD (pembayaran dari luar negeri), mis. BMRIIDJA. */
-  swiftCode?: string;
   isActive: boolean;
   isDefault?: boolean;
 }

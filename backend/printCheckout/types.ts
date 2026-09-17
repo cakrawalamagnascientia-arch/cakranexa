@@ -75,9 +75,6 @@ export interface PrintOrderRow {
   shipping_destination_label?: string | null;
   shipping_weight_gram?: number | null;
   shipping_etd?: string | null;
-  // Jalur transfer dari luar negeri (print_usd_transfer_migration.sql)
-  transfer_currency?: 'IDR' | 'USD' | null;
-  usd_amount_received?: number | null;
   created_at?: string;
   updated_at?: string;
 }

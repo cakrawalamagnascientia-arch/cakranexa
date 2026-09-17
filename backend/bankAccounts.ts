@@ -10,14 +10,11 @@ export type BankAccountRow = {
   account_holder: string;
   branch: string | null;
   currency?: string | null;
-  swift_code?: string | null;
   is_active: boolean;
   is_default: boolean;
 };
 
 export const BANK_ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
-/** Kode SWIFT/BIC: 8 atau 11 karakter (mis. BMRIIDJA). */
-export const SWIFT_RE = /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/;
 
 export const rowToBankAccount = (row: any) => ({
   id: row.id,
@@ -27,7 +24,6 @@ export const rowToBankAccount = (row: any) => ({
   accountHolder: row.account_holder,
   branch: row.branch || undefined,
   currency: String(row.currency || 'IDR').toUpperCase() === 'USD' ? 'USD' : 'IDR',
-  swiftCode: row.swift_code || undefined,
   isActive: row.is_active !== false,
   isDefault: Boolean(row.is_default)
 });

@@ -22,8 +22,6 @@ export interface PrintCheckoutConfig {
   uniqueCodeEnabled: boolean;
   transferDueHours: number;
   methods: PaymentMethod[];
-  /** Transfer dari luar negeri ke rekening USD (bila ada rekening USD aktif). */
-  usdTransfer?: { available: boolean; dueBusinessDays: number };
 }
 
 export interface OrderBankAccount {
@@ -32,7 +30,6 @@ export interface OrderBankAccount {
   accountHolder: string;
   branch: string | null;
   currency?: 'IDR' | 'USD';
-  swiftCode?: string | null;
 }
 
 export interface PrintOrderDetail {
@@ -65,9 +62,6 @@ export interface PrintOrderDetail {
   canUploadProof: boolean;
   manualQuoteMinCopies: number;
   transferDueHours: number;
-  /** 'USD' = pembeli membayar dari luar negeri (tanpa kode unik, batas hari kerja). */
-  transferCurrency?: 'IDR' | 'USD' | null;
-  transferDueBusinessDays?: number | null;
   companyName: string;
 }
 
@@ -135,11 +129,8 @@ const adminSend = async <T>(path: string, method: 'POST' | 'PUT' | 'PATCH', body
 const adminGet = async <T>(path: string): Promise<T> =>
   parse(await fetchWithTimeout(apiUrl(path), { headers: adminHeaders() }, TIMEOUT_MS));
 
-export const confirmOrderPayment = (orderNumber: string, reference?: string, usdAmountReceived?: string) =>
-  adminSend(`${adminOrderPath(orderNumber)}/confirm-payment`, 'POST', {
-    ...(reference ? { reference } : {}),
-    ...(usdAmountReceived ? { usdAmountReceived } : {})
-  });
+export const confirmOrderPayment = (orderNumber: string, reference?: string) =>
+  adminSend(`${adminOrderPath(orderNumber)}/confirm-payment`, 'POST', reference ? { reference } : {});
 
 export const setOrderShippingQuote = (orderNumber: string, shippingFee: number, courier?: string) =>
   adminSend(`${adminOrderPath(orderNumber)}/shipping-quote`, 'POST', courier ? { shippingFee, courier } : { shippingFee });

@@ -37,9 +37,7 @@ const CUSTOMER = {
   courier: 'JNE Express',
   shippingService: 'REG (Reguler)'
 };
-const IDR_ACCOUNT = { bankName: 'Bank Mandiri', accountNumber: '167-00-1164499-3', accountHolder: 'PT CAKRAWALA MAGNA SCIENTIA', branch: null, currency: 'IDR' as const, swiftCode: null };
-const USD_ACCOUNT = { bankName: 'Bank Mandiri', accountNumber: '167-00-1171867-2', accountHolder: 'PT CAKRAWALA MAGNA SCIENTIA', branch: null, currency: 'USD' as const, swiftCode: 'BMRIIDJA' };
-const ROUTE_VA_BCA ={ routing: [{ transactionType: 'print', method: 'va_bca', provider: 'midtrans' }] };
+const ROUTE_VA_BCA = { routing: [{ transactionType: 'print', method: 'va_bca', provider: 'midtrans' }] };
 const ORIGIN = { id: 3855, label: 'KRAMAT, SENEN, JAKARTA PUSAT, DKI JAKARTA, 10450' };
 const DEST: ShippingDestination = {
   id: 17473, label: 'SENEN, SENEN, JAKARTA PUSAT, DKI JAKARTA, 10410', province: 'DKI JAKARTA', city: 'JAKARTA PUSAT', district: 'SENEN', subdistrict: 'SENEN', zipCode: '10410'
@@ -72,7 +70,7 @@ const fakeRajaOngkir = () => {
 
 let seq = 0;
 
-const setup = (opts: { midtransEnabled?: boolean; storage?: boolean; mode?: 'zone' | 'rajaongkir'; rajaongkir?: boolean; origin?: boolean; usd?: boolean } = {}) => {
+const setup = (opts: { midtransEnabled?: boolean; storage?: boolean; mode?: 'zone' | 'rajaongkir'; rajaongkir?: boolean; origin?: boolean } = {}) => {
   const clock = { t: START };
   const stock: Record<string, number> = {};
   const store = new MemoryPrintOrderStore((bookId, quantity) => {
@@ -113,7 +111,7 @@ const setup = (opts: { midtransEnabled?: boolean; storage?: boolean; mode?: 'zon
     sendMail: async (message) => {
       mails.push(message);
     },
-    listBankAccounts: async () => (opts.usd === false ? [IDR_ACCOUNT] : [IDR_ACCOUNT, USD_ACCOUNT]),
+    listBankAccounts: async () => [{ bankName: 'Bank Mandiri', accountNumber: '167-00-1164499-3', accountHolder: 'PT CAKRAWALA MAGNA SCIENTIA', branch: null }],
     adminEmails: ['admin@uji.test'],
     midtrans: { enabled: opts.midtransEnabled ?? false, isProduction: false },
     siteUrl: 'https://cakranexa.test',
@@ -337,7 +335,7 @@ describe('checkout buku cetak: transfer bank ke rekening PT', () => {
       uniqueCode: 500, uniqueDiscount: 500, buyerName: 'Pembeli Uji', financeWhatsapp: '+6285286146806', canUploadProof: true, hasProof: false
     });
     expect(detail.body.whatsappText).toBe(`Konfirmasi pembayaran pesanan #${n}, Rp199.500, atas nama Pembeli Uji`);
-    expect(detail.body.bankAccounts).toEqual([IDR_ACCOUNT, USD_ACCOUNT]);
+    expect(detail.body.bankAccounts).toEqual([{ bankName: 'Bank Mandiri', accountNumber: '167-00-1164499-3', accountHolder: 'PT CAKRAWALA MAGNA SCIENTIA', branch: null }]);
     expect(detail.body.items[0]).toMatchObject({ bookId: 'book-a', quantity: 1, subtotal: 185000 });
     expect(detail.body.items[0].title).toMatch(/uji satu/i);
 
@@ -505,72 +503,6 @@ describe('checkout buku cetak: transfer bank ke rekening PT', () => {
     const dest = await t.destination();
     await request(t.app).post('/api/shipping/quote').send({ destination: dest, items: [{ book_id: 'book-b', qty: 1 }] });
     expect(t.raja.costCalls.at(-1)).toEqual({ origin: 3855, destination: 17473, weightGram: 600, couriers: ['jne', 'pos'] });
-  });
-
-  it('transfer dari luar negeri (USD): nominal Rupiah tanpa kode unik, batas 5 hari kerja, rekening USD + SWIFT, catatan USD diterima', async () => {
-    const t = setup();
-    const config = await request(t.app).get('/api/print-checkout/config');
-    expect(config.body.usdTransfer).toEqual({ available: true, dueBusinessDays: 5 });
-
-    const res = await t.place({ transferCurrency: 'USD', shippingCost: 15000 });
-    expect(res.status).toBe(201);
-    expect(res.body).toMatchObject({ paymentStatus: 'awaiting_transfer', transferCurrency: 'USD', uniqueCode: null, uniqueDiscount: 0, total: 200000 });
-    // Selasa 10:00 WIB + 5 hari kerja (lewat Sabtu-Minggu) = Selasa berikutnya 10:00 WIB.
-    expect(res.body.paymentDueAt).toBe('2026-09-22T03:00:00.000Z');
-    const n = res.body.orderNumber;
-    expect(await t.store.getOrder(n)).toMatchObject({ transfer_currency: 'USD', unique_code: null });
-
-    const html = t.mails[0].html;
-    const idrAt = html.indexOf('167-00-1164499-3');
-    const foreignAt = html.indexOf('Untuk pembayaran dari luar negeri');
-    expect(idrAt).toBeGreaterThan(-1);
-    expect(foreignAt).toBeGreaterThan(idrAt);
-    for (const expected of ['167-00-1171867-2', 'BMRIIDJA', 'PT CAKRAWALA MAGNA SCIENTIA', `nomor pesanan ${n}`, 'Rp200.000', '5 hari kerja', 'tanpa kode unik']) {
-      expect(html, expected).toContain(expected);
-    }
-    expect(html.indexOf('167-00-1171867-2')).toBeGreaterThan(foreignAt);
-    expect(html).not.toContain('Potongan kode unik');
-
-    const detail = await request(t.app).get(`/api/orders/${n}/detail?t=${res.body.accessToken}`);
-    expect(detail.body).toMatchObject({ transferCurrency: 'USD', transferDueBusinessDays: 5, uniqueCode: null, total: 200000 });
-
-    // Perpanjangan tanpa jam -> 5 hari kerja dari batas lama; jam eksplisit tetap dihormati.
-    const extended = await t.admin('post', `/api/admin/print-orders/${n}/extend`, {});
-    expect(extended.status).toBe(200);
-    expect(extended.body.order.payment_due_at).toBe('2026-09-29T03:00:00.000Z');
-
-    // Konfirmasi Finance: alur sama, catatan USD opsional divalidasi sebelum menandai lunas.
-    const bad = await t.admin('post', `/api/admin/print-orders/${n}/confirm-payment`, { usdAmountReceived: 'dua belas' });
-    expect(bad.status).toBe(400);
-    expect(await t.status(n)).toBe('awaiting_transfer');
-    const confirmed = await t.admin('post', `/api/admin/print-orders/${n}/confirm-payment`, { reference: 'SWIFT MT103', usdAmountReceived: '12,5' });
-    expect(confirmed.status).toBe(200);
-    expect(confirmed.body.order).toMatchObject({ payment_status: 'paid', payment_reference: 'SWIFT MT103', usd_amount_received: 12.5 });
-    expect(t.stock).toEqual({ 'book-a': 1 });
-
-    // Pesanan IDR biasa tetap memakai kode unik dan batas 24 jam; rekening USD tetap tercantum di bawahnya.
-    const idr = (await t.place({ shippingCost: 15000 })).body;
-    expect(idr).toMatchObject({ transferCurrency: 'IDR', uniqueCode: 500 });
-    expect(idr.paymentDueAt).toBe(new Date(START + 24 * HOUR).toISOString());
-    expect(t.mails.at(-1)!.html).toContain('Untuk pembayaran dari luar negeri');
-  });
-
-  it('transfer USD: tidak tersedia tanpa rekening USD aktif; menunggu ongkir -> tagihan USD tanpa kode unik dan 5 hari kerja', async () => {
-    const off = setup({ usd: false });
-    expect((await request(off.app).get('/api/print-checkout/config')).body.usdTransfer).toEqual({ available: false, dueBusinessDays: 5 });
-    const refused = await off.place({ transferCurrency: 'USD' });
-    expect(refused.status).toBe(400);
-    expect(refused.body.code).toBe('usd_unavailable');
-    expect((await off.place({ shippingCost: 15000 })).body.transferCurrency).toBe('IDR');
-    expect(off.mails.at(-1)!.html).not.toContain('Untuk pembayaran dari luar negeri');
-
-    const t = setup();
-    const held = (await t.place({ transferCurrency: 'USD', items: [{ book: { id: 'book-a' }, quantity: 5 }] })).body;
-    expect(held).toMatchObject({ paymentStatus: 'awaiting_shipping_quote', transferCurrency: 'USD' });
-    const quoted = await t.admin('post', `/api/admin/print-orders/${held.orderNumber}/shipping-quote`, { shippingFee: 55000 });
-    expect(quoted.body.order).toMatchObject({ payment_status: 'awaiting_transfer', unique_code: null, unique_discount: 0, total_amount: 980000 });
-    expect(quoted.body.order.payment_due_at).toBe('2026-09-22T03:00:00.000Z');
-    expect(t.mails.at(-1)!.html).toContain('5 hari kerja');
   });
 
   it('poin 1: pesanan gagal disimpan -> 503 tanpa transaksi pembayaran dan tanpa email; nomor ganda -> 409', async () => {

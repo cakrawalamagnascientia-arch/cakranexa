@@ -241,8 +241,6 @@ export interface CompanyBankAccount {
   accountHolder: string;
   branch: string | null;
   currency?: 'IDR' | 'USD';
-  /** Kode SWIFT (rekening USD untuk pembayaran dari luar negeri). */
-  swiftCode?: string | null;
 }
 
 /** Identitas penerbit di kepala invoice (CMS: nama perusahaan, alamat & kontak footer, NPWP). */

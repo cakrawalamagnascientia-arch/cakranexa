@@ -121,9 +121,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
   // Metode pembayaran dari payment_routing (bawaan: hanya transfer bank ke rekening PT).
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('bank_transfer');
-  // Transfer dari luar negeri (rekening USD): nominal tetap Rupiah, tanpa kode unik, batas waktu hari kerja.
-  const [foreignTransfer, setForeignTransfer] = useState(false);
-  const usdPath = paymentMethod === 'bank_transfer' && foreignTransfer && Boolean(checkoutConfig.usdTransfer?.available);
   useEffect(() => {
     if (!checkoutConfig.methods.includes(paymentMethod)) setPaymentMethod(checkoutConfig.methods[0] ?? 'bank_transfer');
   }, [checkoutConfig.methods, paymentMethod]);
@@ -202,7 +199,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
         : { ...customer },
       paymentMethod,
       paymentStatus: paymentMethod === 'bank_transfer' ? 'awaiting_transfer' : 'pending',
-      transferCurrency: usdPath ? 'USD' : 'IDR',
       whatsappDispatched: false,
       emailDispatched: false,
       createdAt: nowIso()
@@ -571,9 +567,6 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     selected={paymentMethod}
                     onSelect={setPaymentMethod}
                     transferDueHours={checkoutConfig.transferDueHours}
-                    usdTransfer={checkoutConfig.usdTransfer}
-                    foreignTransfer={foreignTransfer}
-                    onForeignTransferChange={setForeignTransfer}
                   />
                 </div>
               </div>
@@ -672,7 +665,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   <div className="pt-3 border-t border-slate-200 flex justify-between items-baseline">
                     <div>
                       <span className="text-xs font-bold text-slate-900 block">
-                        {paymentMethod === 'bank_transfer' && checkoutConfig.uniqueCodeEnabled && !manualShipping && !usdPath ? t('printCheckout.totalBeforeCode') : t('form.summary.totalDue')}
+                        {paymentMethod === 'bank_transfer' && checkoutConfig.uniqueCodeEnabled && !manualShipping ? t('printCheckout.totalBeforeCode') : t('form.summary.totalDue')}
                       </span>
                       <span className="text-[10px] text-slate-400">{t('form.summary.totalNote')}</span>
                     </div>
@@ -680,7 +673,7 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
                       {currency(grandTotal)}
                     </span>
                   </div>
-                  {paymentMethod === 'bank_transfer' && checkoutConfig.uniqueCodeEnabled && !manualShipping && !usdPath && (
+                  {paymentMethod === 'bank_transfer' && checkoutConfig.uniqueCodeEnabled && !manualShipping && (
                     <p className="text-[10px] text-slate-400">{t('printCheckout.uniqueCodeNote')}</p>
                   )}
                 </div>

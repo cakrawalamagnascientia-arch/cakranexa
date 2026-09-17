@@ -382,11 +382,6 @@
       "note": "Nomor rekening, nominal persis, dan batas waktu {{hours}} jam tampil setelah pesanan dibuat dan juga dikirim ke email Anda."
     },
     "paymentChoose": "Pilih metode pembayaran",
-    "foreign": {
-      "label": "Saya membayar dari luar negeri (transfer USD)",
-      "note": "Tagihan tetap dalam Rupiah; transfer USD setara ke rekening Mandiri valas dengan nomor pesanan di berita transfer. Tanpa kode unik, batas waktu {{days}} hari kerja.",
-      "singleNote": "Rekening USD, nominal persis dalam Rupiah, dan batas waktu {{days}} hari kerja tampil setelah pesanan dibuat dan juga dikirim ke email Anda."
-    },
     "submit": "Buat Pesanan",
     "offline": "Server belum dapat dihubungi. Periksa koneksi Anda lalu coba lagi."
   },
@@ -413,14 +408,6 @@
     "copyAccount": "Salin nomor rekening",
     "deadline": "Batas waktu pembayaran",
     "deadlineNote": "{{hours}} jam sejak tagihan terbit. Pesanan otomatis kedaluwarsa bila belum dibayar sampai batas waktu.",
-    "foreign": {
-      "title": "Untuk pembayaran dari luar negeri",
-      "swift": "Kode SWIFT",
-      "copySwift": "Salin SWIFT",
-      "note": "Tagihan tetap dalam Rupiah. Transfer USD senilai nominal di atas (biaya bank pengirim ditanggung pengirim) dan tulis nomor pesanan {{orderNumber}} di berita transfer.",
-      "amountNote": "Nominal dalam Rupiah. Transfer USD dengan nilai setara; tanpa kode unik.",
-      "deadlineNote": "{{days}} hari kerja sejak tagihan terbit untuk transfer dari luar negeri. Pesanan otomatis kedaluwarsa bila belum dibayar sampai batas waktu."
-    },
     "confirmWhatsApp": "Konfirmasi via WhatsApp",
     "proof": {
       "title": "Unggah bukti transfer (opsional)",

@@ -126,8 +126,6 @@ function mapServerOrder(r: any, books: Book[]): Order {
     isTest: Boolean(r.is_test),
     shippingZone: r.shipping_zone ?? null,
     shippingSource: r.shipping_source ?? null,
-    transferCurrency: r.transfer_currency ?? null,
-    usdAmountReceived: r.usd_amount_received === null || r.usd_amount_received === undefined ? null : Number(r.usd_amount_received),
     copies: r.copies ?? undefined,
     dueExtendedCount: Number(r.due_extended_count || 0)
   };
