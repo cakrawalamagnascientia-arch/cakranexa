@@ -14,14 +14,17 @@ describe('rekening transfer manual di checkout buku cetak', () => {
     expect(resolveCheckoutBankAccounts(server, DEFAULT_BANK_ACCOUNTS).map((a) => a.id)).toEqual(['acc-bca', 'acc-bni']);
   });
 
-  it('memakai rekening bawaan (Bank Mandiri resmi) bila server belum menjawab, gagal, atau tanpa rekening aktif', () => {
+  it('memakai rekening bawaan Bank Mandiri resmi (IDR utama, lalu USD untuk pembayaran luar negeri) bila server belum menjawab, gagal, atau tanpa rekening aktif', () => {
     for (const server of [null, [], [account({ isActive: false })]]) {
-      expect(resolveCheckoutBankAccounts(server, DEFAULT_BANK_ACCOUNTS).map((a) => a.accountNumber)).toEqual(['167-00-1164499-3']);
+      expect(resolveCheckoutBankAccounts(server, DEFAULT_BANK_ACCOUNTS).map((a) => [a.accountNumber, a.currency])).toEqual([
+        ['167-00-1164499-3', 'IDR'],
+        ['167-00-1171867-2', 'USD']
+      ]);
     }
   });
 
   it('rekening nonaktif di daftar cadangan tidak ditampilkan', () => {
     const fallback = [...DEFAULT_BANK_ACCOUNTS, account({ id: 'acc-mati', isActive: false })];
-    expect(resolveCheckoutBankAccounts(null, fallback).map((a) => a.id)).toEqual(['acc-mandiri']);
+    expect(resolveCheckoutBankAccounts(null, fallback).map((a) => a.id)).toEqual(['acc-mandiri', 'acc-mandiri-usd']);
   });
 });
