@@ -92,8 +92,8 @@ export const invoiceDocument = (input: InvoiceDocumentInput): InvoiceDocument =>
   const notes: string[] = [];
   if (contract.ebaCredit > 0) {
     notes.push(id
-      ? `Kredit institusi ${pct(contract.ebaPct)} dari biaya yang dibayar, sebesar ${rupiah(contract.ebaCredit)}, tersedia di akhir periode kontrak untuk pembelian buku cetak atau potongan perpanjangan kontrak.`
-      : `An institution credit of ${pct(contract.ebaPct)} of the fee paid, ${rupiah(contract.ebaCredit)}, becomes available at the end of the contract period for print purchases or a discount on contract renewal.`);
+      ? `Kredit akuisisi (Evidence-Based Acquisition) ${pct(contract.ebaPct)} dari biaya yang dibayar, sebesar ${rupiah(contract.ebaCredit)}, tersedia di akhir periode kontrak untuk lisensi permanen judul atau pembelian buku cetak.`
+      : `An acquisition credit (Evidence-Based Acquisition) of ${pct(contract.ebaPct)} of the fee paid, ${rupiah(contract.ebaCredit)}, becomes available at the end of the contract period for perpetual title licences or print purchases.`);
   }
   notes.push(
     id ? 'Harga kontrak dikunci selama periode kontrak.' : 'The contract price is locked for the contract period.',

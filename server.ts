@@ -939,8 +939,6 @@ async function startServer() {
     adminEmails: ORDER_NOTIFICATION_EMAILS,
     institutionAdminEmails: INSTITUTION_INQUIRY_EMAILS,
     midtrans: { enabled: MIDTRANS_ENABLED, serverKey: MIDTRANS_SERVER_KEY, snapUrl: MIDTRANS_SNAP_URL, isProduction: MIDTRANS_IS_PRODUCTION },
-    // payment_routing (tabel yang sama dengan checkout cetak): fase 6 menutup pembelian satuan dan mengatur metode keanggotaan.
-    getPaymentRouting: () => printOrderStore.getRouting(),
     cronJobs: { printOrders: () => runPrintOrderJob(), manuscripts: () => runManuscriptJob() }
   });
   app.use(digitalPhase2.router);

@@ -90,13 +90,7 @@
       "license_required": "Please accept the license terms first.",
       "snap_unavailable": "The payment window could not be loaded. Check your connection and try again.",
       "order_not_found": "Order not found.",
-      "unknown": "Something went wrong. Please try again.",
-      "unit_sales_disabled": "Single-title purchases are not available. Open titles with a membership plan."
-    },
-    "unitSalesClosed": {
-      "title": "Titles open with a plan",
-      "description": "CakraNexa no longer sells single e-books and audiobooks. Choose Silver, Gold, or Platinum to read and listen to this title. Earlier purchases stay in My Library.",
-      "library": "Open My Library"
+      "unknown": "Something went wrong. Please try again."
     }
   },
   "access": {
@@ -373,8 +367,7 @@
     "pages_one": "{{count}} page",
     "pages_other": "{{count}} pages",
     "coverAlt": "Cover of {{title}}",
-    "viewDetails": "View details",
-    "viewPlans": "Read with a plan"
+    "viewDetails": "View details"
   },
   "formatIcons": {
     "print": "Print book",
@@ -478,7 +471,7 @@
   "membership": {
     "badge": "Cakrawala Magna Society",
     "title": "Read smarter, buy for less, and grow with the Cakrawala Magna community",
-    "subtitle": "CakraNexa membership starts at {{price}} per month. Read e-books and listen to audiobooks with Silver, Gold, or Platinum.",
+    "subtitle": "CakraNexa membership from {{price}} a month. E-books and audiobooks are available through the Digital Reading Shelf in the Professional & Academic Society plan.",
     "billing": {
       "label": "Billing period",
       "monthly": "Monthly",
@@ -504,22 +497,6 @@
     "showFewerBenefits": "Show fewer",
     "authorDisclaimer": "Membership does not guarantee publication, an ISBN, or full editing. Publishing decisions are still based on the merit of the manuscript.",
     "plans": {
-      "blue": {
-        "name": "Blue",
-        "tagline": "Free: e-book and audiobook samples to get to know CakraNexa."
-      },
-      "silver": {
-        "name": "Silver",
-        "tagline": "For regular readers: 2 e-book titles and 5 audio hours every month."
-      },
-      "gold": {
-        "name": "Gold",
-        "tagline": "The balanced choice: 6 titles, 20 audio hours, offline, and notes."
-      },
-      "platinum": {
-        "name": "Platinum",
-        "tagline": "The whole shelf from day one, 60 audio hours, and 2 family accounts."
-      },
       "freeCircle": {
         "name": "Free Circle",
         "tagline": "A free way in: samples, newsletters, and purchase points."
@@ -593,18 +570,7 @@
       "wishlist": "Book wishlist",
       "preorderAlerts": "Pre-order alerts",
       "memberPrintDiscount": "{{percent}}% member price on group print books",
-      "authorOwnWorks": "Digital access to your own works and samples of every title",
-      "audioSample": "{{minutes}}-minute audiobook samples",
-      "devicesTwo": "{{n}} devices, 1 active session",
-      "titleQuota": "{{n}} e-book titles per month (choose again each month)",
-      "audioHours": "{{hours}} audiobook hours per month",
-      "frontlistDays": "New titles open {{days}} days after joining the shelf",
-      "frontlistFirstDay": "New titles open from day one",
-      "offlineTitles": "Save up to {{n}} titles offline",
-      "notesHighlights": "Notes and highlights",
-      "formatSync": "Switch between e-book and audio where you left off",
-      "fullShelf": "The whole e-book and audiobook shelf without picking titles",
-      "familyAccounts": "+{{n}} family accounts with their own shelf and audio hours"
+      "authorOwnWorks": "Digital access to your own works and samples of every title"
     },
     "access": {
       "title": "E-book and audiobook access by plan",
@@ -623,20 +589,16 @@
         "sample": "{{min}}–{{max}}% sample of every title",
         "sampler": "Digital sampler: selected chapters, summaries, companion materials",
         "pick": "1 backlist Digital Member Pick per month",
-        "shelf": "Digital Reading Shelf: backlist and selected titles",
-        "quota": "{{n}} titles per month"
+        "shelf": "Digital Reading Shelf: backlist and selected titles"
       },
       "audiobook": {
         "sample": "{{minutes}}-minute sample",
-        "shelf": "Every audiobook on the Digital Reading Shelf",
-        "hours": "{{hours}} hours per month"
+        "shelf": "Every audiobook on the Digital Reading Shelf"
       },
       "frontlist": {
         "sample": "Sample; buy a single copy",
         "preorder": "Sample; {{percent}}% off preorders of selected titles",
-        "shelf": "Joins the shelf {{min}}–{{max}} days after release; preorder priority",
-        "firstDay": "Open from day one",
-        "afterDays": "Open {{days}} days after joining the shelf"
+        "shelf": "Joins the shelf {{min}}–{{max}} days after release; preorder priority"
       },
       "devices": "{{n}} devices",
       "printDiscountPreorder": "{{percent}}% (preorders {{preorder}}%)",
@@ -827,9 +789,9 @@
     },
     "wallet": {
       "title": "What is an acquisition wallet?",
-      "body": "{{percent}}% of the annual fee paid becomes institution credit at the end of the period. The credit is redeemed for print copies of the most-used titles or as a discount on contract renewal, so the access fee is not lost.",
+      "body": "{{percent}}% of the annual fee paid is converted into acquisition credit at the end of the period. The credit buys permanent licenses or print copies of the most-used titles, so the access fee is not lost.",
       "point1": "Title choices are based on usage data",
-      "point2": "Credit can be applied as a discount on contract renewal",
+      "point2": "Permanent licenses stay accessible even if the contract is not renewed",
       "point3": "Credit use is recorded in the annual report"
     },
     "form": {
@@ -959,8 +921,7 @@
       "digital_disabled": "Membership sign-up is not open yet.",
       "network": "Connection lost. Check your internet and try again.",
       "unknown": "Something went wrong. Please try again.",
-      "invalid_whatsapp": "Invalid WhatsApp number. Use an Indonesian mobile number, for example 0812 3456 7890.",
-      "method_unavailable": "This payment method is not available for memberships right now. Please choose another method."
+      "invalid_whatsapp": "Invalid WhatsApp number. Use an Indonesian mobile number, for example 0812 3456 7890."
     },
     "whatsapp": {
       "title": "WhatsApp reminders (optional)",

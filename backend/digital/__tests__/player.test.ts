@@ -252,7 +252,7 @@ describe('player: progres & verified listening', () => {
         { from: 0, to: 20, wallMs: 6_000 } // 3,3× — lebih cepat dari 2×
       ]
     });
-    expect(res.body).toEqual({ accepted: 2, rejected: 3, audioQuota: null });
+    expect(res.body).toEqual({ accepted: 2, rejected: 3 });
     expect(t.store.events).toHaveLength(2);
     expect(t.store.events[0]).toMatchObject({ unit: 'second', unitStart: 0, unitEnd: 10, dwellMs: 10_000, entitlementId: ent.id });
     // Hampir tidak ada waktu berlalu sejak batch terakhir.

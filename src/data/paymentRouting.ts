@@ -2,10 +2,9 @@ import type { PaymentMethod } from '../types';
 
 /**
  * payment_routing (docs/PAYMENT-PROVIDER-BRIEF.md Langkah 1): per jenis transaksi dan metode -> provider.
- *  - 'print' (checkout buku cetak): bawaan hanya "Transfer Bank ke rekening PT" (provider 'manual').
- *  - 'digital' (pembelian satuan e-book/audiobook): bawaan semua 'off' — fase 6 tidak menjual satuan.
- *  - 'membership' (langganan Blue/Silver/Gold/Platinum): bawaan transfer bank manual; Midtrans off.
- * Semua metode lain 'off' sampai diaktifkan admin. Xendit belum terpasang, jadi 'xendit' diperlakukan seperti 'off'.
+ * Saat ini hanya checkout buku cetak ('print') yang membaca tabel ini. Bawaan: hanya "Transfer Bank ke rekening PT"
+ * (provider 'manual'); semua metode lain 'off' sampai diaktifkan admin. Xendit belum terpasang, jadi 'xendit'
+ * diperlakukan seperti 'off' di checkout.
  */
 export const ROUTING_TRANSACTION_TYPES = ['print', 'digital', 'membership', 'institution'] as const;
 export type RoutingTransactionType = (typeof ROUTING_TRANSACTION_TYPES)[number];
@@ -28,15 +27,11 @@ export interface RoutingEntry {
 export const allowedProviders = (method: RoutingMethod): RoutingProvider[] =>
   method === 'bank_transfer' ? ['manual', 'off'] : ['midtrans', 'xendit', 'off'];
 
-/** Jenis transaksi yang routingnya dikelola admin (institusi memakai invoice VA sendiri). */
-export const MANAGED_ROUTING_TYPES = ['print', 'digital', 'membership'] as const satisfies readonly RoutingTransactionType[];
-export type ManagedRoutingType = (typeof MANAGED_ROUTING_TYPES)[number];
-
-const defaultProvider = (type: ManagedRoutingType, method: RoutingMethod): RoutingProvider =>
-  type !== 'digital' && method === 'bank_transfer' ? 'manual' : 'off';
-
-export const DEFAULT_PAYMENT_ROUTING: RoutingEntry[] = MANAGED_ROUTING_TYPES.flatMap((transactionType) =>
-  ROUTING_METHODS.map((method) => ({ transactionType, method, provider: defaultProvider(transactionType, method) })));
+export const DEFAULT_PAYMENT_ROUTING: RoutingEntry[] = ROUTING_METHODS.map((method) => ({
+  transactionType: 'print',
+  method,
+  provider: method === 'bank_transfer' ? 'manual' : 'off'
+}));
 
 /** Nilai payment_method pesanan -> metode routing. */
 export const ROUTING_METHOD_OF: Partial<Record<PaymentMethod, RoutingMethod>> = {
@@ -78,24 +73,6 @@ export const normalizeRouting = (rows: unknown): RoutingEntry[] => {
     return provider && allowedProviders(fallback.method).includes(provider) ? { ...fallback, provider } : fallback;
   });
 };
-
-/** Metode aktif untuk satu jenis transaksi (Midtrans hanya bila server terkonfigurasi; Xendit belum terpasang). */
-export const enabledRoutingMethods = (
-  routing: RoutingEntry[],
-  transactionType: ManagedRoutingType,
-  options: { midtransEnabled: boolean }
-): Array<{ method: RoutingMethod; provider: 'manual' | 'midtrans' }> =>
-  normalizeRouting(routing)
-    .filter((r) => r.transactionType === transactionType)
-    .filter((r) => r.provider === 'manual' || (r.provider === 'midtrans' && options.midtransEnabled))
-    .map((r) => ({ method: r.method, provider: r.provider as 'manual' | 'midtrans' }));
-
-/**
- * Pembelian satuan produk digital terbuka? Checkout satuan hanya lewat Midtrans Snap, jadi minimal satu metode
- * 'digital' harus diarahkan ke Midtrans (bawaan fase 6: semua off).
- */
-export const digitalUnitSalesEnabled = (routing: RoutingEntry[], options: { midtransEnabled: boolean }): boolean =>
-  enabledRoutingMethods(routing, 'digital', options).some((r) => r.provider === 'midtrans');
 
 /** Metode checkout buku cetak yang aktif, dalam urutan ROUTING_METHODS. */
 export const enabledPrintMethods = (routing: RoutingEntry[], options: { midtransEnabled: boolean }): PaymentMethod[] =>

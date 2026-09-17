@@ -59,9 +59,8 @@ describe('migration fase 4', () => {
     })));
   });
 
-  it('konfigurasi: EBA 40% / 90 hari (fase 6 mengubah kredit menjadi 20%), Founding 15% untuk 30 institusi, skala katalog, PPN 0, lisensi e-book × 5', () => {
-    // Seed fase 4 tetap 40; membership_phase6_migration.sql mengubahnya menjadi 20 (dicek phase6Migration.test.ts).
-    expect(configValue('eba_pct')).toBe(40);
+  it('konfigurasi: EBA 40% / 90 hari, Founding 15% untuk 30 institusi, skala katalog, PPN 0, lisensi e-book × 5', () => {
+    expect(configValue('eba_pct')).toBe(INSTITUTION_PROGRAM.acquisitionWalletPercent);
     expect(configValue('eba_expiry_days')).toBe(90);
     expect(configValue('founding_cap')).toBe(INSTITUTION_PROGRAM.founding.cap);
     expect(configValue('founding_discount_pct')).toBe(INSTITUTION_PROGRAM.founding.discountPercent);
@@ -74,12 +73,12 @@ describe('migration fase 4', () => {
     expect(configValue('license_price_multiplier')).toBe(5);
   });
 
-  it('contoh perhitungan brief: Starter 23 judul 3.960.000 / Founding 3.366.000; kredit 20% (fase 6) 792.000 / 673.200', () => {
+  it('contoh perhitungan brief: Starter 23 judul 3.960.000 / Founding 3.366.000, EBA 1.584.000 / 1.346.400', () => {
     const starter = INSTITUTION_TIERS.find((t) => t.key === 'starter')!;
     expect(institutionAnnualPrice(starter, 23)).toBe(3_960_000);
     expect(institutionAnnualPrice(starter, 23, true)).toBe(3_366_000);
-    expect(acquisitionWalletAmount(3_960_000)).toBe(792_000);
-    expect(acquisitionWalletAmount(3_366_000)).toBe(673_200);
+    expect(acquisitionWalletAmount(3_960_000)).toBe(1_584_000);
+    expect(acquisitionWalletAmount(3_366_000)).toBe(1_346_400);
   });
 
   it('hanya menambah: kolom institution_id pada tabel fase 2, tanpa DROP TABLE / DELETE / TRUNCATE', () => {

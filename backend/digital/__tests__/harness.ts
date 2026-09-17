@@ -14,15 +14,6 @@ import type { WhatsAppSender } from '../membership/whatsapp';
 import type { MailMessage, Mailer, MidtransSettings } from '../context';
 import type { BookInfo } from '../types';
 import type { CompanyBankAccount, CompanyProfile, InquiryRef } from '../institution/types';
-import { PHASE3_PLANS } from '../membership/plans';
-import { DEFAULT_PAYMENT_ROUTING, type RoutingEntry } from '../../../src/data/paymentRouting';
-
-/**
- * Routing untuk tes fase 2–4 yang menguji pembelian satuan dan Snap keanggotaan: semua metode 'digital' dan
- * 'membership' (selain transfer manual) diarahkan ke Midtrans. Bawaan produksi fase 6 = DEFAULT_PAYMENT_ROUTING.
- */
-export const MIDTRANS_TEST_ROUTING: RoutingEntry[] = DEFAULT_PAYMENT_ROUTING.map((r) =>
-  r.transactionType !== 'print' && r.method !== 'bank_transfer' ? { ...r, provider: 'midtrans' } : r);
 
 /** Harness tes backend fase 2: store memori, penyimpanan folder sementara, JWT HS256 nyata. */
 export const JWT_SECRET = 'rahasia-jwt-tes-minimal-32-karakter!!!';
@@ -89,23 +80,12 @@ export interface TestAppOptions {
   bankAccounts?: CompanyBankAccount[];
   companyProfile?: CompanyProfile;
   inquiries?: InquiryRef[];
-  /** payment_routing tersimpan (bawaan MIDTRANS_TEST_ROUTING; null = belum pernah disimpan -> bawaan produksi). */
-  paymentRouting?: RoutingEntry[] | null;
-  /** Aktifkan paket fase 3 dengan angka seed aslinya (tes regresi pelanggan lama). */
-  legacyPlans?: boolean;
 }
 
 export const createTestApp = async (options: TestAppOptions = {}) => {
   const storageDir = await fsp.mkdtemp(path.join(os.tmpdir(), 'cnx-digital-test-'));
   const products = options.products ?? TEST_PRODUCTS.map((p) => ({ ...p }));
   const store = new MemoryDigitalStore(async () => products);
-  if (options.legacyPlans) {
-    for (const seed of PHASE3_PLANS) {
-      const plan = store.plans.find((x) => x.id === seed.id)!;
-      Object.assign(plan, seed);
-    }
-  }
-  const routing = { value: options.paymentRouting === undefined ? MIDTRANS_TEST_ROUTING : options.paymentRouting };
   const storage = createFilesystemAssetStorage(path.join(storageDir, 'assets'));
   const mails: MailMessage[] = [];
   const phase2 = createDigitalPhase2({
@@ -120,7 +100,6 @@ export const createTestApp = async (options: TestAppOptions = {}) => {
     listBankAccounts: async () => options.bankAccounts ?? TEST_BANK_ACCOUNTS,
     getCompanyProfile: async () => options.companyProfile ?? TEST_COMPANY,
     getInquiry: async (id) => options.inquiries?.find((q) => q.id === id) ?? null,
-    getPaymentRouting: async () => routing.value,
     env: {
       NODE_ENV: 'test',
       DIGITAL_ENABLED: 'true',
@@ -150,8 +129,6 @@ export const createTestApp = async (options: TestAppOptions = {}) => {
   return {
     app,
     phase2,
-    /** payment_routing tersimpan (dibaca modul digital dengan cache 30 detik; ubah sebelum permintaan pertama). */
-    routing,
     store,
     storage,
     products,

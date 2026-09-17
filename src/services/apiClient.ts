@@ -938,7 +938,7 @@ export interface DigitalSalesSummary {
 // ---------------------------------------------------------------------------
 // Keanggotaan fase 3 (admin) — mengikuti backend/digital/membership/admin.ts
 // ---------------------------------------------------------------------------
-export type AdminPlanCode = 'blue' | 'silver' | 'gold' | 'platinum' | 'free' | 'reader' | 'professional' | 'author';
+export type AdminPlanCode = 'free' | 'reader' | 'professional' | 'author';
 export type AdminShelfAccess = 'none' | 'pick' | 'full';
 export type AdminBillingCycle = 'monthly' | 'yearly';
 export type AdminSubscriptionStatus = 'pending' | 'active' | 'past_due' | 'grace' | 'canceled' | 'expired';

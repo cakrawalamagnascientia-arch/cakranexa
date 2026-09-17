@@ -86,13 +86,7 @@ WITH required (urutan, migration, object, kind) AS (
         (11, 'src/db/manuscript_admin_migration.sql', 'manuscript_reminders', 'table'),
         (12, 'src/db/print_usd_transfer_migration.sql', 'admin_bank_accounts.swift_code', 'column'),
         (12, 'src/db/print_usd_transfer_migration.sql', 'orders.transfer_currency', 'column'),
-        (12, 'src/db/print_usd_transfer_migration.sql', 'orders.usd_amount_received', 'column'),
-        (13, 'src/db/membership_phase6_migration.sql', 'plans.ebook_titles_per_period', 'column'),
-        (13, 'src/db/membership_phase6_migration.sql', 'plans.successor_plan_id', 'column'),
-        (13, 'src/db/membership_phase6_migration.sql', 'reading_events.subscription_id', 'column'),
-        (13, 'src/db/membership_phase6_migration.sql', 'period_title_picks', 'table'),
-        (13, 'src/db/membership_phase6_migration.sql', 'family_members', 'table'),
-        (13, 'src/db/membership_phase6_migration.sql', 'membership_audio_seconds', 'function')
+        (12, 'src/db/print_usd_transfer_migration.sql', 'orders.usd_amount_received', 'column')
 )
 SELECT
     urutan,

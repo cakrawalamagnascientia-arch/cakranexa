@@ -30,8 +30,6 @@ import { runInstitutionJob, startInstitutionJob, type InstitutionJobResult } fro
 import type { InstitutionStore } from './institution/store';
 import type { CompanyBankAccount, CompanyProfile, InquiryRef } from './institution/types';
 import type { DigitalStore } from './store';
-import { MembershipAccess } from './membership/quota';
-import { digitalUnitSalesEnabled, normalizeRouting, type RoutingEntry } from '../../src/data/paymentRouting';
 import type { DigitalContext, DigitalFeature, Mailer, MidtransSettings } from './context';
 import type { BookInfo } from './types';
 
@@ -55,8 +53,6 @@ export interface Phase2Deps {
   getInquiry?: (id: string) => Promise<InquiryRef | null>;
   /** Fase 4: penerima email internal institusi (mis. pemberitahuan perpanjangan H-45); bawaan adminEmails. */
   institutionAdminEmails?: string[];
-  /** payment_routing tersimpan (tabel yang sama dengan checkout cetak); null/tidak diisi = bawaan. */
-  getPaymentRouting?: () => Promise<RoutingEntry[] | null>;
   /** Job lain yang ikut dijalankan POST /api/internal/cron (mis. kedaluwarsa pesanan cetak transfer manual). */
   cronJobs?: Record<string, () => Promise<unknown>>;
   env?: NodeJS.ProcessEnv;
@@ -146,20 +142,6 @@ export const createDigitalPhase2 = (deps: Phase2Deps): DigitalPhase2 => {
     allows: (email) => config.featureEnabled || isBeta(email)
   };
 
-  // payment_routing dibaca ulang paling lama tiap 30 detik; gagal baca = bawaan (checkout satuan off).
-  let routingCache: { at: number; value: RoutingEntry[] } | null = null;
-  const paymentRouting = async (): Promise<RoutingEntry[]> => {
-    if (routingCache && Date.now() - routingCache.at < 30_000) return routingCache.value;
-    let value = normalizeRouting([]);
-    try {
-      value = normalizeRouting((await deps.getPaymentRouting?.()) ?? []);
-    } catch (err: any) {
-      console.warn('[digital] gagal membaca payment_routing, memakai bawaan:', err?.message || err);
-    }
-    routingCache = { at: Date.now(), value };
-    return value;
-  };
-
   const verifier = deps.overrides?.verifier ?? createSupabaseTokenVerifier({
     supabaseUrl: deps.supabaseUrl,
     jwtSecret: env.SUPABASE_JWT_SECRET
@@ -177,9 +159,7 @@ export const createDigitalPhase2 = (deps: Phase2Deps): DigitalPhase2 => {
       }
     }
     res.set('Cache-Control', 'private, no-store');
-    // unitSales: pembelian satuan e-book/audiobook terbuka lewat payment_routing (fase 6: bawaan tertutup).
-    const unitSales = digitalUnitSalesEnabled(await paymentRouting(), { midtransEnabled: deps.midtrans.enabled });
-    res.json({ enabled: feature.allows(email), beta: !feature.enabled && feature.isBeta(email), unitSales });
+    res.json({ enabled: feature.allows(email), beta: !feature.enabled && feature.isBeta(email) });
   });
 
   // Respons API fase 2 (token sesi, URL playlist bertoken, data pribadi) tidak boleh disimpan cache browser/proxy.
@@ -250,11 +230,8 @@ export const createDigitalPhase2 = (deps: Phase2Deps): DigitalPhase2 => {
       store.insertAccessLog(input).catch((err) => console.warn('[digital] access log gagal:', err?.message || err));
     },
     defer,
-    feature,
-    paymentRouting
+    feature
   };
-  // Fase 6: cakupan rak per paket, tanggal buka per paket, kuota audio.
-  context.membership = new MembershipAccess(context);
 
   // Akun: identitas dari JWT Supabase. Tidak terkena flag agar penguji beta bisa masuk saat fitur masih tertutup.
   router.get('/api/account/me', requireAccount, (req, res) => {

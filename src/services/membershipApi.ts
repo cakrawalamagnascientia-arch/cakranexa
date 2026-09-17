@@ -6,11 +6,7 @@ import { DigitalApiError, jsonBody, memberBlob, memberRequest } from './digitalA
  * Tidak ada data kartu di sini: pembayaran lewat Midtrans Snap dengan token dari server.
  */
 
-/** Paket fase 6 (dijual) dan paket fase 3 (tidak dijual lagi; tetap tampil untuk pelanggan lama). */
-export type PlanCode = 'blue' | 'silver' | 'gold' | 'platinum' | LegacyPlanCode;
-export type LegacyPlanCode = 'free' | 'reader' | 'professional' | 'author';
-export const LEGACY_PLAN_CODES: LegacyPlanCode[] = ['free', 'reader', 'professional', 'author'];
-export const isLegacyPlanCode = (code: string | null | undefined): code is LegacyPlanCode => (LEGACY_PLAN_CODES as string[]).includes(code ?? '');
+export type PlanCode = 'free' | 'reader' | 'professional' | 'author';
 export type BillingCycle = 'monthly' | 'yearly';
 export type PaymentMethod = 'card' | 'gopay' | 'va' | 'qris';
 export type ShelfAccess = 'none' | 'pick' | 'full';
@@ -28,14 +24,6 @@ export interface PublicPlan {
   founding: { priceYearly: number; cap: number; remaining: number | null } | null;
   maxDevices: number;
   shelfAccess: ShelfAccess;
-  /** Fase 6: judul e-book per bulan (null = tidak memakai jatah). */
-  ebookTitlesPerPeriod: number | null;
-  /** Fase 6: jam audio per bulan per akun (null = tanpa batas / tidak berlaku). */
-  audioHoursPerPeriod: number | null;
-  /** Fase 6: hari setelah tanggal masuk rak sampai judul terbuka (null = hanya sampel). */
-  frontlistDays: number | null;
-  offlineTitles: number;
-  familyAccounts: number;
   printDiscountPercent: number;
   benefits: string[];
 }
@@ -138,21 +126,9 @@ export interface ShelfCard {
 
 export interface PickOptions {
   enabled: boolean;
-  /** quota = jatah judul fase 6 (Silver/Gold); legacy = Digital Member Pick paket Reader. */
-  mode: 'quota' | 'legacy' | null;
   slot: { start: string; end: string } | null;
   current: { productId: string; periodStart: string; periodEnd: string } | null;
-  limit: number;
-  used: number;
-  picks: Array<{ productId: string; periodStart: string; periodEnd: string; pickedAt: string }>;
   options: ShelfCard[];
-}
-
-export interface FamilyState {
-  available: boolean;
-  limit: number;
-  members: Array<{ id: string; email: string; name: string; addedAt: string }>;
-  memberOf: { ownerName: string; accessEndsAt: string | null; addedAt: string } | null;
 }
 
 export interface MembershipShelf {
@@ -160,10 +136,8 @@ export interface MembershipShelf {
   access: ShelfAccess;
   accessEndsAt: string | null;
   items: ShelfCard[];
-  /** openDate = tanggal buka untuk paket pengguna (shelf_entry_date + frontlist_days). */
-  upcoming: Array<ShelfCard & { openDate?: string | null }>;
+  upcoming: ShelfCard[];
   pick: PickOptions;
-  plan?: { code: PlanCode; frontlistDays: number | null; audioHoursPerPeriod: number | null; ebookTitlesPerPeriod: number | null } | null;
 }
 
 export interface PlanChangeResult {
@@ -273,14 +247,6 @@ export const chooseMemberPick = (productId: string) =>
     method: 'POST',
     body: jsonBody({ product_id: productId })
   });
-
-export const getFamily = () => memberRequest<FamilyState>('/api/membership/family');
-
-export const addFamilyMember = (email: string) =>
-  memberRequest<FamilyState>('/api/membership/family', { method: 'POST', body: jsonBody({ email }) });
-
-export const removeFamilyMember = (memberId: string) =>
-  memberRequest<FamilyState>(`/api/membership/family/${encodeURIComponent(memberId)}`, { method: 'DELETE' });
 
 /** Status yang masih memberi manfaat keanggotaan (akses tetap terbuka selama tenggang/percobaan ulang). */
 export const isPaidStatus = (status: SubscriptionStatus | null | undefined): boolean =>

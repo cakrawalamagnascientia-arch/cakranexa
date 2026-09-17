@@ -27,10 +27,10 @@ interface MembershipCheckoutViewProps {
   onNavigate: (page: ActivePage, subSection?: SubSection) => void;
 }
 
-const PLAN_CODES: PlanCode[] = ['silver', 'gold', 'platinum'];
+const PLAN_CODES: PlanCode[] = ['free', 'reader', 'professional', 'author'];
 const ERROR_CODES = [
   'terms_required', 'license_required', 'already_subscribed', 'plan_unavailable', 'payment_unavailable', 'payment_error',
-  'subscription_in_progress', 'email_required', 'snap_unavailable', 'digital_disabled', 'network', 'invalid_whatsapp', 'order_not_saved', 'method_unavailable'
+  'subscription_in_progress', 'email_required', 'snap_unavailable', 'digital_disabled', 'network', 'invalid_whatsapp', 'order_not_saved'
 ];
 
 const newIdempotencyKey = () =>
@@ -48,7 +48,7 @@ export const MembershipCheckoutView: React.FC<MembershipCheckoutViewProps> = ({ 
   const member = useMemberSession();
   const { data, loading, live } = useMembershipPlans();
   const params = useMemo(() => new URLSearchParams(query), [query]);
-  const planCode = (PLAN_CODES.includes(params.get('plan') as PlanCode) ? params.get('plan') : 'gold') as PlanCode;
+  const planCode = (PLAN_CODES.includes(params.get('plan') as PlanCode) ? params.get('plan') : 'professional') as PlanCode;
   const [cycle, setCycle] = useState<BillingCycle>(params.get('cycle') === 'monthly' ? 'monthly' : 'yearly');
   const [method, setMethod] = useState<PaymentMethod>('va');
   const [termsAccepted, setTermsAccepted] = useState(false);

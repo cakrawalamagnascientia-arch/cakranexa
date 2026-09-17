@@ -59,7 +59,6 @@ describe('keanggotaan: langganan/tagihan gagal disimpan', () => {
   const setup = async () => {
     const snapPayloads: unknown[] = [];
     const t = await createTestApp({
-      legacyPlans: true,
       midtransClient: {
         createTransaction: async (payload) => {
           snapPayloads.push(payload);

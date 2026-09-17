@@ -21,8 +21,7 @@
     "i18n:check": "node scripts/i18n-check.mjs",
     "check:bundle": "node scripts/check-build-secrets.mjs",
     "i18n:find": "node scripts/i18n-find-hardcoded.mjs",
-    "i18n:screenshots": "node scripts/i18n-screenshots.mjs",
-    "phase6:screenshots": "node scripts/phase6-screenshots.mjs"
+    "i18n:screenshots": "node scripts/i18n-screenshots.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.115.0",

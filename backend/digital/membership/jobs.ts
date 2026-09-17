@@ -7,7 +7,6 @@ import { priceFor, type MembershipService } from './service';
  * update bersyarat dan event ber-dedupe_key, jadi aman dijalankan berulang atau bersamaan dengan webhook.
  *  1. Langganan/upgrade pending tanpa pembayaran > 24 jam: dicocokkan ulang ke Midtrans, lalu di-void (kursi Founding dilepas).
  *  2. Founding: pemberitahuan harga reguler 30 hari sebelum ulang tahun pertama.
- *  2b. Paket fase 3 (tidak dijual lagi): pemberitahuan paket penerus dan harganya 30 hari sebelum perpanjangan.
  *  3. Dibatalkan & periode habis: status canceled, langganan Midtrans dihentikan.
  *  4. H-7: invoice perpanjangan terbit; pengingat H-7/H-3/H-1/H0 (manual) atau satu pemberitahuan (auto-debit).
  *  5. Jatuh tempo belum dibayar: cocokkan ulang -> grace (manual) atau past_due (auto-debit). Akses tetap terbuka.
@@ -23,7 +22,6 @@ export interface MembershipJobResult {
   expired: number;
   canceled: number;
   foundingNotices: number;
-  planMigrationNotices: number;
   reconciled: number;
   errors: number;
 }
@@ -36,7 +34,7 @@ export const runMembershipJob = async (service: MembershipService): Promise<Memb
   const cfg = ctx.config.membership;
   const now = ctx.now().getTime();
   const result: MembershipJobResult = {
-    checked: 0, pendingVoided: 0, invoicesIssued: 0, reminders: 0, graceStarted: 0, pastDue: 0, expired: 0, canceled: 0, foundingNotices: 0, planMigrationNotices: 0, reconciled: 0, errors: 0
+    checked: 0, pendingVoided: 0, invoicesIssued: 0, reminders: 0, graceStarted: 0, pastDue: 0, expired: 0, canceled: 0, foundingNotices: 0, reconciled: 0, errors: 0
   };
   const ttlMs = (cfg.pendingTtlHours + 1) * HOUR_MS;
 
@@ -79,9 +77,6 @@ export const runMembershipJob = async (service: MembershipService): Promise<Memb
           }
         }
       }
-
-      // 2b. Paket lama -> paket penerus.
-      if (await service.sendPlanMigrationNotice(sub)) result.planMigrationNotices += 1;
 
       // 3. Pembatalan berlaku di akhir periode.
       if (sub.cancelAtPeriodEnd) {
@@ -139,7 +134,7 @@ export const startMembershipJob = (service: MembershipService): (() => void) => 
   const run = () => {
     runMembershipJob(service)
       .then((result) => {
-        const changed = result.pendingVoided + result.invoicesIssued + result.reminders + result.graceStarted + result.pastDue + result.expired + result.canceled + result.foundingNotices + result.planMigrationNotices + result.reconciled;
+        const changed = result.pendingVoided + result.invoicesIssued + result.reminders + result.graceStarted + result.pastDue + result.expired + result.canceled + result.foundingNotices + result.reconciled;
         if (changed > 0 || result.errors > 0) console.log('[membership] job:', JSON.stringify(result));
       })
       .catch((err) => console.warn('[membership] job gagal:', err?.message || err));

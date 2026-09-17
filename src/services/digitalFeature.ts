@@ -9,8 +9,6 @@ import { getAccessToken } from './memberSession';
  */
 export interface DigitalFeatureState {
   enabled: boolean;
-  /** Pembelian satuan e-book/audiobook terbuka (payment_routing 'digital'); fase 6 bawaan tertutup. */
-  unitSales: boolean;
   /** Sudah mendapat jawaban server (atau gagal menghubungi server) sejak halaman dimuat. */
   known: boolean;
 }
@@ -25,7 +23,7 @@ const readCache = (): boolean => {
   }
 };
 
-let state: DigitalFeatureState = { enabled: typeof window !== 'undefined' && readCache(), unitSales: false, known: false };
+let state: DigitalFeatureState = { enabled: typeof window !== 'undefined' && readCache(), known: false };
 const listeners = new Set<() => void>();
 
 const setState = (next: DigitalFeatureState) => {
@@ -47,10 +45,10 @@ export const refreshDigitalFeature = async (): Promise<void> => {
     const token = await getAccessToken();
     const res = await fetchWithTimeout(apiUrl('/api/digital/status'), { headers: token ? { Authorization: `Bearer ${token}` } : {} }, 15000);
     const body = res.ok ? await res.json() : null;
-    if (ticket === latestRequest) setState({ enabled: body?.enabled === true, unitSales: body?.unitSales === true, known: true });
+    if (ticket === latestRequest) setState({ enabled: body?.enabled === true, known: true });
   } catch {
     // Server tidak terjangkau: pertahankan nilai terakhir.
-    if (ticket === latestRequest) setState({ enabled: state.enabled, unitSales: state.unitSales, known: true });
+    if (ticket === latestRequest) setState({ enabled: state.enabled, known: true });
   }
 };
 

@@ -152,9 +152,9 @@ describe('harga kontrak institusi (brief Langkah 2 & 9.1)', () => {
   const tier = (code: string) => DEFAULT_TIERS.find((t) => t.tier === code)!;
   const quote = (code: string, titles: number, founding = false) => quoteContract({ tier: tier(code), titleCount: titles, founding, config: DEFAULT_INSTITUTION_CONFIG });
 
-  it('Starter 23 judul: 3.960.000 / Founding 3.366.000; kredit 20% (fase 6) 792.000 / 673.200', () => {
-    expect(quote('starter', 23)).toMatchObject({ catalogScalePct: 40, scaledPrice: 3_960_000, contractedPrice: 3_960_000, ebaPct: 20, ebaCredit: 792_000, foundingDiscountAmount: 0 });
-    expect(quote('starter', 23, true)).toMatchObject({ contractedPrice: 3_366_000, ebaCredit: 673_200, foundingDiscountPct: 15, foundingDiscountAmount: 594_000 });
+  it('Starter 23 judul: 3.960.000 / Founding 3.366.000; EBA 1.584.000 / 1.346.400', () => {
+    expect(quote('starter', 23)).toMatchObject({ catalogScalePct: 40, scaledPrice: 3_960_000, contractedPrice: 3_960_000, ebaCredit: 1_584_000, foundingDiscountAmount: 0 });
+    expect(quote('starter', 23, true)).toMatchObject({ contractedPrice: 3_366_000, ebaCredit: 1_346_400, foundingDiscountPct: 15, foundingDiscountAmount: 594_000 });
   });
 
   it('Campus 9.960.000, Network 23.960.000; skala 60/80/100 menurut jumlah judul', () => {
@@ -190,7 +190,7 @@ describe('alur kontrak institusi', () => {
 
     const preview = await t.admin('post', `/institutions/${inst.id}/contracts/preview`, { tier: 'starter', founding: true });
     expect(preview.status).toBe(200);
-    expect(preview.body.quote).toMatchObject({ catalogTitleCount: 2, catalogScalePct: 40, fullPrice: 9_900_000, contractedPrice: 3_366_000, ebaCredit: 673_200, total: 3_366_000 });
+    expect(preview.body.quote).toMatchObject({ catalogTitleCount: 2, catalogScalePct: 40, fullPrice: 9_900_000, contractedPrice: 3_366_000, ebaCredit: 1_346_400, total: 3_366_000 });
     expect(preview.body).toMatchObject({ periodStart: PERIOD_START, periodEnd: PERIOD_END, founding: { eligible: true, cap: 30, used: 0 } });
 
     const created = await t.admin('post', `/institutions/${inst.id}/contracts`, { tier: 'starter', founding: true, notes: 'Kontrak uji' });

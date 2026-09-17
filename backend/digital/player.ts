@@ -1,13 +1,12 @@
 import express, { type RequestHandler, type Router } from 'express';
 import { asyncRoute, httpError } from './errors';
 import { clientInfo, type DigitalContext } from './context';
-import { audioQuotaExhausted, publicAudioQuota, requireSession } from './access';
+import { requireSession } from './access';
 import { resolveEntitlement } from './entitlements';
 import { createUserRateLimiter } from './rateLimits';
 import { AssetNotFoundError, assetPaths } from './storage';
 import { signMediaToken, verifyMediaToken, type MediaTokenKind } from './tokens';
 import type { EntitlementRecord, ProductRecord, ReadingEventInput, SessionRecord } from './types';
-import type { AudioQuota } from './membership/quota';
 
 /**
  * Player audiobook (langkah 6): HLS AES-128 lewat proxy server.
@@ -16,8 +15,6 @@ import type { AudioQuota } from './membership/quota';
  *  - Setiap permintaan playlist/segmen/key tetap memeriksa sesi yang hidup (heartbeat) dan entitlement yang berlaku.
  *  - Segmen dicatat di access_logs 1 dari 6 (±1 menit audio); key setiap kali diminta.
  *  - Progres (detik) dan listening events tervalidasi: kecepatan <= 2×, segmen harus benar-benar dikirim di sesi ini.
- *  - Fase 6: jam audio paket per bulan per akun. Kuota habis -> playlist/segmen ditolak 403 audio_quota_exhausted
- *    (player berhenti dan menawarkan upgrade). Event dengar menyimpan subscription_id untuk agregasi kuota.
  */
 
 export const MEDIA_TOKEN_TTL_SECONDS = 2 * 60 * 60;
@@ -155,10 +152,6 @@ export const createPlayerRouter = (ctx: DigitalContext): Router => {
     }
     // Kunci rate limit per user (tidak ada JWT pada permintaan media).
     req.digitalUser = { id: payload.u, email: '', name: '' };
-    if (kind !== 'key' && ctx.membership) {
-      const quota = await ctx.membership.audioQuota(entitlement, payload.u);
-      if (quota?.exhausted) throw audioQuotaExhausted(ctx, req, payload.u, product, quota);
-    }
     res.locals.media = { userId: payload.u, product, session, entitlement, segment } satisfies MediaAccess;
     next();
   });
@@ -166,11 +159,10 @@ export const createPlayerRouter = (ctx: DigitalContext): Router => {
   router.get('/api/player/:productId/meta', ...player(limits.meta), asyncRoute(async (req, res) => {
     const { user, product, entitlement, session } = req.digitalAccess!;
     const duration = product.durationSeconds!;
-    const [book, chapters, progress, quota] = await Promise.all([
+    const [book, chapters, progress] = await Promise.all([
       ctx.getBook(product.bookId),
       ctx.store.listChapters(product.id),
-      ctx.store.getProgress(user.id, product.id),
-      ctx.membership ? ctx.membership.audioQuota(entitlement, user.id) : Promise.resolve(null)
+      ctx.store.getProgress(user.id, product.id)
     ]);
     res.json({
       product: { id: product.id, bookId: product.bookId, durationSeconds: duration },
@@ -183,8 +175,7 @@ export const createPlayerRouter = (ctx: DigitalContext): Router => {
       progress: progress && progress.position > 0 ? { position: Math.min(progress.position, duration), percent: progress.percent } : null,
       legalNoticeAccepted: Boolean(progress?.legalNoticeAcceptedAt),
       watermark: { name: user.name || user.email, email: user.email, entitlementId: entitlement.id },
-      stream: streamFor(user.id, product.id, session.id),
-      audioQuota: quota ? publicAudioQuota(quota) : null
+      stream: streamFor(user.id, product.id, session.id)
     });
   }));
 
@@ -264,7 +255,6 @@ export const createPlayerRouter = (ctx: DigitalContext): Router => {
     let budget = Math.max(0, now.getTime() - Date.parse(session.lastEventAt ?? session.startedAt)) + EVENT_TOLERANCE_MS;
     const served = servedSegments.get(session.id)?.segments;
     const accepted: ReadingEventInput[] = [];
-    const subscription = ctx.membership ? await ctx.membership.subscriptionFor(entitlement) : null;
     for (const item of raw) {
       const event = (item || {}) as Record<string, unknown>;
       const from = Number(event.from);
@@ -290,24 +280,14 @@ export const createPlayerRouter = (ctx: DigitalContext): Router => {
         unitStart: Math.floor(from),
         unitEnd: Math.ceil(to),
         dwellMs: wallMs,
-        institutionId: session.institutionId,
-        subscriptionId: subscription?.id ?? null,
-        occurredAt: now.toISOString()
+        institutionId: session.institutionId
       });
     }
-    let quota: AudioQuota | null = null;
     if (accepted.length > 0) {
       await ctx.store.insertReadingEvents(accepted);
       await ctx.store.updateSession(session.id, { lastEventAt: now.toISOString() });
-      if (subscription && ctx.membership) {
-        quota = await ctx.membership.audioQuota(entitlement, user.id);
-        if (quota) {
-          ctx.membership.recordUsage(quota, accepted.reduce((sum, e) => sum + (e.unitEnd - e.unitStart), 0));
-          quota = await ctx.membership.audioQuota(entitlement, user.id);
-        }
-      }
     }
-    res.json({ accepted: accepted.length, rejected: raw.length - accepted.length, audioQuota: quota ? publicAudioQuota(quota) : null });
+    res.json({ accepted: accepted.length, rejected: raw.length - accepted.length });
   }));
 
   return router;

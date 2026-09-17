@@ -90,13 +90,7 @@
       "license_required": "请先同意许可条款。",
       "snap_unavailable": "无法加载付款窗口，请检查网络后重试。",
       "order_not_found": "未找到订单。",
-      "unknown": "出现错误，请重试。",
-      "unit_sales_disabled": "不再单本出售。请通过会员方案开启书目。"
-    },
-    "unitSalesClosed": {
-      "title": "通过会员方案开启书目",
-      "description": "CakraNexa 不再单独出售电子书和有声书。选择 Silver、Gold 或 Platinum 即可阅读和收听本书。此前购买的书目仍保留在“我的书库”中。",
-      "library": "打开我的书库"
+      "unknown": "出现错误，请重试。"
     }
   },
   "access": {
@@ -371,8 +365,7 @@
     "durationMinutes": "{{minutes}} 分钟",
     "pages_other": "{{count}} 页",
     "coverAlt": "{{title}} 封面",
-    "viewDetails": "查看详情",
-    "viewPlans": "通过会员阅读"
+    "viewDetails": "查看详情"
   },
   "formatIcons": {
     "print": "纸质书",
@@ -475,7 +468,7 @@
   "membership": {
     "badge": "Cakrawala Magna Society",
     "title": "更聪明地阅读，更划算地购书，与 Cakrawala Magna 社群共同成长",
-    "subtitle": "CakraNexa 会员每月 {{price}} 起。选择 Silver、Gold 或 Platinum，即可阅读电子书、收听有声书。",
+    "subtitle": "CakraNexa 会员每月 {{price}} 起。Professional & Academic Society 方案可通过 Digital Reading Shelf 阅读电子书和收听有声书。",
     "billing": {
       "label": "计费周期",
       "monthly": "按月",
@@ -501,22 +494,6 @@
     "showFewerBenefits": "收起",
     "authorDisclaimer": "会员资格不保证书稿出版、ISBN 或完整编辑服务。出版决定仍取决于书稿质量。",
     "plans": {
-      "blue": {
-        "name": "Blue",
-        "tagline": "免费：试读电子书和试听有声书，认识 CakraNexa。"
-      },
-      "silver": {
-        "name": "Silver",
-        "tagline": "适合经常阅读的读者：每月 2 本电子书和 5 小时有声书。"
-      },
-      "gold": {
-        "name": "Gold",
-        "tagline": "最均衡：每月 6 本、20 小时有声书，可离线并做笔记。"
-      },
-      "platinum": {
-        "name": "Platinum",
-        "tagline": "首日起畅读整个书架，60 小时有声书，另含 2 个家庭账户。"
-      },
       "freeCircle": {
         "name": "Free Circle",
         "tagline": "免费入门：试读、新书简报和购书积分。"
@@ -590,18 +567,7 @@
       "wishlist": "图书心愿单",
       "preorderAlerts": "预购提醒",
       "memberPrintDiscount": "集团纸质书会员价 {{percent}}%",
-      "authorOwnWorks": "访问您本人作品的数字版及所有书目的样章",
-      "audioSample": "有声书试听 {{minutes}} 分钟",
-      "devicesTwo": "{{n}} 台设备，1 个活动会话",
-      "titleQuota": "每月 {{n}} 本电子书（每月重新选择）",
-      "audioHours": "每月 {{hours}} 小时有声书",
-      "frontlistDays": "新书上架 {{days}} 天后开放",
-      "frontlistFirstDay": "新书上架首日即开放",
-      "offlineTitles": "最多离线保存 {{n}} 本",
-      "notesHighlights": "笔记与高亮",
-      "formatSync": "电子书与有声书之间接续阅读",
-      "fullShelf": "无需选书，畅读整个电子书与有声书书架",
-      "familyAccounts": "另含 {{n}} 个家庭账户，各自拥有书架和收听时长"
+      "authorOwnWorks": "访问您本人作品的数字版及所有书目的样章"
     },
     "access": {
       "title": "各方案的电子书与有声书访问",
@@ -620,20 +586,16 @@
         "sample": "每本书 {{min}}–{{max}}% 试读",
         "sampler": "数字试读包：精选章节、摘要、配套资料",
         "pick": "每月 1 本旧版 Digital Member Pick",
-        "shelf": "Digital Reading Shelf：旧版和精选书目",
-        "quota": "每月 {{n}} 本"
+        "shelf": "Digital Reading Shelf：旧版和精选书目"
       },
       "audiobook": {
         "sample": "{{minutes}} 分钟试听",
-        "shelf": "Digital Reading Shelf 中的全部有声书",
-        "hours": "每月 {{hours}} 小时"
+        "shelf": "Digital Reading Shelf 中的全部有声书"
       },
       "frontlist": {
         "sample": "试读；单本购买",
         "preorder": "试读；精选图书预购 {{percent}}% 折扣",
-        "shelf": "出版 {{min}}–{{max}} 天后上架；预购优先",
-        "firstDay": "上架首日即开放",
-        "afterDays": "上架 {{days}} 天后开放"
+        "shelf": "出版 {{min}}–{{max}} 天后上架；预购优先"
       },
       "devices": "{{n}} 台设备",
       "printDiscountPreorder": "{{percent}}%（预购 {{preorder}}%）",
@@ -823,9 +785,9 @@
     },
     "wallet": {
       "title": "什么是采购账户（acquisition wallet）？",
-      "body": "已付年费的 {{percent}}% 将在周期结束时转为机构额度，可兑换使用量最高书目的纸质书，或抵扣合同续签费用，因此访问费用不会白白流失。",
+      "body": "已付年费的 {{percent}}% 将在周期结束时转换为采购额度，用于购买使用量最高书目的永久授权或纸质书，因此访问费用不会白白流失。",
       "point1": "根据使用数据选择书目",
-      "point2": "额度可用于抵扣合同续签费用",
+      "point2": "即使合同未续签，永久授权仍可访问",
       "point3": "额度使用情况记录在年度报告中"
     },
     "form": {
@@ -955,8 +917,7 @@
       "digital_disabled": "会员注册暂未开放。",
       "network": "网络已断开，请检查网络后重试。",
       "unknown": "发生错误，请重试。",
-      "invalid_whatsapp": "WhatsApp 号码无效。请使用印尼手机号码，例如 0812 3456 7890。",
-      "method_unavailable": "该付款方式目前不适用于会员订阅，请选择其他方式。"
+      "invalid_whatsapp": "WhatsApp 号码无效。请使用印尼手机号码，例如 0812 3456 7890。"
     },
     "whatsapp": {
       "title": "WhatsApp 提醒（可选）",

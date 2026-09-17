@@ -82,7 +82,7 @@ describe('akses: requireEntitlement', () => {
 });
 
 describe('akses: perangkat', () => {
-  it('batas 2 perangkat per user untuk semua sumber hak (fase 6), berapa pun max_devices entitlement', async () => {
+  it('batas dihitung per user = max_devices tertinggi di antara entitlement yang berlaku', async () => {
     const t = await setup();
     await t.grant(USER_A.id, 'prod-ebook-1'); // max_devices 2
     expect((await t.start(t.tokenA, 'prod-ebook-1', device(1))).status).toBe(201);
@@ -93,12 +93,15 @@ describe('akses: perangkat', () => {
     expect(third.body.devices).toHaveLength(2);
     expect(third.body.devices[0]).toMatchObject({ label: 'Chrome · Windows', isCurrent: false });
 
-    // Entitlement dengan max_devices lebih besar (berlaku atau tidak) tidak menaikkan batas.
+    // Entitlement kedaluwarsa dengan batas besar tidak dihitung.
     await t.grant(USER_A.id, 'prod-audio-1', { source: 'admin_grant', maxDevices: 5, startsAt: t.iso(-10 * DAY), endsAt: t.iso(-DAY) });
-    await t.grant(USER_A.id, 'prod-ebook-2', { source: 'admin_grant', maxDevices: 3, endsAt: t.iso(30 * DAY) });
-    expect((await t.start(t.tokenA, 'prod-ebook-1', device(3), { takeover: true })).body).toMatchObject({ code: 'device_limit', maxDevices: 2 });
+    expect((await t.start(t.tokenA, 'prod-ebook-1', device(3), { takeover: true })).status).toBe(403);
+
+    // Entitlement aktif untuk produk LAIN menaikkan batas untuk semua produk milik user.
+    await t.grant(USER_A.id, 'prod-ebook-2', { source: 'membership', maxDevices: 3, endsAt: t.iso(30 * DAY) });
+    expect((await t.start(t.tokenA, 'prod-ebook-1', device(3), { takeover: true })).status).toBe(201);
     const fourth = await t.start(t.tokenA, 'prod-ebook-2', device(4));
-    expect(fourth.body).toMatchObject({ code: 'device_limit', maxDevices: 2 });
+    expect(fourth.body).toMatchObject({ code: 'device_limit', maxDevices: 3 });
     expect(t.deniedReasons().filter((r) => r === 'device_limit')).toHaveLength(3);
 
     // Perangkat user lain tidak ikut dihitung.
@@ -111,10 +114,7 @@ describe('akses: perangkat', () => {
     await t.grant(USER_A.id, 'prod-ebook-1');
     await t.grant(USER_A.id, 'prod-audio-1');
     const s1 = (await t.start(t.tokenA, 'prod-ebook-1', device(1))).body.sessionToken;
-    // Satu sesi per pengguna: judul lain di perangkat lain -> 409 kecuali takeover.
-    expect((await t.start(t.tokenA, 'prod-audio-1', device(2), {}, UA_ANDROID)).body).toMatchObject({ code: 'session_conflict', takeover: true });
-    const s2 = (await t.start(t.tokenA, 'prod-audio-1', device(2), { takeover: true }, UA_ANDROID)).body.sessionToken;
-    expect((await t.heartbeat(t.tokenA, 'prod-ebook-1', s1)).body).toMatchObject({ code: 'session_ended', endReason: 'takeover' });
+    const s2 = (await t.start(t.tokenA, 'prod-audio-1', device(2), {}, UA_ANDROID)).body.sessionToken;
 
     const list = await request(t.app).get(`/api/devices?current=${device(1)}`).set('Authorization', `Bearer ${t.tokenA}`);
     expect(list.status).toBe(200);
@@ -140,7 +140,7 @@ describe('akses: perangkat', () => {
     const hb2 = await t.heartbeat(t.tokenA, 'prod-audio-1', s2);
     expect(hb2.status).toBe(401);
     expect(hb2.body).toMatchObject({ code: 'session_ended', endReason: 'device_released' });
-    expect((await t.start(t.tokenA, 'prod-ebook-1', device(1))).status).toBe(201);
+    expect((await t.heartbeat(t.tokenA, 'prod-ebook-1', s1)).status).toBe(200);
 
     const again = await release(t.tokenA, current.id);
     expect(again.status).toBe(429);

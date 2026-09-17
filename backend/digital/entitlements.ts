@@ -1,6 +1,5 @@
 import type { DigitalContext } from './context';
 import { jakartaDate } from './time';
-import { INSTITUTION_FRONTLIST_DAYS, isOpenFor } from './membership/quota';
 import type { EntitlementRecord, ProductRecord } from './types';
 
 /**
@@ -14,9 +13,6 @@ import type { EntitlementRecord, ProductRecord } from './types';
  * Fase 4: bila beberapa hak berlaku, urutannya permanen -> individu -> institusi, sehingga pengguna yang punya akses
  * sendiri tidak memakan slot pengguna bersamaan institusinya. Hak rak institusi berkoleksi custom hanya membuka
  * judul yang dipilih di kontrak.
- *
- * Fase 6: hak rak keanggotaan hanya membuka format dan tanggal buka paketnya (shelf_entry_date + frontlist_days;
- * Silver/Gold: audiobook saja, e-book lewat jatah judul). Hak rak institusi terbuka shelf_entry_date + 45 hari.
  */
 export type AccessDenialReason = 'no_entitlement' | 'suspended' | 'expired';
 
@@ -62,21 +58,13 @@ export const pickEntitlement = (
 export const resolveEntitlement = async (ctx: DigitalContext, userId: string, product: ProductRecord): Promise<EntitlementResolution> => {
   const now = ctx.now();
   const productRows = await ctx.store.listEntitlements({ userId, productId: product.id });
-  const today = jakartaDate(now);
-  const onShelf = isProductOnShelf(product, today);
-  const shelfRows: EntitlementRecord[] = [];
-  for (const e of onShelf ? await ctx.store.listEntitlements({ userId, scope: 'shelf' }) : []) {
-    // Baris yang tidak berlaku hanya dipakai untuk alasan penolakan; cakupan dicek untuk baris yang berlaku.
-    if (isEntitlementUsable(e, now)) {
-      if (e.source === 'institution') {
-        if (!isOpenFor(product, INSTITUTION_FRONTLIST_DAYS, today)) continue;
-        // Kontrak institusi berkoleksi custom hanya membuka judul yang dipilih (fase 4).
-        if (ctx.institution && !(await ctx.institution.coversProduct(e, product))) continue;
-      } else if (e.source === 'membership' && ctx.membership && !(await ctx.membership.coversProduct(e, product))) {
-        continue;
-      }
-    }
-    shelfRows.push(e);
+  const onShelf = isProductOnShelf(product, jakartaDate(now));
+  let shelfRows = onShelf ? await ctx.store.listEntitlements({ userId, scope: 'shelf' }) : [];
+  // Kontrak institusi berkoleksi custom hanya membuka judul yang dipilih (fase 4).
+  if (ctx.institution && shelfRows.some((e) => e.source === 'institution')) {
+    const covered: EntitlementRecord[] = [];
+    for (const e of shelfRows) if (e.source !== 'institution' || await ctx.institution.coversProduct(e, product)) covered.push(e);
+    shelfRows = covered;
   }
   const all = [...productRows, ...shelfRows];
   // Hak per judul milik pengguna sendiri (pembelian, grant, Pick, blokir anomali) lebih dulu. Lisensi institusi per judul
@@ -95,5 +83,9 @@ export const resolveEntitlement = async (ctx: DigitalContext, userId: string, pr
 export const ownsPermanently = (rows: EntitlementRecord[], now: Date): boolean =>
   rows.some((e) => e.scope === 'product' && e.endsAt === null && e.source !== 'institution' && isEntitlementUsable(e, now));
 
-/** Batas perangkat per USER: 2 untuk semua paket, pembelian lama, dan instansi (fase 6 keputusan 10). */
-export const maxDevicesForUser = async (ctx: DigitalContext, _userId: string): Promise<number> => ctx.config.defaultMaxDevices;
+/** Batas perangkat per USER (bukan per entitlement) = max_devices tertinggi di antara entitlement yang sedang berlaku. */
+export const maxDevicesForUser = async (ctx: DigitalContext, userId: string): Promise<number> => {
+  const now = ctx.now();
+  const usable = (await ctx.store.listEntitlements({ userId })).filter((e) => isEntitlementUsable(e, now));
+  return usable.length > 0 ? Math.max(...usable.map((e) => e.maxDevices)) : ctx.config.defaultMaxDevices;
+};

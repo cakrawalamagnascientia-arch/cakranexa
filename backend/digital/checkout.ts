@@ -1,7 +1,6 @@
 import crypto from 'crypto';
 import express, { type Router } from 'express';
 import { asyncRoute, ConflictError, httpError, ORDER_NOT_SAVED_MESSAGE } from './errors';
-import { digitalUnitSalesEnabled } from '../../src/data/paymentRouting';
 import { LICENSE_VERSION } from './config';
 import { purchaseConfirmationEmail } from './email';
 import { isEntitlementUsable, ownsPermanently } from './entitlements';
@@ -120,10 +119,6 @@ export const createCheckoutRouter = (ctx: DigitalContext, midtrans: MidtransClie
     }
 
     if (!ctx.midtrans.enabled) throw httpError(503, 'payment_unavailable', 'Pembayaran online belum dikonfigurasi.');
-    // Fase 6: pembelian satuan ditutup lewat payment_routing (tipe 'digital'); pesanan lama tetap dilayani webhook.
-    if (!digitalUnitSalesEnabled(await ctx.paymentRouting(), { midtransEnabled: ctx.midtrans.enabled })) {
-      throw httpError(403, 'unit_sales_disabled', 'Pembelian satuan tidak tersedia. Buka judul lewat paket keanggotaan.');
-    }
 
     const products: ProductRecord[] = [];
     const unavailable: string[] = [];

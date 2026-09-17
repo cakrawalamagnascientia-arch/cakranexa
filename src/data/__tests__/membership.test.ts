@@ -13,58 +13,58 @@ import {
   institutionCatalogPercent,
   nominalCashBenefitsPerYear
 } from '../membership';
-import { PHASE6_PLAN_BENEFITS, PHASE6_PLANS } from '../../../backend/digital/membership/plans';
+import { DEFAULT_PLANS, DEFAULT_PLAN_BENEFITS, LAUNCH_BENEFITS } from '../../../backend/digital/membership/plans';
 import type { PlanCode } from '../../services/membershipApi';
 
-/** Paket fase 6 (skema terkunci); seed server (plans.ts) adalah sumber kebenaran. Wallet & institusi dari dokumen owner. */
+/** Angka di sini sama dengan brief fase 3 / dokumen owner; seed server (plans.ts) adalah sumber kebenaran. */
 const plan = (code: PlanCode) => FALLBACK_MEMBERSHIP.plans.find((p) => p.code === code)!;
 const tier = (key: string) => INSTITUTION_TIERS.find((t) => t.key === key)!;
 
-describe('paket individu (skema terkunci fase 6)', () => {
-  it('Blue gratis, Silver 49.000, Gold 99.000, Platinum 199.000; tahunan = 10 × bulanan; tanpa Founding perorangan', () => {
+describe('paket individu (brief fase 3)', () => {
+  it('harga reguler bulanan/tahunan (tahunan = 10 × bulanan)', () => {
     expect(ANNUAL_BILLED_MONTHS).toBe(10);
     expect(FALLBACK_MEMBERSHIP.plans.map((p) => [p.code, p.priceMonthly, p.priceYearly])).toEqual([
-      ['blue', 0, 0],
-      ['silver', 49_000, 490_000],
-      ['gold', 99_000, 990_000],
-      ['platinum', 199_000, 1_990_000]
-    ]);
-    expect(FALLBACK_MEMBERSHIP.plans.every((p) => p.founding === null && p.maxDevices === 2)).toBe(true);
-  });
-
-  it('kuota: judul, jam audio, frontlist, offline, akun keluarga', () => {
-    expect(FALLBACK_MEMBERSHIP.plans.map((p) => [p.code, p.ebookTitlesPerPeriod, p.audioHoursPerPeriod, p.frontlistDays, p.offlineTitles, p.familyAccounts])).toEqual([
-      ['blue', null, null, null, 0, 0],
-      ['silver', 2, 5, 90, 0, 0],
-      ['gold', 6, 20, 45, 2, 0],
-      ['platinum', null, 60, 0, 5, 2]
+      ['free', 0, 0],
+      ['reader', 39_000, 390_000],
+      ['professional', 99_000, 990_000],
+      ['author', 149_000, 1_490_000]
     ]);
   });
 
-  it('data cadangan frontend sama dengan seed server (harga, kuota, perangkat)', () => {
-    const shape = (p: { code: string; priceMonthly: number; priceYearly: number; maxDevices: number; shelfAccess: string; ebookTitlesPerPeriod: number | null; audioHoursPerPeriod: number | null; frontlistDays: number | null; offlineTitles: number; familyAccounts: number }) => ({
-      code: p.code, priceMonthly: p.priceMonthly, priceYearly: p.priceYearly, maxDevices: p.maxDevices, shelfAccess: p.shelfAccess,
-      ebookTitlesPerPeriod: p.ebookTitlesPerPeriod, audioHoursPerPeriod: p.audioHoursPerPeriod, frontlistDays: p.frontlistDays,
-      offlineTitles: p.offlineTitles, familyAccounts: p.familyAccounts
-    });
-    expect(FALLBACK_MEMBERSHIP.plans.map(shape)).toEqual(PHASE6_PLANS.map(shape));
-    expect(PHASE6_PLANS.every((p) => p.foundingPriceYearly === null && p.foundingCap === null)).toBe(true);
+  it('harga Founding tahun pertama dan kuotanya', () => {
+    expect(plan('reader').founding).toEqual({ priceYearly: 299_000, cap: 1000, remaining: null });
+    expect(plan('professional').founding).toEqual({ priceYearly: 790_000, cap: 500, remaining: null });
+    expect(plan('author').founding).toEqual({ priceYearly: 1_190_000, cap: 250, remaining: null });
+    expect(plan('free').founding).toBeNull();
   });
 
-  it('manfaat cadangan = manfaat server saat semua flag mati; semua kunci punya teks', () => {
-    expect(LAUNCH_BENEFIT_KEYS).toContain('samples');
-    for (const p of PHASE6_PLANS) {
-      const flagsOff = PHASE6_PLAN_BENEFITS
+  it('data cadangan frontend sama dengan seed server (harga, Founding, perangkat)', () => {
+    expect(FALLBACK_MEMBERSHIP.plans.map((p) => ({
+      code: p.code, priceMonthly: p.priceMonthly, priceYearly: p.priceYearly,
+      foundingPriceYearly: p.founding?.priceYearly ?? null, foundingCap: p.founding?.cap ?? null, maxDevices: p.maxDevices
+    }))).toEqual(DEFAULT_PLANS.map((p) => ({
+      code: p.code, priceMonthly: p.priceMonthly, priceYearly: p.priceYearly,
+      foundingPriceYearly: p.foundingPriceYearly, foundingCap: p.foundingCap, maxDevices: p.maxDevices
+    })));
+  });
+
+  it('manfaat cadangan = manfaat server saat semua flag mati; Reader 1 perangkat, Author 2', () => {
+    expect(LAUNCH_BENEFIT_KEYS).toEqual([...LAUNCH_BENEFITS]);
+    for (const p of DEFAULT_PLANS) {
+      const flagsOff = DEFAULT_PLAN_BENEFITS
         .filter((b) => b.planId === p.id && (b.featureFlag === null || b.featureFlag.startsWith('!')))
         .sort((a, b) => a.sortOrder - b.sortOrder)
         .map((b) => b.benefitKey);
       expect(plan(p.code).benefits).toEqual(flagsOff);
     }
-    for (const b of PHASE6_PLAN_BENEFITS) expect(MEMBERSHIP_BENEFIT_KEYS).toContain(b.benefitKey);
+    expect(plan('reader').maxDevices).toBe(1);
+    expect(plan('author').maxDevices).toBe(2);
+    // Semua kunci manfaat server punya teks di frontend.
+    for (const b of DEFAULT_PLAN_BENEFITS) expect(MEMBERSHIP_BENEFIT_KEYS).toContain(b.benefitKey);
   });
 
-  it('akses digital tanpa flag: hanya Platinum membuka seluruh rak', () => {
-    expect(DIGITAL_SHELF_PLANS.map((p) => p.code)).toEqual(['platinum']);
+  it('akses digital tanpa flag: hanya Professional membuka Digital Reading Shelf', () => {
+    expect(DIGITAL_SHELF_PLANS.map((p) => p.code)).toEqual(['professional']);
     expect(FALLBACK_MEMBERSHIP.flags).toMatchObject({ readerPick: false, authorShelf: false, printDiscount: false, extendedBenefits: false });
     expect(FALLBACK_MEMBERSHIP.purchaseEnabled).toBe(false);
   });
@@ -110,11 +110,11 @@ describe('Institution & Library Network (dokumen owner 7.2–7.6)', () => {
     expect([0, 23, 49, 50, 99, 100, 149, 150, 400].map(institutionCatalogPercent)).toEqual([40, 40, 40, 60, 60, 80, 80, 100, 100]);
   });
 
-  it('harga berlaku, Founding −15%, dan kredit institusi 20% dari biaya yang dibayar (fase 6)', () => {
+  it('harga berlaku, Founding −15%, dan acquisition wallet 40% dari biaya yang dibayar', () => {
     expect(INSTITUTION_TIERS.map((t) => institutionAnnualPrice(t, 23))).toEqual([3_960_000, 9_960_000, 23_960_000, null]);
     expect(INSTITUTION_TIERS.map((t) => institutionAnnualPrice(t, 23, true))).toEqual([3_366_000, 8_466_000, 20_366_000, null]);
     expect(institutionAnnualPrice(tier('campus'), 150)).toBe(24_900_000);
-    expect(acquisitionWalletAmount(institutionAnnualPrice(tier('campus'), 150)!)).toBe(4_980_000);
-    expect(acquisitionWalletAmount(institutionAnnualPrice(tier('starter'), 23, true)!)).toBe(673_200);
+    expect(acquisitionWalletAmount(institutionAnnualPrice(tier('campus'), 150)!)).toBe(9_960_000);
+    expect(acquisitionWalletAmount(institutionAnnualPrice(tier('starter'), 23, true)!)).toBe(1_346_400);
   });
 });
