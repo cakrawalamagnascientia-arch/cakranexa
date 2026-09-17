@@ -17,11 +17,12 @@ import {
   PLAN_KEY_BY_CODE,
   PROFESSIONAL_ANNUAL_CREDIT,
   isMembershipBenefitKey,
+  planBenefitValues,
   type MembershipBenefitKey
 } from '../../data/membership';
 import { useMembershipPlans } from '../../hooks/useMembershipPlans';
 import { useMemberSession } from '../../services/memberSession';
-import { isPaidStatus, type BillingCycle, type PlanCode, type PublicPlan } from '../../services/membershipApi';
+import { isLegacyPlanCode, isPaidStatus, type BillingCycle, type PlanCode, type PublicPlan } from '../../services/membershipApi';
 import { goToAccountMembership, goToLibrary, goToLogin, goToMembershipCheckout, goToMembershipTerms } from '../../services/digitalNavigation';
 import { ComingSoonButton } from './ComingSoonButton';
 
@@ -60,6 +61,7 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
     return translateBenefit(`membership.benefits.${key}`, {
       ...Object.fromEntries(Object.entries(params.amounts ?? {}).map(([name, value]) => [name, currency(value)])),
       ...Object.fromEntries(Object.entries(params.values ?? {}).map(([name, value]) => [name, number(value)])),
+      ...Object.fromEntries(Object.entries(planBenefitValues(key, plan)).map(([name, value]) => [name, number(value)])),
       ...(key === 'memberPrintDiscount' ? { percent: number(plan.printDiscountPercent) } : {})
     });
   };
@@ -79,19 +81,24 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
     switch (row) {
       case 'ebook':
         if (plan.shelfAccess === 'full') return t('membership.access.ebook.shelf');
+        if (plan.shelfAccess === 'pick' && plan.ebookTitlesPerPeriod !== null) return t('membership.access.ebook.quota', { n: plan.ebookTitlesPerPeriod });
         return plan.shelfAccess === 'pick' ? `${sample} + ${t('membership.access.ebook.pick')}` : sample;
       case 'audiobook':
+        if (plan.shelfAccess !== 'none' && plan.audioHoursPerPeriod !== null) return t('membership.access.audiobook.hours', { hours: plan.audioHoursPerPeriod });
         return plan.shelfAccess === 'full'
           ? t('membership.access.audiobook.shelf')
           : t('membership.access.audiobook.sample', { minutes: DIGITAL_SAMPLE_LIMITS.defaultAudioSeconds / 60 });
       case 'frontlist':
+        if (!isLegacyPlanCode(plan.code) && plan.frontlistDays !== null) {
+          return plan.frontlistDays === 0 ? t('membership.access.frontlist.firstDay') : t('membership.access.frontlist.afterDays', { days: plan.frontlistDays });
+        }
         return plan.shelfAccess === 'full' ? t('membership.access.frontlist.shelf', FRONTLIST_DAYS) : t('membership.access.frontlist.sample');
       case 'devices':
         return plan.shelfAccess === 'none' ? t('membership.access.none') : t('membership.access.devices', { n: plan.maxDevices });
       case 'printDiscount':
         return plan.printDiscountPercent > 0 ? `${plan.printDiscountPercent}%` : t('membership.access.none');
       case 'wallet': {
-        if (column === 'free') return t('membership.access.none');
+        if (column === 'free' || !isLegacyPlanCode(column)) return t('membership.access.none');
         const wallet = MEMBERSHIP_WALLETS[column];
         const base = t(`membership.access.wallet.${wallet.period}`, { amount: currency(wallet.amount), min: currency(wallet.minPurchase) });
         return column === 'professional'
@@ -115,9 +122,9 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
       return <button type="button" id={id} onClick={() => goToAccountMembership()} className={secondaryButton}>{t('membership.currentPlan')}</button>;
     }
     if (!data.purchaseEnabled) {
-      return <ComingSoonButton id={id} size="md" label={plan.code === 'free' ? t('membership.joinFree') : t('membership.choosePlan')} />;
+      return <ComingSoonButton id={id} size="md" label={plan.priceMonthly === 0 ? t('membership.joinFree') : t('membership.choosePlan')} />;
     }
-    if (plan.code === 'free') {
+    if (plan.priceMonthly === 0) {
       if (!member.isLoggedIn) {
         return <button type="button" id={id} onClick={() => goToLogin(undefined, 'register')} className={secondaryButton}>{t('membership.joinFree')}</button>;
       }
@@ -179,7 +186,7 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
         {plans.map((plan) => {
           const key = PLAN_KEY_BY_CODE[plan.code];
           const isFree = plan.priceMonthly === 0;
-          const highlighted = plan.code === 'professional';
+          const highlighted = plan.code === 'gold' || plan.code === 'professional';
           const founding = plan.founding;
           const seatsLeft = founding ? (founding.remaining === null || founding.remaining > 0) : false;
           const showFoundingPrice = Boolean(founding) && cycle === 'yearly' && seatsLeft && data.foundingEligible;
@@ -253,7 +260,9 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
               {plan.shelfAccess === 'pick' && (
                 <p className="mt-3 inline-flex items-center gap-1.5 self-start rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-800">
                   <Library className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                  {t('membership.includesPick')}
+                  {plan.ebookTitlesPerPeriod !== null
+                    ? t('membership.access.ebook.quota', { n: plan.ebookTitlesPerPeriod })
+                    : t('membership.includesPick')}
                 </p>
               )}
               {plan.shelfAccess !== 'none' && (

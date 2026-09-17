@@ -75,7 +75,8 @@ describe('admin: Entitlement & Akses', () => {
     expect(granted.status).toBe(201);
     expect(granted.body.entitlement).toMatchObject({ userId: USER_B.id, productId: 'prod-audio-1', source: 'admin_grant', status: 'active', endsAt, maxDevices: 3, statusChangedBy: 'admin' });
     expect((await t.start(t.tokenB, 'prod-audio-1')).status).toBe(201);
-    expect((await t.adminReq('get', `/api/admin/digital-access/users/${USER_B.id}`)).body.maxDevices).toBe(3);
+    // Fase 6: batas perangkat per pengguna tetap 2 (nilai max_devices entitlement hanya tersimpan).
+    expect((await t.adminReq('get', `/api/admin/digital-access/users/${USER_B.id}`)).body.maxDevices).toBe(2);
 
     // Setelah masa berlaku lewat: expired.
     t.clock.now = new Date(t.clock.now.getTime() + 31 * DAY);
@@ -110,9 +111,10 @@ describe('admin: Entitlement & Akses', () => {
     await t.grantPurchase(USER_A.id, 'prod-ebook-1');
     await t.grantPurchase(USER_A.id, 'prod-audio-1');
     await t.start(t.tokenA, 'prod-ebook-1', 1);
-    await t.start(t.tokenA, 'prod-audio-1', 2);
+    // Satu sesi per pengguna: perangkat 2 mengambil alih.
+    await request(t.app).post('/api/access/prod-audio-1/session/start').set('Authorization', `Bearer ${t.tokenA}`).send({ deviceId: device(2), takeover: true });
     const detail = (await t.adminReq('get', `/api/admin/digital-access/users/${USER_A.id}`)).body;
-    const target = detail.devices[0].id;
+    const target = t.store.sessions.find((s) => !s.endedAt)!.deviceId!;
     const released = await t.adminReq('post', `/api/admin/digital-access/devices/${target}/release`);
     expect(released.body).toMatchObject({ released: true, sessionsEnded: 1 });
     expect((await t.adminReq('post', `/api/admin/digital-access/devices/${target}/release`)).status).toBe(409);

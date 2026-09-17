@@ -41,10 +41,10 @@ const setup = async (env: Record<string, string>) => {
 describe('flag DIGITAL_ENABLED & DIGITAL_BETA_EMAILS', () => {
   it('flag mati: endpoint pembeli 404 digital_disabled kecuali email beta; akun & admin tetap berjalan', async () => {
     const t = await setup({ DIGITAL_ENABLED: 'false', DIGITAL_BETA_EMAILS: ` ${USER_A.email.toUpperCase()} , bukan-email` });
-    expect((await t.as(null, 'get', '/api/digital/status')).body).toEqual({ enabled: false, beta: false });
-    expect((await t.as(t.tokenA, 'get', '/api/digital/status')).body).toEqual({ enabled: true, beta: true });
-    expect((await t.as(t.tokenB, 'get', '/api/digital/status')).body).toEqual({ enabled: false, beta: false });
-    expect((await t.as('token-rusak', 'get', '/api/digital/status')).body).toEqual({ enabled: false, beta: false });
+    expect((await t.as(null, 'get', '/api/digital/status')).body).toEqual({ enabled: false, beta: false, unitSales: true });
+    expect((await t.as(t.tokenA, 'get', '/api/digital/status')).body).toEqual({ enabled: true, beta: true, unitSales: true });
+    expect((await t.as(t.tokenB, 'get', '/api/digital/status')).body).toEqual({ enabled: false, beta: false, unitSales: true });
+    expect((await t.as('token-rusak', 'get', '/api/digital/status')).body).toEqual({ enabled: false, beta: false, unitSales: true });
 
     for (const path of ['/api/library', '/api/digital/orders', '/api/devices']) {
       const res = await t.as(t.tokenB, 'get', path);
@@ -69,7 +69,7 @@ describe('flag DIGITAL_ENABLED & DIGITAL_BETA_EMAILS', () => {
 
   it('flag hidup: semua pengguna login bisa memakai fitur digital', async () => {
     const t = await setup({ DIGITAL_ENABLED: 'true' });
-    expect((await t.as(null, 'get', '/api/digital/status')).body).toEqual({ enabled: true, beta: false });
+    expect((await t.as(null, 'get', '/api/digital/status')).body).toEqual({ enabled: true, beta: false, unitSales: true });
     expect((await t.as(t.tokenB, 'get', '/api/library')).status).toBe(200);
   });
 

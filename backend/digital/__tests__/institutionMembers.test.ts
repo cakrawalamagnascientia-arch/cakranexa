@@ -209,10 +209,20 @@ describe('anggota institusi: akses & pengguna bersamaan', () => {
       expect((await client.post('/api/institution/join/domain', { slug: institution.slug })).status).toBe(201);
       clients.push(client);
     }
-    // Anggota ke-7 juga punya keanggotaan individu aktif.
+    // Anggota ke-7 juga punya keanggotaan individu aktif (Platinum: seluruh rak).
+    const periodStart = new Date(t.clock.t - DAY).toISOString();
+    const periodEnd = new Date(t.clock.t + 30 * DAY).toISOString();
+    const individualSub = await t.store.createSubscription({
+      userId: clients[6].user.id, planId: 'plan-platinum', billingCycle: 'monthly', status: 'active', isFounding: false, priceLocked: 199000,
+      currentPeriodStart: periodStart, currentPeriodEnd: periodEnd, cancelAtPeriodEnd: false, canceledAt: null, endedAt: null, endedReason: null,
+      paymentMethod: 'va', midtransSubscriptionId: null, midtransToken: null, midtransTokenExpiresAt: null, midtransAccountId: null,
+      pendingPlanId: null, pendingBillingCycle: null, foundingEndsAt: null, extraGraceDays: 0, customerEmail: 'anggota7@kampus.ac.id',
+      customerName: 'Anggota 7', language: 'id', whatsappNumber: null, whatsappOptIn: false, whatsappOptInAt: null,
+      idempotencyKey: 'kunci-langganan-individu-7', isTest: false
+    });
     await t.store.insertEntitlements([{
-      userId: clients[6].user.id, productId: null, scope: 'shelf', source: 'membership', sourceRef: 'langganan-individu',
-      startsAt: new Date(t.clock.t - DAY).toISOString(), endsAt: new Date(t.clock.t + 30 * DAY).toISOString(), maxDevices: 2
+      userId: clients[6].user.id, productId: null, scope: 'shelf', source: 'membership', sourceRef: individualSub.id,
+      startsAt: periodStart, endsAt: periodEnd, maxDevices: 2
     }]);
 
     const tokens: string[] = [];
@@ -236,13 +246,16 @@ describe('anggota institusi: akses & pengguna bersamaan', () => {
     expect(t.store.sessions.find((s) => s.userId === clients[6].user.id)!.institutionId).toBeNull();
     expect((await clients[5].start('prod-a', 5)).status).toBe(429);
 
-    // Anggota yang sudah memakai slot boleh membuka judul lain (dihitung sekali).
-    expect((await clients[0].start('prod-b', 0)).status).toBe(201);
-    expect(t.store.sessions.filter((s) => s.institutionId === institution.id && !s.endedAt)).toHaveLength(6);
+    // Anggota yang sudah memakai slot boleh membuka judul lain: satu sesi per pengguna, sesi judul lama ditutup (fase 6).
+    const switched = await clients[0].start('prod-b', 0);
+    expect(switched.status).toBe(201);
+    tokens[0] = switched.body.sessionToken;
+    expect(t.store.sessions.filter((s) => s.institutionId === institution.id && !s.endedAt)).toHaveLength(5);
+    expect(t.store.sessions.find((s) => s.userId === clients[0].user.id && s.productId === 'prod-a')).toMatchObject({ endReason: 'switched' });
 
     // 90 detik: anggota 1–4 mengirim heartbeat, anggota 5 tidak. 40 detik kemudian sesi anggota 5 habis (>2 menit).
     t.clock.t += 90_000;
-    for (let i = 0; i < 4; i += 1) expect((await clients[i].heartbeat('prod-a', tokens[i])).status).toBe(200);
+    for (let i = 0; i < 4; i += 1) expect((await clients[i].heartbeat(i === 0 ? 'prod-b' : 'prod-a', tokens[i])).status).toBe(200);
     t.clock.t += 40_000;
     const sixth = await clients[5].start('prod-a', 5);
     expect(sixth.status).toBe(201);

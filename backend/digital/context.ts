@@ -4,6 +4,8 @@ import type { DigitalStore, NewSession } from './store';
 import type { AssetStorage } from './storage';
 import type { TokenVerifier } from './auth';
 import type { AccessLogInput, BookInfo, EntitlementRecord, ProductRecord, SessionRecord } from './types';
+import type { MembershipAccess } from './membership/quota';
+import type { RoutingEntry } from '../../src/data/paymentRouting';
 
 export interface MailMessage {
   to: string[];
@@ -60,6 +62,10 @@ export interface DigitalContext {
   feature: DigitalFeature;
   /** Akses institusi fase 4 (koleksi custom, batas pengguna bersamaan). */
   institution?: InstitutionAccessHooks;
+  /** Fase 6: cakupan rak per paket, tanggal buka per paket, kuota audio. */
+  membership?: MembershipAccess;
+  /** payment_routing (tabel yang sama dengan checkout cetak); bawaan DEFAULT_PAYMENT_ROUTING. */
+  paymentRouting: () => Promise<RoutingEntry[]>;
 }
 
 export interface DigitalFeature {

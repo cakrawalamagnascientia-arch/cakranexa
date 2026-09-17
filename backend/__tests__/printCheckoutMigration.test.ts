@@ -35,7 +35,7 @@ describe('migration checkout buku cetak (src/db/print_checkout_migration.sql)', 
   });
 
   it('seed payment_routing sama dengan bawaan kode: hanya transfer bank (manual), metode lain off', () => {
-    for (const entry of DEFAULT_PAYMENT_ROUTING) expect(sql).toContain(`('print', '${entry.method}', '${entry.provider}')`);
+    for (const entry of DEFAULT_PAYMENT_ROUTING.filter((r) => r.transactionType === 'print')) expect(sql).toContain(`('print', '${entry.method}', '${entry.provider}')`);
     expect(sql).toContain('ON CONFLICT (transaction_type, method) DO NOTHING');
     expect(sql).toMatch(/ENABLE ROW LEVEL SECURITY/);
   });

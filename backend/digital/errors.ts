@@ -18,6 +18,15 @@ export class DigitalHttpError extends Error {
 /** Pelanggaran keunikan di penyimpanan (mis. idempotency key, sesi aktif ganda). */
 export class ConflictError extends Error {}
 
+/** Aturan fase 6 yang dijaga penyimpanan (trigger SQL): jatah judul dan batas akun keluarga. */
+export type StoreRule = 'title_quota_full' | 'title_quota_unavailable' | 'family_full' | 'family_owner';
+
+export class StoreRuleError extends Error {
+  constructor(readonly rule: StoreRule) {
+    super(rule);
+  }
+}
+
 /**
  * Pesanan/tagihan gagal disimpan: tidak ada transaksi pembayaran yang dibuat dan pembeli mendapat 503
  * (checkout buku cetak, produk digital, dan keanggotaan).

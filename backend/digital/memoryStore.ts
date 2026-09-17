@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { ConflictError } from './errors';
+import { ConflictError, StoreRuleError } from './errors';
 import { OPEN_SUBSCRIPTION_STATUSES, type DigitalStore, type EntitlementFilter, type InvoiceFilter, type NewAnomaly, type NewNote, type NewSession, type SessionFilter, type SubscriptionFilter } from './store';
 import { DEFAULT_PLAN_BENEFITS, DEFAULT_PLANS } from './membership/plans';
 import type {
@@ -10,6 +10,7 @@ import type {
   ChapterRecord,
   DeviceRecord,
   EntitlementRecord,
+  FamilyMemberRecord,
   InvoicePatch,
   InvoiceRecord,
   InvoiceStatus,
@@ -31,6 +32,7 @@ import type {
   SubscriptionPatch,
   SubscriptionRecord,
   SubscriptionStatus,
+  TitlePickRecord,
   UserProfile
 } from './types';
 
@@ -77,6 +79,8 @@ export class MemoryDigitalStore implements DigitalStore {
   readonly invoices: InvoiceRecord[] = [];
   readonly subscriptionEvents: SubscriptionEventRecord[] = [];
   readonly picks: PickRecord[] = [];
+  readonly titlePicks: TitlePickRecord[] = [];
+  readonly familyMembers: FamilyMemberRecord[] = [];
 
   constructor(private readonly productSource: () => Promise<Phase1ProductLike[]>) {}
 
@@ -377,7 +381,7 @@ export class MemoryDigitalStore implements DigitalStore {
   }
 
   async insertReadingEvents(rows: ReadingEventInput[]) {
-    for (const row of rows) this.events.push({ ...row, id: uuid(), createdAt: nowIso() });
+    for (const row of rows) this.events.push({ ...row, id: uuid(), createdAt: row.occurredAt ?? nowIso() });
   }
 
   // ---- progres & catatan
@@ -668,5 +672,77 @@ export class MemoryDigitalStore implements DigitalStore {
   async setPickEntitlement(id: string, entitlementId: string) {
     const p = this.picks.find((x) => x.id === id);
     if (p) p.entitlementId = entitlementId;
+  }
+
+  // ---- fase 6
+  private planOfSubscription(subscriptionId: string): PlanRecord | null {
+    const sub = this.subscriptions.find((x) => x.id === subscriptionId);
+    return sub ? this.plans.find((p) => p.id === sub.planId) ?? null : null;
+  }
+
+  async createTitlePick(row: Omit<TitlePickRecord, 'id' | 'pickedAt' | 'entitlementId'>) {
+    const limit = this.planOfSubscription(row.subscriptionId)?.ebookTitlesPerPeriod ?? null;
+    if (limit === null) throw new StoreRuleError('title_quota_unavailable');
+    const slot = this.titlePicks.filter((p) => p.subscriptionId === row.subscriptionId && p.userId === row.userId && p.periodStart === row.periodStart);
+    if (slot.some((p) => p.productId === row.productId)) throw new ConflictError('title_pick_exists');
+    if (slot.length >= limit) throw new StoreRuleError('title_quota_full');
+    const record: TitlePickRecord = { ...clone(row), id: uuid(), entitlementId: null, pickedAt: nowIso() };
+    this.titlePicks.push(record);
+    return clone(record);
+  }
+
+  async listTitlePicks(f: { subscriptionId?: string; userId?: string; periodStart?: string }) {
+    return this.titlePicks
+      .filter((p) => (!f.subscriptionId || p.subscriptionId === f.subscriptionId) && (!f.userId || p.userId === f.userId)
+        && (!f.periodStart || p.periodStart === f.periodStart))
+      .sort((a, b) => b.periodStart.localeCompare(a.periodStart) || a.pickedAt.localeCompare(b.pickedAt))
+      .map(clone);
+  }
+
+  async setTitlePickEntitlement(id: string, entitlementId: string) {
+    const p = this.titlePicks.find((x) => x.id === id);
+    if (p) p.entitlementId = entitlementId;
+  }
+
+  async audioSecondsUsed(subscriptionId: string, userId: string, from: string, to: string) {
+    const start = Date.parse(from);
+    const end = Date.parse(to);
+    return this.events
+      .filter((e) => e.subscriptionId === subscriptionId && e.userId === userId && e.unit === 'second'
+        && Date.parse(e.createdAt) >= start && Date.parse(e.createdAt) < end)
+      .reduce((sum, e) => sum + (e.unitEnd - e.unitStart), 0);
+  }
+
+  async findUserByEmail(email: string) {
+    const needle = email.trim().toLowerCase();
+    const user = [...this.users.values()].find((u) => u.email.toLowerCase() === needle);
+    return user ? { ...user } : null;
+  }
+
+  async addFamilyMember(row: { ownerSubscriptionId: string; userId: string }) {
+    const sub = this.subscriptions.find((x) => x.id === row.ownerSubscriptionId);
+    if (sub?.userId === row.userId) throw new StoreRuleError('family_owner');
+    if (this.familyMembers.some((m) => m.userId === row.userId && m.status === 'active')) throw new ConflictError('family_member_exists');
+    const limit = this.planOfSubscription(row.ownerSubscriptionId)?.familyAccounts ?? 0;
+    const used = this.familyMembers.filter((m) => m.ownerSubscriptionId === row.ownerSubscriptionId && m.status === 'active').length;
+    if (used >= limit) throw new StoreRuleError('family_full');
+    const record: FamilyMemberRecord = { id: uuid(), ...row, status: 'active', addedAt: nowIso(), removedAt: null };
+    this.familyMembers.push(record);
+    return clone(record);
+  }
+
+  async listFamilyMembers(f: { ownerSubscriptionId?: string; userId?: string; status?: FamilyMemberRecord['status'] }) {
+    return this.familyMembers
+      .filter((m) => (!f.ownerSubscriptionId || m.ownerSubscriptionId === f.ownerSubscriptionId) && (!f.userId || m.userId === f.userId)
+        && (!f.status || m.status === f.status))
+      .map(clone);
+  }
+
+  async removeFamilyMember(id: string, removedAt: string) {
+    const m = this.familyMembers.find((x) => x.id === id && x.status === 'active');
+    if (!m) return null;
+    m.status = 'removed';
+    m.removedAt = removedAt;
+    return clone(m);
   }
 }

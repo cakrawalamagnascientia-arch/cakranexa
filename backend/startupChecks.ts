@@ -80,7 +80,12 @@ export const REQUIRED_SCHEMA: SchemaRequirement[] = [
   { migration: 'src/db/manuscript_admin_migration.sql', table: 'manuscript_reminders' },
   // Checkout buku cetak: transfer dari luar negeri ke rekening USD.
   { migration: 'src/db/print_usd_transfer_migration.sql', table: 'admin_bank_accounts', columns: ['currency', 'swift_code'] },
-  { migration: 'src/db/print_usd_transfer_migration.sql', table: 'orders', columns: ['transfer_currency', 'usd_amount_received'] }
+  { migration: 'src/db/print_usd_transfer_migration.sql', table: 'orders', columns: ['transfer_currency', 'usd_amount_received'] },
+  // Fase 6 Langkah 1: paket Blue/Silver/Gold/Platinum, jatah judul, kuota audio, akun keluarga.
+  { migration: 'src/db/membership_phase6_migration.sql', table: 'plans', columns: ['ebook_titles_per_period', 'audio_hours_per_period', 'frontlist_days', 'offline_titles', 'family_accounts', 'successor_plan_id'] },
+  { migration: 'src/db/membership_phase6_migration.sql', table: 'reading_events', columns: ['subscription_id'] },
+  { migration: 'src/db/membership_phase6_migration.sql', table: 'period_title_picks' },
+  { migration: 'src/db/membership_phase6_migration.sql', table: 'family_members' }
 ];
 
 export interface MissingSchemaObject {

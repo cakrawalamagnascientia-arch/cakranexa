@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_PLANS, DEFAULT_PLAN_BENEFITS } from '../membership/plans';
+import { PHASE3_PLAN_BENEFITS as DEFAULT_PLAN_BENEFITS, PHASE3_PLANS as DEFAULT_PLANS } from '../membership/plans';
 import { MemoryDigitalStore } from '../memoryStore';
 import { REQUIRED_SCHEMA } from '../../startupChecks';
 
@@ -11,6 +11,10 @@ import { REQUIRED_SCHEMA } from '../../startupChecks';
  * Perilaku SQL (constraint, fungsi, RLS) diuji terpisah di PGlite.
  */
 const sql = fs.readFileSync(path.resolve(__dirname, '../../../src/db/membership_phase3_migration.sql'), 'utf8');
+const phase6 = fs.readFileSync(path.resolve(__dirname, '../../../src/db/membership_phase6_migration.sql'), 'utf8');
+/** Kolom yang ditambahkan migration fase 6 ke tabel fase 3. */
+const phase6Columns = (table: string): string[] =>
+  [...phase6.matchAll(new RegExp(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ([a-z_]+)`, 'g'))].map((m) => m[1]);
 
 const tableColumns = (table: string): string[] => {
   const match = sql.match(new RegExp(`CREATE TABLE IF NOT EXISTS ${table} \\(([\\s\\S]*?)\\n\\);`));
@@ -114,7 +118,7 @@ describe('migration fase 3', () => {
       ['digital_member_picks', pick]
     ];
     for (const [table, record] of cases) {
-      const columns = tableColumns(table);
+      const columns = [...tableColumns(table), ...phase6Columns(table)];
       const missing = columnsOf(record).filter((c) => !columns.includes(c));
       expect({ table, missing }).toEqual({ table, missing: [] });
     }

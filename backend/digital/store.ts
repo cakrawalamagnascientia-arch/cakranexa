@@ -10,6 +10,7 @@ import type {
   EntitlementScope,
   EntitlementSource,
   EntitlementStatus,
+  FamilyMemberRecord,
   InvoiceKind,
   InvoicePatch,
   InvoiceRecord,
@@ -36,6 +37,7 @@ import type {
   SubscriptionPatch,
   SubscriptionRecord,
   SubscriptionStatus,
+  TitlePickRecord,
   UserProfile
 } from './types';
 
@@ -205,4 +207,18 @@ export interface DigitalStore {
   createPick(row: Omit<PickRecord, 'id' | 'createdAt' | 'entitlementId'>): Promise<PickRecord>;
   listPicks(filter: { subscriptionId?: string; userId?: string }): Promise<PickRecord[]>;
   setPickEntitlement(id: string, entitlementId: string): Promise<void>;
+
+  // Fase 6: jatah judul, kuota audio, akun keluarga
+  /** StoreRuleError('title_quota_full' | 'title_quota_unavailable') bila jatah slot habis; ConflictError bila judul sudah dipilih di slot ini. */
+  createTitlePick(row: Omit<TitlePickRecord, 'id' | 'pickedAt' | 'entitlementId'>): Promise<TitlePickRecord>;
+  listTitlePicks(filter: { subscriptionId?: string; userId?: string; periodStart?: string }): Promise<TitlePickRecord[]>;
+  setTitlePickEntitlement(id: string, entitlementId: string): Promise<void>;
+  /** Detik audio tervalidasi satu akun dalam satu langganan pada [from, to). */
+  audioSecondsUsed(subscriptionId: string, userId: string, from: string, to: string): Promise<number>;
+  /** Akun terdaftar dengan email persis (huruf kecil); null bila tidak ada. */
+  findUserByEmail(email: string): Promise<UserProfile | null>;
+  /** StoreRuleError('family_full' | 'family_owner'); ConflictError bila akun sudah anggota keluarga aktif. */
+  addFamilyMember(row: { ownerSubscriptionId: string; userId: string }): Promise<FamilyMemberRecord>;
+  listFamilyMembers(filter: { ownerSubscriptionId?: string; userId?: string; status?: FamilyMemberRecord['status'] }): Promise<FamilyMemberRecord[]>;
+  removeFamilyMember(id: string, removedAt: string): Promise<FamilyMemberRecord | null>;
 }

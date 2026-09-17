@@ -1,11 +1,13 @@
 import crypto from 'crypto';
-import { ConflictError, httpError, ORDER_NOT_SAVED_MESSAGE } from '../errors';
+import { ConflictError, httpError, ORDER_NOT_SAVED_MESSAGE, StoreRuleError } from '../errors';
 import type { DigitalContext } from '../context';
 import { mapMidtransToOrderStatus, verifyMidtransSignature, type MidtransClient } from '../checkout';
 import { OPEN_SUBSCRIPTION_STATUSES } from '../store';
 import { isEntitlementUsable, isProductOnShelf } from '../entitlements';
 import { addDays, addMonths, DAY_MS, jakartaDate } from '../time';
 import { PLAN_RANK } from './plans';
+import { isOpenFor, monthSlot, openDateFor, planGrantsShelfRow, shelfCoversFormat } from './quota';
+import { enabledRoutingMethods, type RoutingMethod } from '../../../src/data/paymentRouting';
 import { decryptToken, encryptToken, midtransUserRef, parseMidtransTime, type MembershipGateway } from './gateway';
 import { membershipEmail, type MembershipEmailData, type MembershipEmailKind } from './email';
 import { formatWhatsAppNumber, isWhatsAppKind, membershipWhatsApp, normalizeWhatsAppNumber, type WhatsAppSender } from './whatsapp';
@@ -64,6 +66,16 @@ const ENABLED_PAYMENTS: Record<MembershipPaymentMethod, string[] | null> = {
   other: null
 };
 const LANGUAGE_PREFIX: Record<string, string> = { id: '', en: '/en', zh: '/zh' };
+/** Metode keanggotaan (Snap) -> baris payment_routing 'membership' yang harus diarahkan ke Midtrans. */
+const ROUTING_FOR_METHOD: Record<MembershipPaymentMethod, RoutingMethod[]> = {
+  card: ['card'],
+  gopay: ['gopay'],
+  va: ['va_bni', 'va_mandiri', 'va_bri', 'va_bca'],
+  qris: ['qris'],
+  other: ['va_bni', 'va_mandiri', 'va_bri', 'va_bca', 'qris', 'gopay', 'ovo', 'dana', 'shopeepay', 'card']
+};
+/** Pemberitahuan pindah ke paket penerus (paket lama tidak dijual lagi), hari sebelum perpanjangan. */
+export const PLAN_MIGRATION_NOTICE_DAYS = 30;
 
 export const periodEndFor = (start: string, cycle: BillingCycle): string => addMonths(start, cycle === 'monthly' ? 1 : 12);
 export const priceFor = (plan: PlanRecord, cycle: BillingCycle): number => (cycle === 'monthly' ? plan.priceMonthly : plan.priceYearly);
@@ -185,6 +197,11 @@ export class MembershipService {
         : null,
       maxDevices: p.maxDevices,
       shelfAccess: this.effectiveShelfAccess(p),
+      ebookTitlesPerPeriod: p.ebookTitlesPerPeriod,
+      audioHoursPerPeriod: p.audioHoursPerPeriod,
+      frontlistDays: p.frontlistDays,
+      offlineTitles: p.offlineTitles,
+      familyAccounts: p.familyAccounts,
       printDiscountPercent: this.cfg.memberPrintDiscount ? p.printDiscountPercent : 0,
       benefits: benefits
         .filter((b) => b.planId === p.id && this.flagOn(b.featureFlag))
@@ -238,8 +255,10 @@ export class MembershipService {
 
   /** Paket, siklus, dan nominal perpanjangan berikutnya (perubahan terjadwal diterapkan; harga Founding hanya tahun pertama). */
   async renewalTarget(sub: SubscriptionRecord): Promise<{ plan: PlanRecord; cycle: BillingCycle; amount: number }> {
-    const plan = (await this.planById(sub.pendingPlanId)) ?? (await this.planById(sub.planId));
+    let plan = (await this.planById(sub.pendingPlanId)) ?? (await this.planById(sub.planId));
     if (!plan) throw new Error(`Paket langganan ${sub.id} tidak ditemukan`);
+    // Paket fase 3 tidak dijual lagi: perpanjangan memakai paket penerusnya (fase 6).
+    if (!plan.isActive && plan.successorPlanId) plan = (await this.planById(plan.successorPlanId)) ?? plan;
     const cycle = sub.pendingBillingCycle ?? sub.billingCycle;
     return { plan, cycle, amount: priceFor(plan, cycle) };
   }
@@ -283,8 +302,10 @@ export class MembershipService {
 
   /** Hak keanggotaan milik langganan ini: baris rak (source_ref = id langganan) + hak Digital Member Pick. */
   async membershipEntitlements(sub: SubscriptionRecord): Promise<EntitlementRecord[]> {
-    const shelf = await this.store.listEntitlements({ userId: sub.userId, scope: 'shelf', source: 'membership', sourceRef: sub.id });
-    const pickIds = (await this.store.listPicks({ subscriptionId: sub.id })).map((p) => p.entitlementId).filter((id): id is string => Boolean(id));
+    // Baris rak pemilik dan anggota keluarga (source_ref = langganan pemilik).
+    const shelf = await this.store.listEntitlements({ scope: 'shelf', source: 'membership', sourceRef: sub.id });
+    const pickIds = [...await this.store.listPicks({ subscriptionId: sub.id }), ...await this.store.listTitlePicks({ subscriptionId: sub.id })]
+      .map((p) => p.entitlementId).filter((id): id is string => Boolean(id));
     const picks = pickIds.length > 0 ? await this.store.listEntitlements({ ids: pickIds }) : [];
     return [...shelf, ...picks];
   }
@@ -303,9 +324,14 @@ export class MembershipService {
   async restoreAccess(sub: SubscriptionRecord): Promise<void> {
     const graceEnd = this.graceEndsAt(sub);
     if (!graceEnd || !sub.currentPeriodStart) return;
-    const shelf = (await this.store.listEntitlements({ userId: sub.userId, scope: 'shelf', source: 'membership', sourceRef: sub.id }))
+    const shelf = (await this.store.listEntitlements({ scope: 'shelf', source: 'membership', sourceRef: sub.id }))
       .filter((e) => e.status === 'active' && Date.parse(e.startsAt) >= Date.parse(sub.currentPeriodStart!) - 1000);
     if (shelf.length > 0) await this.store.updateEntitlementsEndsAt(shelf.map((e) => e.id), graceEnd);
+    // Judul jatah fase 6: sampai akhir slot bulannya.
+    for (const pick of await this.store.listTitlePicks({ subscriptionId: sub.id })) {
+      if (!pick.entitlementId || Date.parse(pick.periodEnd) <= Date.parse(this.iso())) continue;
+      await this.store.updateEntitlementsEndsAt([pick.entitlementId], Date.parse(pick.periodEnd) < Date.parse(graceEnd) ? pick.periodEnd : graceEnd);
+    }
     for (const pick of await this.store.listPicks({ subscriptionId: sub.id })) {
       if (!pick.entitlementId || Date.parse(pick.periodEnd) <= Date.parse(this.iso())) continue;
       const pickEnd = addDays(pick.periodEnd, this.cfg.graceDays);
@@ -313,20 +339,37 @@ export class MembershipService {
     }
   }
 
-  /** Hak akses paket untuk satu periode (paket full -> satu baris scope 'shelf'). */
+  /**
+   * Hak akses paket untuk satu periode: satu baris scope 'shelf' per akun (pemilik + anggota keluarga aktif) bila
+   * paketnya membuka rak (seluruh rak, atau audiobook untuk paket berjatah). Cakupan format dan tanggal buka per
+   * paket dicek saat akses (MembershipAccess.coversProduct).
+   */
   async grantAccess(sub: SubscriptionRecord, plan: PlanRecord, start: string, end: string): Promise<void> {
-    if (this.effectiveShelfAccess(plan) !== 'full') return;
-    await this.store.insertEntitlements([{
-      userId: sub.userId,
+    const access = this.effectiveShelfAccess(plan);
+    if (!(access === 'full' || (access === 'pick' && planGrantsShelfRow(plan)))) return;
+    const family = plan.familyAccounts > 0
+      ? (await this.store.listFamilyMembers({ ownerSubscriptionId: sub.id, status: 'active' })).slice(0, plan.familyAccounts)
+      : [];
+    const endsAt = addDays(end, this.cfg.graceDays + sub.extraGraceDays);
+    await this.store.insertEntitlements([sub.userId, ...family.map((m) => m.userId)].map((userId) => ({
+      userId,
       productId: null,
-      scope: 'shelf',
-      source: 'membership',
+      scope: 'shelf' as const,
+      source: 'membership' as const,
       sourceRef: sub.id,
       startsAt: start,
-      endsAt: addDays(end, this.cfg.graceDays + sub.extraGraceDays),
+      endsAt,
       maxDevices: plan.maxDevices,
       statusChangedBy: 'membership'
-    }]);
+    })));
+  }
+
+  /** Metode Snap ini diarahkan ke Midtrans di payment_routing 'membership'? (fase 6: bawaan transfer manual saja) */
+  private async assertMethodRouted(method: MembershipPaymentMethod): Promise<void> {
+    const routes = enabledRoutingMethods(await this.ctx.paymentRouting(), 'membership', { midtransEnabled: this.ctx.midtrans.enabled });
+    if (!routes.some((r) => r.provider === 'midtrans' && ROUTING_FOR_METHOD[method].includes(r.method))) {
+      throw httpError(400, 'method_unavailable', 'Metode pembayaran ini sedang tidak tersedia untuk keanggotaan.');
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -387,6 +430,13 @@ export class MembershipService {
       nextRenewal: renewal ? { date: sub.currentPeriodEnd, amount: renewal.amount, planCode: renewal.plan.code, billingCycle: renewal.cycle } : null,
       maxDevices: plan?.maxDevices ?? null,
       shelfAccess: plan ? this.effectiveShelfAccess(plan) : 'none',
+      ebookTitlesPerPeriod: plan?.ebookTitlesPerPeriod ?? null,
+      audioHoursPerPeriod: plan?.audioHoursPerPeriod ?? null,
+      frontlistDays: plan?.frontlistDays ?? null,
+      offlineTitles: plan?.offlineTitles ?? 0,
+      familyAccounts: plan?.familyAccounts ?? 0,
+      /** Paket tidak dijual lagi: perpanjangan berikutnya memakai paket ini. */
+      successorPlanCode: plan && !plan.isActive && plan.successorPlanId ? (await this.planById(plan.successorPlanId))?.code ?? null : null,
       createdAt: sub.createdAt
     };
   }
@@ -447,7 +497,8 @@ export class MembershipService {
 
     if (!this.ctx.midtrans.enabled) throw httpError(503, 'payment_unavailable', 'Pembayaran online belum dikonfigurasi.');
     const plan = await this.planByCode(planCode);
-    if (!plan || !plan.isActive || plan.code === 'free' || priceFor(plan, cycle) <= 0) throw httpError(400, 'plan_unavailable', 'Paket tidak tersedia.');
+    if (!plan || !plan.isActive || priceFor(plan, cycle) <= 0) throw httpError(400, 'plan_unavailable', 'Paket tidak tersedia.');
+    await this.assertMethodRouted(method);
 
     const open = await this.openSubscription(user.id);
     if (open && open.status !== 'pending') {
@@ -792,8 +843,12 @@ export class MembershipService {
     // Perubahan paket terjadwal berlaku: akses paket lama berakhir tepat di akhir periode lama.
     if (changed && sub.currentPeriodEnd && !reopen) await this.limitAccessTo(sub, sub.currentPeriodEnd);
     await this.grantAccess(updated, plan, start, end);
-    await this.event(updated, changed ? 'downgraded' : 'renewed', { invoiceId: invoice.id, amount: invoice.amount, kind: invoice.kind, applied: changed, reopened: reopen });
-    if (changed) this.notify(updated, 'planChanged', { change: 'downgrade_applied', planName: this.planName(plan, updated.language), cycle: updated.billingCycle, date: end });
+    const previousPlan = changed ? await this.planById(sub.planId) : null;
+    const migrated = Boolean(previousPlan && !previousPlan.isActive && previousPlan.successorPlanId === invoice.planId);
+    await this.event(updated, migrated ? 'plan_migrated' : changed ? 'downgraded' : 'renewed', {
+      invoiceId: invoice.id, amount: invoice.amount, kind: invoice.kind, applied: changed, reopened: reopen, ...(migrated ? { from: previousPlan!.code, to: plan.code } : {})
+    });
+    if (changed) this.notify(updated, 'planChanged', { change: migrated ? 'upgrade' : 'downgrade_applied', planName: this.planName(plan, updated.language), cycle: updated.billingCycle, date: end });
     // Dibayar dengan kartu/GoPay yang ditokenisasi (mis. pindah dari VA ke auto-debit): mulai tagihan otomatis.
     if (!updated.midtransSubscriptionId && (info.savedTokenId || info.gopayAccountId)) await this.setupAutodebit(updated, info);
     return 'success' as const;
@@ -927,7 +982,7 @@ export class MembershipService {
     if (!sub) return;
     const rows = (await this.membershipEntitlements(sub)).filter((e) => e.status === 'active');
     if (rows.length > 0) await this.store.updateEntitlements(rows.map((e) => e.id), { status: 'revoked', revokedReason: `membership_${status}`, statusChangedBy: 'webhook' });
-    await this.store.endSessions({ userId: sub.userId }, 'revoked');
+    for (const userId of new Set([sub.userId, ...rows.map((e) => e.userId)])) await this.store.endSessions({ userId }, 'revoked');
     if (sub.midtransSubscriptionId) await this.safeRemote(sub, 'cancel_on_refund', () => this.gateway.cancelSubscription(sub.midtransSubscriptionId!));
     await this.store.updateSubscription(sub.id, { status: 'canceled', endedAt: this.iso(), endedReason: 'refunded', midtransSubscriptionId: null });
     await this.event(sub, 'refunded', { invoiceId: invoice.id, status });
@@ -1089,6 +1144,30 @@ export class MembershipService {
     return true;
   }
 
+  /**
+   * Paket fase 3 tidak dijual lagi: 30 hari sebelum perpanjangan anggota diberi tahu paket penerus dan harganya.
+   * Sekali per periode. true = pemberitahuan baru dikirim.
+   */
+  async sendPlanMigrationNotice(sub: SubscriptionRecord): Promise<boolean> {
+    if (sub.status !== 'active' || sub.cancelAtPeriodEnd || !sub.currentPeriodEnd || sub.pendingPlanId) return false;
+    const current = await this.planById(sub.planId);
+    if (!current || current.isActive || !current.successorPlanId) return false;
+    const due = Date.parse(sub.currentPeriodEnd);
+    const now = this.ctx.now().getTime();
+    if (now < due - PLAN_MIGRATION_NOTICE_DAYS * DAY_MS || now >= due) return false;
+    const target = await this.renewalTarget(sub);
+    if (!(await this.event(sub, 'plan_migration_notice', { from: current.code, to: target.plan.code, amount: target.amount, effectiveAt: sub.currentPeriodEnd },
+      `plan_migration_notice:${sub.id}:${sub.currentPeriodEnd}`))) return false;
+    this.notify(sub, 'planMigration', {
+      fromPlanName: this.planName(current, sub.language),
+      planName: this.planName(target.plan, sub.language),
+      cycle: target.cycle,
+      amount: target.amount,
+      date: sub.currentPeriodEnd
+    });
+    return true;
+  }
+
   /** Pengingat H-7/H-3/H-1/H0 (manual) atau satu pemberitahuan H-7 (auto-debit); tercatat sekali per hari-H. */
   async sendReminders(sub: SubscriptionRecord, invoice: InvoiceRecord): Promise<number> {
     const now = this.ctx.now().getTime();
@@ -1122,7 +1201,7 @@ export class MembershipService {
     if (sub.status !== 'active') throw httpError(409, 'payment_required', 'Selesaikan tagihan yang tertunggak lebih dulu.');
     const target = await this.planByCode(String(body.plan_code || ''));
     const cycle = String(body.billing_cycle || '') as BillingCycle;
-    if (!target || !target.isActive || target.code === 'free' || !BILLING_CYCLES.includes(cycle)) throw httpError(400, 'plan_unavailable', 'Paket tidak tersedia.');
+    if (!target || !target.isActive || !BILLING_CYCLES.includes(cycle) || priceFor(target, cycle) <= 0) throw httpError(400, 'plan_unavailable', 'Paket tidak tersedia.');
     const current = await this.planById(sub.planId);
     if (!current) throw new Error('Paket langganan tidak ditemukan');
     if (target.id === sub.planId && cycle === sub.billingCycle) throw httpError(400, 'no_change', 'Paket dan siklus sama dengan yang berjalan.');
@@ -1204,6 +1283,12 @@ export class MembershipService {
       throw httpError(503, 'payment_unavailable', 'Pembayaran online belum dikonfigurasi.');
     }
     const method = PAYMENT_METHODS.includes(rawMethod as MembershipPaymentMethod) ? rawMethod as MembershipPaymentMethod : sub.paymentMethod;
+    try {
+      await this.assertMethodRouted(method);
+    } catch (err) {
+      await this.voidInvoice(invoice, 'method_unavailable');
+      throw err;
+    }
     try {
       invoice = await this.prepareSnap(invoice, sub, target, method);
     } catch (err: any) {
@@ -1336,14 +1421,9 @@ export class MembershipService {
       .sort((a, b) => a.shelfEntryDate!.localeCompare(b.shelfEntryDate!));
   }
 
-  /** Slot Pick bulanan di dalam periode tagihan (paket tahunan tetap 1 Pick per bulan). */
+  /** Slot bulanan di dalam periode tagihan (paket tahunan: jatah judul dan jam audio tetap per bulan). */
   pickSlot(sub: SubscriptionRecord): { start: string; end: string } {
-    const now = this.ctx.now().getTime();
-    let k = 0;
-    while (k < 24 && Date.parse(addMonths(sub.currentPeriodStart!, k + 1)) <= now) k += 1;
-    const start = addMonths(sub.currentPeriodStart!, k);
-    const next = addMonths(sub.currentPeriodStart!, k + 1);
-    return { start, end: Date.parse(next) < Date.parse(sub.currentPeriodEnd!) ? next : sub.currentPeriodEnd! };
+    return monthSlot(sub.currentPeriodStart!, sub.currentPeriodEnd!, this.ctx.now());
   }
 
   private async pickState(user: AuthUser) {
@@ -1352,8 +1432,19 @@ export class MembershipService {
     const plan = await this.planById(sub.planId);
     if (!plan || this.effectiveShelfAccess(plan) !== 'pick') return null;
     const slot = this.pickSlot(sub);
+    // Fase 6: jatah N judul e-book per bulan. Paket Reader fase 3: satu Digital Member Pick per bulan.
+    if (plan.ebookTitlesPerPeriod !== null) {
+      const picks = await this.store.listTitlePicks({ subscriptionId: sub.id, userId: user.id, periodStart: slot.start });
+      return { sub, plan, slot, mode: 'quota' as const, limit: plan.ebookTitlesPerPeriod, picks, current: null };
+    }
     const current = (await this.store.listPicks({ subscriptionId: sub.id })).find((p) => p.periodStart === slot.start) ?? null;
-    return { sub, plan, slot, current };
+    return { sub, plan, slot, mode: 'legacy' as const, limit: 1, picks: [], current };
+  }
+
+  /** Judul yang boleh dipilih dengan jatah paket ini hari ini (e-book, terbuka untuk paket). */
+  private async quotaOptions(plan: PlanRecord): Promise<ProductRecord[]> {
+    const today = jakartaDate(this.ctx.now());
+    return (await this.store.listProductsWithShelfDate()).filter((p) => p.format === 'ebook' && isOpenFor(p, plan.frontlistDays, today));
   }
 
   private async productCard(product: ProductRecord, progress: Array<{ productId: string; position: number; percent: number; updatedAt: string }>) {
@@ -1378,20 +1469,26 @@ export class MembershipService {
 
   async pickOptions(user: AuthUser) {
     const state = await this.pickState(user);
-    if (!state) return { enabled: false, slot: null, current: null, options: [] };
+    if (!state) return { enabled: false, mode: null, slot: null, current: null, limit: 0, used: 0, picks: [], options: [] };
     const progress = await this.store.listProgress(user.id);
-    const options = await Promise.all((await this.shelfProducts()).map((p) => this.productCard(p, progress)));
+    const products = state.mode === 'quota' ? await this.quotaOptions(state.plan) : await this.shelfProducts();
+    const options = await Promise.all(products.map((p) => this.productCard(p, progress)));
     return {
       enabled: true,
+      mode: state.mode,
       slot: state.slot,
       current: state.current ? { productId: state.current.productId, periodStart: state.current.periodStart, periodEnd: state.current.periodEnd } : null,
+      limit: state.limit,
+      used: state.mode === 'quota' ? state.picks.length : state.current ? 1 : 0,
+      picks: state.picks.map((p) => ({ productId: p.productId, periodStart: p.periodStart, periodEnd: p.periodEnd, pickedAt: p.pickedAt })),
       options
     };
   }
 
   async pick(user: AuthUser, rawProductId: unknown) {
     const state = await this.pickState(user);
-    if (!state) throw httpError(403, 'pick_unavailable', 'Digital Member Pick tidak tersedia untuk paket Anda.');
+    if (!state) throw httpError(403, 'pick_unavailable', 'Jatah judul tidak tersedia untuk paket Anda.');
+    if (state.mode === 'quota') return this.pickWithQuota(user, state, rawProductId);
     if (state.current) {
       throw httpError(409, 'pick_locked', 'Pick periode ini sudah dipilih dan dikunci.', { current: { productId: state.current.productId, periodEnd: state.current.periodEnd } });
     }
@@ -1427,6 +1524,155 @@ export class MembershipService {
     return { productId, periodStart: state.slot.start, periodEnd: state.slot.end, entitlementEndsAt: endsAt };
   }
 
+  /** Fase 6: buka satu judul e-book dengan jatah bulan ini (Silver 2, Gold 6). Hanya sampai akhir slot bulanan. */
+  private async pickWithQuota(
+    user: AuthUser,
+    state: { sub: SubscriptionRecord; plan: PlanRecord; slot: { start: string; end: string }; limit: number; picks: Array<{ productId: string }> },
+    rawProductId: unknown
+  ) {
+    const productId = String(rawProductId || '');
+    const product = /^[A-Za-z0-9_-]{1,64}$/.test(productId) ? await this.store.getProduct(productId) : null;
+    const today = jakartaDate(this.ctx.now());
+    if (!product || product.format !== 'ebook') throw httpError(400, 'not_on_shelf', 'Judul ini tidak bisa dipilih dengan jatah.');
+    if (!isOpenFor(product, state.plan.frontlistDays, today)) {
+      throw httpError(400, 'not_open_for_plan', 'Judul ini belum tersedia untuk paket Anda.', { openDate: openDateFor(product, state.plan.frontlistDays) });
+    }
+    if (state.picks.some((p) => p.productId === productId)) throw httpError(409, 'title_already_picked', 'Judul ini sudah dibuka bulan ini.');
+    if (state.picks.length >= state.limit) {
+      throw httpError(409, 'title_quota_full', `Jatah ${state.limit} judul bulan ini sudah terpakai.`, { limit: state.limit, used: state.picks.length, resetsAt: state.slot.end });
+    }
+    let pick;
+    try {
+      pick = await this.store.createTitlePick({ subscriptionId: state.sub.id, userId: user.id, productId, periodStart: state.slot.start, periodEnd: state.slot.end });
+    } catch (err) {
+      if (err instanceof ConflictError) throw httpError(409, 'title_already_picked', 'Judul ini sudah dibuka bulan ini.');
+      if (err instanceof StoreRuleError) {
+        throw httpError(409, 'title_quota_full', `Jatah ${state.limit} judul bulan ini sudah terpakai.`, { limit: state.limit, used: state.limit, resetsAt: state.slot.end });
+      }
+      throw err;
+    }
+    // Hanya selama slot bulan ini (keputusan fase 6 no. 4), dan tidak melewati akhir akses keanggotaan.
+    const accessEnd = this.accessEndsAt(state.sub)!;
+    const endsAt = Date.parse(state.slot.end) < Date.parse(accessEnd) ? state.slot.end : accessEnd;
+    await this.store.insertEntitlements([{
+      userId: user.id,
+      productId,
+      scope: 'product',
+      source: 'membership',
+      sourceRef: pick.id,
+      startsAt: this.iso(),
+      endsAt,
+      maxDevices: state.plan.maxDevices,
+      statusChangedBy: 'membership'
+    }]);
+    const [row] = await this.store.listEntitlements({ userId: user.id, productId, source: 'membership', sourceRef: pick.id });
+    if (row) await this.store.setTitlePickEntitlement(pick.id, row.id);
+    const used = state.picks.length + 1;
+    await this.event(state.sub, 'title_picked', { productId, periodStart: state.slot.start, periodEnd: state.slot.end, used, limit: state.limit });
+    const book = await this.ctx.getBook(product.bookId);
+    this.notify(state.sub, 'titlePicked', { productTitle: book?.title ?? productId, date: endsAt, used, limit: state.limit });
+    return { productId, periodStart: state.slot.start, periodEnd: state.slot.end, entitlementEndsAt: endsAt, used, limit: state.limit };
+  }
+
+  // -------------------------------------------------------------------------
+  // Akun keluarga Platinum
+  // -------------------------------------------------------------------------
+  /** Langganan berbayar milik pemilik dengan jatah akun keluarga. */
+  private async familyOwnerState(user: AuthUser) {
+    const sub = await this.openSubscription(user.id);
+    if (!sub || !PAID_STATES.includes(sub.status) || !sub.currentPeriodStart || !sub.currentPeriodEnd) return null;
+    const plan = await this.planById(sub.planId);
+    if (!plan || plan.familyAccounts <= 0) return null;
+    return { sub, plan };
+  }
+
+  async family(user: AuthUser) {
+    const owner = await this.familyOwnerState(user);
+    const membership = (await this.store.listFamilyMembers({ userId: user.id, status: 'active' }))[0] ?? null;
+    const memberOf = membership ? await this.store.getSubscription(membership.ownerSubscriptionId) : null;
+    if (!owner) {
+      return {
+        available: false,
+        limit: 0,
+        members: [],
+        memberOf: memberOf ? { ownerName: memberOf.customerName, accessEndsAt: this.accessEndsAt(memberOf), addedAt: membership!.addedAt } : null
+      };
+    }
+    const rows = await this.store.listFamilyMembers({ ownerSubscriptionId: owner.sub.id, status: 'active' });
+    const profiles = await this.store.getUserProfiles(rows.map((m) => m.userId));
+    return {
+      available: true,
+      limit: owner.plan.familyAccounts,
+      members: rows.map((m) => {
+        const profile = profiles.find((u) => u.id === m.userId);
+        return { id: m.id, email: profile?.email ?? '', name: profile?.fullName ?? '', addedAt: m.addedAt };
+      }),
+      memberOf: null
+    };
+  }
+
+  /** Tambah akun keluarga (akun terdaftar dengan email itu). Anggota mendapat rak sendiri sampai akhir akses pemilik. */
+  async addFamilyMember(user: AuthUser, body: Record<string, unknown>) {
+    const owner = await this.familyOwnerState(user);
+    if (!owner) throw httpError(403, 'family_unavailable', 'Akun keluarga hanya tersedia untuk paket Platinum aktif.');
+    const email = String(body.email || '').trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) throw httpError(400, 'invalid_email', 'Email tidak valid.');
+    const member = await this.store.findUserByEmail(email);
+    if (!member) throw httpError(404, 'family_user_not_found', 'Belum ada akun CakraNexa dengan email ini. Minta anggota keluarga mendaftar lebih dulu.');
+    if (member.id === user.id) throw httpError(400, 'family_owner', 'Pemilik langganan tidak perlu ditambahkan.');
+    const own = await this.openSubscription(member.id);
+    if (own && own.status !== 'pending') throw httpError(409, 'family_member_subscribed', 'Akun ini sudah memiliki keanggotaan sendiri.');
+    let record;
+    try {
+      record = await this.store.addFamilyMember({ ownerSubscriptionId: owner.sub.id, userId: member.id });
+    } catch (err) {
+      if (err instanceof ConflictError) throw httpError(409, 'family_member_taken', 'Akun ini sudah menjadi anggota keluarga di langganan lain.');
+      if (err instanceof StoreRuleError) {
+        if (err.rule === 'family_owner') throw httpError(400, 'family_owner', 'Pemilik langganan tidak perlu ditambahkan.');
+        throw httpError(409, 'family_full', `Batas ${owner.plan.familyAccounts} akun keluarga tercapai.`, { limit: owner.plan.familyAccounts });
+      }
+      throw err;
+    }
+    const accessEnd = this.accessEndsAt(owner.sub)!;
+    await this.store.insertEntitlements([{
+      userId: member.id,
+      productId: null,
+      scope: 'shelf',
+      source: 'membership',
+      sourceRef: owner.sub.id,
+      startsAt: this.iso(),
+      endsAt: accessEnd,
+      maxDevices: owner.plan.maxDevices,
+      statusChangedBy: 'family'
+    }]);
+    await this.event(owner.sub, 'family_added', { memberId: record.id, userId: member.id });
+    this.notify({ ...owner.sub, customerEmail: member.email, customerName: member.fullName || member.email, whatsappOptIn: false }, 'familyAdded', {
+      ownerName: owner.sub.customerName,
+      planName: this.planName(owner.plan, owner.sub.language),
+      date: accessEnd
+    });
+    return this.family(user);
+  }
+
+  /** Lepas akun keluarga: haknya berakhir sekarang dan sesinya ditutup. */
+  async removeFamilyMember(user: AuthUser, memberId: string) {
+    const owner = await this.familyOwnerState(user);
+    if (!owner) throw httpError(403, 'family_unavailable', 'Akun keluarga hanya tersedia untuk paket Platinum aktif.');
+    const row = (await this.store.listFamilyMembers({ ownerSubscriptionId: owner.sub.id, status: 'active' })).find((m) => m.id === memberId);
+    if (!row) throw httpError(404, 'family_member_not_found', 'Anggota keluarga tidak ditemukan.');
+    const nowIso = this.iso();
+    await this.store.removeFamilyMember(row.id, nowIso);
+    const rows = (await this.store.listEntitlements({ userId: row.userId, scope: 'shelf', source: 'membership', sourceRef: owner.sub.id }))
+      .filter((e) => e.status === 'active' && (!e.endsAt || Date.parse(e.endsAt) > Date.parse(nowIso)));
+    const current = rows.filter((e) => Date.parse(e.startsAt) < Date.parse(nowIso)).map((e) => e.id);
+    const future = rows.filter((e) => Date.parse(e.startsAt) >= Date.parse(nowIso)).map((e) => e.id);
+    if (current.length > 0) await this.store.updateEntitlementsEndsAt(current, nowIso);
+    if (future.length > 0) await this.store.updateEntitlements(future, { status: 'revoked', revokedReason: 'family_removed', statusChangedBy: 'family' });
+    await this.store.endSessions({ userId: row.userId }, 'revoked');
+    await this.event(owner.sub, 'family_removed', { memberId: row.id, userId: row.userId });
+    return this.family(user);
+  }
+
   /** Tab "Rak Digital" Pustaka Saya: judul rak (paket full), Pick (Reader), dan "Segera masuk rak". */
   async shelfView(user: AuthUser) {
     const now = this.ctx.now();
@@ -1434,12 +1680,25 @@ export class MembershipService {
     const accessEndsAt = shelfRows.length > 0 ? shelfRows.map((e) => e.endsAt).filter((d): d is string => Boolean(d)).sort().pop() ?? null : null;
     const sub = (await this.openSubscription(user.id)) ?? (await this.latestSubscription(user.id));
     const progress = await this.store.listProgress(user.id);
-    const items = shelfRows.length > 0 ? await Promise.all((await this.shelfProducts()).map((p) => this.productCard(p, progress))) : [];
-    const upcoming = await Promise.all((await this.upcomingProducts()).slice(0, 24).map((p) => this.productCard(p, progress)));
+    // Paket yang memberi hak rak (milik sendiri atau langganan pemilik akun keluarga).
+    const membershipRow = shelfRows.find((e) => e.source === 'membership') ?? null;
+    const shelfPlan = membershipRow && this.ctx.membership ? await this.ctx.membership.planFor(await this.ctx.membership.subscriptionFor(membershipRow)) : null;
+    const today = jakartaDate(now);
+    const listed = await this.store.listProductsWithShelfDate();
+    const covered = shelfRows.length === 0 ? [] : shelfPlan
+      ? listed.filter((p) => shelfCoversFormat(shelfPlan, p.format) && isOpenFor(p, shelfPlan.frontlistDays ?? 0, today))
+      : await this.shelfProducts();
+    const items = await Promise.all(covered.map((p) => this.productCard(p, progress)));
+    const frontlist = shelfPlan?.frontlistDays ?? 0;
+    const upcomingProducts = listed
+      .filter((p) => p.isActive && p.processingStatus === 'ready' && (openDateFor(p, frontlist) ?? '') > today)
+      .sort((a, b) => (openDateFor(a, frontlist) ?? '').localeCompare(openDateFor(b, frontlist) ?? ''));
+    const upcoming = await Promise.all(upcomingProducts.slice(0, 24).map(async (p) => ({ ...(await this.productCard(p, progress)), openDate: openDateFor(p, frontlist) })));
     const pick = await this.pickOptions(user);
     return {
       membership: sub && sub.currentPeriodStart ? await this.publicSubscription(sub) : null,
-      access: shelfRows.length > 0 ? 'full' as const : pick.enabled ? 'pick' as const : 'none' as const,
+      access: shelfRows.length > 0 && (!shelfPlan || shelfPlan.shelfAccess === 'full') ? 'full' as const : pick.enabled ? 'pick' as const : shelfRows.length > 0 ? 'full' as const : 'none' as const,
+      plan: shelfPlan ? { code: shelfPlan.code, frontlistDays: shelfPlan.frontlistDays, audioHoursPerPeriod: shelfPlan.audioHoursPerPeriod, ebookTitlesPerPeriod: shelfPlan.ebookTitlesPerPeriod } : null,
       accessEndsAt,
       items,
       upcoming,

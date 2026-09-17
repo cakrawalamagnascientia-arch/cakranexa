@@ -201,13 +201,26 @@ export const createMembershipRouter = (ctx: DigitalContext, service: MembershipS
     res.json({ subscription: await service.updateWhatsApp(userOf(req), bodyOf(req)) });
   }));
 
-  // Digital Member Pick (Reader Circle).
+  // Jatah judul bulanan (fase 6: Silver/Gold) dan Digital Member Pick paket Reader lama.
   router.get('/api/membership/picks', ctx.requireUser, read, asyncRoute(async (req, res) => {
     res.json(await service.pickOptions(userOf(req)));
   }));
 
   router.post('/api/membership/picks', ctx.requireUser, write, asyncRoute(async (req, res) => {
     res.status(201).json({ pick: await service.pick(userOf(req), bodyOf(req).product_id) });
+  }));
+
+  // Fase 6: akun keluarga Platinum (maks. sesuai paket; tiap akun punya rak, perangkat, sesi, dan jam audio sendiri).
+  router.get('/api/membership/family', ctx.requireUser, read, asyncRoute(async (req, res) => {
+    res.json(await service.family(userOf(req)));
+  }));
+
+  router.post('/api/membership/family', ctx.requireUser, write, asyncRoute(async (req, res) => {
+    res.status(201).json(await service.addFamilyMember(userOf(req), bodyOf(req)));
+  }));
+
+  router.delete('/api/membership/family/:memberId', ctx.requireUser, write, asyncRoute(async (req, res) => {
+    res.json(await service.removeFamilyMember(userOf(req), String(req.params.memberId)));
   }));
 
   return router;

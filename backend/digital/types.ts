@@ -163,6 +163,10 @@ export interface ReadingEventInput {
   dwellMs: number;
   /** Sesi memakai hak institusi (dasar Author Royalty Pool institusi fase 5). */
   institutionId?: string | null;
+  /** Fase 6: langganan yang memberi akses (agregasi kuota audio). */
+  subscriptionId?: string | null;
+  /** Waktu kejadian menurut jam server (store memori); Supabase memakai created_at database. */
+  occurredAt?: string;
 }
 
 export interface NoteRect {
@@ -250,7 +254,9 @@ export interface AnomalyRecord extends AnomalyCandidate {
 // ---------------------------------------------------------------------------
 // Keanggotaan (fase 3)
 // ---------------------------------------------------------------------------
-export type PlanCode = 'free' | 'reader' | 'professional' | 'author';
+/** Paket fase 6 (skema terkunci) dan paket fase 3 (nonaktif, dibaca untuk pelanggan lama). */
+export type PlanCode = 'blue' | 'silver' | 'gold' | 'platinum' | LegacyPlanCode;
+export type LegacyPlanCode = 'free' | 'reader' | 'professional' | 'author';
 export type ShelfAccess = 'none' | 'pick' | 'full';
 export type BillingCycle = 'monthly' | 'yearly';
 export type SubscriptionStatus = 'pending' | 'active' | 'past_due' | 'grace' | 'canceled' | 'expired';
@@ -276,11 +282,22 @@ export interface PlanRecord {
   printDiscountPercent: number;
   sortOrder: number;
   isActive: boolean;
+  /** Fase 6: judul e-book per bulan yang dibuka lewat jatah (null = tidak memakai jatah). */
+  ebookTitlesPerPeriod: number | null;
+  /** Fase 6: jam audio per bulan per akun (null = tanpa batas untuk paket rak penuh lama; audio tidak dibuka bila 'pick' dan null). */
+  audioHoursPerPeriod: number | null;
+  /** Fase 6: judul terbuka shelf_entry_date + hari ini (null = rak tidak dibuka; paket lama = 0). */
+  frontlistDays: number | null;
+  offlineTitles: number;
+  familyAccounts: number;
+  /** Paket lama -> paket baru saat perpanjangan. */
+  successorPlanId: string | null;
   updatedAt: string;
 }
 
 export type PlanPatch = Partial<Pick<PlanRecord,
-  'priceMonthly' | 'priceYearly' | 'foundingPriceYearly' | 'foundingCap' | 'maxDevices' | 'shelfAccess' | 'printDiscountPercent' | 'isActive'>>;
+  'priceMonthly' | 'priceYearly' | 'foundingPriceYearly' | 'foundingCap' | 'maxDevices' | 'shelfAccess' | 'printDiscountPercent' | 'isActive'
+  | 'ebookTitlesPerPeriod' | 'audioHoursPerPeriod' | 'frontlistDays' | 'offlineTitles' | 'familyAccounts'>>;
 
 export interface PlanBenefitRecord {
   planId: string;
@@ -372,7 +389,8 @@ export type SubscriptionEventType =
   | 'created' | 'activated' | 'renewed' | 'payment_failed' | 'reminder_sent' | 'grace_started' | 'expired' | 'canceled'
   | 'upgraded' | 'downgraded' | 'founding_notice' | 'invoice_issued' | 'cancel_reverted' | 'change_canceled'
   | 'payment_method_changed' | 'pick_selected' | 'reconciled' | 'admin_extended' | 'admin_grace' | 'admin_plan_changed'
-  | 'admin_founding' | 'admin_canceled' | 'autodebit_error' | 'refunded' | 'payment_orphan' | 'whatsapp_failed';
+  | 'admin_founding' | 'admin_canceled' | 'autodebit_error' | 'refunded' | 'payment_orphan' | 'whatsapp_failed'
+  | 'plan_migration_notice' | 'plan_migrated' | 'title_picked' | 'family_added' | 'family_removed';
 
 export interface SubscriptionEventRecord {
   id: string;
@@ -392,6 +410,30 @@ export interface PickRecord {
   periodEnd: string;
   entitlementId: string | null;
   createdAt: string;
+}
+
+/** Fase 6: judul e-book yang dibuka dengan jatah bulanan (period_title_picks). */
+export interface TitlePickRecord {
+  id: string;
+  subscriptionId: string;
+  userId: string;
+  productId: string;
+  periodStart: string;
+  periodEnd: string;
+  entitlementId: string | null;
+  pickedAt: string;
+}
+
+export type FamilyMemberStatus = 'active' | 'removed';
+
+/** Fase 6: akun keluarga Platinum (family_members). */
+export interface FamilyMemberRecord {
+  id: string;
+  ownerSubscriptionId: string;
+  userId: string;
+  status: FamilyMemberStatus;
+  addedAt: string;
+  removedAt: string | null;
 }
 
 /** Konteks akses yang dipasang middleware sesi untuk endpoint reader/player. */
