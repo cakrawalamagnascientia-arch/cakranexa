@@ -6,7 +6,7 @@ const PHASE6_DEFAULTS = { foundingPriceYearly: null, foundingCap: null, founding
 
 /**
  * Paket fase 6 (skema terkunci docs/PHASE-6-BRIEF.md). Sama dengan UPSERT di src/db/membership_phase6_migration.sql.
- * Tahunan = 10× bulanan; tanpa harga Founding perorangan; semua paket 2 perangkat.
+ * Tahunan = 10× bulanan; tanpa harga Founding perorangan; semua paket 2 perangkat; diskon buku cetak 5/10/20%.
  *  - Silver/Gold: e-book lewat jatah judul per bulan, audiobook seluruh rak dengan batas jam per bulan.
  *  - Platinum: seluruh rak (e-book dan audio) dengan batas jam audio per akun, 2 akun keluarga.
  *  - Blue: gratis, hanya sampel (tidak ada baris langganan).
@@ -19,17 +19,17 @@ export const PHASE6_PLANS: SeedPlan[] = [
   },
   {
     ...PHASE6_DEFAULTS, id: 'plan-silver', code: 'silver', nameId: 'Silver', nameEn: 'Silver',
-    priceMonthly: 49_000, priceYearly: 490_000, shelfAccess: 'pick', printDiscountPercent: 10, sortOrder: 12,
+    priceMonthly: 49_000, priceYearly: 490_000, shelfAccess: 'pick', printDiscountPercent: 5, sortOrder: 12,
     ebookTitlesPerPeriod: 2, audioHoursPerPeriod: 5, frontlistDays: 90, offlineTitles: 0, familyAccounts: 0
   },
   {
     ...PHASE6_DEFAULTS, id: 'plan-gold', code: 'gold', nameId: 'Gold', nameEn: 'Gold',
-    priceMonthly: 99_000, priceYearly: 990_000, shelfAccess: 'pick', printDiscountPercent: 15, sortOrder: 13,
+    priceMonthly: 99_000, priceYearly: 990_000, shelfAccess: 'pick', printDiscountPercent: 10, sortOrder: 13,
     ebookTitlesPerPeriod: 6, audioHoursPerPeriod: 20, frontlistDays: 45, offlineTitles: 2, familyAccounts: 0
   },
   {
     ...PHASE6_DEFAULTS, id: 'plan-platinum', code: 'platinum', nameId: 'Platinum', nameEn: 'Platinum',
-    priceMonthly: 199_000, priceYearly: 1_990_000, shelfAccess: 'full', printDiscountPercent: 15, sortOrder: 14,
+    priceMonthly: 199_000, priceYearly: 1_990_000, shelfAccess: 'full', printDiscountPercent: 20, sortOrder: 14,
     ebookTitlesPerPeriod: null, audioHoursPerPeriod: 60, frontlistDays: 0, offlineTitles: 5, familyAccounts: 2
   }
 ];

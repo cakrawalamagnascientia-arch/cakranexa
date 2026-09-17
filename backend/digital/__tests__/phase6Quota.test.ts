@@ -373,6 +373,18 @@ describe('Langkah 7 (bagian Langkah 1): routing, instansi, paket lama', () => {
     expect((await t.start(t.tokens.a, 'a-old')).status).toBe(201);
   });
 
+  it('harga member buku cetak (flag hidup): Silver 5%, Gold 10%, Platinum 20%', async () => {
+    const t = await setup({ env: { ENABLE_MEMBER_PRINT_DISCOUNT: 'true' } });
+    await t.join(t.tokens.a, 'silver');
+    await t.join(t.tokens.b, 'gold');
+    await t.join(t.tokens.c, 'platinum');
+    const discount = (token: string) => t.phase2.memberPrintDiscount!(`Bearer ${token}`);
+    expect(await discount(t.tokens.a)).toEqual({ percent: 5, planCode: 'silver' });
+    expect(await discount(t.tokens.b)).toEqual({ percent: 10, planCode: 'gold' });
+    expect(await discount(t.tokens.c)).toEqual({ percent: 20, planCode: 'platinum' });
+    expect(await discount(t.tokens.d)).toBeNull();
+  });
+
   it('admin dapat mengubah kuota paket; paket berjatah wajib punya jumlah judul', async () => {
     const t = await setup();
     const patch = (code: string, body: Record<string, unknown>) =>

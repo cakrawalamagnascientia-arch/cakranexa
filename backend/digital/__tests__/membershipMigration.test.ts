@@ -10,8 +10,9 @@ import { REQUIRED_SCHEMA } from '../../startupChecks';
  * dan setiap kolom yang ditulis/dibaca SupabaseDigitalStore (camelCase -> snake_case) ada di CREATE TABLE.
  * Perilaku SQL (constraint, fungsi, RLS) diuji terpisah di PGlite.
  */
-const sql = fs.readFileSync(path.resolve(__dirname, '../../../src/db/membership_phase3_migration.sql'), 'utf8');
-const phase6 = fs.readFileSync(path.resolve(__dirname, '../../../src/db/membership_phase6_migration.sql'), 'utf8');
+// Line ending dinormalkan: checkout Windows (core.autocrlf) menulis file SQL dengan CRLF.
+const sql = fs.readFileSync(path.resolve(__dirname, '../../../src/db/membership_phase3_migration.sql'), 'utf8').replace(/\r\n/g, '\n');
+const phase6 = fs.readFileSync(path.resolve(__dirname, '../../../src/db/membership_phase6_migration.sql'), 'utf8').replace(/\r\n/g, '\n');
 /** Kolom yang ditambahkan migration fase 6 ke tabel fase 3. */
 const phase6Columns = (table: string): string[] =>
   [...phase6.matchAll(new RegExp(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ([a-z_]+)`, 'g'))].map((m) => m[1]);

@@ -13,7 +13,8 @@ import {
  * Migration fase 4 (src/db/institution_phase4_migration.sql) harus sama dengan angka fase 1 (src/data/membership.ts)
  * dan brief fase 4. Perilaku SQL (constraint, fungsi atomik, RLS) diuji terpisah di PGlite.
  */
-const sql = fs.readFileSync(path.resolve(__dirname, '../../../src/db/institution_phase4_migration.sql'), 'utf8');
+// Line ending dinormalkan: checkout Windows (core.autocrlf) menulis file SQL dengan CRLF.
+const sql = fs.readFileSync(path.resolve(__dirname, '../../../src/db/institution_phase4_migration.sql'), 'utf8').replace(/\r\n/g, '\n');
 
 const seedBlock = (table: string): string => {
   const match = sql.match(new RegExp(`INSERT INTO ${table} \\([^)]*\\) VALUES\\n([\\s\\S]*?)\\nON CONFLICT`));

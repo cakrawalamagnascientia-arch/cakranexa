@@ -650,6 +650,7 @@
         "wallet": "Acquisition wallet {{percent}}% biaya tahunan"
       },
       "notes": {
+        "audioHours": "Paket Silver, Gold, dan Platinum membuka semua audiobook di rak (sesuai tanggal buka paket). Jam audio dihitung dari durasi isi buku yang diputar, bukan lamanya Anda mendengar: memutar pada kecepatan 2× menghabiskan jatah dua kali lebih cepat. Sampel tidak mengurangi jatah.",
         "unitPurchase": "E-book dan audiobook satuan dapat dibeli siapa saja, dibuka di 2 perangkat, dan tetap milik Anda walau keanggotaan berakhir.",
         "security": "Tidak ada unduhan PDF. Semua akses melalui cloud reader dan player ber-watermark dengan satu sesi aktif per judul."
       }
@@ -692,6 +693,10 @@
         "shelf": {
           "q": "Apa itu Digital Reading Shelf?",
           "a": "Rak baca digital berisi backlist dan judul pilihan CakraNexa dalam bentuk e-book dan audiobook. Rak ini dibuka untuk anggota Professional & Academic Society dan institusi, tanpa perlu membeli judul satu per satu."
+        },
+        "audioHours": {
+          "q": "Bagaimana jam audiobook dihitung?",
+          "a": "Semua audiobook di rak terbuka untuk paket berbayar, dibatasi jam per bulan: Silver 5 jam, Gold 20 jam, Platinum 60 jam per akun. Jam dihitung dari durasi isi buku yang diputar, bukan lamanya Anda mendengar, jadi mendengar pada kecepatan 2× menghabiskan jatah dua kali lebih cepat. Sampel tidak mengurangi jatah. Paket tahunan juga dihitung per bulan. Bila jatah habis, pemutaran berhenti dan Anda bisa naik paket atau menunggu jatah bulan berikutnya."
         },
         "frontlist": {
           "q": "Mengapa judul baru tidak langsung masuk rak?",

@@ -50,9 +50,9 @@ INSERT INTO plans (id, code, name_id, name_en, price_monthly, price_yearly, foun
                    max_devices, shelf_access, print_discount_percent, sort_order, is_active,
                    ebook_titles_per_period, audio_hours_per_period, frontlist_days, offline_titles, family_accounts, successor_plan_id) VALUES
     ('plan-blue', 'blue', 'Blue', 'Blue', 0, 0, NULL, NULL, 0, 2, 'none', 0, 11, TRUE, NULL, NULL, NULL, 0, 0, NULL),
-    ('plan-silver', 'silver', 'Silver', 'Silver', 49000, 490000, NULL, NULL, 0, 2, 'pick', 10, 12, TRUE, 2, 5, 90, 0, 0, NULL),
-    ('plan-gold', 'gold', 'Gold', 'Gold', 99000, 990000, NULL, NULL, 0, 2, 'pick', 15, 13, TRUE, 6, 20, 45, 2, 0, NULL),
-    ('plan-platinum', 'platinum', 'Platinum', 'Platinum', 199000, 1990000, NULL, NULL, 0, 2, 'full', 15, 14, TRUE, NULL, 60, 0, 5, 2, NULL)
+    ('plan-silver', 'silver', 'Silver', 'Silver', 49000, 490000, NULL, NULL, 0, 2, 'pick', 5, 12, TRUE, 2, 5, 90, 0, 0, NULL),
+    ('plan-gold', 'gold', 'Gold', 'Gold', 99000, 990000, NULL, NULL, 0, 2, 'pick', 10, 13, TRUE, 6, 20, 45, 2, 0, NULL),
+    ('plan-platinum', 'platinum', 'Platinum', 'Platinum', 199000, 1990000, NULL, NULL, 0, 2, 'full', 20, 14, TRUE, NULL, 60, 0, 5, 2, NULL)
 ON CONFLICT (id) DO UPDATE SET
     code = EXCLUDED.code,
     name_id = EXCLUDED.name_id,

@@ -327,7 +327,7 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
           </table>
         </div>
         <ul className="mt-3 space-y-1.5 text-xs text-slate-500">
-          {(['unitPurchase', 'security'] as const).map((note) => (
+          {(['audioHours', 'unitPurchase', 'security'] as const).map((note) => (
             <li key={note} className="flex items-start gap-2">
               <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
               <span>{t(`membership.access.notes.${note}`)}</span>

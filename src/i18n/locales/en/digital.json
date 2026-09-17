@@ -653,6 +653,7 @@
         "wallet": "Acquisition wallet of {{percent}}% of the annual fee"
       },
       "notes": {
+        "audioHours": "Silver, Gold, and Platinum open every audiobook on the shelf (from each plan’s open date). Audio hours count the length of book content played, not how long you listen: playing at 2× uses your hours twice as fast. Samples do not count.",
         "unitPurchase": "Single-copy e-books and audiobooks are open to everyone, can be opened on 2 devices, and stay yours even after a membership ends.",
         "security": "No PDF downloads. All access is through the watermarked cloud reader and player, with one active session per title."
       }
@@ -695,6 +696,10 @@
         "shelf": {
           "q": "What is the Digital Reading Shelf?",
           "a": "A digital reading shelf of CakraNexa backlist and selected titles as e-books and audiobooks. It is open to Professional & Academic Society members and institutions, without buying each title."
+        },
+        "audioHours": {
+          "q": "How are audiobook hours counted?",
+          "a": "Every audiobook on the shelf is open to paid plans, limited by hours per month: Silver 5 hours, Gold 20 hours, Platinum 60 hours per account. Hours count the length of book content played, not how long you listen, so listening at 2× uses your hours twice as fast. Samples do not count. Annual plans are also counted per month. When your hours run out, playback stops and you can upgrade or wait for next month’s hours."
         },
         "frontlist": {
           "q": "Why don't new titles join the shelf right away?",

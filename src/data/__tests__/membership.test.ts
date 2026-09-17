@@ -7,6 +7,7 @@ import {
   LAUNCH_BENEFIT_KEYS,
   MEMBERSHIP_BENEFIT_KEYS,
   MEMBERSHIP_ECONOMICS,
+  MEMBERSHIP_FAQ_KEYS,
   MEMBERSHIP_WALLETS,
   acquisitionWalletAmount,
   institutionAnnualPrice,
@@ -49,6 +50,14 @@ describe('paket individu (skema terkunci fase 6)', () => {
     });
     expect(FALLBACK_MEMBERSHIP.plans.map(shape)).toEqual(PHASE6_PLANS.map(shape));
     expect(PHASE6_PLANS.every((p) => p.foundingPriceYearly === null && p.foundingCap === null)).toBe(true);
+  });
+
+  it('diskon buku cetak anggota (proposal): Silver 5%, Gold 10%, Platinum 20%', () => {
+    expect(PHASE6_PLANS.map((p) => [p.code, p.printDiscountPercent])).toEqual([['blue', 0], ['silver', 5], ['gold', 10], ['platinum', 20]]);
+  });
+
+  it('FAQ menjelaskan jam audio (durasi isi buku, bukan waktu dengar)', () => {
+    expect(MEMBERSHIP_FAQ_KEYS).toContain('audioHours');
   });
 
   it('manfaat cadangan = manfaat server saat semua flag mati; semua kunci punya teks', () => {

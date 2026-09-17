@@ -240,6 +240,7 @@ export const DIGITAL_SHELF_PLANS: { code: PlanCode; key: MembershipPlanKey }[] =
 
 export const MEMBERSHIP_FAQ_KEYS = [
   'shelf',
+  'audioHours',
   'frontlist',
   'unitPurchase',
   'billing',
