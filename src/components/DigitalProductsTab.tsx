@@ -19,12 +19,10 @@ import { apiClient, ApiError } from '../services/apiClient';
 import {
   DIGITAL_FORMATS,
   DIGITAL_SAMPLE_LIMITS,
-  FRONTLIST_DAYS,
-  addDaysToIsoDate,
   createDigitalProductDraft,
   digitalProductKey,
+  printReleaseDate,
   samplePagePercent,
-  todayIsoDate,
   validateDigitalProduct
 } from '../data/digitalProducts';
 import { toTitleCase } from '../utils/formatters';
@@ -44,7 +42,6 @@ interface DigitalProductsTabProps {
 const FORMAT_LABEL: Record<DigitalFormat, string> = { ebook: 'E-Book', audiobook: 'Audiobook' };
 const FORMAT_ICON: Record<DigitalFormat, React.ElementType> = { ebook: TabletSmartphone, audiobook: Headphones };
 
-const rupiah = (amount: number): string => `Rp ${amount.toLocaleString('id-ID')}`;
 
 const formatIsoDate = (iso: string): string => {
   const [year, month, day] = iso.split('-').map(Number);
@@ -142,7 +139,6 @@ export const DigitalProductsTab: React.FC<DigitalProductsTabProps> = ({ books })
     return {
       ebookAvailable: active.filter((p) => p.format === 'ebook' && p.availabilityStatus === 'available').length,
       audiobookAvailable: active.filter((p) => p.format === 'audiobook' && p.availabilityStatus === 'available').length,
-      missingPrice: active.filter((p) => p.price <= 0).length,
       missingShelfDate: active.filter((p) => !p.shelfEntryDate).length
     };
   }, [products]);
@@ -321,9 +317,6 @@ export const DigitalProductsTab: React.FC<DigitalProductsTabProps> = ({ books })
           <Icon className="w-3.5 h-3.5 text-slate-500" />
           <span className={`px-1.5 py-0.5 rounded border text-[10px] font-semibold ${status.className}`}>{status.label}</span>
         </div>
-        <div className="font-mono font-semibold text-slate-900">
-          {product.price > 0 ? rupiah(product.price) : <span className="font-sans text-amber-700">Harga belum diisi</span>}
-        </div>
         <div className="text-[11px] text-slate-500">Rak: {product.shelfEntryDate ? formatIsoDate(product.shelfEntryDate) : 'belum ditetapkan'}</div>
         <div className="text-[11px] text-slate-500">{sampleInfo}</div>
         <button
@@ -339,8 +332,7 @@ export const DigitalProductsTab: React.FC<DigitalProductsTabProps> = ({ books })
     );
   };
 
-  const shelfBase = editorBook && /^\d{4}-\d{2}-\d{2}/.test(editorBook.releaseDate || '') ? editorBook.releaseDate!.slice(0, 10) : todayIsoDate();
-  const shelfBaseLabel = editorBook && /^\d{4}-\d{2}-\d{2}/.test(editorBook.releaseDate || '') ? `tanggal rilis (${formatIsoDate(shelfBase)})` : 'hari ini';
+  const printRelease = editorBook ? printReleaseDate(editorBook) : null;
   const percent = form ? samplePagePercent(form) : null;
   const { min: recommendedMin, max: recommendedMax } = DIGITAL_SAMPLE_LIMITS.recommendedPagePercent;
   const percentOk = percent !== null && percent >= recommendedMin && percent <= recommendedMax;
@@ -367,11 +359,10 @@ export const DigitalProductsTab: React.FC<DigitalProductsTabProps> = ({ books })
         </div>
       )}
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           { label: 'E-Book tersedia', value: stats.ebookAvailable },
           { label: 'Audiobook tersedia', value: stats.audiobookAvailable },
-          { label: 'Produk aktif tanpa harga', value: stats.missingPrice },
           { label: 'Tanpa tanggal masuk rak', value: stats.missingShelfDate }
         ].map((metric) => (
           <div key={metric.label} className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
@@ -395,7 +386,7 @@ export const DigitalProductsTab: React.FC<DigitalProductsTabProps> = ({ books })
             />
           </div>
           <div className="flex items-center gap-3 text-[11px] text-slate-500">
-            <span>Frontlist: masuk rak {FRONTLIST_DAYS.min}–{FRONTLIST_DAYS.max} hari setelah terbit</span>
+            <span>Tanggal masuk rak = tanggal terbit buku cetak</span>
             <button
               type="button"
               onClick={() => void load()}
@@ -468,8 +459,8 @@ export const DigitalProductsTab: React.FC<DigitalProductsTabProps> = ({ books })
             </div>
 
             <form onSubmit={handleSave} className="p-6 space-y-5 max-h-[80vh] overflow-y-auto text-xs">
-              {/* Status & harga satuan */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Status (harga satuan tidak dipakai skema langganan; nilai lama tetap tersimpan tanpa diubah) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <label className="flex items-center gap-2 font-semibold text-slate-700 sm:pt-6 cursor-pointer">
                   <input
                     type="checkbox"
@@ -491,19 +482,6 @@ export const DigitalProductsTab: React.FC<DigitalProductsTabProps> = ({ books })
                     <option value="available">Tersedia</option>
                   </select>
                 </div>
-                <div>
-                  <label htmlFor="digital-price" className={labelClass}>Harga satuan (Rp)</label>
-                  <input
-                    id="digital-price"
-                    type="number"
-                    min={0}
-                    step={1000}
-                    value={form.price}
-                    onChange={(e) => updateForm({ price: Math.max(0, Math.round(Number(e.target.value) || 0)) })}
-                    className={inputClass}
-                  />
-                  <p className="mt-1 text-[10px] text-slate-400">0 = harga belum ditetapkan.</p>
-                </div>
               </div>
 
               {/* Tanggal masuk rak digital */}
@@ -517,16 +495,15 @@ export const DigitalProductsTab: React.FC<DigitalProductsTabProps> = ({ books })
                     onChange={(e) => updateForm({ shelfEntryDate: e.target.value || null })}
                     className={`${inputClass} w-auto`}
                   />
-                  {[FRONTLIST_DAYS.min, FRONTLIST_DAYS.max].map((days) => (
-                    <button
-                      key={days}
-                      type="button"
-                      onClick={() => updateForm({ shelfEntryDate: addDaysToIsoDate(shelfBase, days) })}
-                      className="px-2.5 py-1.5 rounded-md border border-slate-300 bg-white hover:bg-slate-100 font-semibold text-slate-700 cursor-pointer"
-                    >
-                      +{days} hari
-                    </button>
-                  ))}
+                  <button
+                    type="button"
+                    id="btn-digital-shelf-print-date"
+                    disabled={!printRelease}
+                    onClick={() => printRelease && updateForm({ shelfEntryDate: printRelease.date })}
+                    className="px-2.5 py-1.5 rounded-md border border-slate-300 bg-white hover:bg-slate-100 font-semibold text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    Isi tanggal terbit cetak
+                  </button>
                   {form.shelfEntryDate && (
                     <button type="button" onClick={() => updateForm({ shelfEntryDate: null })} className="font-semibold text-rose-600 hover:underline cursor-pointer">
                       Kosongkan
@@ -534,8 +511,10 @@ export const DigitalProductsTab: React.FC<DigitalProductsTabProps> = ({ books })
                   )}
                 </div>
                 <p className="text-[10px] text-slate-500">
-                  Frontlist: judul baru masuk rak {FRONTLIST_DAYS.min}–{FRONTLIST_DAYS.max} hari setelah terbit. Tombol cepat dihitung dari {shelfBaseLabel}.
-                  Kosong = tanggal belum ditetapkan.
+                  {printRelease
+                    ? <>Tanggal terbit cetak: {formatIsoDate(printRelease.date)}{printRelease.approximate ? ` (hanya tahun terbit ${printRelease.date.slice(0, 4)} yang diketahui; dipakai 1 Januari)` : ''}. </>
+                    : <>Tanggal terbit cetak belum diisi di data buku. </>}
+                  Jarak buka per paket keanggotaan dihitung sistem dari tanggal ini. Kosong = tanggal belum ditetapkan.
                 </p>
               </div>
 

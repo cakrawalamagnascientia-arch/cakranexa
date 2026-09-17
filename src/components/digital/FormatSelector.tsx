@@ -68,7 +68,7 @@ interface DigitalFormatPanelProps {
   onViewDetail: () => void;
 }
 
-/** Harga & aksi format digital di kartu harga halaman buku; alur pembelian cetak tidak disentuh. */
+/** Aksi format digital di kartu halaman buku (tanpa harga satuan); alur pembelian cetak tidak disentuh. */
 export const DigitalFormatPanel: React.FC<DigitalFormatPanelProps> = ({ product, onViewDetail }) => {
   const { t } = useTranslation('digital');
   const fmt = useDigitalFormatters();
@@ -77,8 +77,7 @@ export const DigitalFormatPanel: React.FC<DigitalFormatPanelProps> = ({ product,
   return (
     <div className="space-y-4">
       <div>
-        <span className="text-xs text-slate-400 uppercase font-medium tracking-wider">{t('formatSelector.digitalPrice', { format: formatLabel })}</span>
-        <div className="mt-0.5 text-2xl font-bold tracking-tight text-[#DFBF64] sm:text-3xl">{fmt.unitPrice(product)}</div>
+        <div className="text-2xl font-bold tracking-tight text-[#DFBF64] sm:text-3xl">{formatLabel}</div>
         <p className="mt-1 text-[11px] text-slate-400">{t('formatSelector.digitalNote')}</p>
       </div>
       <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2">
