@@ -141,7 +141,7 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
         </div>
 
         <div className="space-y-6 lg:col-span-8">
-          {/* Judul & harga satuan */}
+          {/* Judul (skema langganan: harga satuan tidak ditampilkan) */}
           <header>
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-600">
               <span>{categoryLabel(book.category)}</span>
@@ -156,12 +156,6 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
             <h1 className="mt-2 text-2xl font-bold leading-tight text-slate-900 sm:text-3xl [overflow-wrap:anywhere]">{title}</h1>
             {subtitle && <p className="mt-2 text-sm italic text-slate-500 sm:text-base">{subtitle}</p>}
             <p className="mt-2 text-sm text-slate-600">{book.author}</p>
-            <p className="mt-3 flex flex-wrap items-baseline gap-x-2">
-              <span className="text-xs uppercase tracking-wider text-slate-400">{t('common.unitPrice')}</span>
-              <span className={product.price > 0 ? 'text-xl font-bold text-slate-900' : 'text-base font-semibold text-amber-700'}>
-                {fmt.unitPrice(product)}
-              </span>
-            </p>
           </header>
 
           {/* Deskripsi */}
@@ -189,7 +183,6 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
             <div className="grid gap-4 md:grid-cols-2">
               <div className="flex flex-col rounded-xl border border-slate-800 bg-slate-900 p-5 text-white">
                 <h3 className="text-sm font-bold uppercase tracking-wider text-[#DFBF64]">{t('detail.howToGet.buyTitle')}</h3>
-                <div className={`mt-2 font-bold ${product.price > 0 ? 'text-2xl' : 'text-lg text-amber-300'}`}>{fmt.unitPrice(product)}</div>
                 <p className="mt-2 flex-1 text-xs text-slate-300">{t('detail.howToGet.buyDescription')}</p>
                 <div className="mt-4">
                   {isAvailable ? (

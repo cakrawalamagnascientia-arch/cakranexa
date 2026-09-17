@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkSupabase, evaluateStartup, REQUIRED_SCHEMA, type SupabaseCheckResult } from '../startupChecks';
+import { checkSupabase, createTableReadProbe, evaluateStartup, REQUIRED_SCHEMA, type SupabaseCheckResult } from '../startupChecks';
 
 /** Tiruan PostgREST: tabel -> kolom yang ada; `down` meniru kunci salah/jaringan putus. */
 const fakeClient = (schema: Record<string, string[]>, options: { down?: string; hang?: boolean } = {}) => ({
@@ -109,5 +109,39 @@ describe('evaluateStartup', () => {
     expect(evaluateStartup({ RENDER: 'true', ALLOW_START_WITHOUT_SUPABASE: 'true' }, false, null)).toMatchObject({ required: false, fatal: false });
     expect(evaluateStartup({}, false, null)).toMatchObject({ required: false, fatal: false, problems: ['SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY belum di-set.'] });
     expect(evaluateStartup({ RENDER: 'true', VERCEL: '1' }, false, null).fatal).toBe(false);
+  });
+});
+
+describe('createTableReadProbe (/api/health ordersTableReadable)', () => {
+  it('tabel terbaca -> true; hasil di-cache sampai TTL habis', async () => {
+    let calls = 0;
+    const clock = { t: Date.parse('2026-09-17T00:00:00.000Z') };
+    const client = fakeClient({ orders: ['id'] });
+    const counting = { from: (table: string) => { calls += 1; return client.from(table); } };
+    const probe = createTableReadProbe(counting as any, 'orders', { ttlMs: 60_000, now: () => new Date(clock.t) });
+    expect(await probe()).toEqual({ readable: true, errorCode: null, checkedAt: '2026-09-17T00:00:00.000Z' });
+    clock.t += 30_000;
+    await probe();
+    expect(calls).toBe(1);
+    clock.t += 31_000;
+    expect((await probe()).checkedAt).toBe('2026-09-17T00:01:01.000Z');
+    expect(calls).toBe(2);
+  });
+
+  it('tabel tidak ada, kunci salah, atau timeout -> false dengan kode singkat (tanpa pesan)', async () => {
+    expect(await createTableReadProbe(fakeClient({}) as any, 'orders')()).toMatchObject({ readable: false, errorCode: 'PGRST205' });
+    const down = await createTableReadProbe(fakeClient({ orders: ['id'] }, { down: 'Invalid API key' }) as any, 'orders')();
+    expect(down).toMatchObject({ readable: false, errorCode: 'error' });
+    expect(JSON.stringify(down)).not.toContain('Invalid API key');
+    const hang = await createTableReadProbe(fakeClient({ orders: ['id'] }, { hang: true }) as any, 'orders', { timeoutMs: 30 })();
+    expect(hang).toMatchObject({ readable: false, errorCode: 'network' });
+  });
+
+  it('permintaan bersamaan memakai satu pemeriksaan', async () => {
+    let calls = 0;
+    const client = fakeClient({ orders: ['id'] });
+    const probe = createTableReadProbe({ from: (t: string) => { calls += 1; return client.from(t); } } as any, 'orders');
+    await Promise.all([probe(), probe(), probe()]);
+    expect(calls).toBe(1);
   });
 });

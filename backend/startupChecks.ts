@@ -140,6 +140,46 @@ export const checkSupabase = async (
   return result(true, null);
 };
 
+export interface TableReadStatus {
+  /** true = SELECT pada tabel berhasil (tanpa mengambil baris). */
+  readable: boolean;
+  /** Kode error singkat bila gagal (mis. PGRST205, 42501, network); tanpa pesan atau data sensitif. */
+  errorCode: string | null;
+  checkedAt: string;
+}
+
+/**
+ * Pemeriksaan ringan untuk /api/health: tabel benar-benar bisa dibaca (SELECT ... LIMIT 0). Hasil di-cache
+ * selama `ttlMs` karena Render memanggil /api/health berkala; kegagalan tidak membuat health check gagal.
+ */
+export const createTableReadProbe = (
+  client: ProbeClient,
+  table: string,
+  options: { ttlMs?: number; timeoutMs?: number; now?: () => Date } = {}
+): (() => Promise<TableReadStatus>) => {
+  const ttlMs = options.ttlMs ?? 60_000;
+  const timeoutMs = options.timeoutMs ?? 3_000;
+  const now = options.now ?? (() => new Date());
+  let cached: { at: number; value: TableReadStatus } | null = null;
+  let running: Promise<TableReadStatus> | null = null;
+  return async () => {
+    const t = now().getTime();
+    if (cached && t - cached.at < ttlMs) return cached.value;
+    if (!running) {
+      running = probe(client, table, ['id'], timeoutMs)
+        .then((error) => {
+          const value: TableReadStatus = { readable: !error, errorCode: error ? (error.code || 'error') : null, checkedAt: now().toISOString() };
+          cached = { at: now().getTime(), value };
+          return value;
+        })
+        .finally(() => {
+          running = null;
+        });
+    }
+    return running;
+  };
+};
+
 export interface StartupEvaluation {
   /** Supabase wajib (Render, tanpa override darurat). */
   required: boolean;
