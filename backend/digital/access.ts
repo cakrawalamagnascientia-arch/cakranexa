@@ -5,15 +5,18 @@ import { maxDevicesForUser, pickEntitlement, resolveEntitlement, type AccessDeni
 import { hashFingerprint, hashToken, newSessionToken } from './tokens';
 import { createUserRateLimiter } from './rateLimits';
 import type { DeviceRecord, EntitlementRecord, ProductRecord, SessionRecord } from './types';
+import type { AudioQuota } from './membership/quota';
 
 /**
  * Lapisan akses fase 2 (dipakai reader & player di langkah 5–6):
  *  - requireEntitlement: hak akses dari tabel entitlements (sumber apa pun). Ditolak -> 403 dengan kode alasan
  *    no_entitlement | suspended | expired + info produk, agar frontend mengarahkan ke pembelian atau /membership.
- *  - Perangkat dihitung per USER; batas = max_devices tertinggi di antara entitlement yang berlaku. Perangkat baru
- *    di atas batas -> 403 device_limit + daftar perangkat. Pengguna boleh melepas 1 perangkat per 30 hari.
- *  - Sesi: satu sesi aktif per user per produk. Heartbeat tiap 30 dtk; tanpa heartbeat 2 menit = berakhir.
- *    Perangkat lain -> 409 session_conflict (takeover: true); takeover mengakhiri sesi lama.
+ *  - Perangkat dihitung per USER; batas 2 untuk semua paket dan instansi (fase 6). Perangkat baru di atas batas ->
+ *    403 device_limit + daftar perangkat. Pengguna boleh melepas 1 perangkat per 30 hari.
+ *  - Sesi: satu sesi aktif per USER (fase 6, termasuk anggota instansi). Membuka judul lain di perangkat yang sama
+ *    menutup sesi sebelumnya; perangkat lain -> 409 session_conflict (takeover: true); takeover mengakhiri sesi lama.
+ *    Heartbeat tiap 30 dtk; tanpa heartbeat 2 menit = berakhir.
+ *  - Audiobook lewat paket berbatas jam: kuota habis -> 403 audio_quota_exhausted (tawaran upgrade).
  *  - requireSession: X-Session-Token (hanya hash-nya di DB) + entitlement dicek ulang di setiap permintaan.
  */
 
@@ -53,6 +56,26 @@ const denyAccess = (ctx: DigitalContext, req: Request, userId: string, product: 
   const { ip, userAgent } = clientInfo(req);
   ctx.log({ userId, productId: product.id, sessionId: sessionId ?? null, action: 'denied', ip, userAgent, meta: { reason } });
   return httpError(403, reason, DENIAL_MESSAGES[reason], { reason, product: publicProduct(product) });
+};
+
+/** Ringkasan kuota audio untuk browser (detik). */
+export const publicAudioQuota = (q: AudioQuota) => ({
+  limitSeconds: q.limitSeconds,
+  usedSeconds: Math.min(q.usedSeconds, q.limitSeconds),
+  remainingSeconds: q.remainingSeconds,
+  resetsAt: q.resetsAt,
+  exhausted: q.exhausted
+});
+
+export const audioQuotaExhausted = (ctx: DigitalContext, req: Request, userId: string, product: ProductRecord, quota: AudioQuota) => {
+  const { ip, userAgent } = clientInfo(req);
+  ctx.log({ userId, productId: product.id, action: 'denied', ip, userAgent, meta: { reason: 'audio_quota_exhausted', used_seconds: quota.usedSeconds, limit_seconds: quota.limitSeconds } });
+  return httpError(403, 'audio_quota_exhausted', 'Jam audio paket Anda bulan ini sudah habis.', {
+    reason: 'audio_quota_exhausted',
+    upgrade: true,
+    audioQuota: publicAudioQuota(quota),
+    product: publicProduct(product)
+  });
 };
 
 /** Produk dicari tanpa syarat aktif/tersedia: pemilik tetap bisa membuka produk yang dinonaktifkan dari katalog. */
@@ -187,7 +210,7 @@ const registerDevice = async (ctx: DigitalContext, req: Request, userId: string,
 
 const sessionConflict = async (ctx: DigitalContext, open: SessionRecord | null) => {
   const device = open?.deviceId ? await ctx.store.getDevice(open.deviceId) : null;
-  return httpError(409, 'session_conflict', 'Produk ini sedang dibuka di perangkat lain.', {
+  return httpError(409, 'session_conflict', 'Akun ini sedang membaca atau mendengarkan di perangkat lain.', {
     takeover: true,
     activeSession: open
       ? { deviceLabel: device ? device.label || deviceLabel(device.userAgent) : null, startedAt: open.startedAt, lastHeartbeat: open.lastHeartbeat }
@@ -248,13 +271,20 @@ export const createAccessRouter = (ctx: DigitalContext): Router => {
     const now = ctx.now();
     const { ip, userAgent } = clientInfo(req);
 
-    const open = await ctx.store.findOpenSession(user.id, product.id);
-    if (open) {
-      const alive = now.getTime() - Date.parse(open.lastHeartbeat) < ctx.config.heartbeatWindowMs;
-      if (!alive) await ctx.store.endSessions({ ids: [open.id] }, 'expired');
-      else if (open.deviceId === device.id) await ctx.store.endSessions({ ids: [open.id] }, 'reopened');
-      else if (takeover) await ctx.store.endSessions({ ids: [open.id] }, 'takeover');
-      else throw await sessionConflict(ctx, open);
+    // Kuota jam audio paket (fase 6): habis -> tidak ada sesi baru, tawarkan upgrade.
+    const audioQuota = product.format === 'audiobook' && ctx.membership ? await ctx.membership.audioQuota(entitlement, user.id, true) : null;
+    if (audioQuota?.exhausted) throw audioQuotaExhausted(ctx, req, user.id, product, audioQuota);
+
+    // Satu sesi aktif per pengguna (semua judul).
+    const open = await ctx.store.listOpenSessions({ userId: user.id });
+    const alive = (x: SessionRecord) => now.getTime() - Date.parse(x.lastHeartbeat) < ctx.config.heartbeatWindowMs;
+    const expired = open.filter((x) => !alive(x)).map((x) => x.id);
+    if (expired.length > 0) await ctx.store.endSessions({ ids: expired }, 'expired');
+    const elsewhere = open.filter((x) => alive(x) && x.deviceId !== device.id);
+    if (elsewhere.length > 0 && !takeover) throw await sessionConflict(ctx, elsewhere[0]);
+    for (const x of open.filter(alive)) {
+      const reason = x.deviceId !== device.id ? 'takeover' : x.productId === product.id ? 'reopened' : 'switched';
+      await ctx.store.endSessions({ ids: [x.id] }, reason);
     }
 
     const sessionToken = newSessionToken();
@@ -295,7 +325,7 @@ export const createAccessRouter = (ctx: DigitalContext): Router => {
     } catch (err) {
       if (!(err instanceof ConflictError)) throw err;
       // Perangkat lain memulai sesi pada saat yang sama.
-      throw await sessionConflict(ctx, await ctx.store.findOpenSession(user.id, product.id));
+      throw await sessionConflict(ctx, (await ctx.store.listOpenSessions({ userId: user.id }))[0] ?? null);
     }
     ctx.log({
       userId: user.id,
@@ -319,7 +349,8 @@ export const createAccessRouter = (ctx: DigitalContext): Router => {
         durationSeconds: product.durationSeconds,
         ready: product.processingStatus === 'ready'
       },
-      device: { id: device.id, label: device.label || deviceLabel(device.userAgent) }
+      device: { id: device.id, label: device.label || deviceLabel(device.userAgent) },
+      audioQuota: audioQuota ? publicAudioQuota(audioQuota) : null
     });
   }));
 

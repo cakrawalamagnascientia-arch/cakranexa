@@ -103,6 +103,8 @@ const setup = async (env: Record<string, string> = {}, extra: Partial<TestAppOpt
       }
     },
     membershipGateway: gw.gateway,
+    // Tes regresi paket fase 3 (pelanggan lama): paket lama aktif dengan angka seed aslinya.
+    legacyPlans: true,
     ...extra
   });
   cleanups.push(t.cleanup);
@@ -137,8 +139,8 @@ const setup = async (env: Record<string, string> = {}, extra: Partial<TestAppOpt
     expect(paid.body.status).toBe('success');
     return res.body;
   };
-  const start = (token: string, productId: string, n = 1) =>
-    request(t.app).post(`/api/access/${productId}/session/start`).set('Authorization', `Bearer ${token}`).set('User-Agent', UA).send({ deviceId: device(n) });
+  const start = (token: string, productId: string, n = 1, takeover = false) =>
+    request(t.app).post(`/api/access/${productId}/session/start`).set('Authorization', `Bearer ${token}`).set('User-Agent', UA).send({ deviceId: device(n), takeover });
   const advance = (days: number) => {
     clock.t += days * DAY;
   };
@@ -309,13 +311,13 @@ describe('keanggotaan — verifikasi Langkah 10', () => {
     expect(await t.store.getProgress(USER_A.id, 'prod-shelf')).toMatchObject({ position: 42 });
   });
 
-  it('6. upgrade prorata: hak lama dicabut (upgraded), hak baru aktif, batas perangkat naik', async () => {
+  it('6. upgrade prorata: hak lama dicabut (upgraded), hak baru aktif; 2 perangkat dan satu sesi per pengguna', async () => {
     const t = await setup();
     await t.join(t.tokenA, { plan_code: 'reader', billing_cycle: 'monthly' });
     await t.as(t.tokenA).post('/api/membership/picks', { product_id: 'prod-shelf' });
     const sub0 = (await t.open(USER_A.id))!;
     expect((await t.start(t.tokenA, 'prod-shelf', 1)).status).toBe(201);
-    expect((await t.start(t.tokenA, 'prod-shelf', 2)).body.code).toBe('device_limit');
+    expect((await t.start(t.tokenA, 'prod-shelf', 2)).body.code).toBe('session_conflict');
 
     t.advance(10);
     const change = await t.as(t.tokenA).post('/api/membership/change', { plan_code: 'professional', billing_cycle: 'monthly' });
@@ -335,7 +337,7 @@ describe('keanggotaan — verifikasi Langkah 10', () => {
     const shelf = t.store.entitlements.filter((e) => e.scope === 'shelf' && e.status === 'active');
     expect(shelf).toHaveLength(1);
     expect(shelf[0].maxDevices).toBe(2);
-    expect((await t.start(t.tokenA, 'prod-shelf-audio', 2)).status).toBe(201);
+    expect((await t.start(t.tokenA, 'prod-shelf-audio', 2, true)).status).toBe(201);
     expect(await t.eventsOf(sub0.id, 'upgraded')).toHaveLength(1);
   });
 

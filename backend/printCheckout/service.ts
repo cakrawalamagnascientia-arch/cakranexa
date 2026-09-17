@@ -22,6 +22,7 @@ import {
 import {
   allowedProviders,
   enabledPrintMethods,
+  MANAGED_ROUTING_TYPES,
   normalizeRouting,
   printProviderFor,
   ROUTING_METHODS,
@@ -192,7 +193,7 @@ export class PrintCheckoutService {
     for (const entry of list as Array<Record<string, unknown>>) {
       const method = String(entry?.method) as RoutingMethod;
       const provider = String(entry?.provider) as RoutingProvider;
-      if (entry?.transactionType !== 'print' || !(ROUTING_METHODS as readonly string[]).includes(method)) {
+      if (!(MANAGED_ROUTING_TYPES as readonly unknown[]).includes(entry?.transactionType) || !(ROUTING_METHODS as readonly string[]).includes(method)) {
         throw fail(400, 'invalid_routing', `Baris routing tidak dikenal: ${String(entry?.transactionType)}/${String(entry?.method)}.`);
       }
       if (!allowedProviders(method).includes(provider)) throw fail(400, 'invalid_routing', `Provider ${provider} tidak tersedia untuk ${method}.`);

@@ -1,5 +1,5 @@
 import type { InstitutionInquiryStatus, InstitutionType } from '../types';
-import type { MembershipPlans, PlanCode, PublicPlan } from '../services/membershipApi';
+import type { LegacyPlanCode, MembershipPlans, PlanCode, PublicPlan } from '../services/membershipApi';
 
 /**
  * Keanggotaan Cakrawala Magna Society di CakraNexa (docs/PHASE-3-BRIEF.md; analisis skema: docs/SKEMA-KEANGGOTAAN.md).
@@ -33,10 +33,14 @@ export const MEMBERSHIP_BILLING_POLICY = {
 // ---------------------------------------------------------------------------
 // PAKET INDIVIDU
 // ---------------------------------------------------------------------------
-export type MembershipPlanKey = 'freeCircle' | 'readerCircle' | 'professionalSociety' | 'authorGuild';
+export type MembershipPlanKey = 'blue' | 'silver' | 'gold' | 'platinum' | 'freeCircle' | 'readerCircle' | 'professionalSociety' | 'authorGuild';
 
 /** Kode paket di server -> kunci teks di digital.json (membership.plans.<kunci>). */
 export const PLAN_KEY_BY_CODE: Record<PlanCode, MembershipPlanKey> = {
+  blue: 'blue',
+  silver: 'silver',
+  gold: 'gold',
+  platinum: 'platinum',
   free: 'freeCircle',
   reader: 'readerCircle',
   professional: 'professionalSociety',
@@ -49,6 +53,9 @@ export const MEMBERSHIP_BENEFIT_KEYS = [
   'account', 'newsletter', 'samples', 'wishlist', 'publicEvents', 'preorderAlerts',
   // Akses digital & harga member (flag server)
   'digitalPick', 'digitalShelf', 'authorOwnWorks', 'memberPrintDiscount',
+  // Paket fase 6 (angka dari kolom kuota paket)
+  'audioSample', 'devicesTwo', 'titleQuota', 'audioHours', 'frontlistDays', 'frontlistFirstDay', 'offlineTitles',
+  'notesHighlights', 'formatSync', 'fullShelf', 'familyAccounts',
   // Manfaat lanjutan dokumen owner (flag MEMBERSHIP_EXTENDED_BENEFITS, belum diluncurkan)
   'points', 'recommendations', 'birthdayGift', 'referralBasic',
   'bookDiscount', 'readerWallet', 'memberPick', 'preorderDiscount', 'freeShipping', 'digitalSampler', 'backlistDiscount',
@@ -76,7 +83,7 @@ export interface MembershipWallet {
   maxActive?: number;
 }
 
-export const MEMBERSHIP_WALLETS: Record<Exclude<PlanCode, 'free'>, MembershipWallet> = {
+export const MEMBERSHIP_WALLETS: Record<Exclude<LegacyPlanCode, 'free'>, MembershipWallet> = {
   reader: { amount: 25_000, period: 'month', minPurchase: 149_000, validityDays: 60, maxActive: 2 },
   professional: { amount: 50_000, period: 'quarter', minPurchase: 249_000 },
   author: { amount: 75_000, period: 'quarter', minPurchase: 350_000 }
@@ -100,7 +107,7 @@ export const MEMBERSHIP_ECONOMICS = {
 };
 
 /** Nilai nominal manfaat tunai per tahun (wallet + kredit tahunan) bila seluruhnya dipakai. */
-export const nominalCashBenefitsPerYear = (code: Exclude<PlanCode, 'free'>, billing: 'monthly' | 'annual'): number => {
+export const nominalCashBenefitsPerYear = (code: Exclude<LegacyPlanCode, 'free'>, billing: 'monthly' | 'annual'): number => {
   const wallet = MEMBERSHIP_WALLETS[code];
   const walletPerYear = wallet.amount * (wallet.period === 'month' ? 12 : 4);
   return walletPerYear + (billing === 'annual' && code === 'professional' ? PROFESSIONAL_ANNUAL_CREDIT.amount : 0);
@@ -120,6 +127,8 @@ export const LOYALTY_STATUSES: { key: LoyaltyStatusKey; minAnnualSpend: number }
 /** Parameter teks manfaat: `amounts` diformat Rupiah, `values` sebagai angka. */
 export const BENEFIT_PARAMS: Partial<Record<MembershipBenefitKey, { amounts?: Record<string, number>; values?: Record<string, number> }>> = {
   samples: { values: { min: 10, max: 15 } },
+  audioSample: { values: { minutes: 5 } },
+  devicesTwo: { values: { n: 2 } },
   bookDiscount: { values: { percent: 10 } },
   readerWallet: { amounts: { amount: MEMBERSHIP_WALLETS.reader.amount, min: MEMBERSHIP_WALLETS.reader.minPurchase }, values: { days: 60, active: 2 } },
   preorderDiscount: { values: { percent: 15 } },
@@ -146,30 +155,48 @@ export const BENEFIT_PARAMS: Partial<Record<MembershipBenefitKey, { amounts?: Re
 };
 
 const PLAN_NAMES: Record<PlanCode, string> = {
+  blue: 'Blue',
+  silver: 'Silver',
+  gold: 'Gold',
+  platinum: 'Platinum',
   free: 'Free Circle',
   reader: 'Reader Circle',
   professional: 'Professional & Academic Society',
   author: 'Author Guild'
 };
 
+type PlanQuotas = Pick<PublicPlan, 'ebookTitlesPerPeriod' | 'audioHoursPerPeriod' | 'frontlistDays' | 'offlineTitles' | 'familyAccounts'>;
+
 const fallbackPlan = (
   code: PlanCode,
   priceMonthly: number,
-  founding: { priceYearly: number; cap: number } | null,
-  maxDevices: number,
   shelfAccess: PublicPlan['shelfAccess'],
-  extraBenefits: MembershipBenefitKey[]
+  quotas: PlanQuotas,
+  benefits: MembershipBenefitKey[]
 ): PublicPlan => ({
   code,
   name: { id: PLAN_NAMES[code], en: PLAN_NAMES[code] },
   priceMonthly,
   priceYearly: priceMonthly * ANNUAL_BILLED_MONTHS,
-  founding: founding ? { ...founding, remaining: null } : null,
-  maxDevices,
+  founding: null,
+  maxDevices: 2,
   shelfAccess,
+  ...quotas,
   printDiscountPercent: 0,
-  benefits: [...LAUNCH_BENEFIT_KEYS, ...extraBenefits]
+  benefits
 });
+
+/** Kunci teks manfaat yang angkanya diambil dari kolom kuota paket (bukan BENEFIT_PARAMS). */
+export const planBenefitValues = (key: MembershipBenefitKey, plan: PublicPlan): Record<string, number> => {
+  switch (key) {
+    case 'titleQuota': return { n: plan.ebookTitlesPerPeriod ?? 0 };
+    case 'audioHours': return { hours: plan.audioHoursPerPeriod ?? 0 };
+    case 'frontlistDays': return { days: plan.frontlistDays ?? 0 };
+    case 'offlineTitles': return { n: plan.offlineTitles };
+    case 'familyAccounts': return { n: plan.familyAccounts };
+    default: return {};
+  }
+};
 
 /**
  * Cadangan bila GET /api/membership/plans tidak tersedia (mis. fungsi Vercel atau jaringan): angka sama dengan seed
@@ -177,10 +204,18 @@ const fallbackPlan = (
  */
 export const FALLBACK_MEMBERSHIP: MembershipPlans = {
   plans: [
-    fallbackPlan('free', 0, null, 1, 'none', []),
-    fallbackPlan('reader', 39_000, { priceYearly: 299_000, cap: 1000 }, 1, 'none', []),
-    fallbackPlan('professional', 99_000, { priceYearly: 790_000, cap: 500 }, 2, 'full', ['digitalShelf']),
-    fallbackPlan('author', 149_000, { priceYearly: 1_190_000, cap: 250 }, 2, 'none', ['authorOwnWorks'])
+    fallbackPlan('blue', 0, 'none',
+      { ebookTitlesPerPeriod: null, audioHoursPerPeriod: null, frontlistDays: null, offlineTitles: 0, familyAccounts: 0 },
+      ['account', 'samples', 'audioSample', 'newsletter', 'devicesTwo']),
+    fallbackPlan('silver', 49_000, 'pick',
+      { ebookTitlesPerPeriod: 2, audioHoursPerPeriod: 5, frontlistDays: 90, offlineTitles: 0, familyAccounts: 0 },
+      ['titleQuota', 'audioHours', 'frontlistDays', 'devicesTwo']),
+    fallbackPlan('gold', 99_000, 'pick',
+      { ebookTitlesPerPeriod: 6, audioHoursPerPeriod: 20, frontlistDays: 45, offlineTitles: 2, familyAccounts: 0 },
+      ['titleQuota', 'audioHours', 'frontlistDays', 'offlineTitles', 'notesHighlights', 'formatSync', 'devicesTwo']),
+    fallbackPlan('platinum', 199_000, 'full',
+      { ebookTitlesPerPeriod: null, audioHoursPerPeriod: 60, frontlistDays: 0, offlineTitles: 5, familyAccounts: 2 },
+      ['fullShelf', 'audioHours', 'frontlistFirstDay', 'offlineTitles', 'notesHighlights', 'formatSync', 'familyAccounts', 'devicesTwo'])
   ],
   flags: {
     autodebit: false,
@@ -282,8 +317,11 @@ export const INSTITUTION_COMMON_FEATURES = [
 export type InstitutionFeatureKey = (typeof INSTITUTION_COMMON_FEATURES)[number];
 
 export const INSTITUTION_PROGRAM = {
-  /** Persentase biaya tahunan yang DIBAYAR yang menjadi kredit akuisisi di akhir periode. */
-  acquisitionWalletPercent: 40,
+  /**
+   * Persentase biaya tahunan yang DIBAYAR yang menjadi kredit di akhir periode (fase 6: 20%, sebelumnya 40%).
+   * Kredit ditukar ke buku cetak atau potongan perpanjangan, bukan lisensi permanen.
+   */
+  acquisitionWalletPercent: 20,
   /** Founding: diskon tahun pertama untuk sejumlah institusi pertama. */
   founding: { discountPercent: 15, cap: 30 },
   /** Harga penuh berlaku mulai jumlah judul digital relevan ini. */

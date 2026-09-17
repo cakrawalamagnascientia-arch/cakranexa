@@ -235,6 +235,17 @@ export const createMembershipAdminRouter = (ctx: DigitalContext, service: Member
     if (foundingCap !== undefined) patch.foundingCap = foundingCap;
     if (maxDevices !== undefined) patch.maxDevices = maxDevices as number;
     if (printDiscountPercent !== undefined) patch.printDiscountPercent = printDiscountPercent as number;
+    // Kuota fase 6 (null = tanpa batas / tidak berlaku).
+    const ebookTitlesPerPeriod = readInt(body, 'ebookTitlesPerPeriod', 0, 100, true);
+    const audioHoursPerPeriod = readInt(body, 'audioHoursPerPeriod', 0, 1000, true);
+    const frontlistDays = readInt(body, 'frontlistDays', 0, 3650, true);
+    const offlineTitles = readInt(body, 'offlineTitles', 0, 100, false);
+    const familyAccounts = readInt(body, 'familyAccounts', 0, 10, false);
+    if (ebookTitlesPerPeriod !== undefined) patch.ebookTitlesPerPeriod = ebookTitlesPerPeriod;
+    if (audioHoursPerPeriod !== undefined) patch.audioHoursPerPeriod = audioHoursPerPeriod;
+    if (frontlistDays !== undefined) patch.frontlistDays = frontlistDays;
+    if (offlineTitles !== undefined) patch.offlineTitles = offlineTitles as number;
+    if (familyAccounts !== undefined) patch.familyAccounts = familyAccounts as number;
     if ('shelfAccess' in body) {
       if (!SHELF_ACCESS.includes(body.shelfAccess as ShelfAccess)) throw httpError(400, 'invalid_plan', 'shelfAccess harus none, pick, atau full.');
       patch.shelfAccess = body.shelfAccess as ShelfAccess;
@@ -246,10 +257,14 @@ export const createMembershipAdminRouter = (ctx: DigitalContext, service: Member
     if (Object.keys(patch).length === 0) throw httpError(400, 'no_change', 'Tidak ada perubahan.');
 
     const next = { ...plan, ...patch };
-    if (plan.code === 'free' && (next.priceMonthly > 0 || next.priceYearly > 0 || next.foundingCap !== null || next.shelfAccess !== 'none')) {
-      throw httpError(400, 'invalid_plan', 'Free Circle tetap gratis, tanpa kuota Founding dan tanpa akses rak.');
+    const freePlan = plan.code === 'free' || plan.code === 'blue';
+    if (freePlan && (next.priceMonthly > 0 || next.priceYearly > 0 || next.foundingCap !== null || next.shelfAccess !== 'none')) {
+      throw httpError(400, 'invalid_plan', 'Paket gratis tetap gratis, tanpa kuota Founding dan tanpa akses rak.');
     }
-    if (plan.code !== 'free' && (next.priceMonthly <= 0 || next.priceYearly <= 0)) throw httpError(400, 'invalid_plan', 'Harga paket berbayar harus lebih dari 0.');
+    if (next.shelfAccess === 'pick' && next.ebookTitlesPerPeriod === null && !['reader'].includes(plan.code)) {
+      throw httpError(400, 'invalid_plan', 'Paket berjatah wajib punya jumlah judul per bulan.');
+    }
+    if (!freePlan && (next.priceMonthly <= 0 || next.priceYearly <= 0)) throw httpError(400, 'invalid_plan', 'Harga paket berbayar harus lebih dari 0.');
     if ((next.foundingCap === null) !== (next.foundingPriceYearly === null)) throw httpError(400, 'invalid_plan', 'Harga dan kuota Founding diisi atau dikosongkan bersamaan.');
     if (next.foundingCap !== null && next.foundingCap < plan.foundingCount) {
       throw httpError(400, 'founding_cap_below_count', `Kuota Founding tidak boleh di bawah kursi yang sudah terpakai (${plan.foundingCount}).`);
@@ -258,6 +273,7 @@ export const createMembershipAdminRouter = (ctx: DigitalContext, service: Member
     if (next.priceYearly !== next.priceMonthly * 10) warnings.push('Harga tahunan bukan 10× harga bulanan (aturan brief fase 3).');
     if (next.foundingPriceYearly !== null && next.foundingPriceYearly >= next.priceYearly) warnings.push('Harga Founding tidak lebih murah dari harga tahunan reguler.');
     const updated = await store.updatePlan(plan.id, patch);
+    service.ctx.membership?.clearPlanCache();
     console.log(`[membership] admin mengubah paket ${plan.code}: ${JSON.stringify(patch)}`);
     res.json({
       plan: updated,

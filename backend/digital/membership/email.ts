@@ -12,7 +12,10 @@ export type MembershipEmailKind =
   | 'planChanged'
   | 'canceled'
   | 'foundingNotice'
-  | 'pickLocked';
+  | 'pickLocked'
+  | 'planMigration'
+  | 'titlePicked'
+  | 'familyAdded';
 
 export interface MembershipEmailData {
   language: string;
@@ -31,6 +34,13 @@ export interface MembershipEmailData {
   graceDays?: number;
   retentionMonths?: number;
   invoiceRef?: string;
+  /** planMigration: nama paket lama (paket baru di planName). */
+  fromPlanName?: string;
+  /** titlePicked: jatah terpakai / batas slot. */
+  used?: number;
+  limit?: number;
+  /** familyAdded: nama pemilik langganan. */
+  ownerName?: string;
 }
 
 export const escapeHtml = (value: unknown): string => String(value ?? '')
@@ -78,6 +88,12 @@ const copyFor = (kind: MembershipEmailKind, lang: 'id' | 'en', d: MembershipEmai
         return { subject: 'Harga Founding Member Anda akan berakhir', intro: `Harga Founding Member Anda berlaku sampai ${date}.`, body: `Perpanjangan berikutnya memakai harga reguler <strong>${rupiah(d.regularPrice)}</strong> per tahun. Anda bisa membatalkan atau mengubah paket sebelum tanggal itu.`, button: 'Kelola keanggotaan', path: account };
       case 'pickLocked':
         return { subject: `Digital Member Pick: ${d.productTitle}`, intro: `Pilihan Anda bulan ini, <strong>${escapeHtml(d.productTitle)}</strong>, sudah dikunci sampai ${date}.`, body: 'Anda bisa memilih judul lain pada periode berikutnya.', button: 'Mulai membaca', path: '/library' };
+      case 'planMigration':
+        return { subject: `Paket ${d.fromPlanName} berganti menjadi ${d.planName}`, intro: `Paket <strong>${escapeHtml(d.fromPlanName)}</strong> tidak lagi dijual. Mulai perpanjangan ${date}, keanggotaan Anda menjadi <strong>${plan}</strong> (${cycle}) dengan harga <strong>${amount}</strong>.`, body: 'Sampai tanggal itu paket Anda saat ini tetap berlaku. Anda bisa memilih paket lain atau membatalkan dari halaman akun sebelum tanggal itu.', button: 'Kelola keanggotaan', path: account };
+      case 'titlePicked':
+        return { subject: `Jatah bulan ini: ${d.productTitle}`, intro: `<strong>${escapeHtml(d.productTitle)}</strong> terbuka sampai ${date} (${d.used ?? 0} dari ${d.limit ?? 0} jatah bulan ini).`, body: 'Bulan berikutnya Anda memilih lagi; judul yang sama boleh dipilih kembali.', button: 'Mulai membaca', path: '/library' };
+      case 'familyAdded':
+        return { subject: 'Anda ditambahkan ke akun keluarga Platinum', intro: `${escapeHtml(d.ownerName)} menambahkan Anda ke akun keluarga <strong>${plan}</strong>, berlaku sampai ${date}.`, body: 'Anda mendapat rak, perangkat, dan jam audio sendiri.', button: 'Buka Pustaka Saya', path: '/library' };
     }
   }
   switch (kind) {
@@ -105,6 +121,12 @@ const copyFor = (kind: MembershipEmailKind, lang: 'id' | 'en', d: MembershipEmai
       return { subject: 'Your Founding Member price is ending', intro: `Your Founding Member price is valid until ${date}.`, body: `The next renewal uses the regular price of <strong>${rupiah(d.regularPrice)}</strong> per year. You can cancel or change plans before then.`, button: 'Manage membership', path: account };
     case 'pickLocked':
       return { subject: `Digital Member Pick: ${d.productTitle}`, intro: `Your pick for this month, <strong>${escapeHtml(d.productTitle)}</strong>, is locked until ${date}.`, body: 'You can choose another title in the next period.', button: 'Start reading', path: '/library' };
+    case 'planMigration':
+      return { subject: `Your ${d.fromPlanName} plan becomes ${d.planName}`, intro: `The <strong>${escapeHtml(d.fromPlanName)}</strong> plan is no longer offered. From your renewal on ${date}, your membership becomes <strong>${plan}</strong> (${cycle}) at <strong>${amount}</strong>.`, body: 'Until then your current plan stays in place. You can choose another plan or cancel from your account page before that date.', button: 'Manage membership', path: account };
+    case 'titlePicked':
+      return { subject: `This month's pick: ${d.productTitle}`, intro: `<strong>${escapeHtml(d.productTitle)}</strong> is open until ${date} (${d.used ?? 0} of ${d.limit ?? 0} picks this month).`, body: 'Next month you pick again; you may choose the same title.', button: 'Start reading', path: '/library' };
+    case 'familyAdded':
+      return { subject: 'You were added to a Platinum family account', intro: `${escapeHtml(d.ownerName)} added you to a <strong>${plan}</strong> family account, valid until ${date}.`, body: 'You get your own shelf, devices, and audio hours.', button: 'Open My Library', path: '/library' };
   }
 };
 

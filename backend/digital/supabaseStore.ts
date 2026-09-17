@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { ConflictError } from './errors';
+import { ConflictError, StoreRuleError, type StoreRule } from './errors';
 import type { DigitalStore, EntitlementFilter, InvoiceFilter, NewAnomaly, NewNote, NewSession, SessionFilter, SubscriptionFilter } from './store';
 import type {
   AccessLogInput,
@@ -9,6 +9,7 @@ import type {
   ChapterRecord,
   DeviceRecord,
   EntitlementRecord,
+  FamilyMemberRecord,
   InvoicePatch,
   InvoiceRecord,
   InvoiceStatus,
@@ -34,6 +35,7 @@ import type {
   SubscriptionPatch,
   SubscriptionRecord,
   SubscriptionStatus,
+  TitlePickRecord,
   UserProfile
 } from './types';
 
@@ -43,10 +45,14 @@ const snake = (key: string) => key.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}
 const toSnakePatch = (patch: Record<string, unknown>) =>
   Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined).map(([k, v]) => [snake(k), v]));
 
-/** Lempar error Supabase; pelanggaran unik (23505) menjadi ConflictError. */
+const STORE_RULES: StoreRule[] = ['title_quota_full', 'title_quota_unavailable', 'family_full', 'family_owner'];
+
+/** Lempar error Supabase; pelanggaran unik (23505) menjadi ConflictError, aturan trigger fase 6 menjadi StoreRuleError. */
 const check = <T>(result: { data: T; error: { code?: string; message: string } | null }, what: string): T => {
   if (result.error) {
     if (result.error.code === '23505') throw new ConflictError(`${what}: ${result.error.message}`);
+    const rule = STORE_RULES.find((r) => r === result.error!.message);
+    if (result.error.code === 'P0001' && rule) throw new StoreRuleError(rule);
     throw new Error(`Supabase ${what}: ${result.error.message}`);
   }
   return result.data;
@@ -205,6 +211,12 @@ const toPlan = (r: any): PlanRecord => ({
   printDiscountPercent: Number(r.print_discount_percent) || 0,
   sortOrder: Number(r.sort_order) || 0,
   isActive: r.is_active !== false,
+  ebookTitlesPerPeriod: num(r.ebook_titles_per_period),
+  audioHoursPerPeriod: num(r.audio_hours_per_period),
+  frontlistDays: num(r.frontlist_days),
+  offlineTitles: Number(r.offline_titles) || 0,
+  familyAccounts: Number(r.family_accounts) || 0,
+  successorPlanId: r.successor_plan_id ?? null,
   updatedAt: r.updated_at
 });
 
@@ -291,6 +303,26 @@ const toPick = (r: any): PickRecord => ({
   periodEnd: r.period_end,
   entitlementId: r.entitlement_id ?? null,
   createdAt: r.created_at
+});
+
+const toTitlePick = (r: any): TitlePickRecord => ({
+  id: r.id,
+  subscriptionId: r.subscription_id,
+  userId: r.user_id,
+  productId: r.digital_product_id,
+  periodStart: r.period_start,
+  periodEnd: r.period_end,
+  entitlementId: r.entitlement_id ?? null,
+  pickedAt: r.picked_at
+});
+
+const toFamilyMember = (r: any): FamilyMemberRecord => ({
+  id: r.id,
+  ownerSubscriptionId: r.owner_subscription_id,
+  userId: r.user_id,
+  status: r.status,
+  addedAt: r.added_at,
+  removedAt: r.removed_at ?? null
 });
 
 const ORDER_SELECT = '*, items:digital_order_items(*)';
@@ -644,7 +676,8 @@ export class SupabaseDigitalStore implements DigitalStore {
       unit_start: r.unitStart,
       unit_end: r.unitEnd,
       dwell_ms: r.dwellMs,
-      institution_id: r.institutionId ?? null
+      institution_id: r.institutionId ?? null,
+      subscription_id: r.subscriptionId ?? null
     }))), 'insertReadingEvents');
   }
 
@@ -883,5 +916,69 @@ export class SupabaseDigitalStore implements DigitalStore {
 
   async setPickEntitlement(id: string, entitlementId: string) {
     check(await this.db.from('digital_member_picks').update({ entitlement_id: entitlementId }).eq('id', id), 'setPickEntitlement');
+  }
+
+  // ---- fase 6 (membership_phase6_migration.sql)
+  async createTitlePick(row: Omit<TitlePickRecord, 'id' | 'pickedAt' | 'entitlementId'>) {
+    const data = check(await this.db.from('period_title_picks').insert({
+      subscription_id: row.subscriptionId,
+      user_id: row.userId,
+      digital_product_id: row.productId,
+      period_start: row.periodStart,
+      period_end: row.periodEnd
+    }).select('*').single(), 'createTitlePick');
+    return toTitlePick(data);
+  }
+
+  async listTitlePicks(filter: { subscriptionId?: string; userId?: string; periodStart?: string }) {
+    let query = this.db.from('period_title_picks').select('*');
+    if (filter.subscriptionId) query = query.eq('subscription_id', filter.subscriptionId);
+    if (filter.userId) query = query.eq('user_id', filter.userId);
+    if (filter.periodStart) query = query.eq('period_start', filter.periodStart);
+    const data = check(await query.order('period_start', { ascending: false }).order('picked_at').limit(1000), 'listTitlePicks');
+    return (data || []).map(toTitlePick);
+  }
+
+  async setTitlePickEntitlement(id: string, entitlementId: string) {
+    check(await this.db.from('period_title_picks').update({ entitlement_id: entitlementId }).eq('id', id), 'setTitlePickEntitlement');
+  }
+
+  async audioSecondsUsed(subscriptionId: string, userId: string, from: string, to: string) {
+    const data = check(await this.db.rpc('membership_audio_seconds', {
+      p_subscription_id: subscriptionId, p_user_id: userId, p_from: from, p_to: to
+    }), 'audioSecondsUsed');
+    return Number(data) || 0;
+  }
+
+  async findUserByEmail(email: string) {
+    const needle = email.trim().toLowerCase();
+    if (!needle) return null;
+    const data = check(await this.db.rpc('admin_find_users', { p_query: needle, p_limit: 20 }), 'findUserByEmail');
+    const match = ((data as any[]) || []).map(toProfile).find((u) => u.email.toLowerCase() === needle);
+    return match ?? null;
+  }
+
+  async addFamilyMember(row: { ownerSubscriptionId: string; userId: string }) {
+    const data = check(await this.db.from('family_members').insert({
+      owner_subscription_id: row.ownerSubscriptionId,
+      user_id: row.userId,
+      status: 'active'
+    }).select('*').single(), 'addFamilyMember');
+    return toFamilyMember(data);
+  }
+
+  async listFamilyMembers(filter: { ownerSubscriptionId?: string; userId?: string; status?: FamilyMemberRecord['status'] }) {
+    let query = this.db.from('family_members').select('*');
+    if (filter.ownerSubscriptionId) query = query.eq('owner_subscription_id', filter.ownerSubscriptionId);
+    if (filter.userId) query = query.eq('user_id', filter.userId);
+    if (filter.status) query = query.eq('status', filter.status);
+    const data = check(await query.order('added_at').limit(100), 'listFamilyMembers');
+    return (data || []).map(toFamilyMember);
+  }
+
+  async removeFamilyMember(id: string, removedAt: string) {
+    const data = check(await this.db.from('family_members').update({ status: 'removed', removed_at: removedAt })
+      .eq('id', id).eq('status', 'active').select('*').maybeSingle(), 'removeFamilyMember');
+    return data ? toFamilyMember(data) : null;
   }
 }

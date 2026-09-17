@@ -90,7 +90,13 @@
       "license_required": "Setujui ketentuan lisensi terlebih dahulu.",
       "snap_unavailable": "Jendela pembayaran tidak dapat dimuat. Periksa koneksi lalu coba lagi.",
       "order_not_found": "Pesanan tidak ditemukan.",
-      "unknown": "Terjadi kesalahan. Silakan coba lagi."
+      "unknown": "Terjadi kesalahan. Silakan coba lagi.",
+      "unit_sales_disabled": "Pembelian satuan tidak tersedia. Buka judul lewat paket keanggotaan."
+    },
+    "unitSalesClosed": {
+      "title": "Judul dibuka lewat paket",
+      "description": "CakraNexa tidak lagi menjual e-book dan audiobook satuan. Pilih paket Silver, Gold, atau Platinum untuk membaca dan mendengarkan judul ini. Pembelian lama tetap ada di Pustaka Saya.",
+      "library": "Buka Pustaka Saya"
     }
   },
   "access": {
@@ -365,7 +371,8 @@
     "durationMinutes": "{{minutes}} menit",
     "pages_other": "{{count}} halaman",
     "coverAlt": "Sampul {{title}}",
-    "viewDetails": "Lihat detail"
+    "viewDetails": "Lihat detail",
+    "viewPlans": "Baca dengan paket"
   },
   "formatIcons": {
     "print": "Buku cetak",
@@ -468,7 +475,7 @@
   "membership": {
     "badge": "Cakrawala Magna Society",
     "title": "Baca lebih cerdas, beli lebih hemat, dan bertumbuh bersama komunitas Cakrawala Magna",
-    "subtitle": "Keanggotaan CakraNexa mulai {{price}} per bulan. E-book dan audiobook dapat dibaca lewat Digital Reading Shelf di paket Professional & Academic Society.",
+    "subtitle": "Keanggotaan CakraNexa mulai {{price}} per bulan. Baca e-book dan dengarkan audiobook dengan paket Silver, Gold, atau Platinum.",
     "billing": {
       "label": "Periode tagihan",
       "monthly": "Bulanan",
@@ -494,6 +501,22 @@
     "showFewerBenefits": "Tampilkan lebih sedikit",
     "authorDisclaimer": "Keanggotaan tidak menjamin naskah diterbitkan, ISBN, atau penyuntingan penuh. Keputusan penerbitan tetap berdasarkan kelayakan naskah.",
     "plans": {
+      "blue": {
+        "name": "Blue",
+        "tagline": "Gratis: sampel e-book dan audiobook untuk mengenal CakraNexa."
+      },
+      "silver": {
+        "name": "Silver",
+        "tagline": "Untuk pembaca rutin: 2 judul e-book dan 5 jam audio setiap bulan."
+      },
+      "gold": {
+        "name": "Gold",
+        "tagline": "Paling seimbang: 6 judul, 20 jam audio, offline, dan catatan."
+      },
+      "platinum": {
+        "name": "Platinum",
+        "tagline": "Seluruh rak sejak hari pertama, 60 jam audio, dan 2 akun keluarga."
+      },
       "freeCircle": {
         "name": "Free Circle",
         "tagline": "Pintu masuk gratis: sampel, newsletter, dan poin belanja."
@@ -567,7 +590,18 @@
       "wishlist": "Wishlist buku",
       "preorderAlerts": "Pemberitahuan preorder",
       "memberPrintDiscount": "Harga member {{percent}}% untuk buku cetak grup",
-      "authorOwnWorks": "Akses digital karya Anda sendiri dan sampel semua judul"
+      "authorOwnWorks": "Akses digital karya Anda sendiri dan sampel semua judul",
+      "audioSample": "Sampel audiobook {{minutes}} menit",
+      "devicesTwo": "{{n}} perangkat, 1 sesi aktif",
+      "titleQuota": "{{n}} judul e-book per bulan (pilih ulang tiap bulan)",
+      "audioHours": "{{hours}} jam audiobook per bulan",
+      "frontlistDays": "Judul baru terbuka {{days}} hari setelah masuk rak",
+      "frontlistFirstDay": "Judul baru terbuka sejak hari pertama",
+      "offlineTitles": "Simpan offline hingga {{n}} judul",
+      "notesHighlights": "Catatan dan stabilo",
+      "formatSync": "Lanjutkan e-book dari audio dan sebaliknya",
+      "fullShelf": "Seluruh rak e-book dan audiobook tanpa memilih judul",
+      "familyAccounts": "+{{n}} akun keluarga dengan rak dan jam audio sendiri"
     },
     "access": {
       "title": "Akses e-book dan audiobook per paket",
@@ -586,16 +620,20 @@
         "sample": "Sampel {{min}}–{{max}}% setiap judul",
         "sampler": "Digital sampler: bab pilihan, ringkasan, materi pendamping",
         "pick": "1 Digital Member Pick backlist per bulan",
-        "shelf": "Digital Reading Shelf: backlist dan judul pilihan"
+        "shelf": "Digital Reading Shelf: backlist dan judul pilihan",
+        "quota": "{{n}} judul per bulan"
       },
       "audiobook": {
         "sample": "Sampel {{minutes}} menit",
-        "shelf": "Semua audiobook di Digital Reading Shelf"
+        "shelf": "Semua audiobook di Digital Reading Shelf",
+        "hours": "{{hours}} jam per bulan"
       },
       "frontlist": {
         "sample": "Sampel; beli satuan",
         "preorder": "Sampel; diskon preorder {{percent}}% judul terpilih",
-        "shelf": "Masuk rak {{min}}–{{max}} hari setelah terbit; prioritas preorder"
+        "shelf": "Masuk rak {{min}}–{{max}} hari setelah terbit; prioritas preorder",
+        "firstDay": "Terbuka sejak hari pertama",
+        "afterDays": "Terbuka {{days}} hari setelah masuk rak"
       },
       "devices": "{{n}} perangkat",
       "printDiscountPreorder": "{{percent}}% (preorder {{preorder}}%)",
@@ -785,9 +823,9 @@
     },
     "wallet": {
       "title": "Apa itu acquisition wallet?",
-      "body": "Sebanyak {{percent}}% biaya tahunan yang dibayar dikonversi menjadi kredit akuisisi di akhir periode. Kredit dipakai untuk membeli lisensi permanen atau buku cetak dari judul yang paling banyak digunakan, sehingga biaya akses tidak hilang.",
+      "body": "Sebanyak {{percent}}% biaya tahunan yang dibayar menjadi kredit institusi di akhir periode. Kredit ditukar dengan buku cetak dari judul yang paling banyak digunakan atau menjadi potongan perpanjangan kontrak, sehingga biaya akses tidak hilang.",
       "point1": "Pilihan judul didasarkan pada data penggunaan",
-      "point2": "Lisensi permanen tetap dapat diakses walau kontrak tidak diperpanjang",
+      "point2": "Kredit dapat menjadi potongan biaya perpanjangan kontrak",
       "point3": "Pemakaian kredit tercatat di laporan tahunan"
     },
     "form": {
@@ -917,7 +955,8 @@
       "digital_disabled": "Pendaftaran keanggotaan belum dibuka.",
       "network": "Koneksi terputus. Periksa internet Anda lalu coba lagi.",
       "unknown": "Terjadi kesalahan. Coba lagi.",
-      "invalid_whatsapp": "Nomor WhatsApp tidak valid. Gunakan nomor seluler Indonesia, misalnya 0812 3456 7890."
+      "invalid_whatsapp": "Nomor WhatsApp tidak valid. Gunakan nomor seluler Indonesia, misalnya 0812 3456 7890.",
+      "method_unavailable": "Metode pembayaran ini sedang tidak tersedia untuk keanggotaan. Pilih metode lain."
     },
     "whatsapp": {
       "title": "Pengingat WhatsApp (opsional)",

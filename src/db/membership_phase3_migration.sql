@@ -363,7 +363,9 @@ ALTER TABLE subscription_events ADD CONSTRAINT subscription_events_type_check CH
     'created', 'activated', 'renewed', 'payment_failed', 'reminder_sent', 'grace_started', 'expired', 'canceled',
     'upgraded', 'downgraded', 'founding_notice', 'invoice_issued', 'cancel_reverted', 'change_canceled',
     'payment_method_changed', 'pick_selected', 'reconciled', 'admin_extended', 'admin_grace', 'admin_plan_changed',
-    'admin_founding', 'admin_canceled', 'autodebit_error', 'refunded', 'payment_orphan', 'whatsapp_failed'
+    'admin_founding', 'admin_canceled', 'autodebit_error', 'refunded', 'payment_orphan', 'whatsapp_failed',
+    -- Fase 6 (membership_phase6_migration.sql); ada juga di sini agar menjalankan ulang file ini tidak menolak data baru.
+    'plan_migration_notice', 'plan_migrated', 'title_picked', 'family_added', 'family_removed'
 ));
 
 CREATE INDEX IF NOT EXISTS idx_subscription_events_subscription ON subscription_events (subscription_id, created_at DESC);

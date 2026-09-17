@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle2, Clock, Library, Lock, ShieldCheck, XCircle } from 'lucide-react';
+import { CheckCircle2, Clock, Crown, Library, Lock, ShieldCheck, XCircle } from 'lucide-react';
 import { useDigitalCatalog } from '../../hooks/useDigitalCatalog';
 import { useAppLanguage, useBookText, useFormatters } from '../../i18n/hooks';
 import { useMemberSession } from '../../services/memberSession';
 import { createDigitalCheckout, DigitalApiError, getDigitalOrder, type DigitalOrder } from '../../services/digitalApi';
 import { openSnapPayment } from '../../services/midtransSnap';
-import { goToDigitalCheckout, goToDigitalOrder, goToLibrary, goToLogin } from '../../services/digitalNavigation';
+import { goToDigitalCheckout, goToDigitalOrder, goToLibrary, goToLogin, goToMembership } from '../../services/digitalNavigation';
+import { useDigitalFeature } from '../../services/digitalFeature';
 import { resolveImageUrl, handleImageError } from '../../utils/imageUtils';
 import { toTitleCase } from '../../utils/formatters';
 import { FormatIcon } from './FormatIcon';
@@ -33,6 +34,7 @@ export const DigitalCheckoutView: React.FC<DigitalCheckoutViewProps> = ({ query 
   const language = useAppLanguage();
   const member = useMemberSession();
   const catalog = useDigitalCatalog();
+  const feature = useDigitalFeature();
   const bookText = useBookText();
   const { currency } = useFormatters();
   const fmt = useDigitalFormatters();
@@ -138,7 +140,7 @@ export const DigitalCheckoutView: React.FC<DigitalCheckoutViewProps> = ({ query 
   };
 
   const errorMessage = (code: string) => {
-    const known = ['already_owned', 'product_unavailable', 'suspended', 'payment_unavailable', 'payment_error', 'license_required', 'snap_unavailable', 'order_not_found', 'order_not_saved'];
+    const known = ['already_owned', 'product_unavailable', 'suspended', 'payment_unavailable', 'payment_error', 'license_required', 'snap_unavailable', 'order_not_found', 'order_not_saved', 'unit_sales_disabled'];
     return known.includes(code) ? t(`checkout.errors.${code as 'unknown'}`) : t('checkout.errors.unknown');
   };
 
@@ -155,6 +157,23 @@ export const DigitalCheckoutView: React.FC<DigitalCheckoutViewProps> = ({ query 
           <div className="mt-5 flex flex-col gap-2 sm:flex-row">
             <button type="button" id="btn-checkout-login" onClick={() => goToLogin()} className="rounded-lg bg-[#D4AF37] px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-[#c5a059] cursor-pointer">{t('account.loginCta')}</button>
             <button type="button" onClick={() => goToLogin(undefined, 'register')} className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 cursor-pointer">{t('account.registerCta')}</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- Pembelian satuan ditutup (fase 6, payment_routing 'digital'); status pesanan lama tetap bisa dibuka.
+  if (!orderNumber && feature.known && !feature.unitSales) {
+    return (
+      <div id="digital-checkout-closed" className="max-w-xl mx-auto px-4 sm:px-6 py-10 md:py-14 text-left">
+        <div className={card}>
+          <Crown className="h-6 w-6 text-[#9A7B38]" aria-hidden="true" />
+          <h1 className="mt-3 text-xl font-bold text-slate-900">{t('checkout.unitSalesClosed.title')}</h1>
+          <p className="mt-1 text-sm text-slate-600">{t('checkout.unitSalesClosed.description')}</p>
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+            <button type="button" id="btn-checkout-plans" onClick={goToMembership} className="rounded-lg bg-[#D4AF37] px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-[#c5a059] cursor-pointer">{t('common.viewPlans')}</button>
+            <button type="button" onClick={goToLibrary} className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 cursor-pointer">{t('checkout.unitSalesClosed.library')}</button>
           </div>
         </div>
       </div>
