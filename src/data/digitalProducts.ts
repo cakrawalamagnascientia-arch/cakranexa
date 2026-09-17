@@ -142,6 +142,18 @@ export const normalizeDigitalProduct = (input: any): DigitalProduct => ({
 });
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Tanggal terbit buku cetak untuk bantuan "isi tanggal terbit cetak" di form produk digital: tanggal rilis bila ada,
+ * selain itu 1 Januari tahun terbit (approximate). null bila keduanya tidak diketahui.
+ */
+export const printReleaseDate = (book: { releaseDate?: string | null; tahunTerbit?: number | string | null }): { date: string; approximate: boolean } | null => {
+  const release = String(book.releaseDate || '').slice(0, 10);
+  if (ISO_DATE_RE.test(release) && !Number.isNaN(Date.parse(release))) return { date: release, approximate: false };
+  const year = Number(book.tahunTerbit);
+  if (Number.isInteger(year) && year >= 1900 && year <= 2100) return { date: `${year}-01-01`, approximate: true };
+  return null;
+};
 const isIntegerIn = (value: unknown, min: number, max = Number.MAX_SAFE_INTEGER): value is number =>
   typeof value === 'number' && Number.isInteger(value) && value >= min && value <= max;
 
@@ -157,8 +169,8 @@ export const validateDigitalProduct = (
   if (!product.bookId) return 'Buku wajib dipilih.';
   if (!DIGITAL_FORMATS.includes(product.format)) return 'Format harus ebook atau audiobook.';
   if (!DIGITAL_AVAILABILITIES.includes(product.availabilityStatus)) return 'Status ketersediaan tidak valid.';
-  if (!isIntegerIn(product.price, 0, 100_000_000)) return 'Harga satuan harus bilangan bulat Rupiah (0 = belum ditetapkan).';
-  if (product.availabilityStatus === 'available' && product.price <= 0) return 'Produk berstatus "Tersedia" wajib memiliki harga satuan.';
+  // Skema langganan murni: harga satuan tidak wajib; nilai lama tetap disimpan dan harus bilangan bulat Rupiah.
+  if (!isIntegerIn(product.price, 0, 100_000_000)) return 'Harga satuan harus bilangan bulat Rupiah (0 = tidak dipakai).';
   if (product.shelfEntryDate !== null && (!ISO_DATE_RE.test(product.shelfEntryDate) || Number.isNaN(Date.parse(product.shelfEntryDate)))) {
     return 'Tanggal masuk rak digital tidak valid (format YYYY-MM-DD).';
   }

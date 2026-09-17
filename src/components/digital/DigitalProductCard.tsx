@@ -100,13 +100,6 @@ export const DigitalProductCard: React.FC<DigitalProductCardProps> = ({ entry, o
       </div>
 
       <div className="mt-3 flex flex-col gap-2 border-t border-slate-100 pt-3">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-          <span className="text-[10px] text-slate-400">{t('common.unitPrice')}</span>
-          <span className={product.price > 0 ? 'font-mono text-sm font-bold text-slate-900' : 'text-xs font-semibold text-amber-700'}>
-            {fmt.unitPrice(product)}
-          </span>
-        </div>
-
         {isAvailable ? (
           <>
             <BuyDigitalButton id={`btn-buy-digital-${product.id}`} product={product} />
