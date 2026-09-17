@@ -41,14 +41,15 @@ Akibatnya:
 
 1. Supabase → **SQL Editor** → **New query**.
 2. Tempel seluruh isi [`src/db/check_schema.sql`](../src/db/check_schema.sql), lalu klik **Run**.
-3. Hasilnya 76 baris dengan kolom `urutan`, `migration`, `object`, dan `ada`:
+3. Hasilnya 79 baris dengan kolom `urutan`, `migration`, `object`, dan `ada`:
    - 29 baris fase 1–2 (urutan 1–5);
    - 12 baris fase 3 (urutan 6);
    - 4 baris data royalti pesanan cetak (urutan 7);
    - 16 baris akses institusi fase 4 (urutan 8);
    - 9 baris checkout buku cetak transfer bank dan ongkir RajaOngkir (urutan 9);
    - 2 baris kontrak naskah jual putus fase 5R (urutan 10);
-   - 4 baris admin kontrak naskah fase 5R: akun login penulis, addendum, pengingat (urutan 11).
+   - 4 baris admin kontrak naskah fase 5R: akun login penulis, addendum, pengingat (urutan 11);
+   - 3 baris transfer dari luar negeri ke rekening USD (urutan 12).
 
    Baris dengan `ada = false` menunjukkan migration yang belum dijalankan.
 
@@ -73,6 +74,7 @@ Jalankan **satu file per kueri**. Buka file di GitHub → **Raw** → salin semu
 | 9 | `src/db/print_checkout_migration.sql` (checkout buku cetak: transfer bank, ongkir RajaOngkir/zona, kode unik) | Ya | Ada baris urutan 9 yang false. Jalankan sebelum men-deploy versi checkout transfer (server menolak start tanpanya). Bagian 5 file ini menandai pesanan uji lama sebagai `is_test`. Panduan: [`docs/SETUP-CHECKOUT-CETAK.md`](SETUP-CHECKOUT-CETAK.md). |
 | 10 | `src/db/manuscript_contracts_migration.sql` (**fase 5R**, kontrak naskah jual putus & jadwal honor) | Ya | Ada baris urutan 10 yang false. Jalankan sebelum men-deploy kode fase 5R (server menolak start tanpanya). Spesifikasi: [`docs/PHASE-5-BRIEF.md`](PHASE-5-BRIEF.md). |
 | 11 | `src/db/manuscript_admin_migration.sql` (**fase 5R Langkah 2**: `authors.user_id`, log penautan akun, addendum kontrak, pengingat) | Ya | Ada baris urutan 11 yang false. Jalankan setelah urutan 10 dan sebelum men-deploy kode admin kontrak (server menolak start tanpanya). |
+| 12 | `src/db/print_usd_transfer_migration.sql` (transfer dari luar negeri: `swift_code` rekening, jalur transfer dan catatan USD diterima di pesanan) | Ya | Ada baris urutan 12 yang false. Butuh tabel `admin_bank_accounts` (sudah ada bila tab Pembayaran CMS tersimpan ke database). Mengisi SWIFT `BMRIIDJA` hanya untuk rekening USD Mandiri yang SWIFT-nya masih kosong. Jalankan sebelum men-deploy versi jalur USD (server menolak start tanpanya). |
 
 Semua file di urutan 2–5 memakai `IF NOT EXISTS` atau bentuk yang setara. Kelimanya sudah diuji di Postgres lokal: dijalankan berurutan, dijalankan ulang, lalu diperiksa dengan `check_schema.sql`.
 
@@ -91,7 +93,7 @@ File-file ini mengubah atau menambah data dan bukan syarat server.
 
 ## 4. Verifikasi
 
-- Jalankan ulang `check_schema.sql`. Semua baris harus `ada = true`: 29 sebelum fase 3, 41 setelah migration fase 3, 45 setelah migration data royalti cetak, 61 setelah migration fase 4, 70 setelah migration checkout buku cetak, 72 setelah migration kontrak naskah fase 5R, dan 76 setelah migration admin kontrak naskah.
+- Jalankan ulang `check_schema.sql`. Semua baris harus `ada = true`: 29 sebelum fase 3, 41 setelah migration fase 3, 45 setelah migration data royalti cetak, 61 setelah migration fase 4, 70 setelah migration checkout buku cetak, 72 setelah migration kontrak naskah fase 5R, 76 setelah migration admin kontrak naskah, dan 79 setelah migration transfer USD.
 - Di **Storage**, bucket `digital-assets` harus **Private** dan `digital-samples` **Public**.
 
 ---

@@ -20,6 +20,7 @@ export const DEFAULT_BANK_ACCOUNTS: AdminBankAccount[] = [
     accountHolder: 'PT CAKRAWALA MAGNA SCIENTIA',
     branch: '',
     currency: 'USD',
+    swiftCode: 'BMRIIDJA',
     isActive: true,
     isDefault: false
   }

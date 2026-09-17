@@ -32,6 +32,8 @@ describe('rekening bank perusahaan (admin_bank_accounts)', () => {
 
   it('bentuk data admin tidak berubah (rekening nonaktif tetap terbaca di CMS)', () => {
     expect(rowToBankAccount(row({ is_active: false }))).toMatchObject({ id: 'acc-uji', isActive: false, isDefault: false });
+    expect(rowToBankAccount(row({ currency: 'usd', swift_code: 'BMRIIDJA' }))).toMatchObject({ currency: 'USD', swiftCode: 'BMRIIDJA' });
+    expect(rowToBankAccount(row({ swift_code: null })).swiftCode).toBeUndefined();
     expect(BANK_ID_RE.test('acc-mandiri')).toBe(true);
     expect(BANK_ID_RE.test('acc mandiri')).toBe(false);
   });
