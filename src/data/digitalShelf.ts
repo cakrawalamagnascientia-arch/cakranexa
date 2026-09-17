@@ -13,6 +13,8 @@ export const SHELF_PLAN_ORDER: ShelfPlanCode[] = ['silver', 'gold', 'platinum'];
 export const DEFAULT_FRONTLIST_DAYS: Record<ShelfPlanCode, number> = { silver: 90, gold: 45, platinum: 0 };
 /** Judul yang masuk rak dalam rentang ini tampil di "Baru masuk rak". */
 export const NEW_ARRIVAL_DAYS = 60;
+/** Anggota instansi: judul baru terbuka shelf_entry_date + 45 hari (sama dengan backend INSTITUTION_FRONTLIST_DAYS). */
+export const INSTITUTION_FRONTLIST_DAYS = 45;
 
 const DAY_MS = 86_400_000;
 

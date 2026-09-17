@@ -2,9 +2,9 @@
   "account": {
     "subheader": "Akun",
     "loginTitle": "Masuk ke akun CakraNexa",
-    "loginSubtitle": "Masuk untuk membeli dan membuka e-book serta audiobook Anda.",
+    "loginSubtitle": "Masuk untuk membaca dan mendengarkan e-book serta audiobook Anda.",
     "registerTitle": "Buat akun CakraNexa",
-    "registerSubtitle": "Satu akun untuk pembelian digital, Pustaka Saya, dan keanggotaan.",
+    "registerSubtitle": "Satu akun untuk sampel gratis, paket, dan Pustaka Saya.",
     "resetTitle": "Atur ulang kata sandi",
     "resetSubtitle": "Masukkan email akun Anda. Kami akan mengirim tautan untuk membuat kata sandi baru.",
     "updateTitle": "Buat kata sandi baru",
@@ -106,11 +106,11 @@
     "denied": {
       "no_entitlement": {
         "title": "Anda belum memiliki akses",
-        "description": "Beli produk ini atau bergabung dengan keanggotaan untuk membukanya."
+        "description": "Buka judul ini dengan paket Silver, Gold, atau Platinum."
       },
       "expired": {
         "title": "Masa akses telah berakhir",
-        "description": "Perpanjang keanggotaan atau beli satuan untuk membukanya kembali."
+        "description": "Perpanjang paket Anda untuk membukanya kembali."
       },
       "suspended": {
         "title": "Akses ditangguhkan",
@@ -140,8 +140,12 @@
     },
     "ended": {
       "title": "Sesi berakhir",
+      "movedTitle": "Sesi dipindahkan ke perangkat lain",
+      "moved": "Akun Anda sekarang membaca atau mendengarkan di perangkat lain. Satu akun memakai satu sesi pada satu waktu; ketuk “Lanjutkan di sini” untuk memindahkannya kembali.",
       "takeover": "Produk ini dibuka di perangkat lain.",
+      "single_session": "Akun Anda sekarang membaca atau mendengarkan di perangkat lain. Satu akun memakai satu sesi pada satu waktu; ketuk “Lanjutkan di sini” untuk memindahkannya kembali.",
       "reopened": "Produk ini dibuka di tab atau jendela lain.",
+      "switched": "Anda membuka judul lain di perangkat ini.",
       "expired": "Sesi berakhir karena tidak ada aktivitas.",
       "device_released": "Perangkat ini telah dilepas dari akun Anda.",
       "revoked": "Hak akses produk ini telah berubah.",
@@ -300,7 +304,7 @@
       "fullDescription": "Semua judul di rak dapat dibaca dan didengarkan selama keanggotaan aktif (akses sampai {{date}}).",
       "empty": "Belum ada judul di rak.",
       "noneTitle": "Rak digital untuk anggota",
-      "noneDescription": "Free Circle mendapat sampel setiap judul. Professional & Academic Society membuka seluruh Digital Reading Shelf.",
+      "noneDescription": "Akun Blue membuka sampel setiap judul. Silver, Gold, dan Platinum membuka e-book dan audiobook penuh.",
       "noneCta": "Lihat paket keanggotaan",
       "browseSamples": "Jelajahi sampel"
     },
@@ -318,8 +322,8 @@
     },
     "upcoming": {
       "title": "Segera masuk rak",
-      "description": "Judul baru dijual satuan lebih dulu, lalu masuk rak pada tanggal berikut.",
-      "entry": "Masuk rak {{date}}",
+      "description": "Judul berikut akan terbuka untuk paket Anda pada tanggal di bawah.",
+      "entry": "Terbuka {{date}}",
       "buy": "Beli satuan {{price}}"
     },
     "onboarding": {
@@ -357,11 +361,7 @@
     "unavailable": "Tidak tersedia"
   },
   "common": {
-    "priceTbd": "Harga menyusul",
-    "unitPrice": "Harga satuan",
     "comingSoonPhase2": "Segera hadir",
-    "buyFormat": "Beli {{format}}",
-    "buyComingSoonTitle": "Pembelian {{format}} segera hadir",
     "readSample": "Baca sampel",
     "listenSample": "Dengar sampel",
     "shelfEntry": "Masuk rak digital: {{date}}",
@@ -385,7 +385,7 @@
     "ebook": {
       "badge": "E-Book Akademik",
       "title": "E-Book CakraNexa",
-      "subtitle": "Monografi dan buku referensi ber-ISBN dalam format digital. Baca di mana saja, dan coba sampel gratis sebelum membeli."
+      "subtitle": "Monografi dan buku referensi ber-ISBN dalam format digital. Baca di mana saja, dan coba sampel gratis sebelum memilih paket."
     },
     "audiobook": {
       "badge": "Audiobook Akademik",
@@ -428,16 +428,75 @@
     "sampleAudioValue": "{{minutes}} menit pertama",
     "shelfDate": "Masuk Digital Reading Shelf",
     "notSet": "Belum ditetapkan",
+    "access": {
+      "title": "Akses {{format}}",
+      "loading": "Memeriksa akses Anda…",
+      "actions": {
+        "readSample": "Baca sampel gratis",
+        "listenSample": "Dengarkan sampel gratis",
+        "startFree": "Mulai gratis",
+        "viewPlans": "Lihat paket",
+        "upgrade": "Upgrade paket",
+        "upgradeEarlier": "Upgrade untuk membuka lebih awal",
+        "readNow": "Baca sekarang",
+        "listenNow": "Dengarkan sekarang",
+        "pick": "Buka dengan jatah (judul ke-{{next}} dari {{limit}})",
+        "renew": "Perpanjang paket",
+        "contact": "Hubungi kami"
+      },
+      "notices": {
+        "guest": "Sampel gratis untuk semua. Baca dan dengarkan penuh dengan paket Silver, Gold, atau Platinum.",
+        "unknown": "Status akses belum dapat dimuat. Anda tetap bisa membuka sampel.",
+        "blue": "Akun Blue membuka sampel. Pilih paket untuk membaca atau mendengarkan penuh.",
+        "notIncluded": "Judul ini belum termasuk paket Anda saat ini.",
+        "openedWithQuota": "Dibuka dengan jatah bulan ini; dapat dibaca sampai {{date}}.",
+        "institution": "Tersedia melalui akses instansi Anda.",
+        "quotaAvailable": "Sisa jatah bulan ini: {{remaining}} dari {{limit}} judul. Jatah baru terbuka {{date}}.",
+        "quotaFull": "Jatah bulan ini sudah terpakai ({{used}} dari {{limit}} judul). Jatah baru terbuka {{date}}.",
+        "opensOn": "Tersedia untuk paket Anda pada {{date}}.",
+        "audioExhausted": "Jam audio bulan ini sudah habis. Jam baru terbuka {{date}}.",
+        "comingSoon": "Segera masuk rak. Tanggalnya akan diumumkan.",
+        "suspended": "Akses judul ini sedang ditangguhkan. Hubungi kami untuk bantuan.",
+        "expired": "Paket Anda sudah berakhir. Perpanjang untuk membuka kembali judul ini."
+      },
+      "confirm": {
+        "title": "Buka judul ini dengan jatah bulan ini?",
+        "body": "Pilihan langsung terkunci dan memakai satu jatah judul. Judul tetap dapat dibaca sampai jatah baru terbuka.",
+        "yes": "Ya, buka judul",
+        "no": "Batal"
+      },
+      "pickErrors": {
+        "default": "Judul belum dapat dibuka. Muat ulang halaman lalu coba lagi.",
+        "title_quota_full": "Jatah bulan ini sudah habis.",
+        "title_already_picked": "Judul ini sudah dibuka bulan ini.",
+        "not_open_for_plan": "Judul ini belum tersedia untuk paket Anda.",
+        "not_on_shelf": "Judul ini belum masuk rak.",
+        "pick_unavailable": "Paket Anda tidak memakai jatah judul.",
+        "pick_locked": "Pilihan bulan ini sudah terkunci.",
+        "network": "Periksa koneksi internet Anda lalu coba lagi."
+      }
+    },
+    "availability": {
+      "title": "Ketersediaan per paket",
+      "description": "Tidak ada pembelian satuan: judul dibuka melalui paket sesuai tanggal buka masing-masing.",
+      "sampleOnly": "Sampel gratis",
+      "fullShelf": "Seluruh rak",
+      "withQuota": "Dengan jatah judul bulanan",
+      "withAudioHours": "Dengan jam audio bulanan",
+      "institution": "Instansi",
+      "yourPlan": "Paket Anda",
+      "openNow": "Tersedia sekarang",
+      "opensOn": "Mulai {{date}}",
+      "dateTbd": "Tanggal menyusul",
+      "comparePlans": "Bandingkan paket"
+    },
+    "chapters": {
+      "title": "Daftar bab ({{count}})",
+      "page": "hlm. {{page}}",
+      "showAll": "Tampilkan semua {{count}} bab",
+      "showLess": "Tampilkan lebih sedikit"
+    },
     "howToGet": {
-      "title": "Cara mendapatkan",
-      "buyTitle": "Beli satuan",
-      "buyDescription": "Bayar sekali, lalu baca atau dengarkan kapan saja dari Pustaka Saya.",
-      "membershipTitle": "Termasuk keanggotaan",
-      "membershipDescription": "Akses tanpa biaya tambahan melalui Digital Reading Shelf untuk anggota:",
-      "institutionPlan": "Institution & Library Network (akses institusi)",
-      "shelfScheduled": "Judul baru: masuk Digital Reading Shelf pada {{date}}. Sebelum tanggal itu, judul ini hanya bisa dibeli satuan.",
-      "shelfOnShelf": "Sudah tersedia di Digital Reading Shelf.",
-      "shelfUnscheduled": "Tanggal masuk Digital Reading Shelf akan diumumkan. Judul baru biasanya masuk rak 90–180 hari setelah terbit.",
       "viewPlans": "Lihat paket keanggotaan"
     },
     "printVersion": "Versi cetak",
@@ -463,18 +522,16 @@
     "audioUnsupported": "Browser Anda tidak mendukung pemutar audio.",
     "audioUnavailable": "Sampel audio belum tersedia untuk judul ini.",
     "ctaTitle": "Tertarik membaca selengkapnya?",
-    "ctaDescription": "Beli satuan, atau baca lewat keanggotaan Professional & Academic Society.",
+    "ctaDescription": "Baca atau dengarkan judul lengkap dengan paket Silver, Gold, atau Platinum.",
     "notFound": "Sampel tidak ditemukan."
   },
   "formatSelector": {
     "label": "Pilih format",
-    "digitalPrice": "Harga {{format}}",
-    "digitalNote": "Versi digital dibeli terpisah dari buku cetak.",
+    "digitalNote": "Termasuk paket CakraNexa Digital; sampel gratis untuk semua.",
     "viewDigitalDetail": "Lihat detail {{format}}"
   },
   "membership": {
     "badge": "Cakrawala Magna Society",
-    "title": "Baca lebih cerdas, beli lebih hemat, dan bertumbuh bersama komunitas Cakrawala Magna",
     "subtitle": "Keanggotaan CakraNexa mulai {{price}} per bulan. Baca e-book dan dengarkan audiobook dengan paket Silver, Gold, atau Platinum.",
     "billing": {
       "label": "Periode tagihan",
@@ -486,20 +543,9 @@
     "perMonth": "/bulan",
     "perYear": "/tahun",
     "annualEquivalent": "setara {{price}}/bulan",
-    "recommended": "Paket digital utama",
     "foundingMember": "Founding Member",
-    "founding": {
-      "firstYear": "Harga Founding tahun pertama untuk {{cap}} anggota pertama",
-      "renewal": "Tahun berikutnya {{price}}/tahun, dengan pemberitahuan sebelumnya",
-      "annualOnly": "Harga Founding {{price}} untuk tahun pertama tersedia di paket tahunan"
-    },
-    "includesShelf": "Termasuk Digital Reading Shelf",
     "choosePlan": "Pilih paket",
-    "joinFree": "Daftar gratis",
     "phase2Note": "Pendaftaran keanggotaan sedang disiapkan dan akan segera dibuka.",
-    "showAllBenefits": "Lihat semua {{total}} manfaat",
-    "showFewerBenefits": "Tampilkan lebih sedikit",
-    "authorDisclaimer": "Keanggotaan tidak menjamin naskah diterbitkan, ISBN, atau penyuntingan penuh. Keputusan penerbitan tetap berdasarkan kelayakan naskah.",
     "plans": {
       "blue": {
         "name": "Blue",
@@ -604,63 +650,31 @@
       "familyAccounts": "+{{n}} akun keluarga dengan rak dan jam audio sendiri"
     },
     "access": {
-      "title": "Akses e-book dan audiobook per paket",
-      "subtitle": "Akses digital adalah salah satu manfaat di dalam paket. Digital Reading Shelf berisi backlist dan judul pilihan yang sudah melewati masa frontlist.",
       "feature": "Fitur",
-      "rows": {
-        "ebook": "E-book",
-        "audiobook": "Audiobook",
-        "frontlist": "Judul baru (frontlist)",
-        "devices": "Perangkat untuk akses keanggotaan",
-        "printDiscount": "Diskon buku cetak",
-        "wallet": "Book wallet"
-      },
-      "none": "—",
       "ebook": {
         "sample": "Sampel {{min}}–{{max}}% setiap judul",
-        "sampler": "Digital sampler: bab pilihan, ringkasan, materi pendamping",
-        "pick": "1 Digital Member Pick backlist per bulan",
-        "shelf": "Digital Reading Shelf: backlist dan judul pilihan",
         "quota": "{{n}} judul per bulan"
       },
       "audiobook": {
         "sample": "Sampel {{minutes}} menit",
-        "shelf": "Semua audiobook di Digital Reading Shelf",
         "hours": "{{hours}} jam per bulan"
       },
       "frontlist": {
-        "sample": "Sampel; beli satuan",
-        "preorder": "Sampel; diskon preorder {{percent}}% judul terpilih",
-        "shelf": "Masuk rak {{min}}–{{max}} hari setelah terbit; prioritas preorder",
         "firstDay": "Terbuka sejak hari pertama",
         "afterDays": "Terbuka {{days}} hari setelah masuk rak"
       },
-      "devices": "{{n}} perangkat",
-      "printDiscountPreorder": "{{percent}}% (preorder {{preorder}}%)",
-      "wallet": {
-        "month": "{{amount}}/bulan, min. belanja {{min}}",
-        "quarter": "{{amount}}/triwulan, min. belanja {{min}}",
-        "annualCredit": "kredit tahunan {{amount}} (min. {{min}}) untuk anggota tahunan"
-      },
-      "institution": {
-        "ebook": "Koleksi digital sesuai kontrak",
-        "audiobook": "Sesuai koleksi",
-        "frontlist": "Masuk koleksi setelah masa frontlist",
-        "devices": "Sesuai jumlah pengguna bersamaan",
-        "wallet": "Acquisition wallet {{percent}}% biaya tahunan"
-      },
       "notes": {
         "audioHours": "Paket Silver, Gold, dan Platinum membuka semua audiobook di rak (sesuai tanggal buka paket). Jam audio dihitung dari durasi isi buku yang diputar, bukan lamanya Anda mendengar: memutar pada kecepatan 2× menghabiskan jatah dua kali lebih cepat. Sampel tidak mengurangi jatah.",
-        "unitPurchase": "E-book dan audiobook satuan dapat dibeli siapa saja, dibuka di 2 perangkat, dan tetap milik Anda walau keanggotaan berakhir.",
-        "security": "Tidak ada unduhan PDF. Semua akses melalui cloud reader dan player ber-watermark dengan satu sesi aktif per judul."
+        "security": "Tidak ada unduhan PDF. Semua akses melalui cloud reader dan player ber-watermark, dengan satu sesi aktif per akun.",
+        "noUnitSales": "Tidak ada penjualan satuan: e-book dan audiobook dibuka melalui paket. Buku cetak tetap dijual seperti biasa."
       }
     },
     "frontlist": {
-      "title": "Kapan judul baru masuk Digital Reading Shelf?",
-      "body": "Judul baru terbit lebih dulu sebagai buku cetak dan e-book satuan. Setelah masa eksklusif {{min}}–{{max}} hari, judul masuk Digital Reading Shelf sehingga anggota Professional & Academic Society dapat membacanya tanpa biaya tambahan. Sampel 10–15% tetap tersedia untuk semua orang, dan tanggal masuk rak tercantum di setiap halaman produk digital.",
-      "step1": "Saat terbit: buku cetak dan e-book satuan",
-      "step2": "{{min}}–{{max}} hari kemudian: masuk Digital Reading Shelf",
-      "step3": "Seterusnya: tetap bisa dibeli satuan"
+      "title": "Kapan judul baru terbuka?",
+      "body": "Setiap judul punya tanggal masuk rak. Sejak tanggal itu, judul terbuka bertahap sesuai paket:",
+      "dayZero": "Hari masuk rak",
+      "afterDays": "{{days}} hari kemudian",
+      "blueNote": "Akun Blue dapat membuka sampel judul baru sejak hari masuk rak."
     },
     "loyalty": {
       "title": "Status loyalitas dan Magna Points",
@@ -690,34 +704,26 @@
     "faq": {
       "title": "Pertanyaan yang sering diajukan",
       "items": {
-        "shelf": {
-          "q": "Apa itu Digital Reading Shelf?",
-          "a": "Rak baca digital berisi backlist dan judul pilihan CakraNexa dalam bentuk e-book dan audiobook. Rak ini dibuka untuk anggota Professional & Academic Society dan institusi, tanpa perlu membeli judul satu per satu."
-        },
         "audioHours": {
           "q": "Bagaimana jam audiobook dihitung?",
           "a": "Semua audiobook di rak terbuka untuk paket berbayar, dibatasi jam per bulan: Silver 5 jam, Gold 20 jam, Platinum 60 jam per akun. Jam dihitung dari durasi isi buku yang diputar, bukan lamanya Anda mendengar, jadi mendengar pada kecepatan 2× menghabiskan jatah dua kali lebih cepat. Sampel tidak mengurangi jatah. Paket tahunan juga dihitung per bulan. Bila jatah habis, pemutaran berhenti dan Anda bisa naik paket atau menunggu jatah bulan berikutnya."
         },
         "frontlist": {
-          "q": "Mengapa judul baru tidak langsung masuk rak?",
-          "a": "Judul baru dijual satuan lebih dulu selama {{min}}–{{max}} hari agar penulis mendapat imbalan yang adil. Setelah itu judul masuk rak, dan tanggalnya tercantum di halaman produk."
+          "q": "Kapan judul baru dapat dibaca?",
+          "a": "Setiap judul punya tanggal masuk rak. Platinum membukanya pada hari itu, Gold {{goldDays}} hari kemudian, instansi {{institutionDays}} hari kemudian, dan Silver {{silverDays}} hari kemudian. Tanggal buka untuk paket Anda tercantum di halaman buku."
         },
         "unitPurchase": {
-          "q": "Bisakah saya membeli e-book tanpa berlangganan?",
-          "a": "Bisa. Setiap e-book dan audiobook yang tersedia dapat dibeli satuan dan tersimpan di Pustaka Saya selamanya. Anggota mendapat harga anggota, yang tidak digabung dengan wallet."
+          "q": "Bisakah saya membeli e-book atau audiobook satuan?",
+          "a": "Tidak. E-book dan audiobook CakraNexa hanya dibuka melalui paket, dan akun Blue membuka sampelnya. Buku cetak tetap dapat dibeli seperti biasa."
         },
         "billing": {
           "q": "Apa bedanya tagihan bulanan dan tahunan?",
           "a": "Tagihan tahunan dibayar sekali setahun seharga 10 bulan, jadi Anda hemat 2 bulan dibanding tagihan bulanan."
         },
-        "founding": {
-          "q": "Apa itu harga Founding Member?",
-          "a": "Harga peluncuran untuk anggota tahunan pertama: Reader Circle {{reader}} ({{readerCap}} anggota pertama), Professional & Academic Society {{professional}} ({{professionalCap}} anggota pertama), dan Author Guild {{author}} ({{authorCap}} anggota pertama). Harga ini berlaku untuk tahun pertama. Perpanjangan memakai harga reguler, dan kami memberi tahu {{noticeDays}} hari sebelumnya."
-        },
         "payment": {
-          "q": "Metode pembayaran apa yang tersedia?",
-          "a": "Kartu kredit dan GoPay diperpanjang otomatis. Virtual Account dan QRIS diperpanjang manual; kami mengirim pengingat {{d1}}, {{d2}}, dan {{d3}} hari sebelum jatuh tempo serta pada hari jatuh tempo.",
-          "aManual": "Untuk saat ini semua metode (Virtual Account, QRIS, kartu, dan GoPay) dibayar per periode: kami menerbitkan tagihan dan mengirim pengingat {{d1}}, {{d2}}, dan {{d3}} hari sebelum jatuh tempo serta pada hari jatuh tempo. Perpanjangan otomatis kartu dan GoPay akan dibuka setelah aktivasi di Midtrans selesai."
+          "q": "Bagaimana cara membayar paket?",
+          "a": "Pembayaran paket melalui transfer bank ke rekening resmi PT Cakrawala Magna Scientia, dengan kode unik di akhir nominal. Paket aktif setelah tim Keuangan mengonfirmasi pembayaran. Untuk perpanjangan, kami mengirim tagihan dan pengingat sebelum jatuh tempo.",
+          "aManual": "Pembayaran paket melalui transfer bank ke rekening resmi PT Cakrawala Magna Scientia, dengan kode unik di akhir nominal. Paket aktif setelah tim Keuangan mengonfirmasi pembayaran. Untuk perpanjangan, kami mengirim tagihan dan pengingat sebelum jatuh tempo."
         },
         "grace": {
           "q": "Bagaimana jika pembayaran terlambat?",
@@ -729,15 +735,27 @@
         },
         "cancel": {
           "q": "Bisakah saya berhenti kapan saja?",
-          "a": "Ya, langsung dari halaman akun. Keanggotaan tetap aktif sampai akhir periode yang sudah dibayar dan tidak ada tagihan berikutnya. Judul yang dibeli satuan tetap milik Anda."
+          "a": "Ya, langsung dari halaman akun. Paket tetap aktif sampai akhir periode yang sudah dibayar dan tidak ada tagihan berikutnya. Progres baca dan catatan tetap tersimpan bila Anda berlangganan kembali."
         },
         "devices": {
-          "q": "Di berapa perangkat saya bisa membaca?",
-          "a": "Akses Digital Reading Shelf dan judul yang dibeli satuan dapat dibuka di {{devices}} perangkat. Hanya ada satu sesi baca/dengar aktif per judul, dan perangkat dapat dilepas satu kali setiap {{releaseDays}} hari. Tidak ada unduhan PDF; semua akses melalui cloud reader dan player."
+          "q": "Di berapa perangkat saya dapat membaca?",
+          "a": "Setiap akun dapat memakai {{devices}} perangkat, dengan satu sesi baca/dengar aktif pada satu waktu. Bila Anda membuka judul di perangkat lain, sesi di perangkat sebelumnya dipindahkan. Perangkat dapat dilepas sekali setiap {{releaseDays}} hari. Tidak ada unduhan PDF; semua akses melalui cloud reader dan player."
         },
         "institutions": {
           "q": "Saya mewakili kampus atau perpustakaan. Paket mana yang cocok?",
-          "a": "Institution & Library Network: akses bersama berdasarkan jumlah pengguna bersamaan dengan kontrak tahunan. Ajukan penawaran di halaman institusi."
+          "a": "Institution & Library Network: akses seluruh rak untuk pengguna bersamaan dengan kontrak tahunan; judul baru terbuka {{institutionDays}} hari setelah masuk rak. Ajukan penawaran di halaman institusi."
+        },
+        "samples": {
+          "q": "Apakah ada uji coba gratis?",
+          "a": "Tidak ada uji coba gratis. Akun Blue gratis selamanya dan membuka sampel setiap judul: {{sampleMin}}–{{sampleMax}}% halaman e-book dan {{sampleMinutes}} menit audiobook. Untuk membaca atau mendengarkan penuh, pilih Silver, Gold, atau Platinum."
+        },
+        "titleQuota": {
+          "q": "Bagaimana jatah judul e-book bekerja?",
+          "a": "Silver membuka {{silverTitles}} judul dan Gold {{goldTitles}} judul e-book setiap bulan. Pilih judul di halaman buku; pilihan langsung terkunci dan judul dapat dibaca sampai jatah berikutnya terbuka. Jatah yang tidak dipakai tidak dibawa ke bulan berikutnya, dan paket tahunan juga dihitung per bulan. Platinum membuka seluruh rak tanpa jatah."
+        },
+        "family": {
+          "q": "Bagaimana akun keluarga Platinum bekerja?",
+          "a": "Pemilik Platinum dapat menambahkan {{familyAccounts}} akun keluarga. Setiap akun punya rak, perangkat, sesi, dan {{platinumHours}} jam audio sendiri. Akun keluarga berakhir bersama paket pemiliknya."
         }
       }
     },
@@ -747,13 +765,44 @@
       "link": "Pelajari Institution & Library Network"
     },
     "foundingSeats": "Founding Member — tersisa {{count}} kursi",
-    "foundingSoldOut": "Kuota Founding habis",
-    "foundingNotEligible": "Harga Founding khusus anggota baru; pendaftaran ulang memakai harga reguler.",
     "currentPlan": "Paket Anda saat ini",
     "changePlan": "Ubah paket",
     "devices": "Akses keanggotaan di {{n}} perangkat",
-    "includesPick": "Termasuk 1 Digital Member Pick per bulan",
-    "termsLink": "Ketentuan keanggotaan"
+    "termsLink": "Ketentuan keanggotaan",
+    "page": {
+      "title": "Pilih cara Anda membaca dan mendengarkan",
+      "startFree": "Mulai gratis",
+      "choose": "Pilih {{plan}}",
+      "mostPopular": "Paling populer",
+      "freeNote": "Gratis selamanya: sampel setiap judul.",
+      "orYearly": "atau {{price}}/tahun (hemat 2 bulan)",
+      "noTrial": "Tidak ada uji coba gratis: akun Blue membuka sampel setiap judul. Paket berbayar dapat dihentikan kapan saja.",
+      "compare": {
+        "title": "Bandingkan paket",
+        "subtitle": "Semua paket memakai akun yang sama. Anda dapat naik atau turun paket kapan saja.",
+        "included": "Termasuk",
+        "notIncluded": "Tidak termasuk",
+        "rows": {
+          "price": "Harga",
+          "ebook": "E-book",
+          "audiobook": "Audiobook",
+          "newTitles": "Judul baru",
+          "offline": "Baca/dengar offline",
+          "notes": "Catatan & stabilo",
+          "formatSync": "Sinkron e-book ↔ audio",
+          "family": "Akun keluarga",
+          "devices": "Perangkat & sesi",
+          "printDiscount": "Diskon buku cetak"
+        },
+        "cells": {
+          "fullShelf": "Seluruh rak",
+          "samplesOnly": "Sampel saja",
+          "offline": "{{n}} judul",
+          "family": "+{{n}} akun",
+          "devices": "{{n}} perangkat, 1 sesi aktif"
+        }
+      }
+    }
   },
   "institutions": {
     "badge": "Institution & Library Network",
@@ -875,16 +924,16 @@
   "library": {
     "badge": "Pustaka Saya",
     "title": "Pustaka Saya",
-    "subtitle": "E-book dan audiobook yang Anda beli atau akses lewat keanggotaan akan tampil di sini.",
+    "subtitle": "E-book dan audiobook yang terbuka untuk Anda melalui paket atau instansi akan tampil di sini.",
     "signInTitle": "Masuk ke akun anggota",
     "signInDescription": "Masuk atau daftar untuk membuka e-book dan audiobook Anda di perangkat mana pun.",
     "signInButton": "Masuk",
     "emptyTitle": "Belum ada produk digital",
-    "emptyDescription": "Beli e-book atau audiobook satuan, atau bergabung dengan keanggotaan untuk mengisi pustaka Anda.",
+    "emptyDescription": "Buka judul dengan paket Anda, atau mulai dari sampel gratis di rak digital.",
     "browseEbooks": "Jelajahi e-book",
     "browseAudiobooks": "Jelajahi audiobook",
     "promoTitle": "Baca lebih banyak dengan keanggotaan",
-    "promoDescription": "Professional & Academic Society membuka seluruh Digital Reading Shelf: e-book dan audiobook tanpa membeli satu per satu.",
+    "promoDescription": "Platinum membuka seluruh rak sejak hari pertama; Silver dan Gold membuka judul pilihan setiap bulan.",
     "promoCta": "Lihat paket keanggotaan"
   },
   "subheader": {
@@ -980,15 +1029,15 @@
     "sections": {
       "plans": {
         "title": "1. Paket dan harga",
-        "body": "Keanggotaan terdiri dari Free Circle (gratis), Reader Circle, Professional & Academic Society, dan Author Guild. Harga, manfaat, dan batas perangkat setiap paket tercantum di halaman keanggotaan saat Anda mendaftar. Harga tahunan setara 10 kali harga bulanan. Semua harga dalam Rupiah."
+        "body": "Keanggotaan terdiri dari Blue (gratis, sampel), Silver, Gold, dan Platinum. Harga, jatah, dan manfaat setiap paket tercantum di halaman keanggotaan saat Anda mendaftar. Harga tahunan setara 10 kali harga bulanan. Semua harga dalam Rupiah. Tidak ada uji coba gratis dan tidak ada penjualan e-book atau audiobook satuan."
       },
-      "founding": {
-        "title": "2. Harga Founding Member",
-        "body": "Harga Founding berlaku untuk tahun pertama paket tahunan bagi anggota baru selama kuota tersedia: Reader Circle {{reader}} ({{readerCap}} anggota), Professional & Academic Society {{professional}} ({{professionalCap}} anggota), dan Author Guild {{author}} ({{authorCap}} anggota). Kursi dipesan saat pendaftaran dan dilepas bila tagihan pertama tidak dibayar dalam 24 jam. Tahun berikutnya memakai harga reguler; kami memberi tahu {{noticeDays}} hari sebelumnya."
+      "quota": {
+        "title": "2. Jatah judul dan jam audio",
+        "body": "Silver ({{silverTitles}} judul) dan Gold ({{goldTitles}} judul) mendapat jatah e-book per bulan; judul yang dipilih langsung terkunci dan dapat dibaca sampai jatah berikutnya terbuka. Jam audio dihitung dari durasi isi buku yang diputar, per akun, per bulan. Jatah yang tidak dipakai tidak dibawa ke bulan berikutnya, dan paket tahunan dihitung per bulan. Sampel tidak mengurangi jatah."
       },
       "billing": {
-        "title": "3. Tagihan dan perpanjangan",
-        "body": "Periode keanggotaan dimulai saat pembayaran pertama berhasil. Untuk pembayaran manual (Virtual Account, QRIS), tagihan perpanjangan terbit {{d1}} hari sebelum akhir periode dengan pengingat {{d1}}, {{d2}}, dan {{d3}} hari sebelumnya serta pada hari jatuh tempo. Untuk kartu atau GoPay dengan perpanjangan otomatis (bila tersedia), tagihan dibebankan pada akhir periode dan dicoba ulang hingga 3 hari bila gagal. Pembayaran diproses oleh Midtrans; CakraNexa tidak menyimpan data kartu."
+        "title": "3. Tagihan dan pembayaran",
+        "body": "Pembayaran dilakukan melalui transfer bank ke rekening resmi PT Cakrawala Magna Scientia dengan kode unik. Periode keanggotaan dimulai saat tim Keuangan mengonfirmasi pembayaran. Tagihan perpanjangan terbit {{d1}} hari sebelum akhir periode, dengan pengingat {{d1}}, {{d2}}, dan {{d3}} hari sebelumnya serta pada hari jatuh tempo."
       },
       "grace": {
         "title": "4. Masa tenggang dan akses terkunci",
@@ -1004,15 +1053,15 @@
       },
       "digital": {
         "title": "7. Akses digital dan perangkat",
-        "body": "Digital Reading Shelf dan Digital Member Pick adalah lisensi baca/dengar pribadi selama keanggotaan aktif, melalui cloud reader dan player tanpa unduhan berkas. Setiap judul hanya dapat dibuka dalam satu sesi aktif, di perangkat sesuai batas paket, dan diberi watermark akun. Perangkat dapat dilepas sekali setiap {{releaseDays}} hari. Pelanggaran (misalnya berbagi akun atau membalik halaman secara otomatis) dapat menangguhkan akses. Judul yang dibeli satuan tetap milik Anda walau keanggotaan berakhir."
+        "body": "Paket memberi lisensi baca/dengar pribadi selama keanggotaan aktif, melalui cloud reader dan player tanpa unduhan berkas. Setiap akun memakai paling banyak {{devices}} perangkat dengan satu sesi aktif pada satu waktu, dan konten diberi watermark akun. Perangkat dapat dilepas sekali setiap {{releaseDays}} hari. Pelanggaran (misalnya berbagi akun atau membalik halaman secara otomatis) dapat menangguhkan akses."
       },
       "frontlist": {
-        "title": "8. Judul baru (frontlist)",
-        "body": "Judul baru dijual satuan lebih dulu selama {{min}}–{{max}} hari sebelum masuk Digital Reading Shelf. Tanggal masuk rak tercantum di halaman produk."
+        "title": "8. Judul baru",
+        "body": "Setiap judul punya tanggal masuk rak. Judul terbuka pada tanggal itu untuk Platinum, {{goldDays}} hari kemudian untuk Gold, {{institutionDays}} hari kemudian untuk instansi, dan {{silverDays}} hari kemudian untuk Silver. Tanggal buka tercantum di halaman buku."
       },
       "privacy": {
         "title": "9. Data pribadi",
-        "body": "Kami memproses nama, email, dan riwayat tagihan untuk mengelola keanggotaan, serta log akses untuk keamanan konten. Data kartu dan akun e-wallet hanya diproses oleh Midtrans."
+        "body": "Kami memproses nama, email, dan riwayat tagihan untuk mengelola keanggotaan, serta log akses untuk keamanan konten."
       },
       "updates": {
         "title": "10. Perubahan ketentuan",

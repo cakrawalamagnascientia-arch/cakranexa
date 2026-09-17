@@ -233,23 +233,20 @@ export const FALLBACK_MEMBERSHIP: MembershipPlans = {
   foundingEligible: true
 };
 
-/** Paket yang membuka Digital Reading Shelf penuh (tanpa flag): dipakai halaman produk digital. */
-export const DIGITAL_SHELF_PLANS: { code: PlanCode; key: MembershipPlanKey }[] = FALLBACK_MEMBERSHIP.plans
-  .filter((plan) => plan.shelfAccess === 'full')
-  .map((plan) => ({ code: plan.code, key: PLAN_KEY_BY_CODE[plan.code] }));
-
+/** FAQ /membership (fase 6 Langkah 3): jatah, perangkat, lalu penagihan. */
 export const MEMBERSHIP_FAQ_KEYS = [
-  'shelf',
+  'samples',
+  'titleQuota',
   'audioHours',
   'frontlist',
   'unitPurchase',
+  'devices',
+  'family',
   'billing',
-  'founding',
   'payment',
   'grace',
   'changePlan',
   'cancel',
-  'devices',
   'institutions'
 ] as const;
 export type MembershipFaqKey = (typeof MEMBERSHIP_FAQ_KEYS)[number];

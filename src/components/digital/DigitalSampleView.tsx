@@ -6,7 +6,6 @@ import type { DigitalEntry } from '../../hooks/useDigitalCatalog';
 import { useBookText } from '../../i18n/hooks';
 import { toTitleCase } from '../../utils/formatters';
 import { FormatIcon } from './FormatIcon';
-import { BuyDigitalButton } from './BuyDigitalButton';
 import { useDigitalFormatters } from './useDigitalFormatters';
 import { PageViewer } from '../reader/PageViewer';
 import { AudioPlayer } from '../player/AudioPlayer';
@@ -158,14 +157,11 @@ export const DigitalSampleView: React.FC<DigitalSampleViewProps> = ({ entry, onN
           <p className="mt-1 text-sm text-slate-600">{t('sample.ctaDescription')}</p>
         </div>
         <div className="flex w-full flex-col gap-2 sm:w-64 sm:shrink-0">
-          {product.availabilityStatus === 'available' && (
-            <BuyDigitalButton id="btn-sample-buy" size="md" product={product} />
-          )}
           <button
             type="button"
             id="btn-sample-membership"
             onClick={() => onNavigate('membership')}
-            className="rounded-lg bg-slate-900 px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-slate-800 cursor-pointer"
+            className="rounded-lg bg-gold-500 px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors hover:bg-gold-600 cursor-pointer"
           >
             {t('detail.howToGet.viewPlans')}
           </button>

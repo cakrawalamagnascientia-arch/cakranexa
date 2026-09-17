@@ -2,11 +2,11 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, FileText } from 'lucide-react';
 import type { ActivePage, SubSection } from '../../types';
-import { useFormatters } from '../../i18n/hooks';
-import { FRONTLIST_DAYS } from '../../data/digitalProducts';
-import { FALLBACK_MEMBERSHIP, FOUNDING_MEMBER_PROGRAM, MEMBERSHIP_BILLING_POLICY } from '../../data/membership';
+import { MEMBERSHIP_BILLING_POLICY } from '../../data/membership';
+import { INSTITUTION_FRONTLIST_DAYS } from '../../data/digitalShelf';
+import { useMembershipPlans } from '../../hooks/useMembershipPlans';
 
-const SECTIONS = ['plans', 'founding', 'billing', 'grace', 'changes', 'cancel', 'digital', 'frontlist', 'privacy', 'updates', 'contact'] as const;
+const SECTIONS = ['plans', 'quota', 'billing', 'grace', 'changes', 'cancel', 'digital', 'frontlist', 'privacy', 'updates', 'contact'] as const;
 
 interface MembershipTermsViewProps {
   onNavigate: (page: ActivePage, subSection?: SubSection) => void;
@@ -15,18 +15,16 @@ interface MembershipTermsViewProps {
 /** Halaman /membership/terms: DRAF ketentuan keanggotaan (menunggu tinjauan pemilik sebelum pendaftaran dibuka). */
 export const MembershipTermsView: React.FC<MembershipTermsViewProps> = ({ onNavigate }) => {
   const { t } = useTranslation('digital');
-  const { currency, number } = useFormatters();
-  const plan = (code: 'reader' | 'professional' | 'author') => FALLBACK_MEMBERSHIP.plans.find((p) => p.code === code)?.founding;
+  const { data } = useMembershipPlans();
+  const plan = (code: string) => data.plans.find((p) => p.code === code);
   const [d1, d2, d3] = MEMBERSHIP_BILLING_POLICY.reminderDaysBeforeDue;
   const params = {
-    ...FRONTLIST_DAYS,
-    reader: currency(plan('reader')?.priceYearly ?? 0),
-    readerCap: number(plan('reader')?.cap ?? 0),
-    professional: currency(plan('professional')?.priceYearly ?? 0),
-    professionalCap: number(plan('professional')?.cap ?? 0),
-    author: currency(plan('author')?.priceYearly ?? 0),
-    authorCap: number(plan('author')?.cap ?? 0),
-    noticeDays: FOUNDING_MEMBER_PROGRAM.renewalNoticeDays,
+    silverTitles: plan('silver')?.ebookTitlesPerPeriod ?? 2,
+    goldTitles: plan('gold')?.ebookTitlesPerPeriod ?? 6,
+    silverDays: plan('silver')?.frontlistDays ?? 90,
+    goldDays: plan('gold')?.frontlistDays ?? 45,
+    institutionDays: INSTITUTION_FRONTLIST_DAYS,
+    devices: plan('gold')?.maxDevices ?? 2,
     d1,
     d2,
     d3,

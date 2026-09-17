@@ -2,11 +2,12 @@ import crypto from 'crypto';
 import { ConflictError, httpError, ORDER_NOT_SAVED_MESSAGE, StoreRuleError } from '../errors';
 import type { DigitalContext } from '../context';
 import { mapMidtransToOrderStatus, verifyMidtransSignature, type MidtransClient } from '../checkout';
+import { unitSalesOpen } from '../access';
 import { OPEN_SUBSCRIPTION_STATUSES } from '../store';
-import { isEntitlementUsable, isProductOnShelf } from '../entitlements';
+import { isEntitlementUsable, isProductOnShelf, resolveEntitlement } from '../entitlements';
 import { addDays, addMonths, DAY_MS, jakartaDate } from '../time';
 import { PLAN_RANK } from './plans';
-import { isOpenFor, monthSlot, openDateFor, planGrantsShelfRow, shelfCoversFormat } from './quota';
+import { INSTITUTION_FRONTLIST_DAYS, isOpenFor, monthSlot, openDateFor, planGrantsShelfRow, shelfCoversFormat } from './quota';
 import { enabledRoutingMethods, type RoutingMethod } from '../../../src/data/paymentRouting';
 import { decryptToken, encryptToken, midtransUserRef, parseMidtransTime, type MembershipGateway } from './gateway';
 import { membershipEmail, type MembershipEmailData, type MembershipEmailKind } from './email';
@@ -54,6 +55,27 @@ export const isMembershipNotification = (n: Record<string, any>): boolean => {
 export const PAYMENT_METHODS: MembershipPaymentMethod[] = ['card', 'gopay', 'va', 'qris', 'other'];
 export const BILLING_CYCLES: BillingCycle[] = ['monthly', 'yearly'];
 const PAID_STATES: SubscriptionStatus[] = ['active', 'past_due', 'grace'];
+
+/**
+ * Status tombol utama halaman buku (fase 6 Langkah 3):
+ *  open            baca/dengarkan sekarang (via: jatah, instansi, atau hak lain)
+ *  quota_available buka dengan jatah (x dari y)      quota_full    jatah bulan ini habis (upgrade)
+ *  opens_on        tersedia untuk paket Anda pada <openDate>; upgradeOpenDate = tanggal di paket teratas
+ *  audio_exhausted jam audio bulan ini habis        sample_only   hanya sampel (Blue / format tidak termasuk)
+ *  coming_soon     belum masuk rak                  suspended / expired  hak ditangguhkan / berakhir
+ */
+export type TitleStatus = {
+  productId: string;
+  format: ProductRecord['format'];
+  planCode: string | null;
+  upgrade: boolean;
+} & (
+  | { status: 'open'; via: 'quota' | 'institution' | 'access'; endsAt: string | null }
+  | { status: 'quota_available' | 'quota_full'; quota: { used: number; limit: number; resetsAt: string } }
+  | { status: 'opens_on'; openDate: string | null; upgradeOpenDate?: string | null }
+  | { status: 'audio_exhausted'; resetsAt: string }
+  | { status: 'sample_only' | 'coming_soon' | 'suspended' | 'expired' }
+);
 const IDEMPOTENCY_RE = /^[A-Za-z0-9_-]{16,100}$/;
 const HOUR_MS = 60 * 60 * 1000;
 /** Token Snap dipakai ulang selama belum mendekati kedaluwarsa (Snap berlaku 24 jam). */
@@ -1447,7 +1469,11 @@ export class MembershipService {
     return (await this.store.listProductsWithShelfDate()).filter((p) => p.format === 'ebook' && isOpenFor(p, plan.frontlistDays, today));
   }
 
-  private async productCard(product: ProductRecord, progress: Array<{ productId: string; position: number; percent: number; updatedAt: string }>) {
+  private async productCard(
+    product: ProductRecord,
+    progress: Array<{ productId: string; position: number; percent: number; updatedAt: string }>,
+    unitSales = false
+  ) {
     const book = await this.ctx.getBook(product.bookId);
     const p = progress.find((x) => x.productId === product.id);
     return {
@@ -1461,7 +1487,7 @@ export class MembershipService {
       pageCount: product.pageCount,
       durationSeconds: product.durationSeconds,
       shelfEntryDate: product.shelfEntryDate,
-      purchasable: product.isActive && product.availabilityStatus === 'available' && product.price > 0,
+      purchasable: unitSales && product.isActive && product.availabilityStatus === 'available' && product.price > 0,
       price: product.price,
       progress: p ? { position: p.position, percent: p.percent, updatedAt: p.updatedAt } : null
     };
@@ -1472,7 +1498,8 @@ export class MembershipService {
     if (!state) return { enabled: false, mode: null, slot: null, current: null, limit: 0, used: 0, picks: [], options: [] };
     const progress = await this.store.listProgress(user.id);
     const products = state.mode === 'quota' ? await this.quotaOptions(state.plan) : await this.shelfProducts();
-    const options = await Promise.all(products.map((p) => this.productCard(p, progress)));
+    const unitSales = await unitSalesOpen(this.ctx);
+    const options = await Promise.all(products.map((p) => this.productCard(p, progress, unitSales)));
     return {
       enabled: true,
       mode: state.mode,
@@ -1483,6 +1510,68 @@ export class MembershipService {
       picks: state.picks.map((p) => ({ productId: p.productId, periodStart: p.periodStart, periodEnd: p.periodEnd, pickedAt: p.pickedAt })),
       options
     };
+  }
+
+  /**
+   * Fase 6 Langkah 3: status tombol utama halaman buku untuk pengguna ini. Satu sumber kebenaran dengan
+   * requireEntitlement (resolveEntitlement) dan jatah judul (pickState), tanpa membuat hak baru.
+   */
+  async titleStatus(user: AuthUser, rawProductId: unknown): Promise<TitleStatus> {
+    const productId = String(rawProductId || '');
+    const product = /^[A-Za-z0-9_-]{1,64}$/.test(productId) ? await this.store.getProduct(productId) : null;
+    if (!product || !product.isActive) throw httpError(404, 'product_not_found', 'Produk digital tidak ditemukan.');
+    const now = this.ctx.now();
+    const today = jakartaDate(now);
+    const sub = await this.openSubscription(user.id);
+    const paid = sub && PAID_STATES.includes(sub.status) ? sub : null;
+    const plan = paid ? await this.planById(paid.planId) : null;
+    const plans = await this.plans();
+    const topRank = Math.max(...plans.filter((p) => p.isActive).map((p) => PLAN_RANK[p.code] ?? 0));
+    const base = {
+      productId: product.id,
+      format: product.format,
+      planCode: plan?.code ?? null,
+      upgrade: !plan || (PLAN_RANK[plan.code] ?? 0) < topRank
+    };
+    if (product.availabilityStatus !== 'available' || !product.shelfEntryDate) return { ...base, status: 'coming_soon' };
+
+    const { entitlement, reason } = await resolveEntitlement(this.ctx, user.id, product);
+    if (entitlement) {
+      if (product.format === 'audiobook' && this.ctx.membership) {
+        // Pemakaian terbaru (tanpa cache) agar tombol tidak menawarkan "Dengarkan" saat jam sudah habis.
+        const quota = await this.ctx.membership.audioQuota(entitlement, user.id, true);
+        if (quota?.exhausted) return { ...base, status: 'audio_exhausted', resetsAt: quota.resetsAt };
+      }
+      const pick = entitlement.source === 'membership' && entitlement.scope === 'product';
+      return { ...base, status: 'open', via: entitlement.source === 'institution' ? 'institution' : pick ? 'quota' : 'access', endsAt: entitlement.endsAt };
+    }
+    if (reason === 'suspended') return { ...base, status: 'suspended' };
+
+    // Anggota instansi tanpa paket pribadi: judul baru terbuka shelf_entry_date + 45 hari.
+    if (!plan) {
+      const institutionRows = (await this.store.listEntitlements({ userId: user.id, scope: 'shelf' }))
+        .filter((e) => e.source === 'institution' && isEntitlementUsable(e, now));
+      if (institutionRows.length > 0 && !isOpenFor(product, INSTITUTION_FRONTLIST_DAYS, today)) {
+        return { ...base, status: 'opens_on', openDate: openDateFor(product, INSTITUTION_FRONTLIST_DAYS) };
+      }
+      return { ...base, status: reason === 'expired' ? 'expired' : 'sample_only' };
+    }
+
+    const earliest = product.shelfEntryDate;
+    if (!isOpenFor(product, plan.frontlistDays, today)) {
+      return { ...base, status: 'opens_on', openDate: openDateFor(product, plan.frontlistDays), upgradeOpenDate: base.upgrade ? earliest : null };
+    }
+    if (product.format === 'ebook') {
+      const state = await this.pickState(user);
+      if (state?.mode === 'quota') {
+        const used = state.picks.length;
+        const quota = { used, limit: state.limit, resetsAt: state.slot.end };
+        if (!isProductOnShelf(product, today)) return { ...base, status: 'coming_soon' };
+        return { ...base, status: used < state.limit ? 'quota_available' : 'quota_full', quota };
+      }
+    }
+    // Paket berbayar yang tidak mencakup format ini (atau aset belum siap): hanya sampel.
+    return { ...base, status: isProductOnShelf(product, today) ? 'sample_only' : 'coming_soon' };
   }
 
   async pick(user: AuthUser, rawProductId: unknown) {
@@ -1688,12 +1777,13 @@ export class MembershipService {
     const covered = shelfRows.length === 0 ? [] : shelfPlan
       ? listed.filter((p) => shelfCoversFormat(shelfPlan, p.format) && isOpenFor(p, shelfPlan.frontlistDays ?? 0, today))
       : await this.shelfProducts();
-    const items = await Promise.all(covered.map((p) => this.productCard(p, progress)));
+    const unitSales = await unitSalesOpen(this.ctx);
+    const items = await Promise.all(covered.map((p) => this.productCard(p, progress, unitSales)));
     const frontlist = shelfPlan?.frontlistDays ?? 0;
     const upcomingProducts = listed
       .filter((p) => p.isActive && p.processingStatus === 'ready' && (openDateFor(p, frontlist) ?? '') > today)
       .sort((a, b) => (openDateFor(a, frontlist) ?? '').localeCompare(openDateFor(b, frontlist) ?? ''));
-    const upcoming = await Promise.all(upcomingProducts.slice(0, 24).map(async (p) => ({ ...(await this.productCard(p, progress)), openDate: openDateFor(p, frontlist) })));
+    const upcoming = await Promise.all(upcomingProducts.slice(0, 24).map(async (p) => ({ ...(await this.productCard(p, progress, unitSales)), openDate: openDateFor(p, frontlist) })));
     const pick = await this.pickOptions(user);
     return {
       membership: sub && sub.currentPeriodStart ? await this.publicSubscription(sub) : null,

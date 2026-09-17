@@ -8,7 +8,7 @@ import { SupabaseDigitalStore } from './supabaseStore';
 import { createFilesystemAssetStorage, createSupabaseAssetStorage, type AssetStorage } from './storage';
 import { createCliTools, createProcessingRouter, ProcessingQueue, type ProcessingTools } from './processing';
 import { createCheckoutRouter, createMidtransClient, handleDigitalNotification, isDigitalOrderId, type MidtransClient } from './checkout';
-import { createAccessRouter } from './access';
+import { createAccessRouter, isValidRecordId } from './access';
 import { createReaderRouter } from './reader';
 import { createPlayerRouter } from './player';
 import { createAdminDigitalRouter } from './admin';
@@ -199,6 +199,25 @@ export const createDigitalPhase2 = (deps: Phase2Deps): DigitalPhase2 => {
     }
     res.set('Cache-Control', 'public, max-age=300');
     res.json({ productIds: popularCache.ids });
+  });
+
+  // Halaman buku (fase 6 Langkah 3): daftar isi publik — nomor, judul, dan posisi bab saja, tanpa isi atau aset.
+  router.get('/api/digital/chapters/:productId', async (req, res) => {
+    const ctx = contextRef.current;
+    const productId = String(req.params.productId);
+    if (!ctx || !isValidRecordId(ctx, productId)) return res.status(404).json({ error: 'Produk digital tidak ditemukan.', code: 'product_not_found' });
+    try {
+      const product = await ctx.store.getProduct(productId);
+      if (!product || !product.isActive) return res.status(404).json({ error: 'Produk digital tidak ditemukan.', code: 'product_not_found' });
+      const chapters = (await ctx.store.listChapters(productId))
+        .sort((a, b) => a.chapterNumber - b.chapterNumber)
+        .map((c) => ({ number: c.chapterNumber, title: c.title, startSeconds: c.startSeconds, startPage: c.startPage }));
+      res.set('Cache-Control', 'public, max-age=600');
+      res.json({ chapters });
+    } catch (err: any) {
+      console.warn('[digital] daftar bab gagal dimuat:', err?.message || err);
+      res.json({ chapters: [] });
+    }
   });
 
   // Respons API fase 2 (token sesi, URL playlist bertoken, data pribadi) tidak boleh disimpan cache browser/proxy.

@@ -282,6 +282,24 @@ export const addFamilyMember = (email: string) =>
 export const removeFamilyMember = (memberId: string) =>
   memberRequest<FamilyState>(`/api/membership/family/${encodeURIComponent(memberId)}`, { method: 'DELETE' });
 
+/** Fase 6 Langkah 3: status tombol utama halaman buku (backend MembershipService.titleStatus). */
+export type TitleStatus = {
+  productId: string;
+  format: 'ebook' | 'audiobook';
+  planCode: PlanCode | null;
+  /** Ada paket lebih tinggi yang bisa ditawarkan. */
+  upgrade: boolean;
+} & (
+  | { status: 'open'; via: 'quota' | 'institution' | 'access'; endsAt: string | null }
+  | { status: 'quota_available' | 'quota_full'; quota: { used: number; limit: number; resetsAt: string } }
+  | { status: 'opens_on'; openDate: string | null; upgradeOpenDate?: string | null }
+  | { status: 'audio_exhausted'; resetsAt: string }
+  | { status: 'sample_only' | 'coming_soon' | 'suspended' | 'expired' }
+);
+
+export const getTitleStatus = (productId: string) =>
+  memberRequest<TitleStatus>(`/api/membership/title-status/${encodeURIComponent(productId)}`);
+
 /** Status yang masih memberi manfaat keanggotaan (akses tetap terbuka selama tenggang/percobaan ulang). */
 export const isPaidStatus = (status: SubscriptionStatus | null | undefined): boolean =>
   status === 'active' || status === 'past_due' || status === 'grace';

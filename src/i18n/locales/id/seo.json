@@ -16,7 +16,7 @@
   "pages": {
     "digitalEbook": {
       "title": "E-Book Akademik Ber-ISBN — CakraNexa",
-      "description": "E-book monografi dan buku referensi akademik terbitan CakraNexa: perpajakan, akuntansi, hukum, ekonomi, filsafat, dan teologia. Baca sampel gratis sebelum membeli.",
+      "description": "E-book monografi dan buku referensi akademik terbitan CakraNexa: perpajakan, akuntansi, hukum, ekonomi, filsafat, dan teologia. Baca sampel gratis, lalu baca penuh dengan paket.",
       "keywords": "e-book akademik, ebook perpajakan, ebook hukum, buku digital ber-isbn, cakranexa",
       "imageAlt": "E-Book CakraNexa"
     },
@@ -28,7 +28,7 @@
     },
     "digitalDetail": {
       "title": "{{title}} ({{format}}) — {{author}} | CakraNexa",
-      "description": "{{format}} \"{{title}}\" karya {{author}}. {{price}}. Baca sampel gratis dan akses lewat keanggotaan CakraNexa.",
+      "description": "{{format}} \"{{title}}\" karya {{author}}. Baca sampel gratis dan akses penuh lewat paket CakraNexa.",
       "keywords": "edisi digital, monografi akademik",
       "imageAlt": "Sampul {{format}} {{title}}"
     },

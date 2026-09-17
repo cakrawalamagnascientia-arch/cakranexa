@@ -201,6 +201,12 @@ export const createMembershipRouter = (ctx: DigitalContext, service: MembershipS
     res.json({ subscription: await service.updateWhatsApp(userOf(req), bodyOf(req)) });
   }));
 
+  // Fase 6: status tombol utama halaman buku (sampel / jatah x dari y / baca sekarang / tersedia pada <tanggal> / upgrade).
+  router.get('/api/membership/title-status/:productId', ctx.requireUser, read, asyncRoute(async (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.json(await service.titleStatus(userOf(req), req.params.productId));
+  }));
+
   // Jatah judul bulanan (fase 6: Silver/Gold) dan Digital Member Pick paket Reader lama.
   router.get('/api/membership/picks', ctx.requireUser, read, asyncRoute(async (req, res) => {
     res.json(await service.pickOptions(userOf(req)));

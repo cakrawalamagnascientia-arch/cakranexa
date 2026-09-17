@@ -5,7 +5,9 @@ import type { AccessState } from '../../hooks/useAccessSession';
 import { useFormatters } from '../../i18n/hooks';
 import { goToContact, goToDigitalCheckout, goToLogin, goToMembership } from '../../services/digitalNavigation';
 
-const ENDED_REASONS = ['takeover', 'reopened', 'expired', 'device_released', 'revoked', 'closed'] as const;
+const ENDED_REASONS = ['takeover', 'single_session', 'reopened', 'switched', 'expired', 'device_released', 'revoked', 'closed'] as const;
+/** Sesi pindah ke perangkat lain (ambil-alih, atau penutupan sesi ganda oleh migration fase 6): informasi, bukan error. */
+const MOVED_REASONS: readonly string[] = ['takeover', 'single_session'];
 type EndedReason = typeof ENDED_REASONS[number];
 const ERROR_CODES = ['network', 'rate_limited', 'product_not_found'] as const;
 type KnownErrorCode = typeof ERROR_CODES[number];
@@ -157,9 +159,15 @@ export const AccessGate: React.FC<AccessGateProps> = ({ state, productId, dark =
 
     case 'ended': {
       const reason = ENDED_REASONS.includes(state.reason as EndedReason) ? (state.reason as EndedReason) : null;
+      const moved = reason !== null && MOVED_REASONS.includes(reason);
       return (
-        <GateCard id="access-ended" dark={dark} icon={<ShieldAlert className="h-6 w-6" />} title={t('access.ended.title')}>
-          <p className={`mt-1 text-sm ${muted}`}>{reason ? t(`access.ended.${reason}`) : t('access.ended.default')}</p>
+        <GateCard
+          id={moved ? 'access-moved' : 'access-ended'}
+          dark={dark}
+          icon={moved ? <MonitorSmartphone className="h-6 w-6" /> : <ShieldAlert className="h-6 w-6" />}
+          title={moved ? t('access.ended.movedTitle') : t('access.ended.title')}
+        >
+          <p className={`mt-1 text-sm ${muted}`}>{moved ? t('access.ended.moved') : reason ? t(`access.ended.${reason}`) : t('access.ended.default')}</p>
           {actions(
             <>
               {reason !== 'revoked' && (

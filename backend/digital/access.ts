@@ -4,6 +4,7 @@ import { clientInfo, type DigitalContext } from './context';
 import { maxDevicesForUser, pickEntitlement, resolveEntitlement, type AccessDenialReason } from './entitlements';
 import { hashFingerprint, hashToken, newSessionToken } from './tokens';
 import { createUserRateLimiter } from './rateLimits';
+import { digitalUnitSalesEnabled } from '../../src/data/paymentRouting';
 import type { DeviceRecord, EntitlementRecord, ProductRecord, SessionRecord } from './types';
 import type { AudioQuota } from './membership/quota';
 
@@ -36,11 +37,15 @@ const DENIAL_MESSAGES: Record<AccessDenialReason, string> = {
   expired: 'Masa akses produk ini telah berakhir.'
 };
 
-const publicProduct = (product: ProductRecord) => ({
+/** Penjualan satuan dibuka lewat payment_routing tipe 'digital' (fase 6: bawaan tertutup)? */
+export const unitSalesOpen = async (ctx: DigitalContext): Promise<boolean> =>
+  digitalUnitSalesEnabled(await ctx.paymentRouting(), { midtransEnabled: ctx.midtrans.enabled });
+
+const publicProduct = (product: ProductRecord, unitSales = false) => ({
   id: product.id,
   format: product.format,
   bookId: product.bookId,
-  purchasable: product.isActive && product.availabilityStatus === 'available' && product.price > 0
+  purchasable: unitSales && product.isActive && product.availabilityStatus === 'available' && product.price > 0
 });
 
 const publicEntitlement = (e: EntitlementRecord) => ({
@@ -52,10 +57,10 @@ const publicEntitlement = (e: EntitlementRecord) => ({
   endsAt: e.endsAt
 });
 
-const denyAccess = (ctx: DigitalContext, req: Request, userId: string, product: ProductRecord, reason: AccessDenialReason, sessionId?: string) => {
+const denyAccess = async (ctx: DigitalContext, req: Request, userId: string, product: ProductRecord, reason: AccessDenialReason, sessionId?: string) => {
   const { ip, userAgent } = clientInfo(req);
   ctx.log({ userId, productId: product.id, sessionId: sessionId ?? null, action: 'denied', ip, userAgent, meta: { reason } });
-  return httpError(403, reason, DENIAL_MESSAGES[reason], { reason, product: publicProduct(product) });
+  return httpError(403, reason, DENIAL_MESSAGES[reason], { reason, product: publicProduct(product, await unitSalesOpen(ctx)) });
 };
 
 /** Ringkasan kuota audio untuk browser (detik). */
@@ -90,7 +95,7 @@ export const requireEntitlement = (ctx: DigitalContext): RequestHandler => async
   const user = req.digitalUser!;
   const product = await loadProduct(ctx, String(req.params.productId));
   const { entitlement, reason } = await resolveEntitlement(ctx, user.id, product);
-  if (!entitlement) throw denyAccess(ctx, req, user.id, product, reason ?? 'no_entitlement');
+  if (!entitlement) throw await denyAccess(ctx, req, user.id, product, reason ?? 'no_entitlement');
   req.digitalGrant = { product, entitlement };
   next();
 });
@@ -117,7 +122,7 @@ export const requireSession = (ctx: DigitalContext): RequestHandler => asyncRout
   const { entitlement, reason } = await resolveEntitlement(ctx, user.id, product);
   if (!entitlement) {
     await ctx.store.endSessions({ ids: [session.id] }, 'revoked');
-    throw denyAccess(ctx, req, user.id, product, reason ?? 'no_entitlement', session.id);
+    throw await denyAccess(ctx, req, user.id, product, reason ?? 'no_entitlement', session.id);
   }
   req.digitalAccess = { user, product, entitlement, session };
   next();

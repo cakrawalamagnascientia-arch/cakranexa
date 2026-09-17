@@ -16,7 +16,7 @@
   "pages": {
     "digitalEbook": {
       "title": "Academic E-Books with ISBN — CakraNexa",
-      "description": "E-book editions of CakraNexa monographs and academic references in taxation, accounting, law, economics, philosophy, and theology. Read a free sample before you buy.",
+      "description": "E-book editions of CakraNexa monographs and academic references in taxation, accounting, law, economics, philosophy, and theology. Read a free sample, then read in full with a plan.",
       "keywords": "academic e-books, taxation e-book, law e-book, isbn digital books, cakranexa",
       "imageAlt": "CakraNexa E-Books"
     },
@@ -28,7 +28,7 @@
     },
     "digitalDetail": {
       "title": "{{title}} ({{format}}) — {{author}} | CakraNexa",
-      "description": "{{format}} edition of \"{{title}}\" by {{author}}. {{price}}. Read a free sample and get access with a CakraNexa membership.",
+      "description": "{{format}} edition of \"{{title}}\" by {{author}}. Read a free sample and get full access with a CakraNexa plan.",
       "keywords": "digital edition, academic monograph",
       "imageAlt": "{{format}} cover of {{title}}"
     },

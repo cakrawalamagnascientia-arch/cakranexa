@@ -1,16 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { useFormatters } from '../../i18n/hooks';
-import type { BookFormat, DigitalProduct } from '../../types';
+import type { BookFormat } from '../../types';
 
-/** Label format, harga satuan, durasi, dan tanggal rak digital dalam bahasa aktif. */
+/** Label format, durasi, dan tanggal rak digital dalam bahasa aktif (fase 6: tanpa harga satuan). */
 export const useDigitalFormatters = () => {
   const { t } = useTranslation('digital');
-  const { currency, date } = useFormatters();
+  const { date } = useFormatters();
   return {
     formatLabel: (format: BookFormat): string => t(`formats.${format}`),
-    /** Harga satuan; 0 = "Harga menyusul". */
-    unitPrice: (product: Pick<DigitalProduct, 'price'>): string =>
-      product.price > 0 ? currency(product.price) : t('common.priceTbd'),
     duration: (seconds: number | null): string | null => {
       if (!seconds || seconds <= 0) return null;
       const hours = Math.floor(seconds / 3600);

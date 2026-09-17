@@ -360,10 +360,12 @@ export const BookDetailView: React.FC<BookDetailViewProps> = ({
             </>
             )}
 
-            <p className="text-[11px] text-slate-400 text-center sm:text-left flex items-center gap-1.5 justify-center sm:justify-start font-medium">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{t('pricing.paymentNote')}</span>
-            </p>
+            {!selectedDigital && (
+              <p className="text-[11px] text-slate-400 text-center sm:text-left flex items-center gap-1.5 justify-center sm:justify-start font-medium">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>{t('pricing.paymentNote')}</span>
+              </p>
+            )}
           </div>
 
           {/* Technical Specifications Grid */}

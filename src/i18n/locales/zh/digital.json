@@ -2,9 +2,9 @@
   "account": {
     "subheader": "账户",
     "loginTitle": "登录 CakraNexa 账户",
-    "loginSubtitle": "登录以购买并打开您的电子书和有声书。",
+    "loginSubtitle": "登录以阅读和收听您的电子书与有声书。",
     "registerTitle": "创建 CakraNexa 账户",
-    "registerSubtitle": "一个账户即可用于数字购买、我的书库和会员。",
+    "registerSubtitle": "一个账户即可使用免费试读、方案和我的书库。",
     "resetTitle": "重置密码",
     "resetSubtitle": "输入您的账户邮箱，我们将发送创建新密码的链接。",
     "updateTitle": "设置新密码",
@@ -106,11 +106,11 @@
     "denied": {
       "no_entitlement": {
         "title": "您尚未获得访问权限",
-        "description": "购买此产品或加入会员即可打开。"
+        "description": "订阅 Silver、Gold 或 Platinum 即可打开此作品。"
       },
       "expired": {
         "title": "访问期限已结束",
-        "description": "续订会员或单独购买即可重新打开。"
+        "description": "续订方案即可重新打开。"
       },
       "suspended": {
         "title": "访问已被暂停",
@@ -140,8 +140,12 @@
     },
     "ended": {
       "title": "会话已结束",
+      "movedTitle": "会话已转移到其他设备",
+      "moved": "您的账户正在其他设备上阅读或收听。每个账户同一时间只能使用一个会话；点击“在此继续”即可转回本设备。",
       "takeover": "此产品已在其他设备上打开。",
+      "single_session": "您的账户正在其他设备上阅读或收听。每个账户同一时间只能使用一个会话；点击“在此继续”即可转回本设备。",
       "reopened": "此产品已在其他标签页或窗口中打开。",
+      "switched": "您已在此设备上打开其他作品。",
       "expired": "会话因长时间无操作而结束。",
       "device_released": "此设备已从您的账户中移除。",
       "revoked": "您对此产品的访问权限已变更。",
@@ -300,7 +304,7 @@
       "fullDescription": "会员有效期内可阅读和收听书架上的所有书目（访问至 {{date}}）。",
       "empty": "书架上暂无书目。",
       "noneTitle": "数字书架面向会员",
-      "noneDescription": "Free Circle 可阅读每本书的样章。Professional & Academic Society 可访问整个 Digital Reading Shelf。",
+      "noneDescription": "Blue 账户可打开每本书的试读/试听。Silver、Gold 和 Platinum 可完整阅读电子书、收听有声书。",
       "noneCta": "查看会员方案",
       "browseSamples": "浏览样章"
     },
@@ -318,8 +322,8 @@
     },
     "upcoming": {
       "title": "即将入架",
-      "description": "新书先单独销售，随后于以下日期进入书架。",
-      "entry": "{{date}} 入架",
+      "description": "以下作品将于所示日期对您的方案开放。",
+      "entry": "{{date}} 开放",
       "buy": "单独购买 {{price}}"
     },
     "onboarding": {
@@ -357,11 +361,7 @@
     "unavailable": "暂无"
   },
   "common": {
-    "priceTbd": "价格待定",
-    "unitPrice": "单本价格",
     "comingSoonPhase2": "即将推出",
-    "buyFormat": "购买{{format}}",
-    "buyComingSoonTitle": "{{format}}购买功能即将推出",
     "readSample": "阅读试读",
     "listenSample": "试听",
     "shelfEntry": "上架数字书架：{{date}}",
@@ -385,7 +385,7 @@
     "ebook": {
       "badge": "学术电子书",
       "title": "CakraNexa 电子书",
-      "subtitle": "拥有 ISBN 的学术专著与参考书的数字版本。随时随地阅读，购买前可免费试读。"
+      "subtitle": "拥有 ISBN 的学术专著与参考书的数字版本。随时随地阅读，选择方案前可免费试读。"
     },
     "audiobook": {
       "badge": "学术有声书",
@@ -428,16 +428,75 @@
     "sampleAudioValue": "前 {{minutes}} 分钟",
     "shelfDate": "上架数字阅读书架（Digital Reading Shelf）",
     "notSet": "尚未确定",
+    "access": {
+      "title": "{{format}}访问",
+      "loading": "正在检查您的访问权限…",
+      "actions": {
+        "readSample": "免费试读",
+        "listenSample": "免费试听",
+        "startFree": "免费开始",
+        "viewPlans": "查看方案",
+        "upgrade": "升级方案",
+        "upgradeEarlier": "升级以提前开启",
+        "readNow": "立即阅读",
+        "listenNow": "立即收听",
+        "pick": "使用额度开启（本月第 {{next}}/{{limit}} 本）",
+        "renew": "续订方案",
+        "contact": "联系我们"
+      },
+      "notices": {
+        "guest": "所有人均可免费试读/试听。订阅 Silver、Gold 或 Platinum 即可完整阅读和收听。",
+        "unknown": "暂时无法加载您的访问状态。您仍可打开试读/试听。",
+        "blue": "Blue 账户可打开试读/试听。选择方案即可完整阅读或收听。",
+        "notIncluded": "此作品暂未包含在您当前的方案中。",
+        "openedWithQuota": "已使用本月额度开启；可阅读至 {{date}}。",
+        "institution": "可通过您所在机构的访问权限使用。",
+        "quotaAvailable": "本月剩余额度：{{remaining}}/{{limit}} 本。新额度于 {{date}} 开放。",
+        "quotaFull": "本月额度已用完（{{used}}/{{limit}} 本）。新额度于 {{date}} 开放。",
+        "opensOn": "您的方案将于 {{date}} 开放此作品。",
+        "audioExhausted": "本月收听时长已用完。新时长于 {{date}} 开放。",
+        "comingSoon": "即将上架，日期将另行公布。",
+        "suspended": "此作品的访问已被暂停。如需帮助请联系我们。",
+        "expired": "您的方案已到期。续订后即可再次开启此作品。"
+      },
+      "confirm": {
+        "title": "使用本月额度开启此作品？",
+        "body": "选择后立即锁定并占用一本额度。在新额度开放前，此作品可持续阅读。",
+        "yes": "确认开启",
+        "no": "取消"
+      },
+      "pickErrors": {
+        "default": "暂时无法开启此作品。请刷新页面后重试。",
+        "title_quota_full": "本月额度已用完。",
+        "title_already_picked": "本月已开启此作品。",
+        "not_open_for_plan": "您的方案暂未开放此作品。",
+        "not_on_shelf": "此作品尚未上架。",
+        "pick_unavailable": "您的方案不使用作品额度。",
+        "pick_locked": "本月的选择已锁定。",
+        "network": "请检查网络连接后重试。"
+      }
+    },
+    "availability": {
+      "title": "各方案开放情况",
+      "description": "不提供单本购买：作品按各方案的开放日期通过订阅开启。",
+      "sampleOnly": "免费试读/试听",
+      "fullShelf": "全部书架",
+      "withQuota": "使用每月作品额度",
+      "withAudioHours": "使用每月收听时长",
+      "institution": "机构",
+      "yourPlan": "您的方案",
+      "openNow": "现已开放",
+      "opensOn": "{{date}} 起",
+      "dateTbd": "日期待定",
+      "comparePlans": "比较方案"
+    },
+    "chapters": {
+      "title": "章节（{{count}}）",
+      "page": "第 {{page}} 页",
+      "showAll": "显示全部 {{count}} 章",
+      "showLess": "收起"
+    },
     "howToGet": {
-      "title": "获取方式",
-      "buyTitle": "单本购买",
-      "buyDescription": "一次付款，随时在“我的书库”中阅读或收听。",
-      "membershipTitle": "会员包含",
-      "membershipDescription": "以下会员可通过 Digital Reading Shelf 免费访问：",
-      "institutionPlan": "Institution & Library Network（机构访问）",
-      "shelfScheduled": "新书：将于 {{date}} 上架 Digital Reading Shelf。在此之前只能单本购买。",
-      "shelfOnShelf": "已上架 Digital Reading Shelf。",
-      "shelfUnscheduled": "上架 Digital Reading Shelf 的日期将另行公布。新书通常在出版后 90–180 天上架。",
       "viewPlans": "查看会员方案"
     },
     "printVersion": "纸质版",
@@ -463,18 +522,16 @@
     "audioUnsupported": "您的浏览器不支持音频播放器。",
     "audioUnavailable": "该书目暂无试听片段。",
     "ctaTitle": "想继续阅读吗？",
-    "ctaDescription": "单本购买，或通过 Professional & Academic Society 会员阅读。",
+    "ctaDescription": "订阅 Silver、Gold 或 Platinum，即可完整阅读或收听。",
     "notFound": "未找到试读内容。"
   },
   "formatSelector": {
     "label": "选择格式",
-    "digitalPrice": "{{format}}价格",
-    "digitalNote": "数字版与纸质书分开购买。",
+    "digitalNote": "包含在 CakraNexa 数字方案中；所有人均可免费试读/试听。",
     "viewDigitalDetail": "查看{{format}}详情"
   },
   "membership": {
     "badge": "Cakrawala Magna Society",
-    "title": "更聪明地阅读，更划算地购书，与 Cakrawala Magna 社群共同成长",
     "subtitle": "CakraNexa 会员每月 {{price}} 起。选择 Silver、Gold 或 Platinum，即可阅读电子书、收听有声书。",
     "billing": {
       "label": "计费周期",
@@ -486,20 +543,9 @@
     "perMonth": "/月",
     "perYear": "/年",
     "annualEquivalent": "相当于每月 {{price}}",
-    "recommended": "主要数字方案",
     "foundingMember": "Founding Member",
-    "founding": {
-      "firstYear": "首年 Founding 价格，限前 {{cap}} 位会员",
-      "renewal": "次年起按 {{price}}/年续费，并提前通知",
-      "annualOnly": "首年 Founding 价格 {{price}} 仅适用于年度方案"
-    },
-    "includesShelf": "包含 Digital Reading Shelf",
     "choosePlan": "选择方案",
-    "joinFree": "免费加入",
     "phase2Note": "会员注册正在准备中，即将开放。",
-    "showAllBenefits": "查看全部 {{total}} 项权益",
-    "showFewerBenefits": "收起",
-    "authorDisclaimer": "会员资格不保证书稿出版、ISBN 或完整编辑服务。出版决定仍取决于书稿质量。",
     "plans": {
       "blue": {
         "name": "Blue",
@@ -604,63 +650,31 @@
       "familyAccounts": "另含 {{n}} 个家庭账户，各自拥有书架和收听时长"
     },
     "access": {
-      "title": "各方案的电子书与有声书访问",
-      "subtitle": "数字访问是各方案中的一项权益。Digital Reading Shelf 收录已过新书期的旧版和精选书目。",
       "feature": "功能",
-      "rows": {
-        "ebook": "电子书",
-        "audiobook": "有声书",
-        "frontlist": "新书（frontlist）",
-        "devices": "会员访问设备数",
-        "printDiscount": "纸质书折扣",
-        "wallet": "购书钱包"
-      },
-      "none": "—",
       "ebook": {
         "sample": "每本书 {{min}}–{{max}}% 试读",
-        "sampler": "数字试读包：精选章节、摘要、配套资料",
-        "pick": "每月 1 本旧版 Digital Member Pick",
-        "shelf": "Digital Reading Shelf：旧版和精选书目",
         "quota": "每月 {{n}} 本"
       },
       "audiobook": {
         "sample": "{{minutes}} 分钟试听",
-        "shelf": "Digital Reading Shelf 中的全部有声书",
         "hours": "每月 {{hours}} 小时"
       },
       "frontlist": {
-        "sample": "试读；单本购买",
-        "preorder": "试读；精选图书预购 {{percent}}% 折扣",
-        "shelf": "出版 {{min}}–{{max}} 天后上架；预购优先",
         "firstDay": "上架首日即开放",
         "afterDays": "上架 {{days}} 天后开放"
       },
-      "devices": "{{n}} 台设备",
-      "printDiscountPreorder": "{{percent}}%（预购 {{preorder}}%）",
-      "wallet": {
-        "month": "{{amount}}/月，最低消费 {{min}}",
-        "quarter": "{{amount}}/季度，最低消费 {{min}}",
-        "annualCredit": "年度会员年度额度 {{amount}}（最低 {{min}}）"
-      },
-      "institution": {
-        "ebook": "合同约定的数字馆藏",
-        "audiobook": "按馆藏而定",
-        "frontlist": "新书期结束后纳入馆藏",
-        "devices": "按并发用户数",
-        "wallet": "年费 {{percent}}% 的采购账户"
-      },
       "notes": {
         "audioHours": "Silver、Gold 和 Platinum 开放书架上的全部有声书（按各方案的开放日期）。收听时长按播放的书籍内容时长计算，而不是实际收听时间：以 2 倍速播放，时长消耗也快一倍。试听不计入。",
-        "unitPurchase": "单本购买的电子书和有声书向所有人开放，可在 2 台设备上打开，会员到期后仍归您所有。",
-        "security": "不提供 PDF 下载。所有访问均通过带水印的云端阅读器和播放器进行，每本书仅限一个活跃会话。"
+        "security": "不提供 PDF 下载。所有访问均通过带水印的云端阅读器和播放器，每个账户同一时间仅一个活动会话。",
+        "noUnitSales": "不提供单本销售：电子书和有声书通过方案开启。纸质书照常销售。"
       }
     },
     "frontlist": {
-      "title": "新书何时上架 Digital Reading Shelf？",
-      "body": "新书首先以纸质书和单本电子书形式发行。经过 {{min}}–{{max}} 天的独家期后，新书将上架 Digital Reading Shelf，Professional & Academic Society 会员即可免费阅读。10–15% 的试读内容始终向所有人开放，每个数字产品页面都会注明上架日期。",
-      "step1": "出版时：纸质书和单本电子书",
-      "step2": "{{min}}–{{max}} 天后：上架 Digital Reading Shelf",
-      "step3": "此后：仍可单本购买"
+      "title": "新书何时开放？",
+      "body": "每本书都有上架日期。从该日期起，作品按方案分阶段开放：",
+      "dayZero": "上架当天",
+      "afterDays": "{{days}} 天后",
+      "blueNote": "Blue 账户自上架当天起即可打开新书的试读/试听。"
     },
     "loyalty": {
       "title": "忠诚度等级与 Magna Points",
@@ -690,34 +704,26 @@
     "faq": {
       "title": "常见问题",
       "items": {
-        "shelf": {
-          "q": "什么是 Digital Reading Shelf？",
-          "a": "收录 CakraNexa 旧版和精选书目的数字阅读书架，包括电子书和有声书。Professional & Academic Society 会员和机构无需逐本购买即可访问。"
-        },
         "audioHours": {
           "q": "有声书时长如何计算？",
           "a": "付费方案可收听书架上的全部有声书，每月有时长上限：Silver 5 小时，Gold 20 小时，Platinum 每个账户 60 小时。时长按播放的书籍内容时长计算，而不是实际收听时间，因此以 2 倍速收听时，时长消耗也快一倍。试听不计入。年付方案同样按月计算。时长用完后播放会停止，您可以升级方案或等待下月时长。"
         },
         "frontlist": {
-          "q": "为什么新书不会立即上架？",
-          "a": "新书先单本销售 {{min}}–{{max}} 天，以保障作者获得公平回报。之后上架，日期会在产品页面注明。"
+          "q": "新书何时可以阅读？",
+          "a": "每本书都有上架日期。Platinum 当天开放，Gold 于 {{goldDays}} 天后开放，机构于 {{institutionDays}} 天后开放，Silver 于 {{silverDays}} 天后开放。您方案的开放日期显示在图书页面。"
         },
         "unitPurchase": {
-          "q": "不订阅会员可以购买电子书吗？",
-          "a": "可以。所有可购买的电子书和有声书都能单本购买，并永久保存在“我的书库”中。会员享受会员价，但不能与钱包叠加使用。"
+          "q": "可以单独购买电子书或有声书吗？",
+          "a": "不可以。CakraNexa 的电子书和有声书仅通过方案开启，Blue 账户可打开试读/试听。纸质书仍可照常购买。"
         },
         "billing": {
           "q": "按月和按年计费有什么区别？",
           "a": "按年计费每年付款一次，价格相当于 10 个月，比按月计费节省 2 个月。"
         },
-        "founding": {
-          "q": "什么是 Founding Member 价格？",
-          "a": "面向首批年度会员的上市价格：Reader Circle {{reader}}（前 {{readerCap}} 位会员）、Professional & Academic Society {{professional}}（前 {{professionalCap}} 位会员）、Author Guild {{author}}（前 {{authorCap}} 位会员）。该价格适用于第一年，续费按常规价格计算，我们会提前 {{noticeDays}} 天通知您。"
-        },
         "payment": {
-          "q": "支持哪些付款方式？",
-          "a": "信用卡和 GoPay 自动续费。虚拟账户（Virtual Account）和 QRIS 需手动续费；我们会在到期前 {{d1}} 天、{{d2}} 天、{{d3}} 天以及到期当天发送提醒。",
-          "aManual": "目前所有支付方式（虚拟账户、QRIS、银行卡和 GoPay）均按周期付款：我们会开具账单，并在到期前 {{d1}}、{{d2}}、{{d3}} 天及到期当天发送提醒。银行卡和 GoPay 的自动续费将在 Midtrans 开通后提供。"
+          "q": "如何支付方案费用？",
+          "a": "方案费用通过银行转账支付至 PT Cakrawala Magna Scientia 官方账户，金额末尾附唯一识别码。财务团队确认付款后方案即生效。续订时，我们会在到期前发送账单和提醒。",
+          "aManual": "方案费用通过银行转账支付至 PT Cakrawala Magna Scientia 官方账户，金额末尾附唯一识别码。财务团队确认付款后方案即生效。续订时，我们会在到期前发送账单和提醒。"
         },
         "grace": {
           "q": "付款逾期怎么办？",
@@ -729,15 +735,27 @@
         },
         "cancel": {
           "q": "可以随时取消吗？",
-          "a": "可以，直接在账户页面操作。会员资格在已付费周期结束前保持有效，之后不再扣费。单本购买的书目仍归您所有。"
+          "a": "可以，直接在账户页面操作。方案在已付费周期结束前保持有效，之后不再收费。如您重新订阅，阅读进度和笔记仍会保留。"
         },
         "devices": {
           "q": "可以在多少台设备上阅读？",
-          "a": "Digital Reading Shelf 访问和单本购买的书目可在 {{devices}} 台设备上打开。每本书同时只能有一个阅读或收听会话，每 {{releaseDays}} 天可解除一台设备。不提供 PDF 下载，所有访问均通过云端阅读器和播放器进行。"
+          "a": "每个账户可使用 {{devices}} 台设备，同一时间仅一个阅读或收听会话。在其他设备上打开作品时，会话将从原设备转移。每 {{releaseDays}} 天可解除一台设备。不提供 PDF 下载，所有访问均通过云端阅读器和播放器进行。"
         },
         "institutions": {
           "q": "我代表大学或图书馆，哪个方案合适？",
-          "a": "Institution & Library Network：以年度合同按并发用户数提供共享访问。请在机构页面申请报价。"
+          "a": "Institution & Library Network：按同时在线用户数签订年度合同，可访问全部书架；新书在上架 {{institutionDays}} 天后开放。请在机构页面申请报价。"
+        },
+        "samples": {
+          "q": "有免费试用吗？",
+          "a": "不提供免费试用。Blue 账户永久免费，可打开每本书的试读/试听：电子书 {{sampleMin}}–{{sampleMax}}% 页面，有声书 {{sampleMinutes}} 分钟。如需完整阅读或收听，请选择 Silver、Gold 或 Platinum。"
+        },
+        "titleQuota": {
+          "q": "电子书作品额度如何使用？",
+          "a": "Silver 每月可开启 {{silverTitles}} 本，Gold 每月可开启 {{goldTitles}} 本电子书。在图书页面选择作品；选择后立即锁定，并可阅读至下一次额度开放。未使用的额度不会累积到下月，年付方案同样按月计算。Platinum 无需额度即可访问全部书架。"
+        },
+        "family": {
+          "q": "Platinum 家庭账户如何使用？",
+          "a": "Platinum 所有者可添加 {{familyAccounts}} 个家庭账户。每个账户拥有独立的书架、设备、会话和 {{platinumHours}} 小时收听时长。家庭账户随所有者方案一同结束。"
         }
       }
     },
@@ -747,13 +765,44 @@
       "link": "了解 Institution & Library Network"
     },
     "foundingSeats": "创始会员 — 剩余 {{count}} 个名额",
-    "foundingSoldOut": "创始会员名额已满",
-    "foundingNotEligible": "创始价格仅适用于新会员；重新加入按常规价格计费。",
     "currentPlan": "您当前的方案",
     "changePlan": "更改方案",
     "devices": "会员访问可在 {{n}} 台设备上使用",
-    "includesPick": "每月包含 1 本 Digital Member Pick",
-    "termsLink": "会员条款"
+    "termsLink": "会员条款",
+    "page": {
+      "title": "选择您的阅读与收听方式",
+      "startFree": "免费开始",
+      "choose": "选择 {{plan}}",
+      "mostPopular": "最受欢迎",
+      "freeNote": "永久免费：每本书均可试读/试听。",
+      "orYearly": "或 {{price}}/年（省 2 个月）",
+      "noTrial": "不提供免费试用：Blue 账户可打开每本书的试读/试听。付费方案可随时停止。",
+      "compare": {
+        "title": "比较方案",
+        "subtitle": "所有方案使用同一账户，可随时升级或降级。",
+        "included": "包含",
+        "notIncluded": "不包含",
+        "rows": {
+          "price": "价格",
+          "ebook": "电子书",
+          "audiobook": "有声书",
+          "newTitles": "新书",
+          "offline": "离线阅读/收听",
+          "notes": "笔记与标注",
+          "formatSync": "电子书 ↔ 有声书同步",
+          "family": "家庭账户",
+          "devices": "设备与会话",
+          "printDiscount": "纸质书折扣"
+        },
+        "cells": {
+          "fullShelf": "全部书架",
+          "samplesOnly": "仅试读/试听",
+          "offline": "{{n}} 本",
+          "family": "+{{n}} 个账户",
+          "devices": "{{n}} 台设备，1 个活动会话"
+        }
+      }
+    }
   },
   "institutions": {
     "badge": "Institution & Library Network",
@@ -875,16 +924,16 @@
   "library": {
     "badge": "我的书库",
     "title": "我的书库",
-    "subtitle": "您购买或通过会员访问的电子书和有声书将显示在这里。",
+    "subtitle": "通过您的方案或机构开放的电子书和有声书将显示在这里。",
     "signInTitle": "登录会员账户",
     "signInDescription": "登录或注册账户，即可在任何设备上打开您的电子书和有声书。",
     "signInButton": "登录",
     "emptyTitle": "暂无数字产品",
-    "emptyDescription": "单本购买电子书或有声书，或加入会员来充实您的书库。",
+    "emptyDescription": "使用您的方案开启作品，或从数字书架的免费试读/试听开始。",
     "browseEbooks": "浏览电子书",
     "browseAudiobooks": "浏览有声书",
     "promoTitle": "加入会员，阅读更多",
-    "promoDescription": "Professional & Academic Society 开放完整的 Digital Reading Shelf：无需逐本购买即可阅读电子书和收听有声书。",
+    "promoDescription": "Platinum 自首日起开放全部书架；Silver 和 Gold 每月开启所选作品。",
     "promoCta": "查看会员方案"
   },
   "subheader": {
@@ -980,15 +1029,15 @@
     "sections": {
       "plans": {
         "title": "1. 方案与价格",
-        "body": "会员包括 Free Circle（免费）、Reader Circle、Professional & Academic Society 和 Author Guild。各方案的价格、权益和设备上限以您注册时会员页面所示为准。年费相当于 10 个月的月费。所有价格以印尼盾计。"
+        "body": "会员包括 Blue（免费，试读/试听）、Silver、Gold 和 Platinum。各方案的价格、额度和权益以您注册时会员页面所示为准。年费相当于 10 个月的月费。所有价格以印尼盾计。不提供免费试用，也不单独销售电子书或有声书。"
       },
-      "founding": {
-        "title": "2. 创始会员价格",
-        "body": "在名额范围内，新会员首年年付方案可享创始价格：Reader Circle {{reader}}（{{readerCap}} 名）、Professional & Academic Society {{professional}}（{{professionalCap}} 名）、Author Guild {{author}}（{{authorCap}} 名）。名额在注册时预留，若首张账单 24 小时内未付款则释放。之后各年按常规价格计费，我们会提前 {{noticeDays}} 天通知。"
+      "quota": {
+        "title": "2. 作品额度与收听时长",
+        "body": "Silver（{{silverTitles}} 本）和 Gold（{{goldTitles}} 本）每月获得电子书额度；所选作品立即锁定，并可阅读至下一次额度开放。收听时长按播放的书籍内容时长计算，按账户、按月统计。未使用的额度不会累积，年付方案按月计算。试读/试听不占用额度。"
       },
       "billing": {
-        "title": "3. 账单与续费",
-        "body": "会员期自首次付款成功时开始。手动付款（虚拟账户、QRIS）的续费账单在周期结束前 {{d1}} 天开具，并于到期前 {{d1}}、{{d2}}、{{d3}} 天及到期当天提醒。使用银行卡或 GoPay 自动续费（开通后）时，在周期结束时扣款，失败后最多重试 3 天。付款由 Midtrans 处理，CakraNexa 不保存卡片数据。"
+        "title": "3. 账单与付款",
+        "body": "付款通过银行转账至 PT Cakrawala Magna Scientia 官方账户，并附唯一识别码。会员周期自财务团队确认付款时开始。续订账单在周期结束前 {{d1}} 天开具，并在到期前 {{d1}}、{{d2}}、{{d3}} 天及到期当天发送提醒。"
       },
       "grace": {
         "title": "4. 宽限期与访问锁定",
@@ -1004,15 +1053,15 @@
       },
       "digital": {
         "title": "7. 数字访问与设备",
-        "body": "Digital Reading Shelf 和 Digital Member Pick 是会员有效期内的个人阅读/收听许可，通过云端阅读器和播放器使用，不提供文件下载。每本书同一时间只能在一个会话中打开，设备数量以方案上限为准，并带有账户水印。设备每 {{releaseDays}} 天可解除一次。违规行为（如共享账户或自动翻页）可能导致访问被暂停。单独购买的书目在会员结束后仍归您所有。"
+        "body": "方案在会员有效期内提供个人阅读/收听许可，通过云端阅读器和播放器使用，不提供文件下载。每个账户最多使用 {{devices}} 台设备，同一时间仅一个活动会话，内容带有账户水印。每 {{releaseDays}} 天可解除一台设备。违规行为（如共享账户或自动翻页）可能导致访问被暂停。"
       },
       "frontlist": {
-        "title": "8. 新书（frontlist）",
-        "body": "新书先单独销售 {{min}}–{{max}} 天，之后才进入 Digital Reading Shelf。入架日期显示在各产品页面。"
+        "title": "8. 新书",
+        "body": "每本书都有上架日期。Platinum 于当天开放，Gold 于 {{goldDays}} 天后开放，机构于 {{institutionDays}} 天后开放，Silver 于 {{silverDays}} 天后开放。开放日期显示在各图书页面。"
       },
       "privacy": {
         "title": "9. 个人数据",
-        "body": "我们处理您的姓名、电子邮箱和账单记录以管理会员，并记录访问日志以保护内容。银行卡和电子钱包信息仅由 Midtrans 处理。"
+        "body": "我们处理您的姓名、电子邮件和账单记录以管理会员资格，并处理访问日志以保障内容安全。"
       },
       "updates": {
         "title": "10. 条款变更",

@@ -16,7 +16,7 @@
   "pages": {
     "digitalEbook": {
       "title": "拥有 ISBN 的学术电子书 — CakraNexa",
-      "description": "CakraNexa 出版的学术专著与参考书电子版，涵盖税务、会计、法律、经济、哲学和神学。购买前可免费试读。",
+      "description": "CakraNexa 出版的学术专著与参考书电子版，涵盖税务、会计、法律、经济、哲学和神学。先免费试读，再通过方案完整阅读。",
       "keywords": "学术电子书, 税务电子书, 法律电子书, ISBN 数字图书, cakranexa",
       "imageAlt": "CakraNexa 电子书"
     },
@@ -28,7 +28,7 @@
     },
     "digitalDetail": {
       "title": "{{title}}（{{format}}）— {{author}} | CakraNexa",
-      "description": "{{author}} 所著《{{title}}》{{format}}版本。{{price}}。免费试读，并可通过 CakraNexa 会员访问。",
+      "description": "{{author}} 所著《{{title}}》{{format}}版本。免费试读，并可通过 CakraNexa 方案完整访问。",
       "keywords": "数字版, 学术专著",
       "imageAlt": "《{{title}}》{{format}}封面"
     },

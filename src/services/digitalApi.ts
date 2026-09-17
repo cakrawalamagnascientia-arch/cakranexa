@@ -225,3 +225,22 @@ export const getPopularProductIds = async (): Promise<string[]> => {
     return [];
   }
 };
+
+/** Daftar isi publik halaman buku (fase 6 Langkah 3). Gagal = daftar bab tidak ditampilkan. */
+export interface PublicChapter {
+  number: number;
+  title: string;
+  startSeconds: number | null;
+  startPage: number | null;
+}
+
+export const getPublicChapters = async (productId: string): Promise<PublicChapter[]> => {
+  try {
+    const res = await fetchWithTimeout(apiUrl(`/api/digital/chapters/${encodeURIComponent(productId)}`), {}, 10000);
+    if (!res.ok) return [];
+    const body = await res.json();
+    return Array.isArray(body?.chapters) ? body.chapters : [];
+  } catch {
+    return [];
+  }
+};

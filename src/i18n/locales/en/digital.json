@@ -2,9 +2,9 @@
   "account": {
     "subheader": "Account",
     "loginTitle": "Sign in to your CakraNexa account",
-    "loginSubtitle": "Sign in to buy and open your e-books and audiobooks.",
+    "loginSubtitle": "Sign in to read and listen to your e-books and audiobooks.",
     "registerTitle": "Create a CakraNexa account",
-    "registerSubtitle": "One account for digital purchases, My Library, and membership.",
+    "registerSubtitle": "One account for free samples, plans, and My Library.",
     "resetTitle": "Reset your password",
     "resetSubtitle": "Enter your account email and we will send you a link to create a new password.",
     "updateTitle": "Create a new password",
@@ -106,11 +106,11 @@
     "denied": {
       "no_entitlement": {
         "title": "You don't have access yet",
-        "description": "Buy this title or join a membership to open it."
+        "description": "Open this title with Silver, Gold, or Platinum."
       },
       "expired": {
         "title": "Your access has expired",
-        "description": "Renew your membership or buy the title to open it again."
+        "description": "Renew your plan to open it again."
       },
       "suspended": {
         "title": "Access suspended",
@@ -140,8 +140,12 @@
     },
     "ended": {
       "title": "Session ended",
+      "movedTitle": "Session moved to another device",
+      "moved": "Your account is now reading or listening on another device. One account uses one session at a time; tap “Continue here” to move it back.",
       "takeover": "This title was opened on another device.",
+      "single_session": "Your account is now reading or listening on another device. One account uses one session at a time; tap “Continue here” to move it back.",
       "reopened": "This title was opened in another tab or window.",
+      "switched": "You opened another title on this device.",
       "expired": "The session ended due to inactivity.",
       "device_released": "This device was removed from your account.",
       "revoked": "Your access to this title has changed.",
@@ -300,7 +304,7 @@
       "fullDescription": "Every title on the shelf can be read and listened to while your membership is active (access until {{date}}).",
       "empty": "No titles on the shelf yet.",
       "noneTitle": "The digital shelf is for members",
-      "noneDescription": "Free Circle gets samples of every title. Professional & Academic Society unlocks the entire Digital Reading Shelf.",
+      "noneDescription": "A Blue account opens a sample of every title. Silver, Gold, and Platinum open full e-books and audiobooks.",
       "noneCta": "View membership plans",
       "browseSamples": "Browse samples"
     },
@@ -318,8 +322,8 @@
     },
     "upcoming": {
       "title": "Coming to the shelf",
-      "description": "New titles are sold individually first, then join the shelf on the dates below.",
-      "entry": "Joins the shelf {{date}}",
+      "description": "These titles open for your plan on the dates below.",
+      "entry": "Opens {{date}}",
       "buy": "Buy individually {{price}}"
     },
     "onboarding": {
@@ -358,11 +362,7 @@
     "unavailable": "Not available"
   },
   "common": {
-    "priceTbd": "Price to be announced",
-    "unitPrice": "Single-copy price",
     "comingSoonPhase2": "Coming soon",
-    "buyFormat": "Buy {{format}}",
-    "buyComingSoonTitle": "{{format}} purchases are coming soon",
     "readSample": "Read sample",
     "listenSample": "Listen to sample",
     "shelfEntry": "On the digital shelf: {{date}}",
@@ -387,7 +387,7 @@
     "ebook": {
       "badge": "Academic E-Books",
       "title": "CakraNexa E-Books",
-      "subtitle": "ISBN-registered monographs and reference books in digital format. Read anywhere, and try a free sample before you buy."
+      "subtitle": "ISBN-registered monographs and reference books in digital format. Read anywhere, and try a free sample before choosing a plan."
     },
     "audiobook": {
       "badge": "Academic Audiobooks",
@@ -431,16 +431,75 @@
     "sampleAudioValue": "First {{minutes}} minutes",
     "shelfDate": "Joins the Digital Reading Shelf",
     "notSet": "Not set yet",
+    "access": {
+      "title": "{{format}} access",
+      "loading": "Checking your access…",
+      "actions": {
+        "readSample": "Read free sample",
+        "listenSample": "Listen to free sample",
+        "startFree": "Start free",
+        "viewPlans": "See plans",
+        "upgrade": "Upgrade plan",
+        "upgradeEarlier": "Upgrade to open it sooner",
+        "readNow": "Read now",
+        "listenNow": "Listen now",
+        "pick": "Open with allowance (title {{next}} of {{limit}})",
+        "renew": "Renew plan",
+        "contact": "Contact us"
+      },
+      "notices": {
+        "guest": "Free samples for everyone. Read and listen in full with Silver, Gold, or Platinum.",
+        "unknown": "Your access status could not be loaded. You can still open the sample.",
+        "blue": "Blue accounts open samples. Choose a plan to read or listen in full.",
+        "notIncluded": "This title is not yet included in your current plan.",
+        "openedWithQuota": "Opened with this month’s allowance; readable until {{date}}.",
+        "institution": "Available through your institution’s access.",
+        "quotaAvailable": "Allowance left this month: {{remaining}} of {{limit}} titles. New allowance opens {{date}}.",
+        "quotaFull": "This month’s allowance is used ({{used}} of {{limit}} titles). New allowance opens {{date}}.",
+        "opensOn": "Available on your plan from {{date}}.",
+        "audioExhausted": "This month’s audio hours are used up. New hours open {{date}}.",
+        "comingSoon": "Coming to the shelf soon. The date will be announced.",
+        "suspended": "Access to this title is suspended. Contact us for help.",
+        "expired": "Your plan has ended. Renew to open this title again."
+      },
+      "confirm": {
+        "title": "Open this title with this month’s allowance?",
+        "body": "The choice is locked right away and uses one title from your allowance. The title stays readable until the new allowance opens.",
+        "yes": "Yes, open title",
+        "no": "Cancel"
+      },
+      "pickErrors": {
+        "default": "The title could not be opened. Reload the page and try again.",
+        "title_quota_full": "This month’s allowance is used up.",
+        "title_already_picked": "You already opened this title this month.",
+        "not_open_for_plan": "This title is not yet available on your plan.",
+        "not_on_shelf": "This title is not on the shelf yet.",
+        "pick_unavailable": "Your plan does not use a title allowance.",
+        "pick_locked": "This month’s choice is already locked.",
+        "network": "Check your internet connection and try again."
+      }
+    },
+    "availability": {
+      "title": "Availability by plan",
+      "description": "No single-title purchases: titles open through a plan on each plan’s opening date.",
+      "sampleOnly": "Free sample",
+      "fullShelf": "Whole shelf",
+      "withQuota": "With the monthly title allowance",
+      "withAudioHours": "With monthly audio hours",
+      "institution": "Institution",
+      "yourPlan": "Your plan",
+      "openNow": "Available now",
+      "opensOn": "From {{date}}",
+      "dateTbd": "Date to follow",
+      "comparePlans": "Compare plans"
+    },
+    "chapters": {
+      "title": "Chapters ({{count}})",
+      "page": "p. {{page}}",
+      "showAll": "Show all {{count}} chapters",
+      "showLess": "Show fewer"
+    },
     "howToGet": {
-      "title": "How to get it",
-      "buyTitle": "Buy a single copy",
-      "buyDescription": "Pay once, then read or listen any time from My Library.",
-      "membershipTitle": "Included with membership",
-      "membershipDescription": "No extra charge through the Digital Reading Shelf for members of:",
-      "institutionPlan": "Institution & Library Network (institutional access)",
-      "shelfScheduled": "New title: joins the Digital Reading Shelf on {{date}}. Until then it can only be bought as a single copy.",
-      "shelfOnShelf": "Already on the Digital Reading Shelf.",
-      "shelfUnscheduled": "The Digital Reading Shelf date will be announced. New titles usually join the shelf 90–180 days after release.",
       "viewPlans": "See membership plans"
     },
     "printVersion": "Print edition",
@@ -466,18 +525,16 @@
     "audioUnsupported": "Your browser does not support the audio player.",
     "audioUnavailable": "An audio sample is not available for this title yet.",
     "ctaTitle": "Want to keep reading?",
-    "ctaDescription": "Buy a single copy, or read it with a Professional & Academic Society membership.",
+    "ctaDescription": "Read or listen to the full title with Silver, Gold, or Platinum.",
     "notFound": "Sample not found."
   },
   "formatSelector": {
     "label": "Choose a format",
-    "digitalPrice": "{{format}} price",
-    "digitalNote": "Digital editions are bought separately from the print book.",
+    "digitalNote": "Included in CakraNexa Digital plans; free samples for everyone.",
     "viewDigitalDetail": "View {{format}} details"
   },
   "membership": {
     "badge": "Cakrawala Magna Society",
-    "title": "Read smarter, buy for less, and grow with the Cakrawala Magna community",
     "subtitle": "CakraNexa membership starts at {{price}} per month. Read e-books and listen to audiobooks with Silver, Gold, or Platinum.",
     "billing": {
       "label": "Billing period",
@@ -489,20 +546,9 @@
     "perMonth": "/month",
     "perYear": "/year",
     "annualEquivalent": "equivalent to {{price}}/month",
-    "recommended": "Main digital plan",
     "foundingMember": "Founding Member",
-    "founding": {
-      "firstYear": "Founding price for the first year, for the first {{cap}} members",
-      "renewal": "Renews at {{price}}/year afterwards, with advance notice",
-      "annualOnly": "The Founding price of {{price}} for the first year is available on the annual plan"
-    },
-    "includesShelf": "Includes the Digital Reading Shelf",
     "choosePlan": "Choose plan",
-    "joinFree": "Join for free",
     "phase2Note": "Membership sign-up is being prepared and will open soon.",
-    "showAllBenefits": "See all {{total}} benefits",
-    "showFewerBenefits": "Show fewer",
-    "authorDisclaimer": "Membership does not guarantee publication, an ISBN, or full editing. Publishing decisions are still based on the merit of the manuscript.",
     "plans": {
       "blue": {
         "name": "Blue",
@@ -607,63 +653,31 @@
       "familyAccounts": "+{{n}} family accounts with their own shelf and audio hours"
     },
     "access": {
-      "title": "E-book and audiobook access by plan",
-      "subtitle": "Digital access is one of the benefits inside each plan. The Digital Reading Shelf holds backlist and selected titles that have passed the frontlist period.",
       "feature": "Feature",
-      "rows": {
-        "ebook": "E-books",
-        "audiobook": "Audiobooks",
-        "frontlist": "New titles (frontlist)",
-        "devices": "Devices for membership access",
-        "printDiscount": "Print book discount",
-        "wallet": "Book wallet"
-      },
-      "none": "—",
       "ebook": {
         "sample": "{{min}}–{{max}}% sample of every title",
-        "sampler": "Digital sampler: selected chapters, summaries, companion materials",
-        "pick": "1 backlist Digital Member Pick per month",
-        "shelf": "Digital Reading Shelf: backlist and selected titles",
         "quota": "{{n}} titles per month"
       },
       "audiobook": {
         "sample": "{{minutes}}-minute sample",
-        "shelf": "Every audiobook on the Digital Reading Shelf",
         "hours": "{{hours}} hours per month"
       },
       "frontlist": {
-        "sample": "Sample; buy a single copy",
-        "preorder": "Sample; {{percent}}% off preorders of selected titles",
-        "shelf": "Joins the shelf {{min}}–{{max}} days after release; preorder priority",
         "firstDay": "Open from day one",
         "afterDays": "Open {{days}} days after joining the shelf"
       },
-      "devices": "{{n}} devices",
-      "printDiscountPreorder": "{{percent}}% (preorders {{preorder}}%)",
-      "wallet": {
-        "month": "{{amount}}/month, min. spend {{min}}",
-        "quarter": "{{amount}}/quarter, min. spend {{min}}",
-        "annualCredit": "annual credit of {{amount}} (min. {{min}}) for annual members"
-      },
-      "institution": {
-        "ebook": "Digital collection agreed in the contract",
-        "audiobook": "According to the collection",
-        "frontlist": "Joins the collection after the frontlist period",
-        "devices": "Based on concurrent users",
-        "wallet": "Acquisition wallet of {{percent}}% of the annual fee"
-      },
       "notes": {
         "audioHours": "Silver, Gold, and Platinum open every audiobook on the shelf (from each plan’s open date). Audio hours count the length of book content played, not how long you listen: playing at 2× uses your hours twice as fast. Samples do not count.",
-        "unitPurchase": "Single-copy e-books and audiobooks are open to everyone, can be opened on 2 devices, and stay yours even after a membership ends.",
-        "security": "No PDF downloads. All access is through the watermarked cloud reader and player, with one active session per title."
+        "security": "No PDF downloads. All access is through the watermarked cloud reader and player, with one active session per account.",
+        "noUnitSales": "No single-title sales: e-books and audiobooks open through a plan. Print books are still sold as usual."
       }
     },
     "frontlist": {
-      "title": "When do new titles join the Digital Reading Shelf?",
-      "body": "New titles are released first as print books and single-copy e-books. After an exclusive period of {{min}}–{{max}} days they join the Digital Reading Shelf, so Professional & Academic Society members can read them at no extra cost. A 10–15% sample stays available to everyone, and the shelf date is shown on every digital product page.",
-      "step1": "At release: print book and single-copy e-book",
-      "step2": "{{min}}–{{max}} days later: joins the Digital Reading Shelf",
-      "step3": "After that: still available as a single copy"
+      "title": "When do new titles open?",
+      "body": "Every title has a shelf date. From that date, the title opens in stages by plan:",
+      "dayZero": "Shelf date",
+      "afterDays": "{{days}} days later",
+      "blueNote": "Blue accounts can open samples of new titles from the shelf date."
     },
     "loyalty": {
       "title": "Loyalty status and Magna Points",
@@ -693,34 +707,26 @@
     "faq": {
       "title": "Frequently asked questions",
       "items": {
-        "shelf": {
-          "q": "What is the Digital Reading Shelf?",
-          "a": "A digital reading shelf of CakraNexa backlist and selected titles as e-books and audiobooks. It is open to Professional & Academic Society members and institutions, without buying each title."
-        },
         "audioHours": {
           "q": "How are audiobook hours counted?",
           "a": "Every audiobook on the shelf is open to paid plans, limited by hours per month: Silver 5 hours, Gold 20 hours, Platinum 60 hours per account. Hours count the length of book content played, not how long you listen, so listening at 2× uses your hours twice as fast. Samples do not count. Annual plans are also counted per month. When your hours run out, playback stops and you can upgrade or wait for next month’s hours."
         },
         "frontlist": {
-          "q": "Why don't new titles join the shelf right away?",
-          "a": "New titles are sold as single copies first for {{min}}–{{max}} days so authors are paid fairly. After that a title joins the shelf, and the date is shown on its product page."
+          "q": "When can I read new titles?",
+          "a": "Every title has a shelf date. Platinum opens it that day, Gold {{goldDays}} days later, institutions {{institutionDays}} days later, and Silver {{silverDays}} days later. The opening date for your plan is shown on the book page."
         },
         "unitPurchase": {
-          "q": "Can I buy an e-book without a membership?",
-          "a": "Yes. Every available e-book and audiobook can be bought as a single copy and stays in My Library for good. Members get member prices, which cannot be combined with a wallet."
+          "q": "Can I buy a single e-book or audiobook?",
+          "a": "No. CakraNexa e-books and audiobooks open only through a plan, and a Blue account opens their samples. Print books can still be bought as usual."
         },
         "billing": {
           "q": "What is the difference between monthly and annual billing?",
           "a": "Annual billing is paid once a year at the price of 10 months, so you save 2 months compared with monthly billing."
         },
-        "founding": {
-          "q": "What is the Founding Member price?",
-          "a": "A launch price for the first annual members: Reader Circle {{reader}} (first {{readerCap}} members), Professional & Academic Society {{professional}} (first {{professionalCap}} members), and Author Guild {{author}} (first {{authorCap}} members). It applies to the first year. Renewals use the regular price, and we let you know {{noticeDays}} days in advance."
-        },
         "payment": {
-          "q": "Which payment methods are available?",
-          "a": "Credit cards and GoPay renew automatically. Virtual Accounts and QRIS renew manually; we send reminders {{d1}}, {{d2}}, and {{d3}} days before the due date and on the due date.",
-          "aManual": "For now every method (Virtual Account, QRIS, card, and GoPay) is paid each period: we issue an invoice and send reminders {{d1}}, {{d2}}, and {{d3}} days before the due date and on the due date. Automatic renewal by card and GoPay will open once Midtrans activation is complete."
+          "q": "How do I pay for a plan?",
+          "a": "Plans are paid by bank transfer to the official PT Cakrawala Magna Scientia account, with a unique code at the end of the amount. Your plan becomes active once our Finance team confirms the payment. For renewals, we send an invoice and reminders before the due date.",
+          "aManual": "Plans are paid by bank transfer to the official PT Cakrawala Magna Scientia account, with a unique code at the end of the amount. Your plan becomes active once our Finance team confirms the payment. For renewals, we send an invoice and reminders before the due date."
         },
         "grace": {
           "q": "What if a payment is late?",
@@ -732,15 +738,27 @@
         },
         "cancel": {
           "q": "Can I cancel at any time?",
-          "a": "Yes, directly from your account page. Your membership stays active until the end of the period you paid for, and there is no further charge. Titles bought as single copies remain yours."
+          "a": "Yes, directly from your account page. Your plan stays active until the end of the period you paid for, and there is no further charge. Your reading progress and notes are kept if you subscribe again."
         },
         "devices": {
           "q": "On how many devices can I read?",
-          "a": "Digital Reading Shelf access and single-copy titles can be opened on {{devices}} devices. There is one active reading or listening session per title, and a device can be released once every {{releaseDays}} days. There are no PDF downloads; all access is through the cloud reader and player."
+          "a": "Each account can use {{devices}} devices, with one active reading or listening session at a time. If you open a title on another device, the session moves from the previous device. A device can be released once every {{releaseDays}} days. There are no PDF downloads; all access is through the cloud reader and player."
         },
         "institutions": {
           "q": "I represent a university or library. Which plan fits?",
-          "a": "Institution & Library Network: shared access based on concurrent users on an annual contract. Request a quote on the institutions page."
+          "a": "Institution & Library Network: whole-shelf access for concurrent users on an annual contract; new titles open {{institutionDays}} days after their shelf date. Request a quote on the institutions page."
+        },
+        "samples": {
+          "q": "Is there a free trial?",
+          "a": "There is no free trial. A Blue account is free forever and opens a sample of every title: {{sampleMin}}–{{sampleMax}}% of an e-book and {{sampleMinutes}} minutes of an audiobook. To read or listen in full, choose Silver, Gold, or Platinum."
+        },
+        "titleQuota": {
+          "q": "How does the e-book title allowance work?",
+          "a": "Silver opens {{silverTitles}} and Gold {{goldTitles}} e-book titles each month. Choose a title on its book page; the choice is locked right away and the title stays readable until the next allowance opens. Unused allowance does not carry over, and annual plans are also counted per month. Platinum opens the whole shelf with no allowance."
+        },
+        "family": {
+          "q": "How do Platinum family accounts work?",
+          "a": "A Platinum owner can add {{familyAccounts}} family accounts. Each account has its own shelf, devices, session, and {{platinumHours}} audio hours. Family accounts end together with the owner’s plan."
         }
       }
     },
@@ -750,13 +768,44 @@
       "link": "Explore Institution & Library Network"
     },
     "foundingSeats": "Founding Member — {{count}} seats left",
-    "foundingSoldOut": "Founding seats sold out",
-    "foundingNotEligible": "Founding pricing is for new members only; rejoining uses the regular price.",
     "currentPlan": "Your current plan",
     "changePlan": "Change plan",
     "devices": "Membership access on {{n}} devices",
-    "includesPick": "Includes 1 Digital Member Pick per month",
-    "termsLink": "Membership terms"
+    "termsLink": "Membership terms",
+    "page": {
+      "title": "Choose how you read and listen",
+      "startFree": "Start free",
+      "choose": "Choose {{plan}}",
+      "mostPopular": "Most popular",
+      "freeNote": "Free forever: a sample of every title.",
+      "orYearly": "or {{price}}/year (2 months free)",
+      "noTrial": "There is no free trial: a Blue account opens a sample of every title. Paid plans can be stopped at any time.",
+      "compare": {
+        "title": "Compare plans",
+        "subtitle": "Every plan uses the same account. You can move up or down at any time.",
+        "included": "Included",
+        "notIncluded": "Not included",
+        "rows": {
+          "price": "Price",
+          "ebook": "E-books",
+          "audiobook": "Audiobooks",
+          "newTitles": "New titles",
+          "offline": "Offline reading/listening",
+          "notes": "Notes & highlights",
+          "formatSync": "E-book ↔ audio sync",
+          "family": "Family accounts",
+          "devices": "Devices & sessions",
+          "printDiscount": "Print book discount"
+        },
+        "cells": {
+          "fullShelf": "Whole shelf",
+          "samplesOnly": "Samples only",
+          "offline": "{{n}} titles",
+          "family": "+{{n}} accounts",
+          "devices": "{{n}} devices, 1 active session"
+        }
+      }
+    }
   },
   "institutions": {
     "badge": "Institution & Library Network",
@@ -879,16 +928,16 @@
   "library": {
     "badge": "My Library",
     "title": "My Library",
-    "subtitle": "E-books and audiobooks you buy or access through membership will appear here.",
+    "subtitle": "E-books and audiobooks open to you through your plan or institution will appear here.",
     "signInTitle": "Sign in to your member account",
     "signInDescription": "Sign in or create an account to open your e-books and audiobooks on any device.",
     "signInButton": "Sign in",
     "emptyTitle": "No digital titles yet",
-    "emptyDescription": "Buy a single e-book or audiobook, or join a membership to fill your library.",
+    "emptyDescription": "Open titles with your plan, or start with free samples on the digital shelf.",
     "browseEbooks": "Browse e-books",
     "browseAudiobooks": "Browse audiobooks",
     "promoTitle": "Read more with a membership",
-    "promoDescription": "Professional & Academic Society unlocks the whole Digital Reading Shelf: e-books and audiobooks without buying each one.",
+    "promoDescription": "Platinum opens the whole shelf from day one; Silver and Gold open chosen titles every month.",
     "promoCta": "See membership plans"
   },
   "subheader": {
@@ -984,15 +1033,15 @@
     "sections": {
       "plans": {
         "title": "1. Plans and prices",
-        "body": "Membership consists of Free Circle (free), Reader Circle, Professional & Academic Society, and Author Guild. Each plan's price, benefits, and device limit are shown on the membership page when you sign up. The annual price equals 10 times the monthly price. All prices are in Indonesian Rupiah."
+        "body": "Membership consists of Blue (free, samples), Silver, Gold, and Platinum. Each plan’s price, allowances, and benefits are shown on the membership page when you sign up. The annual price equals 10 times the monthly price. All prices are in Indonesian Rupiah. There is no free trial and no sale of single e-books or audiobooks."
       },
-      "founding": {
-        "title": "2. Founding Member pricing",
-        "body": "Founding pricing applies to the first year of an annual plan for new members while seats last: Reader Circle {{reader}} ({{readerCap}} members), Professional & Academic Society {{professional}} ({{professionalCap}} members), and Author Guild {{author}} ({{authorCap}} members). A seat is reserved at sign-up and released if the first invoice is not paid within 24 hours. Later years use the regular price; we notify you {{noticeDays}} days in advance."
+      "quota": {
+        "title": "2. Title allowance and audio hours",
+        "body": "Silver ({{silverTitles}} titles) and Gold ({{goldTitles}} titles) receive a monthly e-book allowance; a chosen title is locked right away and stays readable until the next allowance opens. Audio hours count the duration of book content played, per account, per month. Unused allowance does not carry over, and annual plans are counted per month. Samples do not use the allowance."
       },
       "billing": {
-        "title": "3. Billing and renewal",
-        "body": "The membership period starts when the first payment succeeds. For manual payment (Virtual Account, QRIS), the renewal invoice is issued {{d1}} days before the period ends, with reminders {{d1}}, {{d2}}, and {{d3}} days before and on the due date. For card or GoPay with automatic renewal (when available), the charge is made at the end of the period and retried for up to 3 days if it fails. Payments are processed by Midtrans; CakraNexa never stores card data."
+        "title": "3. Invoices and payment",
+        "body": "Payment is made by bank transfer to the official PT Cakrawala Magna Scientia account with a unique code. The membership period starts when our Finance team confirms the payment. Renewal invoices are issued {{d1}} days before the period ends, with reminders {{d1}}, {{d2}}, and {{d3}} days before and on the due date."
       },
       "grace": {
         "title": "4. Grace period and locked access",
@@ -1008,15 +1057,15 @@
       },
       "digital": {
         "title": "7. Digital access and devices",
-        "body": "The Digital Reading Shelf and Digital Member Pick are a personal reading/listening licence while the membership is active, through the cloud reader and player with no file downloads. Each title can be open in one active session, on devices within the plan limit, with an account watermark. A device can be released once every {{releaseDays}} days. Misuse (such as account sharing or automated page turning) may suspend access. Titles bought individually remain yours after the membership ends."
+        "body": "A plan grants a personal reading/listening licence while the membership is active, through the cloud reader and player with no file downloads. Each account uses at most {{devices}} devices with one active session at a time, and content carries an account watermark. A device can be released once every {{releaseDays}} days. Misuse (such as account sharing or automated page turning) may suspend access."
       },
       "frontlist": {
-        "title": "8. New titles (frontlist)",
-        "body": "New titles are sold individually for {{min}}–{{max}} days before they join the Digital Reading Shelf. The shelf entry date is shown on each product page."
+        "title": "8. New titles",
+        "body": "Every title has a shelf date. A title opens on that date for Platinum, {{goldDays}} days later for Gold, {{institutionDays}} days later for institutions, and {{silverDays}} days later for Silver. Opening dates are shown on each book page."
       },
       "privacy": {
         "title": "9. Personal data",
-        "body": "We process your name, email, and billing history to manage your membership, and access logs to protect content. Card and e-wallet details are processed only by Midtrans."
+        "body": "We process your name, email, and invoice history to manage your membership, and access logs for content security."
       },
       "updates": {
         "title": "10. Changes to these terms",

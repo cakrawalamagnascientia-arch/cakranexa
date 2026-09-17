@@ -1,18 +1,18 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ListOrdered } from 'lucide-react';
 import type { ActivePage, Book, DigitalFormat, SubSection } from '../../types';
 import { useDigitalCatalog, type DigitalEntry } from '../../hooks/useDigitalCatalog';
 import { useBookText, useCategoryLabel } from '../../i18n/hooks';
 import { resolveImageUrl, handleImageError } from '../../utils/imageUtils';
 import { toTitleCase } from '../../utils/formatters';
-import { getShelfStatus } from '../../data/digitalProducts';
-import { DIGITAL_SHELF_PLANS } from '../../data/membership';
 import { FormatIcon } from './FormatIcon';
-import { BuyDigitalButton } from './BuyDigitalButton';
+import { TitleAccessPanel } from './TitleAccessPanel';
 import { DigitalShelfCard } from './DigitalShelfCard';
 import { useShelfRules } from '../../hooks/useShelfRules';
-import { inclusionBadge } from '../../data/digitalShelf';
+import { INSTITUTION_FRONTLIST_DAYS, inclusionBadge } from '../../data/digitalShelf';
+import { availabilityByPlan } from '../../data/titleAccess';
+import { getPublicChapters, type PublicChapter } from '../../services/digitalApi';
 import { useDigitalFormatters } from './useDigitalFormatters';
 
 interface DigitalDetailViewProps {
@@ -25,7 +25,21 @@ interface DigitalDetailViewProps {
   onOpenPrintBook: (book: Book) => void;
 }
 
-/** Halaman /digital/<format>/<slug>: detail, cara mendapatkan (satuan vs keanggotaan), sampel, versi cetak, judul terkait. */
+const CHAPTER_PREVIEW = 8;
+
+/** Posisi bab audio sebagai jam:menit:detik. */
+const clock = (seconds: number): string => {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const sec = Math.floor(seconds % 60);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${m}:${pad(sec)}`;
+};
+
+/**
+ * Halaman /digital/<format>/<slug> (fase 6 Langkah 3): tombol utama sesuai status pengguna (tanpa pembelian satuan),
+ * deskripsi, daftar bab, informasi format (durasi, narator), ketersediaan per paket, versi cetak, dan judul terkait.
+ */
 export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
   entry,
   format,
@@ -40,6 +54,18 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
   const fmt = useDigitalFormatters();
   const { entries } = useDigitalCatalog();
   const shelfRules = useShelfRules();
+  const productId = entry?.product.id ?? null;
+  const [chapters, setChapters] = useState<PublicChapter[]>([]);
+  const [showAllChapters, setShowAllChapters] = useState(false);
+
+  useEffect(() => {
+    setChapters([]);
+    setShowAllChapters(false);
+    if (!productId) return;
+    let cancelled = false;
+    void getPublicChapters(productId).then((list) => { if (!cancelled) setChapters(list); });
+    return () => { cancelled = true; };
+  }, [productId]);
 
   if (!entry) {
     return (
@@ -67,9 +93,7 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
   const subtitle = bookText.subtitle(book);
   const formatLabel = fmt.formatLabel(product.format);
   const isAvailable = product.availabilityStatus === 'available';
-  const shelf = getShelfStatus(product);
   const hasSample = product.format === 'ebook' || Boolean(product.sampleAudioUrl);
-  const sampleLabel = product.format === 'ebook' ? t('common.readSample') : t('common.listenSample');
   const related = entries
     .filter((item) => item.product.format === product.format && item.book.category === book.category && item.product.id !== product.id)
     .slice(0, 4);
@@ -92,11 +116,8 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
     { label: t('detail.shelfDate'), value: product.shelfEntryDate ? fmt.isoDate(product.shelfEntryDate) : t('detail.notSet') }
   ].filter((spec): spec is { label: string; value: string } => spec !== null);
 
-  const shelfNote = shelf === 'onShelf'
-    ? t('detail.howToGet.shelfOnShelf')
-    : shelf === 'scheduled' && product.shelfEntryDate
-      ? t('detail.howToGet.shelfScheduled', { date: fmt.isoDate(product.shelfEntryDate) })
-      : t('detail.howToGet.shelfUnscheduled');
+  const availability = availabilityByPlan(product.shelfEntryDate, shelfRules.frontlist, INSTITUTION_FRONTLIST_DAYS);
+  const visibleChapters = showAllChapters ? chapters : chapters.slice(0, CHAPTER_PREVIEW);
 
   return (
     <div id="digital-detail-page" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 text-left">
@@ -130,17 +151,6 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
               />
             </div>
           </div>
-          {hasSample && (
-            <button
-              type="button"
-              id="btn-digital-open-sample"
-              onClick={() => onOpenSample(entry)}
-              className="mx-auto mt-4 flex w-full max-w-xs items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white py-2.5 text-sm font-semibold text-slate-800 transition-colors hover:bg-slate-50 cursor-pointer"
-            >
-              <FormatIcon format={product.format} className="h-4 w-4 text-gold-700" />
-              {sampleLabel}
-            </button>
-          )}
         </div>
 
         <div className="space-y-6 lg:col-span-8">
@@ -161,11 +171,53 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
             <p className="mt-2 text-sm text-slate-600">{book.author}</p>
           </header>
 
+          {isAvailable || hasSample ? (
+            <TitleAccessPanel product={product} hasSample={hasSample} onOpenSample={() => onOpenSample(entry)} />
+          ) : (
+            <p id="digital-access-coming-soon" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              {t('detail.access.notices.comingSoon')}
+            </p>
+          )}
+
           {/* Deskripsi */}
           <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
             <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-slate-900">{t('detail.description')}</h2>
             <p className="whitespace-pre-line text-sm leading-relaxed text-slate-700">{bookText.sinopsis(book)}</p>
           </section>
+
+          {chapters.length > 0 && (
+            <section id="digital-chapters" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+              <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-900">
+                <ListOrdered className="h-4 w-4 text-gold-700" aria-hidden="true" />
+                {t('detail.chapters.title', { count: chapters.length })}
+              </h2>
+              <ol className="divide-y divide-slate-100 text-sm">
+                {visibleChapters.map((chapter) => (
+                  <li key={chapter.number} className="flex items-baseline gap-3 py-2">
+                    <span className="w-7 shrink-0 text-right text-xs font-semibold text-slate-400">{chapter.number}</span>
+                    <span className="min-w-0 flex-1 text-slate-800 [overflow-wrap:anywhere]">{chapter.title}</span>
+                    <span className="shrink-0 text-xs tabular-nums text-slate-500">
+                      {product.format === 'audiobook' && chapter.startSeconds !== null
+                        ? clock(chapter.startSeconds)
+                        : chapter.startPage !== null
+                          ? t('detail.chapters.page', { page: chapter.startPage })
+                          : ''}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+              {chapters.length > CHAPTER_PREVIEW && (
+                <button
+                  type="button"
+                  id="btn-digital-chapters-toggle"
+                  onClick={() => setShowAllChapters((v) => !v)}
+                  className="mt-2 text-xs font-semibold text-gold-700 hover:underline cursor-pointer"
+                >
+                  {showAllChapters ? t('detail.chapters.showLess') : t('detail.chapters.showAll', { count: chapters.length })}
+                </button>
+              )}
+            </section>
+          )}
 
           {/* Informasi format */}
           <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -180,51 +232,54 @@ export const DigitalDetailView: React.FC<DigitalDetailViewProps> = ({
             </dl>
           </section>
 
-          {/* Cara mendapatkan */}
-          <section aria-labelledby="digital-how-to-get">
-            <h2 id="digital-how-to-get" className="mb-3 text-lg font-bold text-slate-900">{t('detail.howToGet.title')}</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="flex flex-col rounded-xl border border-slate-800 bg-slate-900 p-5 text-white">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-gold-400">{t('detail.howToGet.buyTitle')}</h3>
-                <p className="mt-2 flex-1 text-xs text-slate-300">{t('detail.howToGet.buyDescription')}</p>
-                <div className="mt-4">
-                  {isAvailable ? (
-                    <BuyDigitalButton id="btn-digital-buy" size="md" tone="dark" product={product} />
-                  ) : (
-                    <p className="rounded-lg bg-slate-800 px-3 py-2 text-center text-xs text-slate-300">{t('common.comingSoonLabel')}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-col rounded-xl border border-slate-200 bg-white p-5">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900">{t('detail.howToGet.membershipTitle')}</h3>
-                <p className="mt-2 text-xs text-slate-600">{t('detail.howToGet.membershipDescription')}</p>
-                <ul className="mt-2 space-y-1.5 text-xs font-semibold text-slate-800">
-                  {DIGITAL_SHELF_PLANS.map((plan) => (
-                    <li key={plan.key} className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
-                      <span>{t(`membership.plans.${plan.key}.name`)}</span>
-                    </li>
-                  ))}
-                  <li className="flex items-start gap-2">
-                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
-                    <span>{t('detail.howToGet.institutionPlan')}</span>
-                  </li>
-                </ul>
-                <p className={`mt-3 flex-1 rounded-lg px-3 py-2 text-xs ${shelf === 'onShelf' ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}>
-                  {shelfNote}
-                </p>
-                <button
-                  type="button"
-                  id="btn-digital-view-plans"
-                  onClick={() => onNavigate('membership')}
-                  className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-50 cursor-pointer"
-                >
-                  {t('detail.howToGet.viewPlans')}
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-              </div>
+          {/* Ketersediaan per paket (tanpa penjualan satuan) */}
+          <section id="digital-availability" aria-labelledby="digital-availability-title" className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 id="digital-availability-title" className="text-sm font-bold uppercase tracking-wider text-slate-900">{t('detail.availability.title')}</h2>
+            <p className="mt-1 text-xs text-slate-600">{t('detail.availability.description')}</p>
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full min-w-[18rem] text-left text-xs">
+                <tbody className="divide-y divide-slate-100">
+                  {availability.map((row) => {
+                    const open = row.openDate !== null && row.openDate <= shelfRules.today;
+                    const mine = row.plan === shelfRules.memberPlan;
+                    const how = row.plan === 'blue'
+                      ? t('detail.availability.sampleOnly')
+                      : row.plan === 'institution' || row.plan === 'platinum'
+                        ? t('detail.availability.fullShelf')
+                        : product.format === 'ebook'
+                          ? t('detail.availability.withQuota')
+                          : t('detail.availability.withAudioHours');
+                    return (
+                      <tr key={row.plan} data-plan={row.plan} className={mine ? 'bg-gold-500/10' : undefined}>
+                        <th scope="row" className="py-2 pr-3 font-semibold text-slate-900">
+                          {row.plan === 'institution' ? t('detail.availability.institution') : t(`membership.plans.${row.plan}.name`)}
+                          {mine && <span className="ml-1.5 rounded bg-gold-500 px-1.5 py-0.5 text-[10px] font-bold text-navy-950">{t('detail.availability.yourPlan')}</span>}
+                        </th>
+                        <td className="py-2 pr-3 text-slate-600">{how}</td>
+                        <td className="py-2 text-right font-semibold text-slate-800">
+                          {row.plan === 'blue'
+                            ? '—'
+                            : row.openDate === null
+                              ? t('detail.availability.dateTbd')
+                              : open
+                                ? t('detail.availability.openNow')
+                                : t('detail.availability.opensOn', { date: fmt.isoDate(row.openDate) })}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
+            <button
+              type="button"
+              id="btn-digital-view-plans"
+              onClick={() => onNavigate('membership')}
+              className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-50 cursor-pointer"
+            >
+              {t('detail.availability.comparePlans')}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
           </section>
 
           {/* Versi cetak */}

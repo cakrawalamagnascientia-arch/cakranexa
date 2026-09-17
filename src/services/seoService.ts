@@ -308,10 +308,8 @@ export const generatePageMetadata = (
       return build({
         path: isSample ? `/digital/sample/${product.id}` : `/digital/${product.format}/${book.slug || book.id}`,
         title: t(`pages.${key}.title`, vars),
-        description: t(`pages.${key}.description`, {
-          ...vars,
-          price: product.price > 0 ? formatCurrency(product.price, lang) : td('common.priceTbd')
-        }),
+        // Fase 6: tanpa harga satuan (akses lewat paket).
+        description: t(`pages.${key}.description`, vars),
         keywords: [...parsedKeywords, book.name, book.author, book.category, vars.format, ...splitKeywords(t(`pages.${key}.keywords`))],
         image: book.coverBuku || settings.ogImage,
         imageAlt: t(`pages.${key}.imageAlt`, vars),

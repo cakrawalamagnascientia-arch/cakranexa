@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   ANNUAL_BILLED_MONTHS,
-  DIGITAL_SHELF_PLANS,
   FALLBACK_MEMBERSHIP,
   INSTITUTION_TIERS,
   LAUNCH_BENEFIT_KEYS,
@@ -56,8 +55,9 @@ describe('paket individu (skema terkunci fase 6)', () => {
     expect(PHASE6_PLANS.map((p) => [p.code, p.printDiscountPercent])).toEqual([['blue', 0], ['silver', 5], ['gold', 10], ['platinum', 20]]);
   });
 
-  it('FAQ menjelaskan jam audio (durasi isi buku, bukan waktu dengar)', () => {
-    expect(MEMBERSHIP_FAQ_KEYS).toContain('audioHours');
+  it('FAQ menjelaskan sampel (tanpa uji coba), jatah, jam audio, perangkat, dan keluarga; tanpa Founding', () => {
+    expect(MEMBERSHIP_FAQ_KEYS).toEqual(expect.arrayContaining(['samples', 'titleQuota', 'audioHours', 'devices', 'family', 'unitPurchase']));
+    expect(MEMBERSHIP_FAQ_KEYS).not.toContain('founding');
   });
 
   it('manfaat cadangan = manfaat server saat semua flag mati; semua kunci punya teks', () => {
@@ -73,7 +73,7 @@ describe('paket individu (skema terkunci fase 6)', () => {
   });
 
   it('akses digital tanpa flag: hanya Platinum membuka seluruh rak', () => {
-    expect(DIGITAL_SHELF_PLANS.map((p) => p.code)).toEqual(['platinum']);
+    expect(FALLBACK_MEMBERSHIP.plans.filter((p) => p.shelfAccess === 'full').map((p) => p.code)).toEqual(['platinum']);
     expect(FALLBACK_MEMBERSHIP.flags).toMatchObject({ readerPick: false, authorShelf: false, printDiscount: false, extendedBenefits: false });
     expect(FALLBACK_MEMBERSHIP.purchaseEnabled).toBe(false);
   });

@@ -314,7 +314,7 @@ const ShelfPanel: React.FC<{ onNavigate: NavigateFn; waitForMembership: boolean 
               <ShelfTile
                 key={item.productId}
                 item={item}
-                note={item.shelfEntryDate ? t('myLibrary.upcoming.entry', { date: date(new Date(`${item.shelfEntryDate}T00:00:00+07:00`)) }) : undefined}
+                note={(item.openDate ?? item.shelfEntryDate) ? t('myLibrary.upcoming.entry', { date: date(new Date(`${item.openDate ?? item.shelfEntryDate}T00:00:00+07:00`)) }) : undefined}
                 action={item.purchasable ? (
                   <button type="button" onClick={() => goToDigitalCheckout([item.productId])} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-50 cursor-pointer">
                     {t('myLibrary.upcoming.buy', { price: currency(item.price) })}

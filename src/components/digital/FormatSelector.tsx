@@ -1,10 +1,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Crown } from 'lucide-react';
 import type { BookFormat, DigitalProduct } from '../../types';
 import { useDigitalCatalog } from '../../hooks/useDigitalCatalog';
 import { FormatIcon } from './FormatIcon';
-import { BuyDigitalButton } from './BuyDigitalButton';
+import { goToMembership } from '../../services/digitalNavigation';
 import { useDigitalFormatters } from './useDigitalFormatters';
 
 const FORMAT_ORDER: BookFormat[] = ['print', 'ebook', 'audiobook'];
@@ -68,7 +68,7 @@ interface DigitalFormatPanelProps {
   onViewDetail: () => void;
 }
 
-/** Aksi format digital di kartu halaman buku (tanpa harga satuan); alur pembelian cetak tidak disentuh. */
+/** Aksi format digital di kartu halaman buku cetak (fase 6: tanpa pembelian satuan); alur pembelian cetak tidak disentuh. */
 export const DigitalFormatPanel: React.FC<DigitalFormatPanelProps> = ({ product, onViewDetail }) => {
   const { t } = useTranslation('digital');
   const fmt = useDigitalFormatters();
@@ -81,15 +81,23 @@ export const DigitalFormatPanel: React.FC<DigitalFormatPanelProps> = ({ product,
         <p className="mt-1 text-[11px] text-slate-400">{t('formatSelector.digitalNote')}</p>
       </div>
       <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2">
-        <BuyDigitalButton id="btn-detail-buy-digital" size="md" tone="dark" product={product} />
         <button
           type="button"
           id="btn-detail-view-digital"
           onClick={onViewDetail}
-          className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-slate-700 cursor-pointer"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-gold-500 px-4 py-3 text-sm font-bold text-slate-950 transition-colors hover:bg-gold-600 cursor-pointer"
         >
           <span>{t('formatSelector.viewDigitalDetail', { format: formatLabel })}</span>
           <ArrowRight className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          id="btn-detail-digital-plans"
+          onClick={goToMembership}
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-slate-700 cursor-pointer"
+        >
+          <Crown className="h-4 w-4" aria-hidden="true" />
+          <span>{t('common.viewPlans')}</span>
         </button>
       </div>
     </div>

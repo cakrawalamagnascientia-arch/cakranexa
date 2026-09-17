@@ -398,3 +398,57 @@ describe('Langkah 7 (bagian Langkah 1): routing, instansi, paket lama', () => {
     expect(DEFAULT_PAYMENT_ROUTING.some((r) => r.transactionType === 'membership' && r.provider === 'manual')).toBe(true);
   });
 });
+
+describe('status tombol halaman buku (fase 6 Langkah 3)', () => {
+  const status = async (t: Awaited<ReturnType<typeof setup>>, token: string, productId: string) => {
+    const res = await t.as(token).get(`/api/membership/title-status/${productId}`);
+    expect(res.status).toBe(200);
+    return res.body;
+  };
+
+  it('wajib login; tanpa paket = sampel dengan tawaran paket; produk tidak dikenal 404', async () => {
+    const t = await setup();
+    expect((await request(t.app).get('/api/membership/title-status/e-old-1')).status).toBe(401);
+    expect(await status(t, t.tokens.a, 'e-old-1')).toMatchObject({ status: 'sample_only', planCode: null, upgrade: true });
+    expect((await t.as(t.tokens.a).get('/api/membership/title-status/tidak-ada')).body.code).toBe('product_not_found');
+  });
+
+  it('Silver: jatah x dari y, baca sekarang setelah dibuka, jatah habis, judul baru tersedia pada tanggal, audio lewat rak', async () => {
+    const t = await setup();
+    await t.join(t.tokens.a, 'silver');
+    expect(await status(t, t.tokens.a, 'e-old-1')).toMatchObject({ status: 'quota_available', planCode: 'silver', upgrade: true, quota: { used: 0, limit: 2 } });
+    expect((await t.pick(t.tokens.a, 'e-old-1')).status).toBe(201);
+    expect(await status(t, t.tokens.a, 'e-old-1')).toMatchObject({ status: 'open', via: 'quota' });
+    expect(await status(t, t.tokens.a, 'e-old-2')).toMatchObject({ status: 'quota_available', quota: { used: 1, limit: 2 } });
+    expect((await t.pick(t.tokens.a, 'e-old-2')).status).toBe(201);
+    const full = await status(t, t.tokens.a, 'e-old-3');
+    expect(full).toMatchObject({ status: 'quota_full', quota: { used: 2, limit: 2 } });
+    expect(full.quota.resetsAt).toBe('2026-10-14T03:00:00.000Z');
+    expect(await status(t, t.tokens.a, 'e-new')).toMatchObject({ status: 'opens_on', openDate: '2026-11-13', upgradeOpenDate: '2026-08-15' });
+    expect(await status(t, t.tokens.a, 'a-old')).toMatchObject({ status: 'open', via: 'access' });
+    await t.listened(USER_A.id, 'a-old', 5 * 3600);
+    expect(await status(t, t.tokens.a, 'a-old')).toMatchObject({ status: 'audio_exhausted', upgrade: true });
+  });
+
+  it('Gold: judul baru 30 hari setelah masuk rak tersedia pada <tanggal>; Platinum langsung tanpa tawaran upgrade', async () => {
+    const t = await setup();
+    await t.join(t.tokens.a, 'gold');
+    expect(await status(t, t.tokens.a, 'e-new')).toMatchObject({ status: 'opens_on', openDate: '2026-09-29', upgradeOpenDate: '2026-08-15' });
+    await t.join(t.tokens.b, 'platinum');
+    expect(await status(t, t.tokens.b, 'e-new')).toMatchObject({ status: 'open', via: 'access', planCode: 'platinum', upgrade: false });
+    expect(await status(t, t.tokens.b, 'a-new')).toMatchObject({ status: 'open', upgrade: false });
+  });
+
+  it('instansi tanpa paket pribadi: judul baru tersedia +45 hari, judul lama langsung; produk belum tersedia = segera', async () => {
+    const t = await setup();
+    t.phase2.context!.institution = { coversProduct: async () => true, claimSession: async () => null };
+    await t.store.insertEntitlements([{
+      userId: USER_A.id, productId: null, scope: 'shelf', source: 'institution', sourceRef: 'kontrak-uji',
+      startsAt: new Date(t.clock.t - DAY).toISOString(), endsAt: new Date(t.clock.t + 300 * DAY).toISOString(), maxDevices: 2
+    }]);
+    expect(await status(t, t.tokens.a, 'e-old-1')).toMatchObject({ status: 'open', via: 'institution' });
+    expect(await status(t, t.tokens.a, 'e-new')).toMatchObject({ status: 'opens_on', openDate: '2026-09-29' });
+    t.products.find((p) => p.id === 'e-old-2')!.availabilityStatus = 'coming_soon';
+    expect(await status(t, t.tokens.a, 'e-old-2')).toMatchObject({ status: 'coming_soon' });
+  });
+});

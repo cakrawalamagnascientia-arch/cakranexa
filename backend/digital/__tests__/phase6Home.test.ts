@@ -70,3 +70,22 @@ describe('beranda digital: populer & lanjutkan membaca', () => {
     await t.store.insertSession(row('prod-audio-1'));
   });
 });
+
+describe('halaman buku: daftar bab publik (fase 6 Langkah 3)', () => {
+  it('nomor, judul, dan posisi bab saja, terurut; produk tidak dikenal 404; tanpa login', async () => {
+    const t = await setup();
+    await t.store.replaceChapters('prod-audio-1', [
+      { chapterNumber: 2, title: 'Bab Dua', startSeconds: 1800, startPage: null },
+      { chapterNumber: 1, title: 'Pendahuluan', startSeconds: 0, startPage: null }
+    ]);
+    const res = await request(t.app).get('/api/digital/chapters/prod-audio-1');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ chapters: [
+      { number: 1, title: 'Pendahuluan', startSeconds: 0, startPage: null },
+      { number: 2, title: 'Bab Dua', startSeconds: 1800, startPage: null }
+    ] });
+    expect(res.headers['cache-control']).toContain('public');
+    expect((await request(t.app).get('/api/digital/chapters/prod-ebook-2')).body).toEqual({ chapters: [] });
+    expect((await request(t.app).get('/api/digital/chapters/tidak-ada')).status).toBe(404);
+  });
+});
