@@ -11,6 +11,12 @@ import { createPrintCheckoutRouter } from './backend/printCheckout/router';
 import { MemoryPrintOrderStore, SupabasePrintOrderStore } from './backend/printCheckout/store';
 import { createRajaOngkirClient, rajaOngkirKeyFromEnv, type RajaOngkirClient } from './backend/printCheckout/rajaongkir';
 import { ShippingApiUsage } from './backend/printCheckout/apiUsage';
+import { MemoryManuscriptStore } from './backend/manuscripts/memoryStore';
+import { SupabaseManuscriptStore } from './backend/manuscripts/supabaseStore';
+import { MemoryManuscriptAdminStore } from './backend/manuscripts/adminStore';
+import { SupabaseManuscriptAdminStore } from './backend/manuscripts/supabaseAdminStore';
+import { ManuscriptAdminService } from './backend/manuscripts/adminService';
+import { createManuscriptAdminRouter } from './backend/manuscripts/adminRouter';
 import { DEFAULT_PRINT_CHECKOUT_SETTINGS } from './src/data/shippingZones';
 import { createSupabaseAssetStorage } from './backend/digital/storage';
 import { DEFAULT_FINANCE_WHATSAPP } from './src/utils/transferConfirmation';
@@ -885,6 +891,8 @@ async function startServer() {
   };
   // Kedaluwarsa pesanan cetak (transfer manual) ikut POST /api/internal/cron; diisi setelah layanan checkout dibuat.
   let runPrintOrderJob: () => Promise<unknown> = async () => ({ skipped: true });
+  // Pengingat kontrak naskah (jatuh tempo honor, hak kembali 12 bulan lagi); diisi setelah layanan kontrak dibuat.
+  let runManuscriptJob: () => Promise<unknown> = async () => ({ skipped: true });
 
   const digitalPhase2 = createDigitalPhase2({
     supabaseAdmin,
@@ -930,7 +938,7 @@ async function startServer() {
     adminEmails: ORDER_NOTIFICATION_EMAILS,
     institutionAdminEmails: INSTITUTION_INQUIRY_EMAILS,
     midtrans: { enabled: MIDTRANS_ENABLED, serverKey: MIDTRANS_SERVER_KEY, snapUrl: MIDTRANS_SNAP_URL, isProduction: MIDTRANS_IS_PRODUCTION },
-    cronJobs: { printOrders: () => runPrintOrderJob() }
+    cronJobs: { printOrders: () => runPrintOrderJob(), manuscripts: () => runManuscriptJob() }
   });
   app.use(digitalPhase2.router);
   if (digitalPhase2.enabled) console.log(`📚 Produk digital fase 2 aktif (penyimpanan: ${digitalPhase2.context?.store.kind}).`);
@@ -995,6 +1003,30 @@ async function startServer() {
   });
   runPrintOrderJob = () => printCheckout.runJob();
   app.use(createPrintCheckoutRouter(printCheckout, requireAdmin));
+
+  // ==========================================================================
+  // KONTRAK NASKAH JUAL PUTUS (fase 5R, backend/manuscripts): admin kontrak, addendum, jadwal honor, dokumen
+  // di bucket privat, pengingat, laporan biaya per judul, impor/ekspor CSV, akun login penulis.
+  // ==========================================================================
+  const manuscriptStore = supabaseAdmin ? new SupabaseManuscriptStore(supabaseAdmin) : new MemoryManuscriptStore();
+  const manuscriptAdminStore = supabaseAdmin ? new SupabaseManuscriptAdminStore(supabaseAdmin) : new MemoryManuscriptAdminStore();
+  if (manuscriptAdminStore instanceof MemoryManuscriptAdminStore) {
+    // Mode lokal tanpa database: daftar penulis dari data bawaan.
+    manuscriptAdminStore.authors.push(...inMemoryAuthors.map((a) => ({
+      id: a.id, name: a.name, email: a.email ?? null, userId: null, userLinkSource: null, userLinkedAt: null
+    })));
+  }
+  const manuscripts = new ManuscriptAdminService({
+    store: manuscriptStore,
+    adminStore: manuscriptAdminStore,
+    storage: printOrderStorage,
+    loadBooks: async () => (await loadBooks()).map((b) => ({ id: b.id, slug: b.slug, name: b.name, isbn: b.isbn })),
+    sendMail: sendResendEmail,
+    adminEmails: ORDER_NOTIFICATION_EMAILS,
+    siteUrl: process.env.SITE_URL || 'https://cakranexa.com'
+  });
+  runManuscriptJob = () => manuscripts.runReminderJob();
+  app.use(createManuscriptAdminRouter(manuscripts, requireAdmin));
 
   // ==========================================================================
   // HEALTH & AUTH
@@ -1973,6 +2005,14 @@ async function startServer() {
       const timer = setInterval(() => {
         runPrintOrderJob().catch((err) => console.warn('[print] job kedaluwarsa gagal:', err?.message || err));
       }, 15 * 60 * 1000);
+      timer.unref?.();
+    }
+    // Pengingat kontrak naskah: dicek tiap 6 jam; tiap pengingat terkirim sekali (tabel manuscript_reminders).
+    if (process.env.MANUSCRIPT_REMINDER_JOB !== 'false') {
+      const runReminders = () => runManuscriptJob().catch((err) => console.warn('[manuscripts] job pengingat gagal:', err?.message || err));
+      const first = setTimeout(runReminders, 60 * 1000);
+      const timer = setInterval(runReminders, 6 * 60 * 60 * 1000);
+      first.unref?.();
       timer.unref?.();
     }
     app.listen(PORT, HOST, () => {
