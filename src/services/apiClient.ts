@@ -83,6 +83,26 @@ const adminRequest = async <T>(path: string, init: RequestInit = {}): Promise<T>
   return res.json() as Promise<T>;
 };
 
+/** Satu baris antrian transfer keanggotaan (backend MembershipService.adminTransfers). */
+export interface AdminMembershipTransfer {
+  id: string;
+  orderRef: string;
+  kind: 'initial' | 'renewal' | 'upgrade' | 'manual';
+  planCode: string | null;
+  amount: number;
+  status: string;
+  dueAt: string | null;
+  issuedAt: string | null;
+  transfer: { uniqueCode: string | null; uniqueDiscount: number; baseAmount: number; hasProof: boolean; proofUploadedAt: string | null } | null;
+  subscriptionId: string;
+  subscriptionStatus: string | null;
+  customerName: string;
+  customerEmail: string;
+  isTest: boolean;
+  failureReason: string | null;
+  dueExtendedCount: number;
+}
+
 export interface CreateOrderResponse {
   success: boolean;
   orderId: string;
@@ -795,6 +815,25 @@ export const apiClient = {
     if (filters.all) params.set('all', '1');
     const query = params.toString();
     return adminRequest(`/api/admin/membership/subscriptions${query ? `?${query}` : ''}`);
+  },
+
+  /** Fase 6: antrian transfer keanggotaan untuk Finance (?expired=1 menyertakan yang baru kedaluwarsa). */
+  listMembershipTransfers(includeExpired = false): Promise<{ transfers: AdminMembershipTransfer[] }> {
+    return adminRequest(`/api/admin/membership/transfers${includeExpired ? '?expired=1' : ''}`);
+  },
+
+  confirmMembershipTransfer(invoiceId: string, input: { reference?: string; allow_expired?: boolean }): Promise<{ invoice: Record<string, unknown> }> {
+    return adminRequest(`/api/admin/membership/transfers/${encodeURIComponent(invoiceId)}/confirm`, { method: 'POST', body: JSON.stringify(input) });
+  },
+
+  extendMembershipTransfer(invoiceId: string, hours: number): Promise<{ invoice: Record<string, unknown> }> {
+    return adminRequest(`/api/admin/membership/transfers/${encodeURIComponent(invoiceId)}/extend`, { method: 'POST', body: JSON.stringify({ hours }) });
+  },
+
+  async membershipTransferProofUrl(invoiceId: string): Promise<string> {
+    const res = await fetchWithTimeout(apiUrl(`/api/admin/membership/transfers/${encodeURIComponent(invoiceId)}/proof`), { headers: adminHeaders() }, ADMIN_WRITE_TIMEOUT_MS);
+    if (!res.ok) throw await parseError(res);
+    return URL.createObjectURL(await res.blob());
   },
 
   getMembershipSubscription(id: string): Promise<AdminSubscriptionDetail> {

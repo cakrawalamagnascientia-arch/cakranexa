@@ -73,6 +73,10 @@ export interface MembershipConfig {
   memberPrintDiscount: boolean;
   /** MEMBERSHIP_EXTENDED_BENEFITS: tampilkan manfaat yang belum bisa dipenuhi saat peluncuran (wallet, poin, dsb.). */
   extendedBenefits: boolean;
+  /** ENABLE_OFFLINE (fase 6 Langkah 5): baca/dengar offline Gold/Platinum. Mati = manfaat offline tidak ditampilkan. */
+  offlineEnabled: boolean;
+  /** ENABLE_CROSS_FORMAT_SYNC (fase 6 Langkah 5): lanjut e-book ↔ audio. Mati = manfaat sinkron tidak ditampilkan. */
+  crossFormatSync: boolean;
   /** Masa tenggang setelah akhir periode; akses tetap terbuka. */
   graceDays: number;
   /** Pengingat tagihan (hari sebelum jatuh tempo). */
@@ -130,6 +134,8 @@ export const loadDigitalConfig = (env: NodeJS.ProcessEnv = process.env): Digital
       authorGuildShelf: envFlag(env.ENABLE_AUTHOR_GUILD_SHELF),
       memberPrintDiscount: envFlag(env.ENABLE_MEMBER_PRINT_DISCOUNT),
       extendedBenefits: envFlag(env.MEMBERSHIP_EXTENDED_BENEFITS),
+      offlineEnabled: envFlag(env.ENABLE_OFFLINE),
+      crossFormatSync: envFlag(env.ENABLE_CROSS_FORMAT_SYNC),
       graceDays: 5,
       reminderDays: [7, 3, 1, 0],
       foundingNoticeDays: 30,

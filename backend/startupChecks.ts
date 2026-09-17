@@ -85,7 +85,9 @@ export const REQUIRED_SCHEMA: SchemaRequirement[] = [
   { migration: 'src/db/membership_phase6_migration.sql', table: 'plans', columns: ['ebook_titles_per_period', 'audio_hours_per_period', 'frontlist_days', 'offline_titles', 'family_accounts', 'successor_plan_id'] },
   { migration: 'src/db/membership_phase6_migration.sql', table: 'reading_events', columns: ['subscription_id'] },
   { migration: 'src/db/membership_phase6_migration.sql', table: 'period_title_picks' },
-  { migration: 'src/db/membership_phase6_migration.sql', table: 'family_members' }
+  { migration: 'src/db/membership_phase6_migration.sql', table: 'family_members' },
+  { migration: 'src/db/membership_phase6_migration.sql', table: 'print_checkout_settings', columns: ['finance_whatsapp'] },
+  { migration: 'src/db/membership_phase6_migration.sql', table: 'subscription_invoices', columns: ['unique_code', 'unique_discount', 'payment_proof_path', 'payment_proof_uploaded_at', 'payment_confirmed_by', 'payment_reference', 'due_extended_count'] }
 ];
 
 export interface MissingSchemaObject {

@@ -5,16 +5,19 @@ import type { ActivePage, SubSection } from '../../types';
 import { useMemberSession } from '../../services/memberSession';
 import {
   getLibrary,
+  getNoteCounts,
+  getReadingProgress,
   listDigitalOrders,
   listMyDevices,
   releaseMyDevice,
   DigitalApiError,
   type DevicesOverview,
   type DigitalOrder,
+  type ContinueItem,
   type LibraryItem
 } from '../../services/digitalApi';
-import { chooseMemberPick, getMembershipShelf, membershipErrorCode, type MembershipShelf, type ShelfCard } from '../../services/membershipApi';
-import { goToAccountMembership, goToContact, goToDigitalCheckout, goToDigitalOrder, goToLibraryItem, goToMembership } from '../../services/digitalNavigation';
+import { chooseMemberPick, getMembershipShelf, getMyMembership, membershipErrorCode, type MembershipShelf, type MyMembership, type ShelfCard } from '../../services/membershipApi';
+import { goToAccountMembership, goToContact, goToDigitalCheckout, goToDigitalOrder, goToLibraryItem, goToMembership, goToPickScreen } from '../../services/digitalNavigation';
 import { useDigitalCatalog } from '../../hooks/useDigitalCatalog';
 import { useBookText, useFormatters } from '../../i18n/hooks';
 import { resolveImageUrl } from '../../utils/imageUtils';
@@ -24,13 +27,65 @@ import { ComingSoonButton } from './ComingSoonButton';
 import { useDigitalFormatters } from './useDigitalFormatters';
 
 type NavigateFn = (page: ActivePage, subSection?: SubSection) => void;
-type LibraryTab = 'shelf' | 'owned';
+/** Tab Pustaka Saya fase 6 Langkah 4. */
+type LibraryTab = 'reading' | 'quota' | 'done' | 'notes';
+const LIBRARY_TABS: LibraryTab[] = ['reading', 'quota', 'done', 'notes'];
+const TAB_QUERY: Record<string, LibraryTab> = { reading: 'reading', quota: 'quota', done: 'done', notes: 'notes' };
 
 const STATUS_CLASS: Record<string, string> = {
   active: 'bg-emerald-100 text-emerald-800',
   expired: 'bg-slate-200 text-slate-700',
   suspended: 'bg-amber-100 text-amber-800',
   no_entitlement: 'bg-slate-200 text-slate-700'
+};
+
+/** Kartu ringkas dari progres/catatan: sampul katalog, judul, dan aksi buka. */
+const ProgressCard: React.FC<{ item: ContinueItem & { count?: number }; action: 'open' | 'notes' }> = ({ item, action }) => {
+  const { t } = useTranslation('digital');
+  const catalog = useDigitalCatalog();
+  const bookText = useBookText();
+  const entry = catalog.findById(item.productId);
+  const title = entry ? toTitleCase(bookText.title(entry.book)) : item.bookId;
+  return (
+    <li className="flex gap-3 rounded-xl border border-cream-200 bg-white p-3">
+      <div className="h-24 w-16 shrink-0 overflow-hidden rounded bg-cream-100">
+        {entry && <img src={resolveImageUrl(entry.book.coverBuku, 'book', entry.book.id)} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />}
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <p className="line-clamp-2 text-sm font-semibold text-slate-900">{title}</p>
+        <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-500">
+          <FormatIcon format={item.format} className="h-3.5 w-3.5" />
+          {action === 'notes' ? t('myLibrary.notesCount', { count: item.count ?? 0 }) : t('myLibrary.progress', { percent: item.percent })}
+        </p>
+        <button
+          type="button"
+          onClick={() => goToLibraryItem(item.format, item.productId)}
+          className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-lg bg-navy-950 px-3 py-1.5 text-xs font-bold text-cream-50 hover:bg-navy-900 cursor-pointer"
+        >
+          {action === 'notes' ? t('myLibrary.openNotes') : item.format === 'ebook' ? t('myLibrary.read') : t('myLibrary.listen')}
+          <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+        </button>
+      </div>
+    </li>
+  );
+};
+
+/** Meter jam audio bulan ini (paket berbatas jam). */
+const AudioMeter: React.FC<{ audio: NonNullable<MyMembership['audio']> }> = ({ audio }) => {
+  const { t } = useTranslation('digital');
+  const { date } = useFormatters();
+  const hours = (seconds: number) => Math.round((seconds / 3600) * 10) / 10;
+  const percent = Math.min(100, Math.round((audio.usedSeconds / Math.max(1, audio.limitSeconds)) * 100));
+  return (
+    <section id="library-audio-meter" className="rounded-xl border border-cream-200 bg-white p-4">
+      <h3 className="text-sm font-bold text-slate-900">{t('myLibrary.audio.title')}</h3>
+      <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-cream-100">
+        <div className={`h-full ${audio.exhausted ? 'bg-amber-500' : 'bg-gold-500'}`} style={{ width: `${percent}%` }} />
+      </div>
+      <p className="mt-2 text-xs text-slate-600">{t('myLibrary.audio.used', { used: hours(audio.usedSeconds), limit: hours(audio.limitSeconds) })}</p>
+      <p className="text-xs text-slate-500">{audio.exhausted ? t('myLibrary.audio.exhausted') : t('myLibrary.audio.resets', { date: date(new Date(audio.resetsAt)) })}</p>
+    </section>
+  );
 };
 
 /** Satu judul di Pustaka Saya: sampul, status akses, progres, dan tombol baca/dengarkan. */
@@ -477,6 +532,8 @@ const OrdersPanel: React.FC = () => {
 
 interface LibraryViewProps {
   onNavigate: NavigateFn;
+  /** Query mentah: ?welcome=1&tab=reading|quota|done|notes. */
+  query?: string;
 }
 
 const welcomeRequested = () => {
@@ -501,14 +558,25 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
   const [maxDevices, setMaxDevices] = useState(2);
   const [loadError, setLoadError] = useState(false);
   const [welcome, setWelcome] = useState(welcomeRequested);
-  const [tab, setTab] = useState<LibraryTab>('shelf');
+  const [tab, setTab] = useState<LibraryTab>(() => TAB_QUERY[new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search).get('tab') ?? ''] ?? 'reading');
+  const [progress, setProgress] = useState<ContinueItem[] | null>(null);
+  const [notes, setNotes] = useState<Array<ContinueItem & { count: number }> | null>(null);
+  const [membership, setMembership] = useState<MyMembership | null>(null);
 
   const load = useCallback(async () => {
     setLoadError(false);
     try {
-      const library = await getLibrary();
+      const [library, progressList, noteList, me] = await Promise.all([
+        getLibrary(),
+        getReadingProgress().catch(() => ({ items: [] })),
+        getNoteCounts().catch(() => ({ items: [] })),
+        getMyMembership().catch(() => null)
+      ]);
       setItems(library.items);
       setMaxDevices(library.devices.max);
+      setProgress(progressList.items);
+      setNotes(noteList.items.map((n) => ({ ...n, percent: 0, position: 0, updatedAt: '' })));
+      setMembership(me);
     } catch {
       setLoadError(true);
     }
@@ -516,7 +584,12 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
 
   useEffect(() => {
     if (showMember) void load();
-    else setItems(null);
+    else {
+      setItems(null);
+      setProgress(null);
+      setNotes(null);
+      setMembership(null);
+    }
   }, [showMember, member.userId, load]);
 
   const emptyState = (
@@ -614,23 +687,41 @@ export const LibraryView: React.FC<LibraryViewProps> = ({ onNavigate }) => {
 
       {showMember && (
         <>
-          <div role="tablist" aria-label={t('library.title')} className="mt-6 inline-flex gap-1 rounded-full border border-slate-200 bg-white p-1 shadow-xs">
-            {(['shelf', 'owned'] as const).map(tabButton)}
+          <div role="tablist" aria-label={t('library.title')} className="mt-6 inline-flex flex-wrap gap-1 rounded-full border border-cream-200 bg-white p-1 shadow-xs">
+            {LIBRARY_TABS.map(tabButton)}
           </div>
+          {membership?.audio && <div className="mt-4 max-w-md">{<AudioMeter audio={membership.audio} />}</div>}
           <section id={`library-panel-${tab}`} role="tabpanel" aria-labelledby={`library-tab-${tab}`} className="mt-5" aria-live="polite">
-            {tab === 'shelf' ? (
-              <ShelfPanel onNavigate={onNavigate} waitForMembership={welcome} />
-            ) : loadError ? (
+            {loadError ? (
               <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700">
                 <p>{t('myLibrary.loadError')}</p>
                 <button type="button" onClick={() => void load()} className="mt-2 font-semibold underline cursor-pointer">{t('myLibrary.retry')}</button>
               </div>
-            ) : items === null ? (
+            ) : tab === 'quota' ? (
+              <>
+                {membership?.subscription?.shelfAccess === 'pick' && (
+                  <button type="button" id="btn-library-pick" onClick={goToPickScreen} className="mb-4 inline-flex items-center gap-2 rounded-lg bg-gold-500 px-4 py-2.5 text-sm font-bold text-navy-950 hover:bg-gold-400 cursor-pointer">
+                    {t('myLibrary.pickCta')}
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                )}
+                <ShelfPanel onNavigate={onNavigate} waitForMembership={welcome} />
+              </>
+            ) : progress === null || notes === null ? (
               <p role="status" className="text-sm text-slate-500">{t('myLibrary.loading')}</p>
-            ) : items.length === 0 ? (
-              emptyState
-            ) : (
-              <ul id="library-items" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            ) : tab === 'notes' ? (
+              notes.length === 0
+                ? <p className="text-sm text-slate-600">{t('myLibrary.emptyTab.notes')}</p>
+                : <ul id="library-notes" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{notes.map((item) => <ProgressCard key={item.productId} item={item} action="notes" />)}</ul>
+            ) : (() => {
+              const list = tab === 'reading'
+                ? progress.filter((x) => x.percent > 0 && x.percent < 99)
+                : progress.filter((x) => x.percent >= 99);
+              if (list.length === 0) return <p className="text-sm text-slate-600">{t(`myLibrary.emptyTab.${tab}`)}</p>;
+              return <ul id={`library-${tab}`} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{list.map((item) => <ProgressCard key={item.productId} item={item} action="open" />)}</ul>;
+            })()}
+            {tab === 'reading' && items !== null && items.length > 0 && (
+              <ul id="library-items" className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {items.map((item) => <LibraryCard key={item.productId} item={item} />)}
               </ul>
             )}

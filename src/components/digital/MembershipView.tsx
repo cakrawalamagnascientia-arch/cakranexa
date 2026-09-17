@@ -96,8 +96,13 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
         return plan.printDiscountPercent > 0 ? `${plan.printDiscountPercent}%` : false;
     }
   };
+  // Offline dan sinkron format tampil setelah fiturnya aktif (flag server, fase 6 Langkah 5).
   const compareRows: CompareRow[] = [
-    'price', 'ebook', 'audiobook', 'newTitles', 'offline', 'notes', 'formatSync', 'family', 'devices',
+    'price', 'ebook', 'audiobook', 'newTitles',
+    ...(data.flags.offline ? ['offline' as const] : []),
+    'notes',
+    ...(data.flags.crossFormatSync ? ['formatSync' as const] : []),
+    'family', 'devices',
     ...(data.flags.printDiscount ? ['printDiscount' as const] : [])
   ];
 
@@ -158,7 +163,6 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
     sampleMax: DIGITAL_SAMPLE_LIMITS.recommendedPagePercent.max,
     sampleMinutes: DIGITAL_SAMPLE_LIMITS.defaultAudioSeconds / 60
   };
-  const paymentAnswer = data.flags.autodebit ? 'membership.faq.items.payment.a' : 'membership.faq.items.payment.aManual';
 
   return (
     <div id="membership-page" className="text-left">
@@ -383,7 +387,7 @@ export const MembershipView: React.FC<MembershipViewProps> = ({ onNavigate }) =>
                   <ChevronDown className="h-4 w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-180" aria-hidden="true" />
                 </summary>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  {key === 'payment' ? t(paymentAnswer, faqParams) : t(`membership.faq.items.${key}.a`, faqParams)}
+                  {t(`membership.faq.items.${key}.a`, faqParams)}
                 </p>
               </details>
             ))}

@@ -53,6 +53,9 @@ import { AuthView, type AuthMode } from './components/account/AuthView';
 import { DigitalCheckoutView } from './components/digital/DigitalCheckoutView';
 import { MembershipCheckoutView } from './components/digital/MembershipCheckoutView';
 import { MembershipTermsView } from './components/digital/MembershipTermsView';
+import { MembershipInvoiceView } from './components/digital/MembershipInvoiceView';
+import { OnboardingView } from './components/account/OnboardingView';
+import { PickScreen } from './components/digital/PickScreen';
 import { AccountMembershipView } from './components/account/AccountMembershipView';
 import { ReaderView } from './components/reader/ReaderView';
 import { PlayerView } from './components/player/PlayerView';
@@ -488,7 +491,7 @@ export default function App() {
       selectedAuthorId: activePage === 'katalog' && selectedAuthor ? selectedAuthor.id : null,
       category: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogCategory : undefined,
       search: activePage === 'katalog' && !selectedBook && !selectedAuthor ? catalogSearch : undefined,
-      digitalItem: activePage === 'digital' || activePage === 'library' || activePage === 'order' ? digitalItem : null,
+      digitalItem: activePage === 'digital' || activePage === 'library' || activePage === 'order' || activePage === 'membership' ? digitalItem : null,
       query: activePage === 'account' || activePage === 'library' || activePage === 'payment' || activePage === 'order' || (activePage === 'digital' && (activeSubSection === 'checkout' || ((activeSubSection === 'ebook' || activeSubSection === 'audiobook') && !digitalItem))) || (activePage === 'membership' && activeSubSection === 'checkout') ? routeQuery : undefined
     }, activePage === 'katalog' && !selectedBook && !selectedAuthor && (catalogSearch !== '' || catalogCategory !== 'all'));
   }, [activePage, activeSubSection, selectedBook, selectedAuthor, catalogCategory, catalogSearch, pendingBookSlug, digitalItem, routeQuery]);
@@ -1343,7 +1346,9 @@ export default function App() {
             ? <MembershipCheckoutView query={routeQuery} onNavigate={navigateTo} />
             : activeSubSection === 'terms'
               ? <MembershipTermsView onNavigate={navigateTo} />
-              : <MembershipView onNavigate={navigateTo} />
+              : activeSubSection === 'invoice' && digitalItem
+                ? <MembershipInvoiceView invoiceId={digitalItem} />
+                : <MembershipView onNavigate={navigateTo} />
         )}
         {activePage === 'institutions' && <InstitutionsView />}
 
@@ -1365,14 +1370,17 @@ export default function App() {
             ? <ReaderView key={digitalItem} productId={digitalItem} onExit={() => navigateTo('library')} />
             : digitalCatalog.enabled && activeSubSection === 'listen' && digitalItem
               ? <PlayerView key={digitalItem} productId={digitalItem} onExit={() => navigateTo('library')} />
-              : <LibraryView onNavigate={navigateTo} />
+              : activeSubSection === 'pick'
+                ? <PickScreen onNavigate={navigateTo} />
+                : <LibraryView onNavigate={navigateTo} query={routeQuery} />
         )}
 
         {/* VIEW 14: AKUN PEMBELI (MASUK, DAFTAR, ATUR ULANG KATA SANDI) */}
         {activePage === 'account' && activeSubSection === 'membership' && (
           <AccountMembershipView query={routeQuery} onNavigate={navigateTo} />
         )}
-        {activePage === 'account' && activeSubSection !== 'membership' && (
+        {activePage === 'account' && activeSubSection === 'onboarding' && <OnboardingView />}
+        {activePage === 'account' && activeSubSection !== 'membership' && activeSubSection !== 'onboarding' && (
           <AuthView
             mode={(['login', 'register', 'reset', 'update-password'].includes(String(activeSubSection)) ? activeSubSection : 'login') as AuthMode}
             query={routeQuery}

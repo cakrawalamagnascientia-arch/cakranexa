@@ -44,7 +44,9 @@
       "fullName": "请输入您的姓名。",
       "email": "请输入有效的电子邮箱。",
       "password": "密码至少需要 8 个字符。"
-    }
+    },
+    "or": "或",
+    "googleCta": "使用 Google 继续"
   },
   "checkout": {
     "subheader": "结账",
@@ -296,7 +298,11 @@
     "manageMembership": "我的会员",
     "tabs": {
       "shelf": "数字书架",
-      "owned": "已购"
+      "owned": "已购",
+      "reading": "正在阅读",
+      "quota": "本月额度",
+      "done": "已完成",
+      "notes": "笔记"
     },
     "shelf": {
       "loadError": "无法加载数字书架，请检查网络后重试。",
@@ -335,7 +341,22 @@
       "step3Title": "续费",
       "step3": "账单、续费、更改方案和取消均在“我的会员”页面。",
       "dismiss": "知道了"
-    }
+    },
+    "openLibrary": "打开我的书库",
+    "audio": {
+      "title": "本月收听时长",
+      "used": "已用 {{used}}/{{limit}} 小时",
+      "resets": "新时长于 {{date}} 开放",
+      "exhausted": "本月收听时长已用完。"
+    },
+    "pickCta": "选择本月作品",
+    "emptyTab": {
+      "reading": "暂无正在阅读或收听的作品。",
+      "done": "暂无已完成的作品。",
+      "notes": "暂无笔记。可在阅读器中添加笔记和标注。"
+    },
+    "notesCount": "{{count}} 条笔记",
+    "openNotes": "在阅读器中打开"
   },
   "nav": {
     "menu": "数字",
@@ -557,7 +578,7 @@
       },
       "gold": {
         "name": "Gold",
-        "tagline": "最均衡：每月 6 本、20 小时有声书，可离线并做笔记。"
+        "tagline": "最均衡：每月 6 本、20 小时有声书，并可做笔记。"
       },
       "platinum": {
         "name": "Platinum",
@@ -722,8 +743,7 @@
         },
         "payment": {
           "q": "如何支付方案费用？",
-          "a": "方案费用通过银行转账支付至 PT Cakrawala Magna Scientia 官方账户，金额末尾附唯一识别码。财务团队确认付款后方案即生效。续订时，我们会在到期前发送账单和提醒。",
-          "aManual": "方案费用通过银行转账支付至 PT Cakrawala Magna Scientia 官方账户，金额末尾附唯一识别码。财务团队确认付款后方案即生效。续订时，我们会在到期前发送账单和提醒。"
+          "a": "方案费用通过银行转账支付至 PT Cakrawala Magna Scientia 官方账户，金额末尾附唯一识别码。财务团队确认付款后方案即生效。续订时，我们会在到期前发送账单和提醒。"
         },
         "grace": {
           "q": "付款逾期怎么办？",
@@ -948,7 +968,7 @@
   },
   "membershipCheckout": {
     "title": "加入会员",
-    "subtitle": "确认方案、选择付款方式，然后前往安全的 Midtrans 支付页面。",
+    "subtitle": "三个步骤：选择周期、同意条款，然后转账至 CakraNexa 官方账户。",
     "loginTitle": "登录后加入",
     "loginDescription": "会员与您的账户关联，便于在同一处管理数字书架、设备和账单。",
     "plan": "方案",
@@ -959,26 +979,26 @@
     "perYear": "每年",
     "perMonth": "每月",
     "methodTitle": "付款方式",
-    "honestNote": "银行卡/GoPay：自动续费。虚拟账户/QRIS：我们每期发送账单，由您手动付款。",
-    "honestNoteManual": "目前所有方式均按周期付款：我们会在到期前发送账单和提醒，由您手动付款。",
     "methods": {
       "va": {
-        "label": "虚拟账户",
-        "description": "通过银行虚拟账户号码转账。我们每期发送账单，由您手动付款。"
+        "label": "虚拟账户（VA）",
+        "description": "通过银行虚拟账户付款。"
       },
       "qris": {
         "label": "QRIS",
-        "description": "使用银行或电子钱包应用扫描二维码。我们每期发送账单，由您手动付款。"
+        "description": "使用银行或电子钱包应用扫描 QRIS。"
       },
       "card": {
         "label": "信用卡/借记卡",
-        "descriptionAuto": "每期自动续费。卡片信息仅在 Midtrans 页面填写，CakraNexa 不会保存。",
-        "descriptionManual": "自动续费尚未开通；我们每期发送账单，由您手动付款。"
+        "description": "使用银行卡付款。"
       },
       "gopay": {
         "label": "GoPay",
-        "descriptionAuto": "从您绑定的 GoPay 账户自动续费。",
-        "descriptionManual": "自动续费尚未开通；我们每期发送账单，由您手动付款。"
+        "description": "使用 GoPay 余额付款。"
+      },
+      "bank_transfer": {
+        "label": "银行转账",
+        "description": "转账至官方账户，金额附唯一识别码；由财务团队确认。"
       }
     },
     "termsAccept": "我已阅读并同意",
@@ -995,7 +1015,7 @@
     "freeDescription": "每个账户自动享有 Free Circle：样章、新书通讯、心愿单和活动邀请。",
     "unavailableTitle": "暂未开放注册",
     "unavailable": "会员注册正在筹备中，即将开放。",
-    "back": "返回会员方案",
+    "back": "返回",
     "errors": {
       "terms_required": "请先同意会员条款。",
       "order_not_saved": "注册暂时无法处理，请重试。",
@@ -1019,6 +1039,22 @@
       "optIn": "通过 WhatsApp 发送账单提醒",
       "number": "WhatsApp 号码",
       "placeholder": "0812 3456 7890"
+    },
+    "steps": {
+      "plan": "方案",
+      "terms": "条款",
+      "payment": "付款"
+    },
+    "next": "继续",
+    "termsIntro": "继续之前，请阅读会员条款与阅读/收听许可。",
+    "methodNote": "可用的付款方式由管理员设置。本页面不进行银行卡付款。",
+    "createInvoice": "创建转账账单 {{total}}",
+    "safety": "我们仅接受转账至 PT Cakrawala Magna Scientia 名下的账户。",
+    "transferFlow": {
+      "invoice": "我们会生成带唯一识别码的账单，并通过电子邮件发送说明。",
+      "transfer": "请在 24 小时内转账相同金额。",
+      "proof": "上传转账凭证（或通过财务 WhatsApp 发送）。",
+      "active": "财务团队确认付款后，方案即生效。"
     }
   },
   "membershipTerms": {
@@ -1106,10 +1142,7 @@
       "nextRenewal": "下次续费"
     },
     "otherMethod": "其他",
-    "autodebitOn": "自动续费",
-    "autodebitOff": "每期手动付款",
     "nextRenewal": "{{date}} 支付 {{amount}}",
-    "renewalAuto": "将于当日自动扣款。",
     "renewalManual": "账单将提前 7 天发送。",
     "foundingUntil": "创始价格有效期至 {{date}}。下次续费按常规价格 {{price}}/年。",
     "pendingChange": "自 {{date}} 起方案将变更为 {{plan}}（{{cycle}}）。",
@@ -1128,7 +1161,9 @@
       "pay": "立即付款",
       "refresh": "查询付款状态",
       "paidNow": "已收到付款，谢谢！",
-      "stillPending": "我们尚未收到付款。如您刚刚付款，请稍候几分钟再查询。"
+      "stillPending": "我们尚未收到付款。如您刚刚付款，请稍候几分钟再查询。",
+      "transferNote": "请按账单金额准确转账（唯一识别码 {{code}}），然后在账单页面上传凭证。",
+      "transferCta": "查看转账说明"
     },
     "invoiceKind": {
       "initial": "注册",
@@ -1157,12 +1192,6 @@
       "immediateResult": "支付差价 {{amount}}（已抵扣 {{credit}}）即可开通新方案。",
       "scheduledResult": "变更已安排，自 {{date}} 起生效。",
       "appliedResult": "新方案已生效。"
-    },
-    "method": {
-      "title": "付款方式",
-      "description": "适用于下一张账单。自动续费开通后，银行卡/GoPay 将自动续费。",
-      "submit": "保存方式",
-      "saved": "付款方式已更新，适用于下一张账单。"
     },
     "cancel": {
       "title": "取消会员",
@@ -1216,6 +1245,7 @@
         "samples": "每本书均可免费试读或试听",
         "devices": "两台设备，随处接续",
         "sync": "电子书与有声书之间切换不丢失进度（Gold 及以上）",
+        "quota": "按方案每月提供作品额度和收听时长",
         "print": "纸质书照常出售，会员享折扣"
       },
       "startFree": "免费开始",
@@ -1259,5 +1289,93 @@
     "moreSite": "CakraNexa 网站",
     "signOut": "退出",
     "allCategories": "全部分类"
+  },
+  "membershipInvoice": {
+    "eyebrow": "账单 {{ref}}",
+    "title": "完成转账",
+    "subtitle": "财务团队确认付款后，{{plan}} 方案即生效。",
+    "steps": {
+      "transfer": "转账准确金额",
+      "proof": "上传凭证",
+      "confirm": "财务确认"
+    },
+    "amountLabel": "转账金额（必须完全一致）",
+    "uniqueCodeNote": "末尾三位（{{code}}）为唯一识别码，便于核对您的付款。方案价格 {{base}}，唯一码抵扣 {{discount}}。",
+    "deadline": "转账截止：{{date}}",
+    "hoursLeft": "剩余 {{count}} 小时",
+    "accountsTitle": "收款账户",
+    "accountHolder": "户名：{{name}}",
+    "noAccounts": "暂无可用账户，请通过财务 WhatsApp 联系我们。",
+    "safety": "我们绝不索取密码或 OTP 验证码。请仅转账至 PT Cakrawala Magna Scientia 名下的账户。",
+    "whatsapp": "通过财务 WhatsApp 确认",
+    "waiting": "付款确认后本页面会自动更新（每 30 秒检查一次）。",
+    "copy": "复制",
+    "copied": "已复制",
+    "notFound": "未找到账单。",
+    "paidTitle": "付款已确认 —— {{plan}} 已生效",
+    "paidPick": "选择本月作品即可开始阅读。",
+    "paidOpen": "您的全部书架已在“我的书库”中开放。",
+    "pickCta": "选择本月作品",
+    "libraryCta": "打开我的书库",
+    "expiredTitle": "转账期限已过",
+    "expiredBody": "此账单已关闭。若您已转账，请通过财务 WhatsApp 发送凭证。",
+    "closedTitle": "账单未启用",
+    "closedBody": "此账单已无法付款。",
+    "choosePlan": "选择方案",
+    "proofErrors": {
+      "default": "凭证上传失败。请重试或通过财务 WhatsApp 发送。",
+      "invalid_upload": "无法读取上传内容，请选择其他文件。",
+      "unsupported_type": "不支持的文件类型。请使用 JPG、PNG、WebP 或 PDF。",
+      "file_too_large": "文件超过 10 MB。",
+      "invoice_closed": "此账单已不再接收转账凭证。",
+      "already_paid": "此付款已确认。",
+      "network": "请检查网络连接后重试。"
+    }
+  },
+  "pick": {
+    "title": "选择本月作品",
+    "subtitle": "选择后立即锁定，并可阅读至下一次额度于 {{date}} 开放。",
+    "counter": "已用额度：{{used}}/{{limit}}",
+    "remaining": "本月还可选择 {{count}} 本",
+    "full": "本月额度已满，新额度于 {{date}} 开放。",
+    "searchPlaceholder": "搜索书名或作者",
+    "choose": "选择此作品",
+    "opened": "已开启",
+    "confirmTitle": "使用本月额度开启《{{title}}》？",
+    "confirmBody": "这是第 {{used}}/{{limit}} 本，且不可更换。可阅读至 {{date}}。",
+    "confirmYes": "确认开启",
+    "confirmNo": "取消",
+    "empty": "没有符合搜索条件的作品。",
+    "upgrade": "查看方案",
+    "notNeededTitle": "无需选择",
+    "notNeededBody": "您的方案已开放全部书架，或您尚未订阅带额度的方案。"
+  },
+  "onboarding": {
+    "eyebrow": "欢迎来到 CakraNexa",
+    "steps": {
+      "interests": "兴趣",
+      "format": "格式",
+      "howItWorks": "使用方式"
+    },
+    "interests": {
+      "title": "您主要阅读哪些领域？",
+      "subtitle": "可多选；您的数字书架将按这些兴趣排序。"
+    },
+    "format": {
+      "title": "您更喜欢阅读还是收听？",
+      "subtitle": "随时可以更改。",
+      "ebook": "电子书",
+      "audiobook": "有声书",
+      "both": "两者都要"
+    },
+    "howItWorks": {
+      "title": "免费试读，其余通过方案开启",
+      "subtitle": "开始前需要了解的三点。",
+      "sample": "免费的 Blue 账户可打开每本书的试读：部分电子书页面和几分钟有声书。",
+      "plan": "Silver、Gold 和 Platinum 可开启完整作品；纸质书照常销售。",
+      "quota": "Silver 和 Gold 使用每月作品额度，Platinum 自首日起开放全部书架。"
+    },
+    "finish": "开始浏览书架",
+    "seePlans": "查看会员方案"
   }
 }

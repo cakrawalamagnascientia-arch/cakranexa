@@ -92,6 +92,9 @@ WITH required (urutan, migration, object, kind) AS (
         (13, 'src/db/membership_phase6_migration.sql', 'reading_events.subscription_id', 'column'),
         (13, 'src/db/membership_phase6_migration.sql', 'period_title_picks', 'table'),
         (13, 'src/db/membership_phase6_migration.sql', 'family_members', 'table'),
+        (13, 'src/db/membership_phase6_migration.sql', 'subscription_invoices.unique_code', 'column'),
+        (13, 'src/db/membership_phase6_migration.sql', 'subscription_invoices.payment_proof_path', 'column'),
+        (13, 'src/db/membership_phase6_migration.sql', 'print_checkout_settings.finance_whatsapp', 'column'),
         (13, 'src/db/membership_phase6_migration.sql', 'membership_audio_seconds', 'function')
 )
 SELECT

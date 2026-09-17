@@ -11,8 +11,8 @@ import { formatDate, rupiah, type MembershipEmailData, type MembershipEmailKind 
  * Tanpa token, gateway tidak dibuat dan hanya email yang terkirim.
  */
 
-export type WhatsAppKind = Extract<MembershipEmailKind, 'invoice' | 'reminder' | 'paymentFailed' | 'grace' | 'locked' | 'foundingNotice'>;
-export const WHATSAPP_KINDS: readonly WhatsAppKind[] = ['invoice', 'reminder', 'paymentFailed', 'grace', 'locked', 'foundingNotice'];
+export type WhatsAppKind = Extract<MembershipEmailKind, 'invoice' | 'reminder' | 'paymentFailed' | 'grace' | 'locked' | 'foundingNotice' | 'transferInstructions' | 'transferExpired'>;
+export const WHATSAPP_KINDS: readonly WhatsAppKind[] = ['invoice', 'reminder', 'paymentFailed', 'grace', 'locked', 'foundingNotice', 'transferInstructions', 'transferExpired'];
 export const isWhatsAppKind = (kind: MembershipEmailKind): kind is WhatsAppKind => (WHATSAPP_KINDS as readonly string[]).includes(kind);
 
 /** Nomor seluler Indonesia -> format internasional tanpa '+', mis. "0852 8614 6806" -> "6285286146806". null bila tidak valid. */
@@ -64,6 +64,10 @@ export const membershipWhatsApp = (kind: WhatsAppKind, d: MembershipEmailData, t
   const months = String(d.retentionMonths ?? 12);
   const price = rupiah(d.regularPrice);
   const daysLabel = lang === 'id' ? (days > 0 ? `${days} hari lagi` : 'hari ini') : (days > 0 ? `in ${days} days` : 'today');
+  const deadline = d.date
+    ? new Date(d.date).toLocaleString(lang === 'id' ? 'id-ID' : 'en-GB', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' }) + ' WIB'
+    : '-';
+  const plansLink = `${d.siteUrl}${LANGUAGE_PREFIX[d.language] ?? ''}/membership`;
 
   let body: string;
   let params: string[];
@@ -75,7 +79,7 @@ export const membershipWhatsApp = (kind: WhatsAppKind, d: MembershipEmailData, t
           template = `${templatePrefix}invoice_autodebit`;
           body = `Halo ${name}, keanggotaan ${plan} akan diperpanjang otomatis pada ${date} sebesar ${amount}. Rincian: ${link}`;
         } else {
-          body = `Halo ${name}, tagihan perpanjangan keanggotaan ${plan} sebesar ${amount} sudah terbit dan jatuh tempo ${date}. Bayar di: ${link}`;
+          body = `Halo ${name}, tagihan perpanjangan keanggotaan ${plan} sebesar ${amount} (transfer bank, termasuk kode unik) sudah terbit dan jatuh tempo ${date}. Rekening dan unggah bukti: ${link}`;
         }
         params = [name, plan, amount, date, link];
         break;
@@ -86,7 +90,7 @@ export const membershipWhatsApp = (kind: WhatsAppKind, d: MembershipEmailData, t
         params = [name, plan, amount, date, daysLabel, link];
         break;
       case 'paymentFailed':
-        body = `Halo ${name}, pembayaran otomatis keanggotaan ${plan} sebesar ${amount} gagal. Kami akan mencoba lagi dalam beberapa hari, atau Anda bisa membayar sekarang di: ${link}`;
+        body = `Halo ${name}, pembayaran keanggotaan ${plan} sebesar ${amount} belum berhasil. Lihat tagihan dan instruksi transfer di: ${link}`;
         params = [name, plan, amount, link];
         break;
       case 'grace':
@@ -101,6 +105,14 @@ export const membershipWhatsApp = (kind: WhatsAppKind, d: MembershipEmailData, t
         body = `Halo ${name}, harga Founding Member untuk ${plan} berlaku sampai ${date}. Perpanjangan berikutnya memakai harga reguler ${price}/tahun. Rincian: ${link}`;
         params = [name, plan, date, price, link];
         break;
+      case 'transferInstructions':
+        body = `Halo ${name}, terima kasih telah memilih paket ${plan}. Transfer tepat ${amount} (termasuk kode unik) sebelum ${deadline}. Rekening tujuan, bukti transfer, dan konfirmasi Finance: ${link}`;
+        params = [name, plan, amount, deadline, link];
+        break;
+      case 'transferExpired':
+        body = `Halo ${name}, batas transfer paket ${plan} sebesar ${amount} sudah lewat sehingga tagihan ditutup. Bila sudah mentransfer, kirim bukti ke Finance. Pilih paket lagi di: ${plansLink}`;
+        params = [name, plan, amount, plansLink];
+        break;
     }
     return { text: `${body}\n\nPesan otomatis CakraNexa. Untuk berhenti menerima pengingat WhatsApp, matikan di ${link}`, template: { name: template, params } };
   }
@@ -110,7 +122,7 @@ export const membershipWhatsApp = (kind: WhatsAppKind, d: MembershipEmailData, t
         template = `${templatePrefix}invoice_autodebit`;
         body = `Hello ${name}, your ${plan} membership will renew automatically on ${date} for ${amount}. Details: ${link}`;
       } else {
-        body = `Hello ${name}, your ${plan} membership renewal invoice of ${amount} has been issued and is due on ${date}. Pay at: ${link}`;
+        body = `Hello ${name}, your ${plan} membership renewal invoice of ${amount} (bank transfer, unique code included) has been issued and is due on ${date}. Accounts and proof upload: ${link}`;
       }
       params = [name, plan, amount, date, link];
       break;
@@ -121,7 +133,7 @@ export const membershipWhatsApp = (kind: WhatsAppKind, d: MembershipEmailData, t
       params = [name, plan, amount, date, daysLabel, link];
       break;
     case 'paymentFailed':
-      body = `Hello ${name}, the automatic payment of ${amount} for your ${plan} membership failed. We will retry over the next few days, or you can pay now at: ${link}`;
+      body = `Hello ${name}, the payment of ${amount} for your ${plan} membership has not gone through. See the invoice and transfer instructions at: ${link}`;
       params = [name, plan, amount, link];
       break;
     case 'grace':
@@ -135,6 +147,14 @@ export const membershipWhatsApp = (kind: WhatsAppKind, d: MembershipEmailData, t
     case 'foundingNotice':
       body = `Hello ${name}, your Founding Member price for ${plan} applies until ${date}. The next renewal uses the regular price of ${price}/year. Details: ${link}`;
       params = [name, plan, date, price, link];
+      break;
+    case 'transferInstructions':
+      body = `Hello ${name}, thank you for choosing ${plan}. Please transfer exactly ${amount} (unique code included) before ${deadline}. Bank accounts, proof upload, and Finance confirmation: ${link}`;
+      params = [name, plan, amount, deadline, link];
+      break;
+    case 'transferExpired':
+      body = `Hello ${name}, the transfer deadline for ${plan} (${amount}) has passed, so the invoice was closed. If you already transferred, send the proof to Finance. Choose a plan again at: ${plansLink}`;
+      params = [name, plan, amount, plansLink];
       break;
   }
   return { text: `${body}\n\nAutomated message from CakraNexa. To stop WhatsApp reminders, turn them off at ${link}`, template: { name: template, params } };

@@ -8,10 +8,8 @@ import { openSnapPayment } from '../../services/midtransSnap';
 import { useMembershipPlans } from '../../hooks/useMembershipPlans';
 import { MEMBERSHIP_BILLING_POLICY, PLAN_KEY_BY_CODE } from '../../data/membership';
 import {
-  PAYMENT_METHODS,
   cancelMembership,
   cancelMembershipChange,
-  changeMembershipPaymentMethod,
   changeMembershipPlan,
   formatWhatsAppNumber,
   getMyMembership,
@@ -28,7 +26,7 @@ import {
   type PaymentMethod,
   type PlanCode
 } from '../../services/membershipApi';
-import { goToLibrary, goToLogin, goToMembership } from '../../services/digitalNavigation';
+import { goToLibrary, goToLogin, goToMembership, goToMembershipInvoice } from '../../services/digitalNavigation';
 
 interface AccountMembershipViewProps {
   /** Query mentah: invoice=<nomor tagihan> saat kembali dari Midtrans. */
@@ -68,7 +66,6 @@ export const AccountMembershipView: React.FC<AccountMembershipViewProps> = ({ qu
   const [notice, setNotice] = useState<string | null>(null);
   const [targetPlan, setTargetPlan] = useState<PlanCode>('gold');
   const [targetCycle, setTargetCycle] = useState<BillingCycle>('yearly');
-  const [method, setMethod] = useState<PaymentMethod>('va');
   const [waOptIn, setWaOptIn] = useState(false);
   const [waNumber, setWaNumber] = useState('');
   const checkedInvoice = useRef(false);
@@ -84,7 +81,6 @@ export const AccountMembershipView: React.FC<AccountMembershipViewProps> = ({ qu
     if (sub) {
       if (sub.planCode && sub.planCode !== 'free') setTargetPlan(sub.planCode);
       setTargetCycle(sub.billingCycle);
-      if (sub.paymentMethod !== 'other') setMethod(sub.paymentMethod);
       setWaOptIn(sub.whatsappOptIn);
       setWaNumber(formatWhatsAppNumber(sub.whatsappNumber));
     }
@@ -230,7 +226,6 @@ export const AccountMembershipView: React.FC<AccountMembershipViewProps> = ({ qu
                 <dt className="text-xs text-slate-500">{t('accountMembership.fields.method')}</dt>
                 <dd className="font-semibold text-slate-900">
                   {sub.paymentMethod === 'other' ? t('accountMembership.otherMethod') : t(`membershipCheckout.methods.${sub.paymentMethod}.label`)}
-                  <span className="ml-1 text-xs font-normal text-slate-500">· {sub.autodebit ? t('accountMembership.autodebitOn') : t('accountMembership.autodebitOff')}</span>
                 </dd>
               </div>
               {sub.maxDevices !== null && sub.shelfAccess !== 'none' && (
@@ -241,7 +236,7 @@ export const AccountMembershipView: React.FC<AccountMembershipViewProps> = ({ qu
                   <dt className="text-xs text-slate-500">{t('accountMembership.fields.nextRenewal')}</dt>
                   <dd className="font-semibold text-slate-900">
                     {t('accountMembership.nextRenewal', { amount: currency(sub.nextRenewal.amount), date: fmtDate(sub.nextRenewal.date) })}
-                    <span className="block text-xs font-normal text-slate-500">{sub.autodebit ? t('accountMembership.renewalAuto') : t('accountMembership.renewalManual')}</span>
+                    <span className="block text-xs font-normal text-slate-500">{t('accountMembership.renewalManual')}</span>
                   </dd>
                 </div>
               )}
@@ -293,9 +288,25 @@ export const AccountMembershipView: React.FC<AccountMembershipViewProps> = ({ qu
                 {t(`accountMembership.invoiceKind.${invoice.kind}`)} · {planName(invoice.planCode)} · <span className="font-bold">{currency(invoice.amount)}</span>
               </p>
               {invoice.dueAt && <p className="text-xs text-slate-500">{t('accountMembership.openInvoice.due', { date: fmtDate(invoice.dueAt) })}</p>}
+              {invoice.transfer && (
+                <p className="mt-2 text-xs text-slate-600">
+                  {t('accountMembership.openInvoice.transferNote', { code: invoice.transfer.uniqueCode ?? '—' })}
+                </p>
+              )}
               <div className="mt-3 flex flex-wrap gap-2">
-                <button type="button" id="btn-membership-pay-invoice" disabled={busy !== null} onClick={() => void run('pay', () => payInvoice(invoice))} className={`${button} bg-gold-500 text-slate-950 hover:bg-gold-600`}>
-                  {busy === 'pay' ? t('membershipCheckout.paying') : t('accountMembership.openInvoice.pay')}
+                <button
+                  type="button"
+                  id="btn-membership-pay-invoice"
+                  disabled={busy !== null}
+                  onClick={() => void run('pay', async () => {
+                    // Transfer bank: buka instruksi (nominal berkode unik, rekening, unggah bukti). Snap: popup Midtrans.
+                    const { invoice: target } = await payMembershipInvoice(invoice.id);
+                    if (target.transfer) goToMembershipInvoice(target.id);
+                    else await payInvoice(target);
+                  })}
+                  className={`${button} bg-gold-500 text-navy-950 hover:bg-gold-400`}
+                >
+                  {busy === 'pay' ? t('membershipCheckout.paying') : invoice.transfer ? t('accountMembership.openInvoice.transferCta') : t('accountMembership.openInvoice.pay')}
                 </button>
                 <button type="button" disabled={busy !== null} onClick={() => void run('refresh', () => refresh(invoice))} className={`${button} inline-flex items-center gap-1.5 border border-slate-300 text-slate-800 hover:bg-slate-50`}>
                   <RefreshCw className="h-3.5 w-3.5" />
@@ -306,7 +317,7 @@ export const AccountMembershipView: React.FC<AccountMembershipViewProps> = ({ qu
           )}
 
           {sub.status === 'active' && !sub.cancelAtPeriodEnd && (
-            <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <div className="mt-4 grid gap-4">
               {/* Ubah paket */}
               <section id="account-membership-change" className={card}>
                 <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900">{t('accountMembership.change.title')}</h2>
@@ -345,22 +356,6 @@ export const AccountMembershipView: React.FC<AccountMembershipViewProps> = ({ qu
                 </button>
               </section>
 
-              {/* Metode bayar */}
-              <section id="account-membership-method" className={card}>
-                <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900">{t('accountMembership.method.title')}</h2>
-                <p className="mt-1 text-xs text-slate-600">{t('accountMembership.method.description')}</p>
-                <select value={method} onChange={(e) => setMethod(e.target.value as PaymentMethod)} className="mt-3 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm text-slate-900" aria-label={t('accountMembership.method.title')}>
-                  {PAYMENT_METHODS.map((m) => <option key={m} value={m}>{t(`membershipCheckout.methods.${m}.label`)}</option>)}
-                </select>
-                <button
-                  type="button"
-                  disabled={busy !== null || method === sub.paymentMethod}
-                  onClick={() => void run('method', async () => { await changeMembershipPaymentMethod(method); setNotice(t('accountMembership.method.saved')); await load(); })}
-                  className={`${button} mt-3 border border-slate-300 text-slate-800 hover:bg-slate-50`}
-                >
-                  {t('accountMembership.method.submit')}
-                </button>
-              </section>
             </div>
           )}
 

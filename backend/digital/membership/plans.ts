@@ -128,16 +128,19 @@ export const PHASE3_PLAN_BENEFITS: PlanBenefitRecord[] = PHASE3_PLANS.flatMap((p
 ].map(([benefitKey, featureFlag], index) => ({ planId: plan.id, benefitKey, sortOrder: (index + 1) * 10, featureFlag })));
 
 /** Manfaat paket fase 6 (sama dengan INSERT plan_benefits di membership_phase6_migration.sql). */
+const OFFLINE_FLAG = 'ENABLE_OFFLINE';
+const SYNC_FLAG = 'ENABLE_CROSS_FORMAT_SYNC';
+
 const PHASE6_SPECIFIC: Record<'blue' | 'silver' | 'gold' | 'platinum', Array<[string, string | null]>> = {
   blue: [['account', null], ['samples', null], ['audioSample', null], ['newsletter', null], ['devicesTwo', null]],
   silver: [['titleQuota', null], ['audioHours', null], ['frontlistDays', null], ['devicesTwo', null], ['memberPrintDiscount', PRINT_DISCOUNT_FLAG]],
   gold: [
-    ['titleQuota', null], ['audioHours', null], ['frontlistDays', null], ['offlineTitles', null], ['notesHighlights', null],
-    ['formatSync', null], ['devicesTwo', null], ['memberPrintDiscount', PRINT_DISCOUNT_FLAG]
+    ['titleQuota', null], ['audioHours', null], ['frontlistDays', null], ['offlineTitles', OFFLINE_FLAG], ['notesHighlights', null],
+    ['formatSync', SYNC_FLAG], ['devicesTwo', null], ['memberPrintDiscount', PRINT_DISCOUNT_FLAG]
   ],
   platinum: [
-    ['fullShelf', null], ['audioHours', null], ['frontlistFirstDay', null], ['offlineTitles', null], ['notesHighlights', null],
-    ['formatSync', null], ['familyAccounts', null], ['devicesTwo', null], ['memberPrintDiscount', PRINT_DISCOUNT_FLAG]
+    ['fullShelf', null], ['audioHours', null], ['frontlistFirstDay', null], ['offlineTitles', OFFLINE_FLAG], ['notesHighlights', null],
+    ['formatSync', SYNC_FLAG], ['familyAccounts', null], ['devicesTwo', null], ['memberPrintDiscount', PRINT_DISCOUNT_FLAG]
   ]
 };
 

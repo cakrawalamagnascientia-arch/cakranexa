@@ -98,17 +98,17 @@ INSERT INTO plan_benefits (plan_id, benefit_key, sort_order, feature_flag) VALUE
     ('plan-gold', 'titleQuota', 10, NULL),
     ('plan-gold', 'audioHours', 20, NULL),
     ('plan-gold', 'frontlistDays', 30, NULL),
-    ('plan-gold', 'offlineTitles', 40, NULL),
+    ('plan-gold', 'offlineTitles', 40, 'ENABLE_OFFLINE'),
     ('plan-gold', 'notesHighlights', 50, NULL),
-    ('plan-gold', 'formatSync', 60, NULL),
+    ('plan-gold', 'formatSync', 60, 'ENABLE_CROSS_FORMAT_SYNC'),
     ('plan-gold', 'devicesTwo', 70, NULL),
     ('plan-gold', 'memberPrintDiscount', 80, 'ENABLE_MEMBER_PRINT_DISCOUNT'),
     ('plan-platinum', 'fullShelf', 10, NULL),
     ('plan-platinum', 'audioHours', 20, NULL),
     ('plan-platinum', 'frontlistFirstDay', 30, NULL),
-    ('plan-platinum', 'offlineTitles', 40, NULL),
+    ('plan-platinum', 'offlineTitles', 40, 'ENABLE_OFFLINE'),
     ('plan-platinum', 'notesHighlights', 50, NULL),
-    ('plan-platinum', 'formatSync', 60, NULL),
+    ('plan-platinum', 'formatSync', 60, 'ENABLE_CROSS_FORMAT_SYNC'),
     ('plan-platinum', 'familyAccounts', 70, NULL),
     ('plan-platinum', 'devicesTwo', 80, NULL),
     ('plan-platinum', 'memberPrintDiscount', 90, 'ENABLE_MEMBER_PRINT_DISCOUNT')
@@ -121,7 +121,8 @@ ALTER TABLE subscription_events ADD CONSTRAINT subscription_events_type_check CH
     'upgraded', 'downgraded', 'founding_notice', 'invoice_issued', 'cancel_reverted', 'change_canceled',
     'payment_method_changed', 'pick_selected', 'reconciled', 'admin_extended', 'admin_grace', 'admin_plan_changed',
     'admin_founding', 'admin_canceled', 'autodebit_error', 'refunded', 'payment_orphan', 'whatsapp_failed',
-    'plan_migration_notice', 'plan_migrated', 'title_picked', 'family_added', 'family_removed'
+    'plan_migration_notice', 'plan_migrated', 'title_picked', 'family_added', 'family_removed',
+    'transfer_proof', 'transfer_confirmed'
 ));
 
 -- 2. PAYMENT ROUTING ----------------------------------------------------------------
@@ -325,3 +326,27 @@ CREATE POLICY "period_title_picks_select_own" ON period_title_picks FOR SELECT T
 
 DROP POLICY IF EXISTS "family_members_select_own" ON family_members;
 CREATE POLICY "family_members_select_own" ON family_members FOR SELECT TO authenticated USING (auth.uid() = user_id);
+
+-- 10. TRANSFER BANK KEANGGOTAAN (FASE 6 LANGKAH 4) ----------------------------------------------
+-- Keanggotaan dibayar lewat transfer bank + kode unik dan dikonfirmasi Finance (payment_routing 'membership').
+-- Tagihan transfer ditandai payment_type = 'bank_transfer' tanpa midtrans_order_id; amount = nominal yang ditransfer
+-- (harga - 1000 + kode), unique_discount = selisihnya. Bukti transfer disimpan di bucket privat (hanya path-nya di sini).
+-- Tidak ada nomor rekening pengirim atau data kartu yang disimpan.
+ALTER TYPE membership_payment_method ADD VALUE IF NOT EXISTS 'bank_transfer';
+
+ALTER TABLE subscription_invoices ADD COLUMN IF NOT EXISTS unique_code SMALLINT CHECK (unique_code IS NULL OR unique_code BETWEEN 1 AND 999);
+ALTER TABLE subscription_invoices ADD COLUMN IF NOT EXISTS unique_discount INTEGER NOT NULL DEFAULT 0 CHECK (unique_discount BETWEEN 0 AND 999);
+ALTER TABLE subscription_invoices ADD COLUMN IF NOT EXISTS payment_proof_path TEXT;
+ALTER TABLE subscription_invoices ADD COLUMN IF NOT EXISTS payment_proof_uploaded_at TIMESTAMPTZ;
+ALTER TABLE subscription_invoices ADD COLUMN IF NOT EXISTS payment_confirmed_by TEXT;
+ALTER TABLE subscription_invoices ADD COLUMN IF NOT EXISTS payment_reference TEXT CHECK (payment_reference IS NULL OR char_length(payment_reference) <= 120);
+ALTER TABLE subscription_invoices ADD COLUMN IF NOT EXISTS due_extended_count INTEGER NOT NULL DEFAULT 0;
+
+-- Antrian Finance: tagihan transfer yang masih menunggu pembayaran.
+CREATE INDEX IF NOT EXISTS subscription_invoices_open_transfer
+    ON subscription_invoices (due_at)
+    WHERE status = 'issued' AND payment_type = 'bank_transfer';
+
+-- Nomor WhatsApp Finance dipindah ke pengaturan admin Pembayaran (dipakai pesanan cetak dan tagihan keanggotaan);
+-- kosong = memakai env FINANCE_WHATSAPP.
+ALTER TABLE print_checkout_settings ADD COLUMN IF NOT EXISTS finance_whatsapp TEXT;

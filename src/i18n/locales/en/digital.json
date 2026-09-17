@@ -44,7 +44,9 @@
       "fullName": "Enter your full name.",
       "email": "Enter a valid email address.",
       "password": "The password must be at least 8 characters."
-    }
+    },
+    "or": "or",
+    "googleCta": "Continue with Google"
   },
   "checkout": {
     "subheader": "Checkout",
@@ -296,7 +298,11 @@
     "manageMembership": "My Membership",
     "tabs": {
       "shelf": "Digital Shelf",
-      "owned": "Owned"
+      "owned": "Owned",
+      "reading": "Reading now",
+      "quota": "This month",
+      "done": "Finished",
+      "notes": "Notes"
     },
     "shelf": {
       "loadError": "The digital shelf could not be loaded. Check your connection and try again.",
@@ -335,7 +341,22 @@
       "step3Title": "Renewal",
       "step3": "Invoices, renewals, plan changes, and cancellation are on My Membership.",
       "dismiss": "Got it"
-    }
+    },
+    "openLibrary": "Open My Library",
+    "audio": {
+      "title": "Audio hours this month",
+      "used": "{{used}} of {{limit}} hours used",
+      "resets": "New hours open {{date}}",
+      "exhausted": "This month’s audio hours are used up."
+    },
+    "pickCta": "Choose this month’s books",
+    "emptyTab": {
+      "reading": "You are not reading or listening to anything yet.",
+      "done": "No finished titles yet.",
+      "notes": "No notes yet. Create notes and highlights in the reader."
+    },
+    "notesCount": "{{count}} notes",
+    "openNotes": "Open in reader"
   },
   "nav": {
     "menu": "Digital",
@@ -560,7 +581,7 @@
       },
       "gold": {
         "name": "Gold",
-        "tagline": "The balanced choice: 6 titles, 20 audio hours, offline, and notes."
+        "tagline": "The balanced choice: 6 titles, 20 audio hours, and notes."
       },
       "platinum": {
         "name": "Platinum",
@@ -725,8 +746,7 @@
         },
         "payment": {
           "q": "How do I pay for a plan?",
-          "a": "Plans are paid by bank transfer to the official PT Cakrawala Magna Scientia account, with a unique code at the end of the amount. Your plan becomes active once our Finance team confirms the payment. For renewals, we send an invoice and reminders before the due date.",
-          "aManual": "Plans are paid by bank transfer to the official PT Cakrawala Magna Scientia account, with a unique code at the end of the amount. Your plan becomes active once our Finance team confirms the payment. For renewals, we send an invoice and reminders before the due date."
+          "a": "Plans are paid by bank transfer to the official PT Cakrawala Magna Scientia account, with a unique code at the end of the amount. Your plan becomes active once our Finance team confirms the payment. For renewals, we send an invoice and reminders before the due date."
         },
         "grace": {
           "q": "What if a payment is late?",
@@ -952,7 +972,7 @@
   },
   "membershipCheckout": {
     "title": "Join the membership",
-    "subtitle": "Review your plan, choose how to pay, then continue to secure Midtrans payment.",
+    "subtitle": "Three steps: choose a period, accept the terms, then transfer to the official CakraNexa account.",
     "loginTitle": "Sign in to join",
     "loginDescription": "Your membership is linked to your account so your digital shelf, devices, and invoices are managed in one place.",
     "plan": "Plan",
@@ -963,26 +983,26 @@
     "perYear": "per year",
     "perMonth": "per month",
     "methodTitle": "Payment method",
-    "honestNote": "Card/GoPay: automatic renewal. Virtual Account/QRIS: we send an invoice every period and you pay manually.",
-    "honestNoteManual": "For now every method is paid each period: we send an invoice and reminders before the due date, and you pay manually.",
     "methods": {
       "va": {
         "label": "Virtual Account",
-        "description": "Transfer to a bank Virtual Account number. We send an invoice every period and you pay manually."
+        "description": "Pay through a bank Virtual Account."
       },
       "qris": {
         "label": "QRIS",
-        "description": "Scan the QR code from a banking or e-wallet app. We send an invoice every period and you pay manually."
+        "description": "Scan QRIS from your bank or e-wallet app."
       },
       "card": {
         "label": "Credit/debit card",
-        "descriptionAuto": "Renews automatically every period. Card details are entered only on the Midtrans page and are never stored by CakraNexa.",
-        "descriptionManual": "Automatic renewal is not active yet; we send an invoice every period and you pay manually."
+        "description": "Pay by card."
       },
       "gopay": {
         "label": "GoPay",
-        "descriptionAuto": "Renews automatically from the GoPay account you link.",
-        "descriptionManual": "Automatic renewal is not active yet; we send an invoice every period and you pay manually."
+        "description": "Pay with your GoPay balance."
+      },
+      "bank_transfer": {
+        "label": "Bank transfer",
+        "description": "Transfer to the official account with a unique-code amount; confirmed by our Finance team."
       }
     },
     "termsAccept": "I have read and agree to the",
@@ -999,7 +1019,7 @@
     "freeDescription": "Free Circle applies automatically to every account: samples, newsletter, wishlist, and event invitations.",
     "unavailableTitle": "Sign-up is not open yet",
     "unavailable": "Membership sign-up is being prepared and will open soon.",
-    "back": "Back to membership plans",
+    "back": "Back",
     "errors": {
       "terms_required": "Please accept the membership terms first.",
       "order_not_saved": "Your sign-up could not be processed yet. Please try again.",
@@ -1023,6 +1043,22 @@
       "optIn": "Send invoice reminders by WhatsApp",
       "number": "WhatsApp number",
       "placeholder": "0812 3456 7890"
+    },
+    "steps": {
+      "plan": "Plan",
+      "terms": "Terms",
+      "payment": "Payment"
+    },
+    "next": "Continue",
+    "termsIntro": "Please read the membership terms and the reading/listening licence before continuing.",
+    "methodNote": "Available methods are set by the admin. No card payment happens on this page.",
+    "createInvoice": "Create transfer invoice {{total}}",
+    "safety": "We only accept transfers to accounts in the name of PT Cakrawala Magna Scientia.",
+    "transferFlow": {
+      "invoice": "We create an invoice with a unique-code amount and email you the instructions.",
+      "transfer": "Transfer exactly that amount within 24 hours.",
+      "proof": "Upload the transfer proof (or send it to Finance on WhatsApp).",
+      "active": "Your plan becomes active once our Finance team confirms the payment."
     }
   },
   "membershipTerms": {
@@ -1110,10 +1146,7 @@
       "nextRenewal": "Next renewal"
     },
     "otherMethod": "Other",
-    "autodebitOn": "automatic renewal",
-    "autodebitOff": "manual payment each period",
     "nextRenewal": "{{amount}} on {{date}}",
-    "renewalAuto": "Charged automatically on that date.",
     "renewalManual": "The invoice is sent 7 days before.",
     "foundingUntil": "Founding pricing applies until {{date}}. The next renewal uses the regular price of {{price}}/year.",
     "pendingChange": "From {{date}} your plan changes to {{plan}} ({{cycle}}).",
@@ -1132,7 +1165,9 @@
       "pay": "Pay now",
       "refresh": "Check payment status",
       "paidNow": "Payment received. Thank you!",
-      "stillPending": "We have not received the payment yet. If you just paid, wait a few minutes and check again."
+      "stillPending": "We have not received the payment yet. If you just paid, wait a few minutes and check again.",
+      "transferNote": "Transfer the exact invoice amount (unique code {{code}}), then upload the proof on the invoice page.",
+      "transferCta": "View transfer instructions"
     },
     "invoiceKind": {
       "initial": "Sign-up",
@@ -1161,12 +1196,6 @@
       "immediateResult": "Pay the difference of {{amount}} (after a {{credit}} credit) to activate the new plan.",
       "scheduledResult": "The change is scheduled from {{date}}.",
       "appliedResult": "Your new plan is active."
-    },
-    "method": {
-      "title": "Payment method",
-      "description": "Applies to the next invoice. Card/GoPay renew automatically once that feature is active.",
-      "submit": "Save method",
-      "saved": "Payment method updated for the next invoice."
     },
     "cancel": {
       "title": "Cancel membership",
@@ -1220,6 +1249,7 @@
         "samples": "Free samples for every title",
         "devices": "Two devices, pick up anywhere",
         "sync": "Switch between e-book and audio without losing your place (Gold and up)",
+        "quota": "Monthly title allowance and audio hours by plan",
         "print": "Print books stay available, with a member discount"
       },
       "startFree": "Start free",
@@ -1263,5 +1293,93 @@
     "moreSite": "CakraNexa site",
     "signOut": "Sign out",
     "allCategories": "All categories"
+  },
+  "membershipInvoice": {
+    "eyebrow": "Invoice {{ref}}",
+    "title": "Complete your transfer",
+    "subtitle": "Your {{plan}} plan starts once our Finance team confirms your payment.",
+    "steps": {
+      "transfer": "Transfer the exact amount",
+      "proof": "Upload proof",
+      "confirm": "Finance confirms"
+    },
+    "amountLabel": "Transfer amount (must be exact)",
+    "uniqueCodeNote": "The last three digits ({{code}}) are a unique code that lets us match your payment. Plan price {{base}}, unique-code discount {{discount}}.",
+    "deadline": "Transfer deadline: {{date}}",
+    "hoursLeft": "{{count}} hours left",
+    "accountsTitle": "Bank accounts",
+    "accountHolder": "in the name of {{name}}",
+    "noAccounts": "No account is available yet. Contact us on Finance WhatsApp.",
+    "safety": "We never ask for passwords or OTP codes. Only transfer to accounts in the name of PT Cakrawala Magna Scientia.",
+    "whatsapp": "Confirm with Finance on WhatsApp",
+    "waiting": "This page updates itself once the payment is confirmed (checked every 30 seconds).",
+    "copy": "Copy",
+    "copied": "Copied",
+    "notFound": "Invoice not found.",
+    "paidTitle": "Payment confirmed — {{plan}} is active",
+    "paidPick": "Choose this month’s books to start reading.",
+    "paidOpen": "Your whole shelf is open in My Library.",
+    "pickCta": "Choose this month’s books",
+    "libraryCta": "Open My Library",
+    "expiredTitle": "Transfer deadline passed",
+    "expiredBody": "This invoice is closed. If you already transferred, contact Finance on WhatsApp with the proof.",
+    "closedTitle": "Invoice inactive",
+    "closedBody": "This invoice can no longer be paid.",
+    "choosePlan": "Choose a plan",
+    "proofErrors": {
+      "default": "The proof could not be uploaded. Try again or send it to Finance on WhatsApp.",
+      "invalid_upload": "The upload could not be read. Choose another file.",
+      "unsupported_type": "Unsupported file type. Use JPG, PNG, WebP, or PDF.",
+      "file_too_large": "The file is larger than 10 MB.",
+      "invoice_closed": "This invoice no longer accepts transfer proof.",
+      "already_paid": "This payment has already been confirmed.",
+      "network": "Check your internet connection and try again."
+    }
+  },
+  "pick": {
+    "title": "Choose this month’s books",
+    "subtitle": "A choice is locked right away and stays readable until the next allowance opens on {{date}}.",
+    "counter": "Allowance used: {{used}} of {{limit}}",
+    "remaining": "{{count}} titles left this month",
+    "full": "This month’s allowance is full. A new allowance opens {{date}}.",
+    "searchPlaceholder": "Search title or author",
+    "choose": "Choose this title",
+    "opened": "Already open",
+    "confirmTitle": "Open “{{title}}” with this month’s allowance?",
+    "confirmBody": "This becomes title {{used}} of {{limit}} and cannot be swapped. It stays readable until {{date}}.",
+    "confirmYes": "Yes, open title",
+    "confirmNo": "Cancel",
+    "empty": "No titles match your search.",
+    "upgrade": "See plans",
+    "notNeededTitle": "No choice needed",
+    "notNeededBody": "Your plan opens the whole shelf, or you do not have a plan with a title allowance."
+  },
+  "onboarding": {
+    "eyebrow": "Welcome to CakraNexa",
+    "steps": {
+      "interests": "Interests",
+      "format": "Format",
+      "howItWorks": "How it works"
+    },
+    "interests": {
+      "title": "What do you read about?",
+      "subtitle": "Pick one or more; your digital shelf follows these interests."
+    },
+    "format": {
+      "title": "Do you prefer reading or listening?",
+      "subtitle": "You can change this at any time.",
+      "ebook": "E-books",
+      "audiobook": "Audiobooks",
+      "both": "Both"
+    },
+    "howItWorks": {
+      "title": "Free samples, the rest through a plan",
+      "subtitle": "Three things to know before you start.",
+      "sample": "A free Blue account opens a sample of every title: part of an e-book and a few minutes of an audiobook.",
+      "plan": "Silver, Gold, and Platinum open full titles; print books are still sold as usual.",
+      "quota": "Silver and Gold use a monthly title allowance; Platinum opens the whole shelf from day one."
+    },
+    "finish": "Start exploring the shelf",
+    "seePlans": "See membership plans"
   }
 }

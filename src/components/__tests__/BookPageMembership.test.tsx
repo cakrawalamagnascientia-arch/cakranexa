@@ -148,9 +148,11 @@ describe('halaman /membership', () => {
 
   it('tabel perbandingan, jadwal buka judul baru, tanpa uji coba gratis, FAQ jatah & perangkat', () => {
     const html = renderToStaticMarkup(<MembershipView onNavigate={() => undefined} />);
-    for (const row of ['price', 'ebook', 'audiobook', 'newTitles', 'offline', 'notes', 'formatSync', 'family', 'devices']) {
+    for (const row of ['price', 'ebook', 'audiobook', 'newTitles', 'notes', 'family', 'devices']) {
       expect(html, row).toContain(`id="compare-row-${row}"`);
     }
+    // ENABLE_OFFLINE / ENABLE_CROSS_FORMAT_SYNC mati (bawaan): baris dan manfaatnya tidak tampil sampai Langkah 5.
+    expect(html).not.toMatch(/compare-row-(offline|formatSync)|offline|Lanjutkan e-book dari audio/i);
     expect(html).toContain('2 judul per bulan');
     expect(html).toContain('60 jam per bulan');
     expect(html).toContain('Hari masuk rak');

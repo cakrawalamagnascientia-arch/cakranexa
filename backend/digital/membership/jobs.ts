@@ -1,11 +1,12 @@
 import { OPEN_SUBSCRIPTION_STATUSES } from '../store';
 import { DAY_MS } from '../time';
-import { priceFor, type MembershipService } from './service';
+import { isTransferInvoice, priceFor, type MembershipService } from './service';
 
 /**
  * Job keanggotaan per jam (proses server Render + POST /api/internal/cron). Idempoten: semua langkah memakai
  * update bersyarat dan event ber-dedupe_key, jadi aman dijalankan berulang atau bersamaan dengan webhook.
  *  1. Langganan/upgrade pending tanpa pembayaran > 24 jam: dicocokkan ulang ke Midtrans, lalu di-void (kursi Founding dilepas).
+ *     Tagihan transfer bank (fase 6): ditutup saat due_at lewat (Finance dapat memperpanjang), anggota diberi tahu.
  *  2. Founding: pemberitahuan harga reguler 30 hari sebelum ulang tahun pertama.
  *  2b. Paket fase 3 (tidak dijual lagi): pemberitahuan paket penerus dan harganya 30 hari sebelum perpanjangan.
  *  3. Dibatalkan & periode habis: status canceled, langganan Midtrans dihentikan.
@@ -46,6 +47,10 @@ export const runMembershipJob = async (service: MembershipService): Promise<Memb
       // 1. Pendaftaran yang tidak dibayar.
       if (listed.status === 'pending') {
         const initial = (await store.listInvoices({ subscriptionId: listed.id, kinds: ['initial'], statuses: ['issued'] }))[0];
+        if (initial && isTransferInvoice(initial)) {
+          if (initial.dueAt && now >= Date.parse(initial.dueAt) && await service.expireTransfer(listed, initial)) result.pendingVoided += 1;
+          continue;
+        }
         const issuedAt = Date.parse(initial?.issuedAt ?? listed.createdAt);
         if (now - issuedAt >= ttlMs) {
           if (initial && await service.reconcile(initial, listed)) result.reconciled += 1;
@@ -57,6 +62,10 @@ export const runMembershipJob = async (service: MembershipService): Promise<Memb
         continue;
       }
       for (const upgrade of await store.listInvoices({ subscriptionId: listed.id, kinds: ['upgrade'], statuses: ['issued'] })) {
+        if (isTransferInvoice(upgrade)) {
+          if (upgrade.dueAt && now >= Date.parse(upgrade.dueAt)) await service.expireTransfer(listed, upgrade);
+          continue;
+        }
         if (upgrade.issuedAt && now - Date.parse(upgrade.issuedAt) >= ttlMs) {
           if (await service.reconcile(upgrade, listed)) result.reconciled += 1;
           else await service.voidInvoice(upgrade, 'payment_expired');

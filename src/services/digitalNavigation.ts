@@ -44,6 +44,13 @@ export const membershipTermsPath = (): string => buildPath({ page: 'membership',
 
 export const goToMembershipTerms = (): void => navigateToAppPath(membershipTermsPath());
 
+/** Fase 6: instruksi transfer keanggotaan (nominal berkode unik, rekening, bukti, status). */
+export const membershipInvoicePath = (invoiceId: string): string => buildPath({ page: 'membership', subSection: 'invoice', digitalItem: invoiceId });
+export const goToMembershipInvoice = (invoiceId: string): void => navigateToAppPath(membershipInvoicePath(invoiceId));
+
+/** Fase 6: layar "Pilih buku bulan ini". */
+export const goToPickScreen = (): void => navigateToAppPath(buildPath({ page: 'library', subSection: 'pick' }));
+
 export const goToAccountMembership = (query = ''): void =>
   navigateToAppPath(buildPath({ page: 'account', subSection: 'membership', query }));
 

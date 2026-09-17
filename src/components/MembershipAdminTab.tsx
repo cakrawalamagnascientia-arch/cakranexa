@@ -11,6 +11,7 @@ import {
   type AdminMembershipPlan,
   type AdminMembershipPlanPatch,
   type AdminMembershipSummary,
+  type AdminMembershipTransfer,
   type AdminPlanCode,
   type AdminShelfAccess,
   type AdminSubscription,
@@ -527,6 +528,158 @@ const WhatsAppSection: React.FC<{ flags: AdminMembershipFlags | null }> = ({ fla
 // ---------------------------------------------------------------------------
 // Ekspor CSV
 // ---------------------------------------------------------------------------
+/**
+ * Fase 6 Langkah 4: antrian transfer keanggotaan untuk Finance — cocokkan nominal berkode unik dengan mutasi,
+ * lihat bukti, lalu konfirmasi (satu-satunya jalan tagihan transfer menjadi lunas) atau perpanjang batas 24 jam.
+ */
+const TransfersPanel: React.FC<{ onChanged: () => void }> = ({ onChanged }) => {
+  const [rows, setRows] = useState<AdminMembershipTransfer[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [includeExpired, setIncludeExpired] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      setRows((await apiClient.listMembershipTransfers(includeExpired)).transfers);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal memuat antrian transfer.');
+    } finally {
+      setLoading(false);
+    }
+  }, [includeExpired]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const act = async (id: string, label: string, run: () => Promise<void>) => {
+    setBusy(id);
+    setError(null);
+    try {
+      await run();
+      setNotice(label);
+      await load();
+      onChanged();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Tindakan gagal.');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const openProof = async (id: string) => {
+    try {
+      const url = await apiClient.membershipTransferProofUrl(id);
+      window.open(url, '_blank', 'noopener');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Bukti gagal dibuka.');
+    }
+  };
+
+  return (
+    <section id="admin-membership-transfers" className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="min-w-0">
+          <h3 className="text-sm font-bold text-slate-900">Transfer menunggu konfirmasi</h3>
+          <p className="mt-0.5 text-xs text-slate-600">
+            Cocokkan nominal (termasuk kode unik) dengan mutasi rekening, lalu konfirmasi. Keanggotaan aktif setelah dikonfirmasi.
+          </p>
+        </div>
+        <label className="flex items-center gap-1.5 text-xs text-slate-700">
+          <input type="checkbox" checked={includeExpired} onChange={(e) => setIncludeExpired(e.target.checked)} />
+          Tampilkan yang kedaluwarsa
+        </label>
+      </div>
+      {error && <p role="alert" className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">{error}</p>}
+      {notice && <p className="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-700">{notice}</p>}
+      {loading ? (
+        <p className="mt-3 text-xs text-slate-500">Memuat…</p>
+      ) : rows.length === 0 ? (
+        <p className="mt-3 text-xs text-slate-500">Tidak ada transfer keanggotaan yang menunggu.</p>
+      ) : (
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[720px] text-left text-xs">
+            <thead className="bg-slate-50 text-slate-600">
+              <tr>
+                <th className="px-2 py-2 font-semibold">Tagihan</th>
+                <th className="px-2 py-2 font-semibold">Anggota</th>
+                <th className="px-2 py-2 font-semibold">Nominal</th>
+                <th className="px-2 py-2 font-semibold">Batas</th>
+                <th className="px-2 py-2 font-semibold">Bukti</th>
+                <th className="px-2 py-2 font-semibold">Tindakan</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {rows.map((row) => {
+                const expired = row.status !== 'issued';
+                return (
+                  <tr key={row.id} data-invoice={row.orderRef} className={expired ? 'bg-amber-50/60' : undefined}>
+                    <td className="px-2 py-2 align-top">
+                      <span className="font-mono">{row.orderRef}</span>
+                      <span className="block text-[11px] text-slate-500">{row.kind} · {row.planCode ?? '—'}{row.isTest ? ' · uji' : ''}</span>
+                      {expired && <span className="mt-1 inline-block rounded bg-amber-200 px-1.5 py-0.5 text-[10px] font-bold text-amber-900">Kedaluwarsa</span>}
+                    </td>
+                    <td className="px-2 py-2 align-top">
+                      <span className="block">{row.customerName}</span>
+                      <span className="block text-[11px] text-slate-500">{row.customerEmail}</span>
+                    </td>
+                    <td className="px-2 py-2 align-top font-mono">
+                      Rp{row.amount.toLocaleString('id-ID')}
+                      {row.transfer?.uniqueCode && <span className="block text-[11px] text-slate-500">kode {row.transfer.uniqueCode}</span>}
+                    </td>
+                    <td className="px-2 py-2 align-top">
+                      {row.dueAt ? new Date(row.dueAt).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', dateStyle: 'short', timeStyle: 'short' }) : '—'}
+                      {row.dueExtendedCount > 0 && <span className="block text-[11px] text-slate-500">diperpanjang {row.dueExtendedCount}×</span>}
+                    </td>
+                    <td className="px-2 py-2 align-top">
+                      {row.transfer?.hasProof ? (
+                        <button type="button" onClick={() => void openProof(row.id)} className="font-semibold text-blue-700 underline cursor-pointer">Lihat bukti</button>
+                      ) : (
+                        <span className="text-slate-400">belum ada</span>
+                      )}
+                    </td>
+                    <td className="px-2 py-2 align-top">
+                      <div className="flex flex-wrap gap-1.5">
+                        <button
+                          type="button"
+                          disabled={busy !== null}
+                          onClick={() => {
+                            const reference = window.prompt('Referensi mutasi bank (opsional):', '') ?? '';
+                            void act(row.id, `Transfer ${row.orderRef} dikonfirmasi.`, async () => {
+                              await apiClient.confirmMembershipTransfer(row.id, { reference, ...(expired ? { allow_expired: true } : {}) });
+                            });
+                          }}
+                          className="rounded bg-emerald-600 px-2 py-1 font-semibold text-white disabled:opacity-50 cursor-pointer"
+                        >
+                          {expired ? 'Konfirmasi (terlambat)' : 'Konfirmasi lunas'}
+                        </button>
+                        {!expired && row.kind !== 'renewal' && (
+                          <button
+                            type="button"
+                            disabled={busy !== null}
+                            onClick={() => void act(row.id, `Batas transfer ${row.orderRef} diperpanjang 24 jam.`, async () => { await apiClient.extendMembershipTransfer(row.id, 24); })}
+                            className="rounded border border-slate-300 px-2 py-1 font-semibold text-slate-700 disabled:opacity-50 cursor-pointer"
+                          >
+                            Perpanjang 24 jam
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+};
+
 const ExportSection: React.FC = () => {
   const [includeAbandoned, setIncludeAbandoned] = useState(false);
   const [from, setFrom] = useState('');
@@ -1166,6 +1319,8 @@ export const MembershipAdminTab: React.FC<MembershipAdminTabProps> = ({ onOpenUs
       <SummarySection summary={summary} plans={plans} loading={summaryLoading} error={summaryError} onReload={() => void loadSummary()} />
 
       <PlansEditor plans={plans} loading={plansLoading} error={plansError} onSaved={onPlanSaved} />
+
+      <TransfersPanel onChanged={() => { void loadSummary(); void loadList(); }} />
 
       <WhatsAppSection flags={summary?.flags ?? null} />
 

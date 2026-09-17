@@ -2,7 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, KeyRound, LogIn, UserPlus } from 'lucide-react';
 import {
+  isGoogleLoginEnabled,
+  onboardingDone,
   requestPasswordReset,
+  signInWithGoogle,
   signInWithPassword,
   signUpWithPassword,
   updatePassword,
@@ -44,10 +47,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ mode, query, onChangeMode, o
   const [notice, setNotice] = useState<string | null>(params.get('confirmed') === '1' ? t('account.confirmed') : null);
   const [working, setWorking] = useState(false);
 
-  // Sudah masuk: halaman login/daftar langsung meneruskan ke tujuan.
+  // Sudah masuk: halaman login/daftar meneruskan ke tujuan; akun baru (belum onboarding) lewat 3 langkah dulu.
   useEffect(() => {
-    if (member.isLoggedIn && (mode === 'login' || mode === 'register')) onNavigatePath(nextPath);
-  }, [member.isLoggedIn, mode, nextPath, onNavigatePath]);
+    if (!member.isLoggedIn || (mode !== 'login' && mode !== 'register')) return;
+    const onboarding = withLanguagePrefix('/account/onboarding', language);
+    onNavigatePath(mode === 'register' && !onboardingDone() ? onboarding : nextPath);
+  }, [member.isLoggedIn, mode, nextPath, onNavigatePath, language]);
 
   useEffect(() => {
     setFieldError(null);
@@ -81,6 +86,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ mode, query, onChangeMode, o
         });
         if (result.error) setAuthError(result.error);
         else if (result.needsConfirmation) setNotice(t('account.registered', { email: email.trim() }));
+        else onNavigatePath(withLanguagePrefix('/account/onboarding', language));
       } else if (mode === 'reset') {
         const error = await requestPasswordReset(email.trim(), redirectFor('/account/update-password'));
         if (error && error !== 'unknown') setAuthError(error);
@@ -174,6 +180,22 @@ export const AuthView: React.FC<AuthViewProps> = ({ mode, query, onChangeMode, o
             >
               {working ? t('account.working') : view.submit}
             </button>
+
+            {/* Login Google (keputusan fase 6 no. 12): tampil hanya bila VITE_ENABLE_GOOGLE_LOGIN=true. */}
+            {(mode === 'login' || mode === 'register') && isGoogleLoginEnabled() && (
+              <>
+                <p className="text-center text-[11px] uppercase tracking-wider text-slate-400">{t('account.or')}</p>
+                <button
+                  type="button"
+                  id="account-google"
+                  disabled={working}
+                  onClick={() => void signInWithGoogle(redirectFor(nextPath)).then((error) => { if (error) setAuthError(error); })}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition-colors hover:bg-cream-50 disabled:opacity-70 cursor-pointer"
+                >
+                  {t('account.googleCta')}
+                </button>
+              </>
+            )}
           </form>
         )}
 

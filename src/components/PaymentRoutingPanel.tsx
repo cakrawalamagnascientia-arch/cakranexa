@@ -141,6 +141,17 @@ export const PaymentRoutingPanel: React.FC = () => {
           />
           <span className="mt-1 block text-slate-500">Lewat batas: pesanan otomatis kedaluwarsa dan pembeli mendapat email. Admin bisa memperpanjang.</span>
         </label>
+        <label className="block sm:col-span-2">
+          <strong className="block text-slate-800">WhatsApp Finance (konfirmasi transfer)</strong>
+          <input
+            className="mt-1 w-56 rounded-md border border-slate-300 px-2 py-1"
+            inputMode="tel"
+            placeholder="+62 852 8614 6806"
+            value={settings.financeWhatsapp}
+            onChange={(e) => setSettings({ ...settings, financeWhatsapp: e.target.value })}
+          />
+          <span className="mt-1 block text-slate-500">Dipakai tombol konfirmasi transfer di halaman pesanan cetak dan tagihan keanggotaan. Kosongkan untuk memakai nomor bawaan server (env FINANCE_WHATSAPP).</span>
+        </label>
       </div>
 
       {message && <p className={`text-xs ${message.tone === 'ok' ? 'text-emerald-700' : 'text-rose-700'}`}>{message.text}</p>}

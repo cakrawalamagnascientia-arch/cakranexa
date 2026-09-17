@@ -130,6 +130,37 @@ export const signUpWithPassword = async (input: {
   return { error: null, needsConfirmation: !data.session };
 };
 
+/** Login Google (keputusan fase 6 no. 12): hanya tampil bila VITE_ENABLE_GOOGLE_LOGIN=true dan Supabase Auth siap. */
+export const isGoogleLoginEnabled = (): boolean =>
+  String(import.meta.env.VITE_ENABLE_GOOGLE_LOGIN ?? '').toLowerCase() === 'true' && isAuthConfigured();
+
+export const signInWithGoogle = async (redirectTo: string): Promise<AuthErrorCode | null> => {
+  const client = getAuthClient();
+  if (!client) return 'unavailable';
+  const { error } = await client.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } });
+  return mapAuthError(error);
+};
+
+/** Preferensi onboarding disimpan di user_metadata Supabase (tanpa tabel baru); cadangan: localStorage. */
+export const saveOnboarding = async (input: { interests: string[]; format: string }): Promise<void> => {
+  const payload = { interests: input.interests, favorite_format: input.format, onboarded_at: new Date().toISOString() };
+  try {
+    window.localStorage.setItem('cakranexa-onboarding', JSON.stringify(payload));
+  } catch {
+    // penyimpanan lokal tidak wajib
+  }
+  const client = getAuthClient();
+  if (client) await client.auth.updateUser({ data: payload }).catch(() => undefined);
+};
+
+export const onboardingDone = (): boolean => {
+  try {
+    return Boolean(window.localStorage.getItem('cakranexa-onboarding'));
+  } catch {
+    return false;
+  }
+};
+
 export const signOut = async (): Promise<void> => {
   const client = getAuthClient();
   if (client) await client.auth.signOut();

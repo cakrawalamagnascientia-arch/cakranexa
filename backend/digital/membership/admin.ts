@@ -338,6 +338,30 @@ export const createMembershipAdminRouter = (ctx: DigitalContext, service: Member
     });
   }));
 
+  // Fase 6 Langkah 4: antrian transfer bank keanggotaan untuk Finance. ?expired=1 menyertakan yang baru kedaluwarsa.
+  router.get('/api/admin/membership/transfers', admin, asyncRoute(async (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.json({ transfers: await service.adminTransfers(String(req.query.expired || '') === '1') });
+  }));
+
+  // Konfirmasi transfer (satu-satunya jalan tagihan transfer lunas). Body: { reference?, allow_expired? }.
+  router.post('/api/admin/membership/transfers/:invoiceId/confirm', admin, asyncRoute(async (req, res) => {
+    res.json({ invoice: await service.confirmTransfer(String(req.params.invoiceId), bodyOf(req)) });
+  }));
+
+  // Perpanjang batas transfer pendaftaran/upgrade. Body: { hours: 1–168 }.
+  router.post('/api/admin/membership/transfers/:invoiceId/extend', admin, asyncRoute(async (req, res) => {
+    res.json({ invoice: await service.extendTransfer(String(req.params.invoiceId), bodyOf(req)) });
+  }));
+
+  router.get('/api/admin/membership/transfers/:invoiceId/proof', admin, asyncRoute(async (req, res) => {
+    const proof = await service.transferProof(String(req.params.invoiceId));
+    res.set('Content-Type', proof.contentType);
+    res.set('Cache-Control', 'private, no-store');
+    res.set('X-Content-Type-Options', 'nosniff');
+    res.send(proof.buffer);
+  }));
+
   // Perpanjang manual (pembayaran offline): invoice 'manual' berstatus paid untuk periode berikutnya.
   // Body: { confirm: true, amount?, note? } — amount default = nominal perpanjangan reguler.
   router.post('/api/admin/membership/subscriptions/:id/extend', admin, asyncRoute(async (req, res) => {

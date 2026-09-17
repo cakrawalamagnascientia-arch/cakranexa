@@ -73,6 +73,8 @@ import {
  */
 
 export interface PrintCheckoutDeps {
+  /** Fase 6: nominal tagihan transfer keanggotaan yang masih terbuka (kode unik tidak bentrok lintas modul). */
+  otherOpenTransferTotals?: () => Promise<number[]>;
   store: PrintOrderStore;
   /** Bucket privat untuk bukti transfer; null = unggah bukti tidak tersedia. */
   storage: AssetStorage | null;
@@ -441,10 +443,19 @@ export class PrintCheckoutService {
     return copies >= settings.manualQuoteMinCopies ? 'bulk' : 'rates';
   }
 
+  /** Nomor WhatsApp Finance: pengaturan admin Pembayaran; kosong -> env FINANCE_WHATSAPP. */
+  async financeWhatsappNumber(): Promise<string> {
+    const settings = await this.settings().catch(() => null);
+    return settings?.financeWhatsapp?.trim() || this.deps.financeWhatsapp;
+  }
+
   private async uniqueCodeFor(base: number, settings: PrintCheckoutSettings): Promise<UniqueCode | null> {
     if (!settings.uniqueCodeEnabled) return null;
     const open = await this.deps.store.listByStatus(['awaiting_transfer']);
-    return pickUniqueCode(base, new Set(open.map((o) => Math.round(Number(o.total_amount)))), this.deps.random);
+    const taken = new Set(open.map((o) => Math.round(Number(o.total_amount))));
+    // Fase 6: tagihan transfer keanggotaan ikut dihitung agar Finance tetap bisa mencocokkan mutasi dari nominal saja.
+    for (const total of (await this.deps.otherOpenTransferTotals?.().catch(() => [])) ?? []) taken.add(Math.round(total));
+    return pickUniqueCode(base, taken, this.deps.random);
   }
 
   // ------------------------------------------------------------ buat pesanan

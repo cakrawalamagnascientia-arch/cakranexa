@@ -60,6 +60,8 @@ export interface PrintCheckoutSettings {
   manualQuoteMinCopies: number;
   /** Kode unik 3 digit pada nominal transfer (dipotong dari total, tidak pernah menambah tagihan). */
   uniqueCodeEnabled: boolean;
+  /** Nomor WhatsApp Finance untuk konfirmasi transfer (cetak & keanggotaan); kosong = pakai env FINANCE_WHATSAPP. */
+  financeWhatsapp: string;
   /** Batas waktu transfer sejak tagihan terbit (jam). */
   transferDueHours: number;
 }
@@ -97,7 +99,8 @@ export const DEFAULT_PRINT_CHECKOUT_SETTINGS: PrintCheckoutSettings = {
   zones: DEFAULT_SHIPPING_ZONES,
   manualQuoteMinCopies: 5,
   uniqueCodeEnabled: true,
-  transferDueHours: 24
+  transferDueHours: 24,
+  financeWhatsapp: ''
 };
 
 /** "Kota Bogor", "Kab. Bogor", " bogor " -> "bogor". */
@@ -203,7 +206,9 @@ export const validatePrintCheckoutSettings = (input: unknown): { settings: Print
       zones,
       manualQuoteMinCopies: minCopies,
       uniqueCodeEnabled: raw.uniqueCodeEnabled !== false,
-      transferDueHours: dueHours
+      transferDueHours: dueHours,
+      // Nomor Indonesia (+62/0/8…) atau kosong; format dirapikan saat dipakai.
+      financeWhatsapp: typeof raw.financeWhatsapp === 'string' ? raw.financeWhatsapp.trim().slice(0, 30) : ''
     }
   };
 };

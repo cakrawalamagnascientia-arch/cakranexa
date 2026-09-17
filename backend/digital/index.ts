@@ -15,7 +15,7 @@ import { createAdminDigitalRouter } from './admin';
 import { createAnomalyRouter, startAnomalyJob } from './anomalies';
 import { createMidtransGateway, type MembershipGateway } from './membership/gateway';
 import { createWhatsAppSender, type WhatsAppSender } from './membership/whatsapp';
-import { isMembershipNotification, memberPrintPrice, memberUnitPrice, MembershipService } from './membership/service';
+import { isMembershipNotification, isTransferInvoice, memberPrintPrice, memberUnitPrice, MembershipService } from './membership/service';
 import { createMembershipRouter } from './membership/router';
 import { createMembershipAdminRouter } from './membership/admin';
 import { runMembershipJob, startMembershipJob, type MembershipJobResult } from './membership/jobs';
@@ -49,6 +49,10 @@ export interface Phase2Deps {
   midtrans: MidtransSettings;
   /** Fase 4: rekening perusahaan aktif dari CMS (tabel admin_bank_accounts) untuk invoice institusi. */
   listBankAccounts?: () => Promise<CompanyBankAccount[]>;
+  /** Fase 6: nomor WhatsApp Finance (pengaturan admin Pembayaran; env hanya cadangan). */
+  financeWhatsapp?: () => Promise<string>;
+  /** Fase 6: nominal pesanan cetak yang menunggu transfer (kode unik keanggotaan tidak bentrok). */
+  openPrintTransferTotals?: () => Promise<number[]>;
   /** Fase 4: identitas penerbit di kepala invoice (konten CMS). */
   getCompanyProfile?: () => Promise<CompanyProfile>;
   /** Fase 4: permintaan penawaran fase 1 yang dikonversi menjadi institusi. */
@@ -99,6 +103,8 @@ export interface DigitalPhase2 {
   runMembershipJob?: () => Promise<MembershipJobResult>;
   /** Langkah 7: persen harga member buku cetak untuk pemilik token; null bila flag mati atau bukan anggota aktif. */
   memberPrintDiscount?: (authorization: string | undefined) => Promise<{ percent: number; planCode: string } | null>;
+  /** Fase 6: nominal tagihan transfer keanggotaan yang masih terbuka (kode unik cetak tidak bentrok). */
+  openMembershipTransferTotals?: () => Promise<number[]>;
   /** Akses institusi fase 4 (dipakai tes dan admin). */
   institution?: InstitutionService;
   /** Notifikasi Midtrans invoice institusi (order_id INST-...). */
@@ -314,7 +320,11 @@ export const createDigitalPhase2 = (deps: Phase2Deps): DigitalPhase2 => {
   const whatsappSender = deps.overrides && 'whatsappSender' in deps.overrides
     ? deps.overrides.whatsappSender ?? null
     : createWhatsAppSender(config.whatsapp, deps.overrides?.fetchImpl ?? fetch);
-  const membership = new MembershipService(context, membershipGateway, midtransClient, whatsappSender);
+  const membership = new MembershipService(context, membershipGateway, midtransClient, whatsappSender, {
+    listBankAccounts: deps.listBankAccounts,
+    financeWhatsapp: deps.financeWhatsapp,
+    otherOpenTransferTotals: deps.openPrintTransferTotals
+  });
   router.use(createMembershipRouter(context, membership));
   router.use(createMembershipAdminRouter(context, membership));
 
@@ -374,6 +384,9 @@ export const createDigitalPhase2 = (deps: Phase2Deps): DigitalPhase2 => {
     handleMembershipNotification: (notification) => membership.handleNotification(notification),
     runMembershipJob: () => runMembershipJob(membership),
     memberPrintDiscount: (authorization) => membership.memberPrintDiscount(authorization),
+    openMembershipTransferTotals: async () => (await store.listInvoices({ statuses: ['issued'], limit: 5000 }))
+      .filter((i) => isTransferInvoice(i))
+      .map((i) => i.amount),
     institution,
     handleInstitutionNotification: (notification) => institution.handleNotification(notification),
     runInstitutionJob: () => runInstitutionJob(institution),

@@ -212,10 +212,10 @@ export const FALLBACK_MEMBERSHIP: MembershipPlans = {
       ['titleQuota', 'audioHours', 'frontlistDays', 'devicesTwo']),
     fallbackPlan('gold', 99_000, 'pick',
       { ebookTitlesPerPeriod: 6, audioHoursPerPeriod: 20, frontlistDays: 45, offlineTitles: 2, familyAccounts: 0 },
-      ['titleQuota', 'audioHours', 'frontlistDays', 'offlineTitles', 'notesHighlights', 'formatSync', 'devicesTwo']),
+      ['titleQuota', 'audioHours', 'frontlistDays', 'notesHighlights', 'devicesTwo']),
     fallbackPlan('platinum', 199_000, 'full',
       { ebookTitlesPerPeriod: null, audioHoursPerPeriod: 60, frontlistDays: 0, offlineTitles: 5, familyAccounts: 2 },
-      ['fullShelf', 'audioHours', 'frontlistFirstDay', 'offlineTitles', 'notesHighlights', 'formatSync', 'familyAccounts', 'devicesTwo'])
+      ['fullShelf', 'audioHours', 'frontlistFirstDay', 'notesHighlights', 'familyAccounts', 'devicesTwo'])
   ],
   flags: {
     autodebit: false,
@@ -223,11 +223,14 @@ export const FALLBACK_MEMBERSHIP: MembershipPlans = {
     readerPick: false,
     authorShelf: false,
     extendedBenefits: false,
+    offline: false,
+    crossFormatSync: false,
     graceDays: MEMBERSHIP_BILLING_POLICY.graceDays,
     whatsapp: false,
     whatsappSender: null
   },
   paymentAvailable: false,
+  paymentMethods: [],
   purchaseEnabled: false,
   current: null,
   foundingEligible: true

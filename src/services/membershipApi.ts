@@ -12,12 +12,13 @@ export type LegacyPlanCode = 'free' | 'reader' | 'professional' | 'author';
 export const LEGACY_PLAN_CODES: LegacyPlanCode[] = ['free', 'reader', 'professional', 'author'];
 export const isLegacyPlanCode = (code: string | null | undefined): code is LegacyPlanCode => (LEGACY_PLAN_CODES as string[]).includes(code ?? '');
 export type BillingCycle = 'monthly' | 'yearly';
-export type PaymentMethod = 'card' | 'gopay' | 'va' | 'qris';
+export type PaymentMethod = 'card' | 'gopay' | 'va' | 'qris' | 'bank_transfer';
 export type ShelfAccess = 'none' | 'pick' | 'full';
 export type SubscriptionStatus = 'pending' | 'active' | 'past_due' | 'grace' | 'canceled' | 'expired';
 export type InvoiceStatus = 'draft' | 'issued' | 'paid' | 'failed' | 'void';
 
-export const PAYMENT_METHODS: PaymentMethod[] = ['va', 'qris', 'card', 'gopay'];
+/** Urutan tampilan; yang benar-benar tersedia dikirim server (payment_routing 'membership'). */
+export const PAYMENT_METHODS: PaymentMethod[] = ['bank_transfer', 'va', 'qris', 'card', 'gopay'];
 
 export interface PublicPlan {
   code: PlanCode;
@@ -46,6 +47,10 @@ export interface MembershipFlags {
   readerPick: boolean;
   authorShelf: boolean;
   extendedBenefits: boolean;
+  /** ENABLE_OFFLINE: manfaat offline ditampilkan (fase 6 Langkah 5). */
+  offline: boolean;
+  /** ENABLE_CROSS_FORMAT_SYNC: manfaat sinkron e-book ↔ audio ditampilkan (fase 6 Langkah 5). */
+  crossFormatSync: boolean;
   graceDays: number;
   /** Pengingat WhatsApp tersedia (gateway terpasang di server). */
   whatsapp: boolean;
@@ -57,6 +62,8 @@ export interface MembershipPlans {
   plans: PublicPlan[];
   flags: MembershipFlags;
   paymentAvailable: boolean;
+  /** Metode keanggotaan yang tersedia (payment_routing); fase 6 bawaan: transfer bank. */
+  paymentMethods: PaymentMethod[];
   /** Pendaftaran dibuka (flag fitur digital atau email beta). */
   purchaseEnabled: boolean;
   current: { planCode: PlanCode | null; billingCycle: BillingCycle; status: SubscriptionStatus; cancelAtPeriodEnd: boolean } | null;
@@ -80,6 +87,27 @@ export interface MembershipInvoice {
   paymentType: string | null;
   snapToken: string | null;
   redirectUrl: string | null;
+  /** Transfer bank manual (fase 6); null untuk tagihan Snap/admin. */
+  transfer: MembershipTransfer | null;
+}
+
+export interface MembershipTransfer {
+  /** Kode unik 3 digit (null = nominal tanpa kode). */
+  uniqueCode: string | null;
+  uniqueDiscount: number;
+  baseAmount: number;
+  hasProof: boolean;
+  proofUploadedAt: string | null;
+}
+
+/** Halaman instruksi transfer: rekening dan tautan WhatsApp Finance hanya selama tagihan menunggu. */
+export interface MembershipInvoiceDetail {
+  invoice: MembershipInvoice;
+  planName: { id: string; en: string } | null;
+  subscriptionStatus: SubscriptionStatus;
+  bankAccounts: Array<{ bankName: string; accountNumber: string; accountHolder: string; branch?: string }>;
+  financeWhatsappUrl: string | null;
+  expired: boolean;
 }
 
 export interface MembershipSubscription {
@@ -118,6 +146,8 @@ export interface MyMembership {
   openInvoice: MembershipInvoice | null;
   printDiscountPercent: number;
   autodebitAvailable: boolean;
+  /** Meter jam audio bulan ini; null = paket tanpa batas jam atau tanpa akses rak. */
+  audio: { usedSeconds: number; limitSeconds: number; resetsAt: string; exhausted: boolean } | null;
 }
 
 export interface ShelfCard {
@@ -303,3 +333,17 @@ export const getTitleStatus = (productId: string) =>
 /** Status yang masih memberi manfaat keanggotaan (akses tetap terbuka selama tenggang/percobaan ulang). */
 export const isPaidStatus = (status: SubscriptionStatus | null | undefined): boolean =>
   status === 'active' || status === 'past_due' || status === 'grace';
+
+export const getMembershipInvoice = (invoiceId: string) =>
+  memberRequest<MembershipInvoiceDetail>(`/api/membership/invoices/${encodeURIComponent(invoiceId)}`);
+
+/** Bukti transfer (PDF/PNG/JPG/WebP, maks. 10 MB). */
+export const uploadMembershipProof = (invoiceId: string, file: File) => {
+  const form = new FormData();
+  form.append('file', file);
+  return memberRequest<{ invoice: MembershipInvoice }>(`/api/membership/invoices/${encodeURIComponent(invoiceId)}/proof`, {
+    method: 'POST',
+    body: form,
+    timeoutMs: 60000
+  });
+};

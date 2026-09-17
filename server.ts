@@ -941,6 +941,9 @@ async function startServer() {
     midtrans: { enabled: MIDTRANS_ENABLED, serverKey: MIDTRANS_SERVER_KEY, snapUrl: MIDTRANS_SNAP_URL, isProduction: MIDTRANS_IS_PRODUCTION },
     // payment_routing (tabel yang sama dengan checkout cetak): fase 6 menutup pembelian satuan dan mengatur metode keanggotaan.
     getPaymentRouting: () => printOrderStore.getRouting(),
+    // Fase 6: transfer bank keanggotaan (WhatsApp Finance; kode unik tidak bentrok dengan pesanan cetak).
+    financeWhatsapp: async () => printCheckout.financeWhatsappNumber(),
+    openPrintTransferTotals: async () => (await printOrderStore.listByStatus(['awaiting_transfer'])).map((o) => Number(o.total_amount)),
     cronJobs: { printOrders: () => runPrintOrderJob(), manuscripts: () => runManuscriptJob() }
   });
   app.use(digitalPhase2.router);
@@ -999,6 +1002,7 @@ async function startServer() {
     midtrans: { enabled: MIDTRANS_ENABLED, isProduction: MIDTRANS_IS_PRODUCTION },
     siteUrl: process.env.SITE_URL || 'https://cakranexa.com',
     financeWhatsapp: process.env.FINANCE_WHATSAPP || DEFAULT_FINANCE_WHATSAPP,
+    otherOpenTransferTotals: async () => (await digitalPhase2.openMembershipTransferTotals?.()) ?? [],
     companyName: 'PT Cakrawala Magna Scientia',
     tokenSecret: printOrderTokenSecret,
     shippingRates: shippingRatesClient,

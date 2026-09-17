@@ -130,7 +130,7 @@ describe('migration fase 6 Langkah 1', () => {
 
   it('terdaftar di REQUIRED_SCHEMA dan check_schema', () => {
     const required = REQUIRED_SCHEMA.filter((r) => r.migration === MIGRATION);
-    expect(required.map((r) => r.table).sort()).toEqual(['family_members', 'period_title_picks', 'plans', 'reading_events']);
+    expect(required.map((r) => r.table).sort()).toEqual(['family_members', 'period_title_picks', 'plans', 'print_checkout_settings', 'reading_events', 'subscription_invoices']);
     for (const r of required) {
       if (r.columns) for (const column of r.columns) expect(code).toMatch(new RegExp(`ALTER TABLE ${r.table} ADD COLUMN IF NOT EXISTS ${column}\\b`));
       else expect(checkSchema).toContain(`(13, '${MIGRATION}', '${r.table}', 'table')`);

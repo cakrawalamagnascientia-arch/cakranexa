@@ -160,7 +160,7 @@ const isNoIndexPage = (page: ActivePage, subSection?: SubSection): boolean =>
   || page === 'payment'
   || page === 'order'
   || (page === 'digital' && (subSection === 'sample' || subSection === 'checkout'))
-  || (page === 'membership' && subSection === 'checkout');
+  || (page === 'membership' && (subSection === 'checkout' || subSection === 'invoice'));
 
 const OG_LOCALE: Record<AppLanguage, string> = { id: 'id_ID', en: 'en_US', zh: 'zh_CN' };
 

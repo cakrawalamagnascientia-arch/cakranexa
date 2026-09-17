@@ -44,7 +44,9 @@
       "fullName": "Isi nama lengkap Anda.",
       "email": "Isi alamat email yang valid.",
       "password": "Kata sandi minimal 8 karakter."
-    }
+    },
+    "or": "atau",
+    "googleCta": "Lanjutkan dengan Google"
   },
   "checkout": {
     "subheader": "Checkout",
@@ -296,7 +298,11 @@
     "manageMembership": "Keanggotaan Saya",
     "tabs": {
       "shelf": "Rak Digital",
-      "owned": "Milik Saya"
+      "owned": "Milik Saya",
+      "reading": "Sedang dibaca",
+      "quota": "Jatah bulan ini",
+      "done": "Selesai",
+      "notes": "Catatan"
     },
     "shelf": {
       "loadError": "Rak digital gagal dimuat. Periksa koneksi lalu coba lagi.",
@@ -335,7 +341,22 @@
       "step3Title": "Perpanjangan",
       "step3": "Tagihan, perpanjangan, ubah paket, dan pembatalan ada di halaman Keanggotaan Saya.",
       "dismiss": "Mengerti"
-    }
+    },
+    "openLibrary": "Buka Pustaka Saya",
+    "audio": {
+      "title": "Jam audio bulan ini",
+      "used": "{{used}} dari {{limit}} jam terpakai",
+      "resets": "Jam baru terbuka {{date}}",
+      "exhausted": "Jam audio bulan ini sudah habis."
+    },
+    "pickCta": "Pilih buku bulan ini",
+    "emptyTab": {
+      "reading": "Belum ada judul yang sedang dibaca atau didengarkan.",
+      "done": "Belum ada judul yang selesai.",
+      "notes": "Belum ada catatan. Buat catatan dan stabilo di pembaca."
+    },
+    "notesCount": "{{count}} catatan",
+    "openNotes": "Buka di pembaca"
   },
   "nav": {
     "menu": "Digital",
@@ -557,7 +578,7 @@
       },
       "gold": {
         "name": "Gold",
-        "tagline": "Paling seimbang: 6 judul, 20 jam audio, offline, dan catatan."
+        "tagline": "Paling seimbang: 6 judul, 20 jam audio, dan catatan."
       },
       "platinum": {
         "name": "Platinum",
@@ -722,8 +743,7 @@
         },
         "payment": {
           "q": "Bagaimana cara membayar paket?",
-          "a": "Pembayaran paket melalui transfer bank ke rekening resmi PT Cakrawala Magna Scientia, dengan kode unik di akhir nominal. Paket aktif setelah tim Keuangan mengonfirmasi pembayaran. Untuk perpanjangan, kami mengirim tagihan dan pengingat sebelum jatuh tempo.",
-          "aManual": "Pembayaran paket melalui transfer bank ke rekening resmi PT Cakrawala Magna Scientia, dengan kode unik di akhir nominal. Paket aktif setelah tim Keuangan mengonfirmasi pembayaran. Untuk perpanjangan, kami mengirim tagihan dan pengingat sebelum jatuh tempo."
+          "a": "Pembayaran paket melalui transfer bank ke rekening resmi PT Cakrawala Magna Scientia, dengan kode unik di akhir nominal. Paket aktif setelah tim Keuangan mengonfirmasi pembayaran. Untuk perpanjangan, kami mengirim tagihan dan pengingat sebelum jatuh tempo."
         },
         "grace": {
           "q": "Bagaimana jika pembayaran terlambat?",
@@ -948,7 +968,7 @@
   },
   "membershipCheckout": {
     "title": "Daftar keanggotaan",
-    "subtitle": "Periksa paket, pilih cara bayar, lalu lanjutkan ke pembayaran aman Midtrans.",
+    "subtitle": "Tiga langkah: pilih periode, setujui ketentuan, lalu transfer ke rekening resmi CakraNexa.",
     "loginTitle": "Masuk untuk mendaftar",
     "loginDescription": "Keanggotaan terhubung ke akun Anda agar rak digital, perangkat, dan tagihan bisa dikelola dari satu tempat.",
     "plan": "Paket",
@@ -959,26 +979,26 @@
     "perYear": "per tahun",
     "perMonth": "per bulan",
     "methodTitle": "Cara bayar",
-    "honestNote": "Kartu/GoPay: perpanjangan otomatis. Virtual Account/QRIS: kami kirim tagihan setiap periode, Anda bayar manual.",
-    "honestNoteManual": "Untuk sementara semua metode dibayar per periode: kami mengirim tagihan dan pengingat sebelum jatuh tempo, lalu Anda membayar manual.",
     "methods": {
       "va": {
         "label": "Virtual Account",
-        "description": "Transfer lewat nomor Virtual Account bank. Kami kirim tagihan setiap periode, Anda bayar manual."
+        "description": "Bayar lewat Virtual Account bank."
       },
       "qris": {
         "label": "QRIS",
-        "description": "Pindai kode QR dari aplikasi bank atau e-wallet. Kami kirim tagihan setiap periode, Anda bayar manual."
+        "description": "Pindai QRIS dari aplikasi bank atau e-wallet."
       },
       "card": {
         "label": "Kartu kredit/debit",
-        "descriptionAuto": "Perpanjangan otomatis setiap periode. Data kartu hanya dimasukkan di halaman Midtrans dan tidak disimpan CakraNexa.",
-        "descriptionManual": "Perpanjangan otomatis belum aktif; kami kirim tagihan setiap periode dan Anda bayar manual."
+        "description": "Bayar dengan kartu."
       },
       "gopay": {
         "label": "GoPay",
-        "descriptionAuto": "Perpanjangan otomatis dari akun GoPay yang Anda tautkan.",
-        "descriptionManual": "Perpanjangan otomatis belum aktif; kami kirim tagihan setiap periode dan Anda bayar manual."
+        "description": "Bayar dengan saldo GoPay."
+      },
+      "bank_transfer": {
+        "label": "Transfer bank",
+        "description": "Transfer ke rekening resmi dengan nominal berkode unik; dikonfirmasi tim Keuangan."
       }
     },
     "termsAccept": "Saya sudah membaca dan menyetujui",
@@ -995,7 +1015,7 @@
     "freeDescription": "Free Circle otomatis berlaku untuk setiap akun: sampel, newsletter, wishlist, dan undangan acara.",
     "unavailableTitle": "Pendaftaran belum dibuka",
     "unavailable": "Pendaftaran keanggotaan sedang disiapkan dan akan segera dibuka.",
-    "back": "Kembali ke paket keanggotaan",
+    "back": "Kembali",
     "errors": {
       "terms_required": "Setujui ketentuan keanggotaan terlebih dahulu.",
       "order_not_saved": "Pendaftaran belum dapat diproses, coba lagi.",
@@ -1019,6 +1039,22 @@
       "optIn": "Kirim pengingat tagihan lewat WhatsApp",
       "number": "Nomor WhatsApp",
       "placeholder": "0812 3456 7890"
+    },
+    "steps": {
+      "plan": "Paket",
+      "terms": "Ketentuan",
+      "payment": "Pembayaran"
+    },
+    "next": "Lanjut",
+    "termsIntro": "Bacalah ketentuan keanggotaan dan lisensi baca/dengar sebelum melanjutkan.",
+    "methodNote": "Metode yang tersedia diatur admin. Tidak ada pembayaran kartu di halaman ini.",
+    "createInvoice": "Buat tagihan transfer {{total}}",
+    "safety": "Kami hanya menerima transfer ke rekening atas nama PT Cakrawala Magna Scientia.",
+    "transferFlow": {
+      "invoice": "Kami membuat tagihan dengan nominal berkode unik dan mengirimkan instruksinya lewat email.",
+      "transfer": "Transfer tepat sesuai nominal itu dalam 24 jam.",
+      "proof": "Unggah bukti transfer (atau kirim lewat WhatsApp Finance).",
+      "active": "Paket aktif setelah tim Keuangan mengonfirmasi pembayaran."
     }
   },
   "membershipTerms": {
@@ -1106,10 +1142,7 @@
       "nextRenewal": "Perpanjangan berikutnya"
     },
     "otherMethod": "Lainnya",
-    "autodebitOn": "perpanjangan otomatis",
-    "autodebitOff": "bayar manual per periode",
     "nextRenewal": "{{amount}} pada {{date}}",
-    "renewalAuto": "Ditagih otomatis pada tanggal tersebut.",
     "renewalManual": "Tagihan dikirim 7 hari sebelumnya.",
     "foundingUntil": "Harga Founding berlaku sampai {{date}}. Perpanjangan berikutnya memakai harga reguler {{price}}/tahun.",
     "pendingChange": "Mulai {{date}} paket berubah menjadi {{plan}} ({{cycle}}).",
@@ -1128,7 +1161,9 @@
       "pay": "Bayar sekarang",
       "refresh": "Periksa status pembayaran",
       "paidNow": "Pembayaran diterima. Terima kasih!",
-      "stillPending": "Pembayaran belum kami terima. Bila Anda baru membayar, tunggu beberapa menit lalu periksa lagi."
+      "stillPending": "Pembayaran belum kami terima. Bila Anda baru membayar, tunggu beberapa menit lalu periksa lagi.",
+      "transferNote": "Transfer tepat sesuai nominal tagihan (kode unik {{code}}) lalu unggah bukti di halaman tagihan.",
+      "transferCta": "Lihat instruksi transfer"
     },
     "invoiceKind": {
       "initial": "Pendaftaran",
@@ -1157,12 +1192,6 @@
       "immediateResult": "Bayar selisih {{amount}} (setelah kredit {{credit}}) untuk mengaktifkan paket baru.",
       "scheduledResult": "Perubahan dijadwalkan mulai {{date}}.",
       "appliedResult": "Paket baru sudah aktif."
-    },
-    "method": {
-      "title": "Metode pembayaran",
-      "description": "Berlaku untuk tagihan berikutnya. Kartu/GoPay diperpanjang otomatis bila fitur tersebut sudah aktif.",
-      "submit": "Simpan metode",
-      "saved": "Metode pembayaran diperbarui untuk tagihan berikutnya."
     },
     "cancel": {
       "title": "Batalkan keanggotaan",
@@ -1216,6 +1245,7 @@
         "samples": "Sampel gratis untuk setiap judul",
         "devices": "Dua perangkat, lanjutkan di mana saja",
         "sync": "Pindah dari e-book ke audio tanpa kehilangan posisi (Gold ke atas)",
+        "quota": "Jatah judul dan jam audio setiap bulan sesuai paket",
         "print": "Buku cetak tetap tersedia, dengan diskon anggota"
       },
       "startFree": "Mulai gratis",
@@ -1259,5 +1289,93 @@
     "moreSite": "Situs CakraNexa",
     "signOut": "Keluar",
     "allCategories": "Semua kategori"
+  },
+  "membershipInvoice": {
+    "eyebrow": "Tagihan {{ref}}",
+    "title": "Selesaikan transfer",
+    "subtitle": "Paket {{plan}} aktif setelah tim Keuangan mengonfirmasi pembayaran Anda.",
+    "steps": {
+      "transfer": "Transfer nominal persis",
+      "proof": "Unggah bukti",
+      "confirm": "Konfirmasi Keuangan"
+    },
+    "amountLabel": "Nominal transfer (harus persis)",
+    "uniqueCodeNote": "Tiga digit terakhir ({{code}}) adalah kode unik agar pembayaran Anda dapat dicocokkan. Harga paket {{base}}, potongan kode unik {{discount}}.",
+    "deadline": "Batas transfer: {{date}}",
+    "hoursLeft": "sisa {{count}} jam",
+    "accountsTitle": "Rekening tujuan",
+    "accountHolder": "a.n. {{name}}",
+    "noAccounts": "Rekening belum tersedia. Hubungi kami lewat WhatsApp Finance.",
+    "safety": "Kami tidak pernah meminta kata sandi atau kode OTP. Transfer hanya ke rekening atas nama PT Cakrawala Magna Scientia.",
+    "whatsapp": "Konfirmasi lewat WhatsApp Finance",
+    "waiting": "Halaman ini akan diperbarui sendiri setelah pembayaran dikonfirmasi (dicek tiap 30 detik).",
+    "copy": "Salin",
+    "copied": "Tersalin",
+    "notFound": "Tagihan tidak ditemukan.",
+    "paidTitle": "Pembayaran dikonfirmasi — {{plan}} aktif",
+    "paidPick": "Pilih buku bulan ini untuk mulai membaca.",
+    "paidOpen": "Seluruh rak Anda sudah terbuka di Pustaka Saya.",
+    "pickCta": "Pilih buku bulan ini",
+    "libraryCta": "Buka Pustaka Saya",
+    "expiredTitle": "Batas transfer terlewati",
+    "expiredBody": "Tagihan ini ditutup. Bila Anda sudah mentransfer, hubungi Finance lewat WhatsApp dengan bukti transfer.",
+    "closedTitle": "Tagihan tidak aktif",
+    "closedBody": "Tagihan ini sudah tidak dapat dibayar.",
+    "choosePlan": "Pilih paket",
+    "proofErrors": {
+      "default": "Bukti gagal diunggah. Coba lagi atau kirim lewat WhatsApp Finance.",
+      "invalid_upload": "Unggahan tidak terbaca. Pilih berkas lain.",
+      "unsupported_type": "Format berkas tidak didukung. Gunakan JPG, PNG, WebP, atau PDF.",
+      "file_too_large": "Ukuran berkas melebihi 10 MB.",
+      "invoice_closed": "Tagihan ini sudah tidak menerima bukti transfer.",
+      "already_paid": "Pembayaran tagihan ini sudah dikonfirmasi.",
+      "network": "Periksa koneksi internet Anda lalu coba lagi."
+    }
+  },
+  "pick": {
+    "title": "Pilih buku bulan ini",
+    "subtitle": "Pilihan langsung terkunci dan dapat dibaca sampai jatah berikutnya terbuka pada {{date}}.",
+    "counter": "Jatah terpakai: {{used}} dari {{limit}}",
+    "remaining": "Sisa {{count}} judul bulan ini",
+    "full": "Jatah bulan ini sudah penuh. Jatah baru terbuka {{date}}.",
+    "searchPlaceholder": "Cari judul atau penulis",
+    "choose": "Pilih judul ini",
+    "opened": "Sudah terbuka",
+    "confirmTitle": "Buka “{{title}}” dengan jatah bulan ini?",
+    "confirmBody": "Ini menjadi judul ke-{{used}} dari {{limit}} dan tidak dapat diganti. Judul tetap dapat dibaca sampai {{date}}.",
+    "confirmYes": "Ya, buka judul",
+    "confirmNo": "Batal",
+    "empty": "Tidak ada judul yang cocok dengan pencarian Anda.",
+    "upgrade": "Lihat paket",
+    "notNeededTitle": "Tidak perlu memilih",
+    "notNeededBody": "Paket Anda membuka seluruh rak, atau Anda belum memiliki paket berjatah."
+  },
+  "onboarding": {
+    "eyebrow": "Selamat datang di CakraNexa",
+    "steps": {
+      "interests": "Minat",
+      "format": "Format",
+      "howItWorks": "Cara kerja"
+    },
+    "interests": {
+      "title": "Bidang apa yang Anda baca?",
+      "subtitle": "Pilih satu atau beberapa; rak digital Anda akan diurutkan sesuai minat ini."
+    },
+    "format": {
+      "title": "Anda lebih suka membaca atau mendengarkan?",
+      "subtitle": "Bisa diubah kapan saja.",
+      "ebook": "E-book",
+      "audiobook": "Audiobook",
+      "both": "Keduanya"
+    },
+    "howItWorks": {
+      "title": "Sampel gratis, selebihnya lewat paket",
+      "subtitle": "Tiga hal yang perlu diketahui sebelum mulai.",
+      "sample": "Akun Blue gratis membuka sampel setiap judul: sebagian halaman e-book dan beberapa menit audiobook.",
+      "plan": "Paket Silver, Gold, dan Platinum membuka judul penuh; buku cetak tetap dijual seperti biasa.",
+      "quota": "Silver dan Gold memakai jatah judul per bulan, Platinum membuka seluruh rak sejak hari pertama."
+    },
+    "finish": "Mulai jelajahi rak",
+    "seePlans": "Lihat paket keanggotaan"
   }
 }

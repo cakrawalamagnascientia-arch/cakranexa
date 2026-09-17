@@ -176,7 +176,8 @@ export class SupabasePrintOrderStore implements PrintOrderStore {
       ...(Array.isArray(row.zones) ? { zones: row.zones } : {}),
       manualQuoteMinCopies: Number(row.manual_quote_min_copies),
       uniqueCodeEnabled: row.unique_code_enabled !== false,
-      transferDueHours: Number(row.transfer_due_hours)
+      transferDueHours: Number(row.transfer_due_hours),
+      financeWhatsapp: row.finance_whatsapp ? String(row.finance_whatsapp) : ''
     };
   }
 
@@ -193,6 +194,7 @@ export class SupabasePrintOrderStore implements PrintOrderStore {
       manual_quote_min_copies: settings.manualQuoteMinCopies,
       unique_code_enabled: settings.uniqueCodeEnabled,
       transfer_due_hours: settings.transferDueHours,
+      finance_whatsapp: settings.financeWhatsapp || null,
       updated_at: new Date().toISOString()
     }, { onConflict: 'id' }), 'print_checkout_settings upsert');
   }

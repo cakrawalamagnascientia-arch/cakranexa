@@ -93,6 +93,8 @@ export interface TestAppOptions {
   paymentRouting?: RoutingEntry[] | null;
   /** Aktifkan paket fase 3 dengan angka seed aslinya (tes regresi pelanggan lama). */
   legacyPlans?: boolean;
+  /** Fase 6: nominal pesanan cetak yang menunggu transfer. */
+  openPrintTransferTotals?: () => Promise<number[]>;
 }
 
 export const createTestApp = async (options: TestAppOptions = {}) => {
@@ -121,6 +123,8 @@ export const createTestApp = async (options: TestAppOptions = {}) => {
     getCompanyProfile: async () => options.companyProfile ?? TEST_COMPANY,
     getInquiry: async (id) => options.inquiries?.find((q) => q.id === id) ?? null,
     getPaymentRouting: async () => routing.value,
+    financeWhatsapp: async () => '+6285286146806',
+    openPrintTransferTotals: options.openPrintTransferTotals,
     env: {
       NODE_ENV: 'test',
       DIGITAL_ENABLED: 'true',

@@ -1,6 +1,7 @@
 /**
- * Template email keanggotaan (id & en; pesanan berbahasa zh memakai en). Email tidak berisi data kartu atau file,
- * hanya ringkasan dan tautan ke /account/membership atau /library.
+ * Template email keanggotaan (id & en; pesanan berbahasa zh memakai en). Email tidak berisi data pembayaran pribadi
+ * atau file, hanya ringkasan, instruksi transfer ke rekening perusahaan, dan tautan ke /account/membership atau /library.
+ * Fase 6 Langkah 4: pembayaran lewat transfer bank + kode unik, dikonfirmasi Finance.
  */
 export type MembershipEmailKind =
   | 'welcome'
@@ -15,7 +16,17 @@ export type MembershipEmailKind =
   | 'pickLocked'
   | 'planMigration'
   | 'titlePicked'
-  | 'familyAdded';
+  | 'familyAdded'
+  | 'transferInstructions'
+  | 'transferExpired';
+
+export interface TransferEmailData {
+  accounts: Array<{ bankName: string; accountNumber: string; accountHolder: string }>;
+  /** Kode unik 3 digit (null bila nominal tanpa kode). */
+  uniqueCode: string | null;
+  /** Tautan WhatsApp Finance dengan pesan konfirmasi terisi. */
+  whatsappUrl: string | null;
+}
 
 export interface MembershipEmailData {
   language: string;
@@ -41,6 +52,10 @@ export interface MembershipEmailData {
   limit?: number;
   /** familyAdded: nama pemilik langganan. */
   ownerName?: string;
+  /** Instruksi transfer bank (tagihan transfer). */
+  transfer?: TransferEmailData;
+  /** welcome: jatah judul per bulan (Silver/Gold) -> ajakan "Pilih buku bulan ini". */
+  pickTitles?: number;
 }
 
 export const escapeHtml = (value: unknown): string => String(value ?? '')
@@ -56,8 +71,13 @@ export const formatDate = (iso: string | null | undefined, lang: 'id' | 'en') =>
 
 type Copy = { subject: string; intro: string; body?: string; button: string; path: string };
 
+const PICK_PATH = '/library/pick';
+
 const copyFor = (kind: MembershipEmailKind, lang: 'id' | 'en', d: MembershipEmailData): Copy => {
   const plan = escapeHtml(d.planName || '');
+  const deadline = d.date
+    ? new Date(d.date).toLocaleString(lang === 'id' ? 'id-ID' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' }) + ' WIB'
+    : '-';
   const cycle = d.cycle === 'yearly' ? (lang === 'id' ? 'tahunan' : 'annual') : (lang === 'id' ? 'bulanan' : 'monthly');
   const date = formatDate(d.date, lang);
   const amount = rupiah(d.amount);
@@ -65,15 +85,17 @@ const copyFor = (kind: MembershipEmailKind, lang: 'id' | 'en', d: MembershipEmai
   if (lang === 'id') {
     switch (kind) {
       case 'welcome':
-        return { subject: `Selamat datang di ${d.planName}`, intro: `Keanggotaan <strong>${plan}</strong> (${cycle}) Anda sudah aktif sampai ${date}.`, body: 'Buka Pustaka Saya untuk melihat rak digital, perangkat, dan cara perpanjangan.', button: 'Buka Pustaka Saya', path: '/library?welcome=1' };
+        return d.pickTitles
+          ? { subject: `Selamat datang di ${d.planName}: pilih buku bulan ini`, intro: `Pembayaran Anda sudah dikonfirmasi. Keanggotaan <strong>${plan}</strong> (${cycle}) aktif sampai ${date}.`, body: `Pilih ${d.pickTitles} judul e-book untuk bulan ini. Audiobook di rak sudah dapat didengarkan sesuai jam paket Anda.`, button: 'Pilih buku bulan ini', path: PICK_PATH }
+          : { subject: `Selamat datang di ${d.planName}`, intro: `Pembayaran Anda sudah dikonfirmasi. Keanggotaan <strong>${plan}</strong> (${cycle}) aktif sampai ${date}.`, body: 'Buka Pustaka Saya untuk mulai membaca dan mendengarkan.', button: 'Buka Pustaka Saya', path: '/library?welcome=1' };
       case 'invoice':
         return d.autodebit
           ? { subject: `Perpanjangan ${d.planName} pada ${date}`, intro: `Keanggotaan Anda akan diperpanjang otomatis pada ${date} sebesar <strong>${amount}</strong>.`, body: 'Tidak perlu tindakan apa pun. Anda bisa membatalkan atau mengganti metode bayar dari halaman akun.', button: 'Kelola keanggotaan', path: account }
-          : { subject: `Tagihan perpanjangan ${d.planName}`, intro: `Tagihan perpanjangan sebesar <strong>${amount}</strong> sudah terbit dan jatuh tempo pada ${date}.`, body: 'Bayar lewat Virtual Account atau QRIS dari halaman akun.', button: 'Bayar tagihan', path: account };
+          : { subject: `Tagihan perpanjangan ${d.planName}`, intro: `Tagihan perpanjangan sebesar <strong>${amount}</strong> sudah terbit dan jatuh tempo pada ${date}.`, body: 'Transfer tepat sesuai nominal (termasuk kode unik) ke salah satu rekening di bawah. Paket diperpanjang setelah tim Keuangan mengonfirmasi pembayaran.', button: 'Lihat tagihan', path: account };
       case 'reminder':
         return { subject: d.days === 0 ? `Hari ini jatuh tempo: ${d.planName}` : `${d.days} hari lagi: tagihan ${d.planName}`, intro: d.days === 0 ? `Tagihan <strong>${amount}</strong> jatuh tempo hari ini.` : `Tagihan <strong>${amount}</strong> jatuh tempo dalam ${d.days} hari (${date}).`, body: `Setelah jatuh tempo ada masa tenggang ${d.graceDays ?? 5} hari dengan akses tetap terbuka.`, button: 'Bayar tagihan', path: account };
       case 'paymentFailed':
-        return { subject: `Pembayaran otomatis ${d.planName} gagal`, intro: `Kami gagal menagih <strong>${amount}</strong> untuk perpanjangan keanggotaan Anda.`, body: 'Midtrans akan mencoba lagi dalam beberapa hari. Anda juga bisa membayar sekarang atau mengganti metode bayar.', button: 'Periksa pembayaran', path: account };
+        return { subject: `Pembayaran ${d.planName} belum berhasil`, intro: `Pembayaran <strong>${amount}</strong> untuk perpanjangan keanggotaan Anda belum berhasil.`, body: 'Buka halaman akun untuk melihat tagihan dan instruksi transfer.', button: 'Lihat tagihan', path: account };
       case 'grace':
         return { subject: `Masa tenggang ${d.planName} dimulai`, intro: `Tagihan perpanjangan belum dibayar. Akses Anda tetap terbuka sampai ${date}.`, body: 'Bayar sebelum tanggal itu agar akses tidak terkunci.', button: 'Bayar tagihan', path: account };
       case 'locked':
@@ -94,19 +116,25 @@ const copyFor = (kind: MembershipEmailKind, lang: 'id' | 'en', d: MembershipEmai
         return { subject: `Jatah bulan ini: ${d.productTitle}`, intro: `<strong>${escapeHtml(d.productTitle)}</strong> terbuka sampai ${date} (${d.used ?? 0} dari ${d.limit ?? 0} jatah bulan ini).`, body: 'Bulan berikutnya Anda memilih lagi; judul yang sama boleh dipilih kembali.', button: 'Mulai membaca', path: '/library' };
       case 'familyAdded':
         return { subject: 'Anda ditambahkan ke akun keluarga Platinum', intro: `${escapeHtml(d.ownerName)} menambahkan Anda ke akun keluarga <strong>${plan}</strong>, berlaku sampai ${date}.`, body: 'Anda mendapat rak, perangkat, dan jam audio sendiri.', button: 'Buka Pustaka Saya', path: '/library' };
+      case 'transferInstructions':
+        return { subject: `Instruksi transfer ${d.planName}: ${amount}`, intro: `Terima kasih. Transfer <strong>tepat ${amount}</strong> untuk paket <strong>${plan}</strong> (${cycle}) sebelum <strong>${deadline}</strong>.`, body: 'Tiga digit terakhir adalah kode unik agar pembayaran Anda dapat dicocokkan. Setelah transfer, unggah bukti di halaman tagihan atau kirim lewat WhatsApp Finance. Paket aktif setelah tim Keuangan mengonfirmasi pembayaran.', button: 'Lihat tagihan & unggah bukti', path: account };
+      case 'transferExpired':
+        return { subject: `Batas transfer ${d.planName} terlewati`, intro: `Kami belum menerima transfer <strong>${amount}</strong> sampai batas waktu, sehingga tagihan ditutup.`, body: 'Bila Anda sudah mentransfer, balas email ini atau hubungi Finance lewat WhatsApp dengan bukti transfer. Anda juga dapat memilih paket lagi.', button: 'Pilih paket', path: '/membership' };
     }
   }
   switch (kind) {
     case 'welcome':
-      return { subject: `Welcome to ${d.planName}`, intro: `Your <strong>${plan}</strong> (${cycle}) membership is active until ${date}.`, body: 'Open My Library to see the digital shelf, your devices, and how renewal works.', button: 'Open My Library', path: '/library?welcome=1' };
+      return d.pickTitles
+        ? { subject: `Welcome to ${d.planName}: choose this month's books`, intro: `Your payment is confirmed. Your <strong>${plan}</strong> (${cycle}) membership is active until ${date}.`, body: `Choose ${d.pickTitles} e-book titles for this month. Audiobooks on the shelf are ready within your plan's audio hours.`, button: "Choose this month's books", path: PICK_PATH }
+        : { subject: `Welcome to ${d.planName}`, intro: `Your payment is confirmed. Your <strong>${plan}</strong> (${cycle}) membership is active until ${date}.`, body: 'Open My Library to start reading and listening.', button: 'Open My Library', path: '/library?welcome=1' };
     case 'invoice':
       return d.autodebit
         ? { subject: `${d.planName} renews on ${date}`, intro: `Your membership will renew automatically on ${date} for <strong>${amount}</strong>.`, body: 'No action is needed. You can cancel or change your payment method from your account page.', button: 'Manage membership', path: account }
-        : { subject: `${d.planName} renewal invoice`, intro: `A renewal invoice of <strong>${amount}</strong> has been issued and is due on ${date}.`, body: 'Pay by Virtual Account or QRIS from your account page.', button: 'Pay invoice', path: account };
+        : { subject: `${d.planName} renewal invoice`, intro: `A renewal invoice of <strong>${amount}</strong> has been issued and is due on ${date}.`, body: 'Transfer the exact amount (including the unique code) to one of the accounts below. Your plan renews once our Finance team confirms the payment.', button: 'View invoice', path: account };
     case 'reminder':
       return { subject: d.days === 0 ? `Due today: ${d.planName}` : `${d.days} days left: ${d.planName} invoice`, intro: d.days === 0 ? `Your invoice of <strong>${amount}</strong> is due today.` : `Your invoice of <strong>${amount}</strong> is due in ${d.days} days (${date}).`, body: `After the due date there is a ${d.graceDays ?? 5}-day grace period with access still open.`, button: 'Pay invoice', path: account };
     case 'paymentFailed':
-      return { subject: `${d.planName} automatic payment failed`, intro: `We could not charge <strong>${amount}</strong> for your membership renewal.`, body: 'Midtrans will retry over the next few days. You can also pay now or change your payment method.', button: 'Check payment', path: account };
+      return { subject: `${d.planName} payment not completed`, intro: `The payment of <strong>${amount}</strong> for your membership renewal has not gone through.`, body: 'Open your account page to see the invoice and transfer instructions.', button: 'View invoice', path: account };
     case 'grace':
       return { subject: `${d.planName} grace period started`, intro: `Your renewal invoice is unpaid. Your access stays open until ${date}.`, body: 'Pay before then to keep your access.', button: 'Pay invoice', path: account };
     case 'locked':
@@ -127,6 +155,10 @@ const copyFor = (kind: MembershipEmailKind, lang: 'id' | 'en', d: MembershipEmai
       return { subject: `This month's pick: ${d.productTitle}`, intro: `<strong>${escapeHtml(d.productTitle)}</strong> is open until ${date} (${d.used ?? 0} of ${d.limit ?? 0} picks this month).`, body: 'Next month you pick again; you may choose the same title.', button: 'Start reading', path: '/library' };
     case 'familyAdded':
       return { subject: 'You were added to a Platinum family account', intro: `${escapeHtml(d.ownerName)} added you to a <strong>${plan}</strong> family account, valid until ${date}.`, body: 'You get your own shelf, devices, and audio hours.', button: 'Open My Library', path: '/library' };
+    case 'transferInstructions':
+      return { subject: `${d.planName} transfer instructions: ${amount}`, intro: `Thank you. Please transfer <strong>exactly ${amount}</strong> for the <strong>${plan}</strong> (${cycle}) plan before <strong>${deadline}</strong>.`, body: 'The last three digits are a unique code that lets us match your payment. After transferring, upload the proof on the invoice page or send it to Finance on WhatsApp. Your plan becomes active once our Finance team confirms the payment.', button: 'View invoice & upload proof', path: account };
+    case 'transferExpired':
+      return { subject: `${d.planName} transfer deadline passed`, intro: `We did not receive the transfer of <strong>${amount}</strong> before the deadline, so the invoice has been closed.`, body: 'If you already transferred, reply to this email or contact Finance on WhatsApp with the transfer proof. You can also choose a plan again.', button: 'Choose a plan', path: '/membership' };
   }
 };
 
@@ -137,14 +169,25 @@ export const membershipEmail = (kind: MembershipEmailKind, data: MembershipEmail
   const url = `${data.siteUrl}${prefix}${copy.path}`;
   const greeting = lang === 'id' ? `Halo ${escapeHtml(data.name)},` : `Hello ${escapeHtml(data.name)},`;
   const footer = lang === 'id'
-    ? 'Email ini dikirim otomatis oleh CakraNexa (Cakrawala Magna Society). Kami tidak pernah meminta data kartu lewat email.'
-    : 'This email was sent automatically by CakraNexa (Cakrawala Magna Society). We never ask for card details by email.';
+    ? 'Email ini dikirim otomatis oleh CakraNexa (Cakrawala Magna Society). Kami tidak pernah meminta kata sandi atau kode OTP lewat email, dan hanya menerima transfer ke rekening atas nama PT Cakrawala Magna Scientia.'
+    : 'This email was sent automatically by CakraNexa (Cakrawala Magna Society). We never ask for passwords or OTP codes by email, and only accept transfers to accounts in the name of PT Cakrawala Magna Scientia.';
+  const transfer = data.transfer;
+  const transferBlock = transfer && (kind === 'transferInstructions' || kind === 'invoice' || kind === 'reminder')
+    ? `
+      <table style="border-collapse:collapse;width:100%;margin:12px 0;font-size:14px">
+        <tr><td style="padding:6px 0;color:#475569">${lang === 'id' ? 'Nominal transfer' : 'Transfer amount'}</td><td style="padding:6px 0;text-align:right"><strong style="font-size:18px">${rupiah(data.amount)}</strong></td></tr>
+        ${transfer.uniqueCode ? `<tr><td style="padding:6px 0;color:#475569">${lang === 'id' ? 'Kode unik' : 'Unique code'}</td><td style="padding:6px 0;text-align:right">${escapeHtml(transfer.uniqueCode)}</td></tr>` : ''}
+        ${transfer.accounts.map((a) => `<tr><td style="padding:6px 0;border-top:1px solid #e2e8f0">${escapeHtml(a.bankName)}<br><span style="color:#475569">a.n. ${escapeHtml(a.accountHolder)}</span></td><td style="padding:6px 0;border-top:1px solid #e2e8f0;text-align:right;font-family:monospace;font-size:15px">${escapeHtml(a.accountNumber)}</td></tr>`).join('')}
+      </table>
+      ${transfer.whatsappUrl ? `<p><a href="${escapeHtml(transfer.whatsappUrl)}" style="color:#047857;font-weight:bold">${lang === 'id' ? 'Konfirmasi lewat WhatsApp Finance' : 'Confirm with Finance on WhatsApp'}</a></p>` : ''}`
+    : '';
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#0f172a">
       <h2 style="margin:0 0 12px">CakraNexa</h2>
       <p>${greeting}</p>
       <p>${copy.intro}</p>
       ${copy.body ? `<p>${copy.body}</p>` : ''}
+      ${transferBlock}
       <p style="margin:24px 0">
         <a href="${escapeHtml(url)}" style="background:#d4af37;color:#0f172a;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold">${copy.button}</a>
       </p>

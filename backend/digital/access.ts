@@ -429,6 +429,35 @@ export const createAccessRouter = (ctx: DigitalContext): Router => {
     res.json({ items });
   }));
 
+  // Pustaka Saya fase 6: progres semua judul (tab "Sedang dibaca" 1–99% dan "Selesai" >= 99%).
+  router.get('/api/library/progress', ctx.requireUser, libraryLimiter, asyncRoute(async (req, res) => {
+    const progress = (await ctx.store.listProgress(req.digitalUser!.id)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    const items: Array<{ productId: string; format: ProductRecord['format']; bookId: string; percent: number; position: number; updatedAt: string }> = [];
+    for (const p of progress) {
+      const product = await ctx.store.getProduct(p.productId);
+      if (!product || !product.isActive) continue;
+      items.push({ productId: product.id, format: product.format, bookId: product.bookId, percent: p.percent, position: p.position, updatedAt: p.updatedAt });
+    }
+    res.json({ items });
+  }));
+
+  // Pustaka Saya fase 6: tab "Catatan" — jumlah catatan/stabilo per judul (isi catatan hanya dibuka di pembaca).
+  router.get('/api/library/notes', ctx.requireUser, libraryLimiter, asyncRoute(async (req, res) => {
+    const user = req.digitalUser!;
+    const [progress, entitlements] = await Promise.all([ctx.store.listProgress(user.id), ctx.store.listEntitlements({ userId: user.id })]);
+    const ids = new Set<string>([...progress.map((p) => p.productId), ...entitlements.flatMap((e) => (e.productId && e.status !== 'revoked' ? [e.productId] : []))]);
+    const items: Array<{ productId: string; format: ProductRecord['format']; bookId: string; count: number }> = [];
+    for (const productId of ids) {
+      const count = await ctx.store.countNotes(user.id, productId);
+      if (count === 0) continue;
+      const product = await ctx.store.getProduct(productId);
+      if (!product || !product.isActive) continue;
+      items.push({ productId, format: product.format, bookId: product.bookId, count });
+    }
+    items.sort((a, b) => b.count - a.count);
+    res.json({ items });
+  }));
+
   // Pustaka Saya: semua produk yang pernah diberikan ke user (kecuali yang dicabut), status akses, dan progres.
   router.get('/api/library', ctx.requireUser, libraryLimiter, asyncRoute(async (req, res) => {
     const user = req.digitalUser!;

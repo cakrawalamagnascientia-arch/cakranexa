@@ -2,6 +2,13 @@ import crypto from 'crypto';
 import { ConflictError, httpError, ORDER_NOT_SAVED_MESSAGE, StoreRuleError } from '../errors';
 import type { DigitalContext } from '../context';
 import { mapMidtransToOrderStatus, verifyMidtransSignature, type MidtransClient } from '../checkout';
+import type { Request } from 'express';
+import { pickUniqueCode, formatUniqueCode } from '../../printCheckout/uniqueCode';
+import { PROOF_CONTENT_TYPE, receiveProof } from '../../printCheckout/proofUpload';
+import { PrintCheckoutError } from '../../printCheckout/errors';
+import { transferConfirmationText, whatsappLink } from '../../../src/utils/transferConfirmation';
+import type { CompanyBankAccount } from '../institution/types';
+import { DEFAULT_BANK_ACCOUNTS } from '../../../src/services/paymentService';
 import { unitSalesOpen } from '../access';
 import { OPEN_SUBSCRIPTION_STATUSES } from '../store';
 import { isEntitlementUsable, isProductOnShelf, resolveEntitlement } from '../entitlements';
@@ -10,7 +17,7 @@ import { PLAN_RANK } from './plans';
 import { INSTITUTION_FRONTLIST_DAYS, isOpenFor, monthSlot, openDateFor, planGrantsShelfRow, shelfCoversFormat } from './quota';
 import { enabledRoutingMethods, type RoutingMethod } from '../../../src/data/paymentRouting';
 import { decryptToken, encryptToken, midtransUserRef, parseMidtransTime, type MembershipGateway } from './gateway';
-import { membershipEmail, type MembershipEmailData, type MembershipEmailKind } from './email';
+import { escapeHtml, membershipEmail, type MembershipEmailData, type MembershipEmailKind } from './email';
 import { formatWhatsAppNumber, isWhatsAppKind, membershipWhatsApp, normalizeWhatsAppNumber, type WhatsAppSender } from './whatsapp';
 import type {
   AuthUser,
@@ -52,7 +59,29 @@ export const isMembershipNotification = (n: Record<string, any>): boolean => {
   return isMembershipOrderId(n?.order_id) || isMembershipOrderId(tx?.order_id) || Boolean(remoteSubscriptionIdOf(n));
 };
 
-export const PAYMENT_METHODS: MembershipPaymentMethod[] = ['card', 'gopay', 'va', 'qris', 'other'];
+export const PAYMENT_METHODS: MembershipPaymentMethod[] = ['card', 'gopay', 'va', 'qris', 'other', 'bank_transfer'];
+
+/** Fase 6 Langkah 4: dependensi transfer bank keanggotaan (rekening perusahaan, WhatsApp Finance, kode unik lintas modul). */
+export interface MembershipTransferDeps {
+  listBankAccounts?: () => Promise<CompanyBankAccount[]>;
+  /** Nomor WhatsApp Finance dari pengaturan admin Pembayaran (env hanya cadangan). */
+  financeWhatsapp?: () => Promise<string>;
+  /** Nominal pesanan cetak yang masih menunggu transfer: kode unik keanggotaan tidak boleh menghasilkan nominal yang sama. */
+  otherOpenTransferTotals?: () => Promise<number[]>;
+}
+
+/** Tagihan transfer bank manual (bukan Snap): payment_type 'bank_transfer' tanpa order Midtrans. */
+export const isTransferInvoice = (invoice: Pick<InvoiceRecord, 'paymentType' | 'midtransOrderId'>): boolean =>
+  invoice.paymentType === 'bank_transfer' && !invoice.midtransOrderId;
+
+export interface PublicTransfer {
+  uniqueCode: string | null;
+  uniqueDiscount: number;
+  /** Harga paket sebelum potongan kode unik. */
+  baseAmount: number;
+  hasProof: boolean;
+  proofUploadedAt: string | null;
+}
 export const BILLING_CYCLES: BillingCycle[] = ['monthly', 'yearly'];
 const PAID_STATES: SubscriptionStatus[] = ['active', 'past_due', 'grace'];
 
@@ -85,7 +114,8 @@ const ENABLED_PAYMENTS: Record<MembershipPaymentMethod, string[] | null> = {
   gopay: ['gopay'],
   va: ['bank_transfer', 'echannel'],
   qris: ['other_qris'],
-  other: null
+  other: null,
+  bank_transfer: null
 };
 const LANGUAGE_PREFIX: Record<string, string> = { id: '', en: '/en', zh: '/zh' };
 /** Metode keanggotaan (Snap) -> baris payment_routing 'membership' yang harus diarahkan ke Midtrans. */
@@ -93,6 +123,7 @@ const ROUTING_FOR_METHOD: Record<MembershipPaymentMethod, RoutingMethod[]> = {
   card: ['card'],
   gopay: ['gopay'],
   va: ['va_bni', 'va_mandiri', 'va_bri', 'va_bca'],
+  bank_transfer: ['bank_transfer'],
   qris: ['qris'],
   other: ['va_bni', 'va_mandiri', 'va_bri', 'va_bca', 'qris', 'gopay', 'ovo', 'dana', 'shopeepay', 'card']
 };
@@ -141,6 +172,8 @@ export interface PublicInvoice {
   paymentType: string | null;
   snapToken: string | null;
   redirectUrl: string | null;
+  /** Transfer bank manual (fase 6); null untuk tagihan Snap/admin. */
+  transfer: PublicTransfer | null;
 }
 
 export class MembershipService {
@@ -149,7 +182,8 @@ export class MembershipService {
     readonly gateway: MembershipGateway,
     private readonly snap: MidtransClient,
     /** Gateway pengingat WhatsApp; null = hanya email. */
-    readonly whatsapp: WhatsAppSender | null = null
+    readonly whatsapp: WhatsAppSender | null = null,
+    readonly transferDeps: MembershipTransferDeps = {}
   ) {}
 
   get cfg() {
@@ -190,7 +224,9 @@ export class MembershipService {
       ENABLE_AUTHOR_GUILD_SHELF: this.cfg.authorGuildShelf,
       ENABLE_MEMBER_PRINT_DISCOUNT: this.cfg.memberPrintDiscount,
       MEMBERSHIP_EXTENDED_BENEFITS: this.cfg.extendedBenefits,
-      ENABLE_AUTODEBIT: this.cfg.autodebitEnabled
+      ENABLE_AUTODEBIT: this.cfg.autodebitEnabled,
+      ENABLE_OFFLINE: this.cfg.offlineEnabled,
+      ENABLE_CROSS_FORMAT_SYNC: this.cfg.crossFormatSync
     };
     const value = values[name] ?? false;
     return negate ? !value : value;
@@ -239,6 +275,8 @@ export class MembershipService {
       readerPick: this.cfg.readerDigitalPick,
       authorShelf: this.cfg.authorGuildShelf,
       extendedBenefits: this.cfg.extendedBenefits,
+      offline: this.cfg.offlineEnabled,
+      crossFormatSync: this.cfg.crossFormatSync,
       graceDays: this.cfg.graceDays,
       /** Pengingat WhatsApp tersedia (gateway terpasang) dan nomor pengirimnya. */
       whatsapp: this.whatsapp !== null,
@@ -386,6 +424,78 @@ export class MembershipService {
     })));
   }
 
+  /** Metode keanggotaan yang dapat dipilih sekarang (payment_routing 'membership'); fase 6 bawaan: transfer bank saja. */
+  async availableMethods(): Promise<MembershipPaymentMethod[]> {
+    const routes = enabledRoutingMethods(await this.ctx.paymentRouting(), 'membership', { midtransEnabled: this.ctx.midtrans.enabled });
+    const methods: MembershipPaymentMethod[] = [];
+    if (routes.some((r) => r.method === 'bank_transfer' && r.provider === 'manual')) methods.push('bank_transfer');
+    for (const method of ['va', 'qris', 'card', 'gopay'] as const) {
+      if (routes.some((r) => r.provider === 'midtrans' && ROUTING_FOR_METHOD[method].includes(r.method))) methods.push(method);
+    }
+    return methods;
+  }
+
+  /** Tagihan langganan ini dibayar lewat transfer manual? (dipilih saat daftar, atau metode Snap-nya sudah tidak diarahkan) */
+  async usesTransfer(sub: SubscriptionRecord): Promise<boolean> {
+    if (this.autodebitActive(sub)) return false;
+    const methods = await this.availableMethods();
+    if (sub.paymentMethod === 'bank_transfer') return true;
+    return methods.includes('bank_transfer') && !methods.includes(sub.paymentMethod);
+  }
+
+  /** Nominal transfer dengan kode unik yang belum dipakai tagihan/pesanan lain yang masih menunggu transfer. */
+  async transferPricing(base: number): Promise<{ amount: number; uniqueCode: number | null; uniqueDiscount: number }> {
+    const open = await this.store.listInvoices({ statuses: ['issued'], limit: 5000 });
+    const taken = new Set(open.filter((i) => isTransferInvoice(i)).map((i) => i.amount));
+    for (const total of (await this.transferDeps.otherOpenTransferTotals?.()) ?? []) taken.add(Math.round(total));
+    const picked = pickUniqueCode(base, taken);
+    return picked ? { amount: picked.total, uniqueCode: picked.code, uniqueDiscount: picked.discount } : { amount: base, uniqueCode: null, uniqueDiscount: 0 };
+  }
+
+  /** Kolom invoice untuk tagihan transfer (nominal berkode unik, tanpa Snap). */
+  private async transferFields(base: number) {
+    const pricing = await this.transferPricing(base);
+    return { amount: pricing.amount, uniqueCode: pricing.uniqueCode, uniqueDiscount: pricing.uniqueDiscount, paymentType: 'bank_transfer' as string | null };
+  }
+
+  /** Data email/WhatsApp instruksi transfer. */
+  async transferNotice(invoice: InvoiceRecord, sub: SubscriptionRecord, plan: PlanRecord | null): Promise<Partial<MembershipEmailData>> {
+    const accounts = (await this.bankAccounts()).map((a) => ({ bankName: a.bankName, accountNumber: a.accountNumber, accountHolder: a.accountHolder }));
+    return {
+      planName: plan ? this.planName(plan, sub.language) : '',
+      cycle: invoice.billingCycle,
+      amount: invoice.amount,
+      date: invoice.dueAt,
+      invoiceRef: invoice.orderRef,
+      transfer: {
+        accounts,
+        uniqueCode: invoice.uniqueCode === null ? null : formatUniqueCode(invoice.uniqueCode),
+        whatsappUrl: await this.financeWhatsappUrl(invoice, sub)
+      }
+    };
+  }
+
+  /** Rekening IDR dari CMS; bila kosong memakai rekening bawaan yang sama dengan checkout buku cetak. */
+  private async bankAccounts(): Promise<CompanyBankAccount[]> {
+    let rows: CompanyBankAccount[] = [];
+    try {
+      rows = (await this.transferDeps.listBankAccounts?.()) ?? [];
+    } catch (err: any) {
+      console.warn('[membership] rekening perusahaan gagal dimuat:', err?.message || err);
+    }
+    const idr = rows.filter((a) => (a.currency ?? 'IDR') === 'IDR');
+    if (idr.length > 0) return idr;
+    return DEFAULT_BANK_ACCOUNTS
+      .filter((a) => (a.currency ?? 'IDR') === 'IDR')
+      .map((a) => ({ bankName: a.bankName, accountNumber: a.accountNumber, accountHolder: a.accountHolder, branch: a.branch || '', currency: 'IDR' as const }));
+  }
+
+  private async financeWhatsappUrl(invoice: InvoiceRecord, sub: SubscriptionRecord): Promise<string | null> {
+    const phone = (await this.transferDeps.financeWhatsapp?.().catch(() => '')) || '';
+    if (!phone) return null;
+    return whatsappLink(phone, transferConfirmationText({ orderNumber: invoice.orderRef, amount: invoice.amount, buyerName: sub.customerName || sub.customerEmail }));
+  }
+
   /** Metode Snap ini diarahkan ke Midtrans di payment_routing 'membership'? (fase 6: bawaan transfer manual saja) */
   private async assertMethodRouted(method: MembershipPaymentMethod): Promise<void> {
     const routes = enabledRoutingMethods(await this.ctx.paymentRouting(), 'membership', { midtransEnabled: this.ctx.midtrans.enabled });
@@ -416,7 +526,16 @@ export class MembershipService {
       dueAt: invoice.dueAt,
       paymentType: invoice.paymentType,
       snapToken: fresh ? invoice.midtransSnapToken : null,
-      redirectUrl: fresh ? invoice.snapRedirectUrl : null
+      redirectUrl: fresh ? invoice.snapRedirectUrl : null,
+      transfer: isTransferInvoice(invoice)
+        ? {
+          uniqueCode: invoice.uniqueCode === null ? null : formatUniqueCode(invoice.uniqueCode),
+          uniqueDiscount: invoice.uniqueDiscount,
+          baseAmount: invoice.amount + invoice.uniqueDiscount,
+          hasProof: Boolean(invoice.paymentProofPath),
+          proofUploadedAt: invoice.paymentProofUploadedAt
+        }
+        : null
     };
   }
 
@@ -473,7 +592,7 @@ export class MembershipService {
     const latest = open ?? (await this.latestSubscription(user.id));
     // Langganan pending yang dibatalkan sebelum pernah aktif tidak ditampilkan sebagai keanggotaan.
     const sub = latest && (latest.currentPeriodStart !== null || OPEN_SUBSCRIPTION_STATUSES.includes(latest.status)) ? latest : null;
-    if (!sub) return { subscription: null, invoices: [], openInvoice: null, printDiscountPercent: 0, autodebitAvailable: this.cfg.autodebitEnabled };
+    if (!sub) return { subscription: null, invoices: [], openInvoice: null, printDiscountPercent: 0, autodebitAvailable: this.cfg.autodebitEnabled, audio: null };
     const plans = await this.plans();
     const planOf = (id: string) => plans.find((p) => p.id === id) ?? null;
     const invoices = await this.store.listInvoices({ subscriptionId: sub.id, limit: 24 });
@@ -483,8 +602,20 @@ export class MembershipService {
       invoices: invoices.map((i) => this.publicInvoice(i, planOf(i.planId))),
       openInvoice: openInvoice ? this.publicInvoice(openInvoice, planOf(openInvoice.planId)) : null,
       printDiscountPercent: this.printDiscountFor(sub, planOf(sub.planId)),
-      autodebitAvailable: this.cfg.autodebitEnabled
+      autodebitAvailable: this.cfg.autodebitEnabled,
+      audio: await this.audioMeter(user, sub)
     };
+  }
+
+  /** Meter jam audio bulan ini (fase 6): dihitung dari hak rak keanggotaan pengguna; null = paket tanpa batas jam. */
+  private async audioMeter(user: AuthUser, sub: SubscriptionRecord) {
+    const hook = this.ctx.membership;
+    if (!hook || !PAID_STATES.includes(sub.status)) return null;
+    const shelf = (await this.store.listEntitlements({ userId: user.id, scope: 'shelf', source: 'membership' }))
+      .find((e) => isEntitlementUsable(e, this.ctx.now()));
+    if (!shelf) return null;
+    const quota = await hook.audioQuota(shelf, user.id, true);
+    return quota ? { usedSeconds: Math.min(quota.usedSeconds, quota.limitSeconds), limitSeconds: quota.limitSeconds, resetsAt: quota.resetsAt, exhausted: quota.exhausted } : null;
   }
 
   // -------------------------------------------------------------------------
@@ -513,14 +644,20 @@ export class MembershipService {
       if (existing.userId !== user.id) throw httpError(409, 'idempotency_conflict', 'Kunci idempotensi sudah dipakai.');
       const plan = await this.planById(existing.planId);
       let invoice = (await this.store.listInvoices({ subscriptionId: existing.id, kinds: ['initial'], limit: 1 }))[0] ?? null;
-      if (invoice && invoice.status === 'issued' && plan) invoice = await this.prepareSnap(invoice, existing, plan);
+      if (invoice && invoice.status === 'issued' && plan && !isTransferInvoice(invoice)) invoice = await this.prepareSnap(invoice, existing, plan);
       return { subscription: await this.publicSubscription(existing), invoice: invoice ? this.publicInvoice(invoice, plan) : null, reused: true };
     }
 
-    if (!this.ctx.midtrans.enabled) throw httpError(503, 'payment_unavailable', 'Pembayaran online belum dikonfigurasi.');
+    // Fase 6: transfer bank manual tidak bergantung Midtrans; metode Snap tetap butuh Midtrans dan routing.
+    const transfer = method === 'bank_transfer';
+    if (!transfer && !this.ctx.midtrans.enabled) throw httpError(503, 'payment_unavailable', 'Pembayaran online belum dikonfigurasi.');
     const plan = await this.planByCode(planCode);
     if (!plan || !plan.isActive || priceFor(plan, cycle) <= 0) throw httpError(400, 'plan_unavailable', 'Paket tidak tersedia.');
-    await this.assertMethodRouted(method);
+    if (transfer) {
+      if (!(await this.availableMethods()).includes('bank_transfer')) throw httpError(400, 'method_unavailable', 'Metode pembayaran ini sedang tidak tersedia untuk keanggotaan.');
+    } else {
+      await this.assertMethodRouted(method);
+    }
 
     const open = await this.openSubscription(user.id);
     if (open && open.status !== 'pending') {
@@ -595,6 +732,7 @@ export class MembershipService {
         snapCreatedAt: null,
         midtransTransactionId: null,
         paymentType: null,
+        ...(transfer ? await this.transferFields(amount) : {}),
         claimsFounding: claimed,
         isFoundingPrice: claimed,
         issuedAt: nowIso,
@@ -615,7 +753,12 @@ export class MembershipService {
       if (claimed) await this.releaseFoundingQuietly(plan.id);
       throw httpError(503, 'order_not_saved', ORDER_NOT_SAVED_MESSAGE);
     }
-    await this.event(sub, 'created', { planCode, cycle, method, amount, founding: claimed });
+    await this.event(sub, 'created', { planCode, cycle, method, amount: invoice.amount, founding: claimed });
+    if (transfer) {
+      // Instruksi transfer (email + WhatsApp bila disetujui); paket aktif setelah Finance mengonfirmasi.
+      this.notify(sub, 'transferInstructions', await this.transferNotice(invoice, sub, plan));
+      return { subscription: await this.publicSubscription(sub), invoice: this.publicInvoice(invoice, plan), reused: false };
+    }
     try {
       invoice = await this.prepareSnap(invoice, sub, plan);
     } catch (err: any) {
@@ -702,6 +845,15 @@ export class MembershipService {
     const sub = await this.store.getSubscription(invoice.subscriptionId);
     const plan = await this.planById(invoice.planId);
     if (!sub || !plan) throw httpError(404, 'invoice_not_found', 'Tagihan tidak ditemukan.');
+    // Fase 6: tagihan transfer -> instruksi transfer (nominal berkode unik); tagihan lama tanpa Snap ikut diubah ke transfer.
+    if (isTransferInvoice(invoice)) return this.publicInvoice(invoice, plan);
+    if (!invoice.midtransOrderId && body.payment_method !== undefined ? body.payment_method === 'bank_transfer' : await this.usesTransfer(sub)) {
+      if (!(await this.availableMethods()).includes('bank_transfer')) throw httpError(400, 'method_unavailable', 'Metode pembayaran ini sedang tidak tersedia untuk keanggotaan.');
+      const converted = await this.store.updateInvoice(invoice.id, await this.transferFields(invoice.amount + invoice.uniqueDiscount), ['issued', 'failed']);
+      if (!converted) throw httpError(409, 'invoice_closed', 'Tagihan ini sudah tidak dapat dibayar.');
+      this.notify(sub, 'transferInstructions', await this.transferNotice(converted, sub, plan));
+      return this.publicInvoice(converted, plan);
+    }
     if (!this.ctx.midtrans.enabled) throw httpError(503, 'payment_unavailable', 'Pembayaran online belum dikonfigurasi.');
     const override = PAYMENT_METHODS.includes(body.payment_method as MembershipPaymentMethod) ? body.payment_method as MembershipPaymentMethod : null;
     try {
@@ -711,6 +863,144 @@ export class MembershipService {
       console.error('[membership] Snap gagal:', err?.message || err);
       throw httpError(502, 'payment_error', 'Gagal memulai pembayaran. Coba lagi.');
     }
+  }
+
+  // -------------------------------------------------------------------------
+  // Transfer bank (fase 6 Langkah 4): instruksi, bukti, konfirmasi Finance
+  // -------------------------------------------------------------------------
+  private async ownTransferInvoice(user: AuthUser, invoiceId: string) {
+    const invoice = await this.store.getInvoice(invoiceId);
+    if (!invoice || invoice.userId !== user.id) throw httpError(404, 'invoice_not_found', 'Tagihan tidak ditemukan.');
+    const sub = await this.store.getSubscription(invoice.subscriptionId);
+    if (!sub) throw httpError(404, 'invoice_not_found', 'Tagihan tidak ditemukan.');
+    return { invoice, sub };
+  }
+
+  /** Halaman instruksi: nominal berkode unik, rekening perusahaan, batas waktu, status bukti, tautan WhatsApp Finance. */
+  async transferDetail(user: AuthUser, invoiceId: string) {
+    const { invoice, sub } = await this.ownTransferInvoice(user, invoiceId);
+    const plan = await this.planById(invoice.planId);
+    const open = invoice.status === 'issued' && isTransferInvoice(invoice);
+    return {
+      invoice: this.publicInvoice(invoice, plan),
+      planName: plan ? { id: plan.nameId, en: plan.nameEn } : null,
+      subscriptionStatus: sub.status,
+      // Rekening dan tautan konfirmasi hanya selama tagihan masih menunggu transfer.
+      bankAccounts: open ? await this.bankAccounts() : [],
+      financeWhatsappUrl: open ? await this.financeWhatsappUrl(invoice, sub) : null,
+      expired: invoice.status === 'void' && invoice.failureReason === 'payment_expired'
+    };
+  }
+
+  async uploadProof(user: AuthUser, invoiceId: string, req: Request) {
+    const { invoice, sub } = await this.ownTransferInvoice(user, invoiceId);
+    if (invoice.status === 'paid') throw httpError(409, 'already_paid', 'Pembayaran tagihan ini sudah dikonfirmasi.');
+    if (invoice.status !== 'issued' || !isTransferInvoice(invoice)) throw httpError(409, 'invoice_closed', 'Tagihan ini tidak lagi menerima pembayaran.');
+    let file: { buffer: Buffer; extension: string };
+    try {
+      file = await receiveProof(req);
+    } catch (err) {
+      if (err instanceof PrintCheckoutError) throw httpError(err.status, err.code, err.message);
+      throw err;
+    }
+    const now = this.ctx.now();
+    const objectPath = `membership-proofs/${invoice.id}/${now.getTime()}-${crypto.randomBytes(4).toString('hex')}.${file.extension}`;
+    await this.ctx.storage.upload(objectPath, file.buffer, PROOF_CONTENT_TYPE[file.extension]);
+    const updated = await this.store.updateInvoice(invoice.id, { paymentProofPath: objectPath, paymentProofUploadedAt: now.toISOString() }, ['issued']);
+    if (!updated) throw httpError(409, 'invoice_closed', 'Tagihan ini tidak lagi menerima pembayaran.');
+    await this.event(sub, 'transfer_proof', { invoiceId: invoice.id, amount: invoice.amount });
+    if (this.ctx.adminEmails.length > 0) {
+      this.ctx.defer(async () => {
+        await this.ctx.mailer.send({
+          to: this.ctx.adminEmails,
+          subject: `[Bukti Transfer Keanggotaan] ${invoice.orderRef} - ${sub.customerName}`,
+          html: `<p>Anggota mengunggah bukti transfer untuk tagihan keanggotaan <strong>${escapeHtml(invoice.orderRef)}</strong> (${escapeHtml(sub.customerName)}).</p>`
+            + `<p>Nominal tagihan: <strong>Rp${new Intl.NumberFormat('id-ID').format(invoice.amount)}</strong>.</p>`
+            + '<p>Buka tab Keanggotaan &gt; Transfer menunggu konfirmasi di dasbor admin untuk memeriksa mutasi dan mengonfirmasi.</p>'
+        });
+      });
+    }
+    return this.publicInvoice(updated, await this.planById(updated.planId));
+  }
+
+  /** Antrian Finance: tagihan transfer yang menunggu (atau baru kedaluwarsa, untuk transfer yang terlambat). */
+  async adminTransfers(includeExpired = false) {
+    const statuses: InvoiceRecord['status'][] = includeExpired ? ['issued', 'void'] : ['issued'];
+    const invoices = (await this.store.listInvoices({ statuses, limit: 1000 }))
+      .filter((i) => isTransferInvoice(i) && (i.status === 'issued' || i.failureReason === 'payment_expired'))
+      .sort((a, b) => String(a.dueAt).localeCompare(String(b.dueAt)));
+    const rows: Array<PublicInvoice & Record<string, unknown>> = [];
+    for (const invoice of invoices) {
+      const sub = await this.store.getSubscription(invoice.subscriptionId);
+      const plan = await this.planById(invoice.planId);
+      rows.push({
+        ...this.publicInvoice(invoice, plan),
+        subscriptionId: invoice.subscriptionId,
+        subscriptionStatus: sub?.status ?? null,
+        customerName: sub?.customerName ?? '',
+        customerEmail: sub?.customerEmail ?? '',
+        isTest: invoice.isTest,
+        failureReason: invoice.failureReason,
+        dueExtendedCount: invoice.dueExtendedCount
+      });
+    }
+    return rows;
+  }
+
+  /** Konfirmasi Finance: satu-satunya jalan tagihan transfer menjadi lunas (sama dengan webhook: applyPaid). */
+  async confirmTransfer(invoiceId: string, body: Record<string, unknown>) {
+    const invoice = await this.store.getInvoice(invoiceId);
+    if (!invoice || !isTransferInvoice(invoice)) throw httpError(404, 'invoice_not_found', 'Tagihan transfer tidak ditemukan.');
+    if (invoice.status === 'paid') throw httpError(409, 'already_paid', 'Tagihan ini sudah dikonfirmasi.');
+    const lateExpired = invoice.status === 'void' && invoice.failureReason === 'payment_expired';
+    if (invoice.status !== 'issued' && !(lateExpired && body.allow_expired === true)) {
+      throw httpError(409, 'invoice_closed', lateExpired
+        ? 'Tagihan sudah kedaluwarsa. Centang "transfer terlambat" untuk tetap mengonfirmasi.'
+        : 'Tagihan ini tidak lagi menunggu pembayaran.');
+    }
+    const reference = typeof body.reference === 'string' ? body.reference.trim().slice(0, 120) : '';
+    const result = await this.applyPaid(invoice, { ...EMPTY_PAYMENT, paymentType: 'bank_transfer' }, null);
+    if (result === 'duplicate') throw httpError(409, 'already_paid', 'Tagihan ini sudah dikonfirmasi.');
+    await this.store.updateInvoice(invoice.id, { paymentConfirmedBy: 'admin', paymentReference: reference || null });
+    const sub = await this.store.getSubscription(invoice.subscriptionId);
+    if (sub) await this.event(sub, 'transfer_confirmed', { invoiceId: invoice.id, amount: invoice.amount, late: lateExpired, result });
+    if (result === 'orphan') throw httpError(409, 'payment_orphan', 'Pembayaran dicatat, tetapi tidak dapat diterapkan ke langganan (mis. anggota sudah punya langganan lain). Tangani manual/refund.');
+    return this.publicInvoice((await this.store.getInvoice(invoice.id))!, await this.planById(invoice.planId));
+  }
+
+  /** Perpanjang batas transfer tagihan pendaftaran/upgrade (1–168 jam). */
+  async extendTransfer(invoiceId: string, body: Record<string, unknown>) {
+    const hours = Number(body.hours ?? this.cfg.pendingTtlHours);
+    if (!Number.isInteger(hours) || hours < 1 || hours > 168) throw httpError(400, 'invalid_hours', 'Perpanjangan harus 1–168 jam.');
+    const invoice = await this.store.getInvoice(invoiceId);
+    if (!invoice || !isTransferInvoice(invoice)) throw httpError(404, 'invoice_not_found', 'Tagihan transfer tidak ditemukan.');
+    if (invoice.status !== 'issued' || invoice.kind === 'renewal') {
+      throw httpError(409, 'invoice_closed', 'Hanya tagihan pendaftaran/upgrade yang masih menunggu yang dapat diperpanjang. Untuk perpanjangan langganan gunakan masa tenggang.');
+    }
+    const base = Math.max(this.ctx.now().getTime(), Date.parse(invoice.dueAt ?? this.iso()));
+    const updated = await this.store.updateInvoice(invoice.id, {
+      dueAt: new Date(base + hours * HOUR_MS).toISOString(),
+      dueExtendedCount: invoice.dueExtendedCount + 1
+    }, ['issued']);
+    if (!updated) throw httpError(409, 'invoice_closed', 'Tagihan ini tidak lagi menunggu pembayaran.');
+    return this.publicInvoice(updated, await this.planById(updated.planId));
+  }
+
+  async transferProof(invoiceId: string): Promise<{ buffer: Buffer; contentType: string }> {
+    const invoice = await this.store.getInvoice(invoiceId);
+    if (!invoice?.paymentProofPath) throw httpError(404, 'proof_not_found', 'Belum ada bukti transfer.');
+    const extension = invoice.paymentProofPath.split('.').pop() ?? '';
+    const buffer = await this.ctx.storage.download(invoice.paymentProofPath);
+    return { buffer, contentType: PROOF_CONTENT_TYPE[extension] ?? 'application/octet-stream' };
+  }
+
+  /** Tagihan transfer melewati batas: di-void dan anggota diberi tahu (langganan pending ikut ditutup). */
+  async expireTransfer(sub: SubscriptionRecord, invoice: InvoiceRecord): Promise<boolean> {
+    if (invoice.kind === 'initial' && sub.status === 'pending') await this.voidPending(sub, 'payment_expired');
+    else if (!(await this.voidInvoice(invoice, 'payment_expired'))) return false;
+    const plan = await this.planById(invoice.planId);
+    this.notify(sub, 'transferExpired', { planName: plan ? this.planName(plan, sub.language) : '', amount: invoice.amount, invoiceRef: invoice.orderRef });
+    return true;
   }
 
   // -------------------------------------------------------------------------
@@ -814,7 +1104,7 @@ export class MembershipService {
         status: 'active',
         currentPeriodStart: start,
         currentPeriodEnd: end,
-        priceLocked: invoice.amount,
+        priceLocked: invoice.amount + invoice.uniqueDiscount,
         isFounding: invoice.isFoundingPrice,
         foundingEndsAt: invoice.isFoundingPrice ? end : null,
         endedAt: null,
@@ -828,7 +1118,13 @@ export class MembershipService {
     await this.grantAccess(updated, plan, start, end);
     await this.event(updated, 'activated', { invoiceId: invoice.id, amount: invoice.amount, founding: invoice.isFoundingPrice });
     const withRemote = await this.setupAutodebit(updated, info);
-    this.notify(withRemote ?? updated, 'welcome', { planName: this.planName(plan, updated.language), cycle: updated.billingCycle, date: end, invoiceRef: invoice.orderRef });
+    this.notify(withRemote ?? updated, 'welcome', {
+      planName: this.planName(plan, updated.language),
+      cycle: updated.billingCycle,
+      date: end,
+      invoiceRef: invoice.orderRef,
+      pickTitles: this.effectiveShelfAccess(plan) === 'pick' ? plan.ebookTitlesPerPeriod ?? undefined : undefined
+    });
     return 'success' as const;
   }
 
@@ -848,7 +1144,7 @@ export class MembershipService {
         billingCycle: invoice.billingCycle,
         currentPeriodStart: start,
         currentPeriodEnd: end,
-        priceLocked: invoice.amount,
+        priceLocked: invoice.amount + invoice.uniqueDiscount,
         pendingPlanId: null,
         pendingBillingCycle: null,
         endedAt: null,
@@ -1025,9 +1321,11 @@ export class MembershipService {
     const existing = await find();
     if (existing) return existing;
     const target = await this.renewalTarget(sub);
+    const pricing = (await this.usesTransfer(sub)) ? await this.transferFields(target.amount) : { amount: target.amount, paymentType: null };
     let invoice: InvoiceRecord;
     try {
       invoice = await this.store.createInvoice({
+        ...pricing,
         subscriptionId: sub.id,
         userId: sub.userId,
         kind: 'renewal',
@@ -1035,7 +1333,6 @@ export class MembershipService {
         billingCycle: target.cycle,
         periodStart: sub.currentPeriodEnd,
         periodEnd: periodEndFor(sub.currentPeriodEnd, target.cycle),
-        amount: target.amount,
         status: 'issued',
         orderRef: newOrderRef(now),
         midtransOrderId: null,
@@ -1043,7 +1340,6 @@ export class MembershipService {
         snapRedirectUrl: null,
         snapCreatedAt: null,
         midtransTransactionId: null,
-        paymentType: null,
         claimsFounding: false,
         isFoundingPrice: false,
         issuedAt: now.toISOString(),
@@ -1210,7 +1506,10 @@ export class MembershipService {
     if (!fresh) return 0;
     // Hanya pengingat terbaru yang dikirim (job yang terlambat tidak mengirim beberapa email sekaligus).
     const days = crossed[0];
-    this.notify(sub, days === Math.max(...this.cfg.reminderDays) ? 'invoice' : 'reminder', { planName, amount: invoice.amount, date: invoice.dueAt, days, autodebit: false, invoiceRef: invoice.orderRef });
+    this.notify(sub, days === Math.max(...this.cfg.reminderDays) ? 'invoice' : 'reminder', {
+      planName, amount: invoice.amount, date: invoice.dueAt, days, autodebit: false, invoiceRef: invoice.orderRef,
+      ...(isTransferInvoice(invoice) ? { transfer: (await this.transferNotice(invoice, sub, await this.planById(invoice.planId))).transfer } : {})
+    });
     return 1;
   }
 
@@ -1262,6 +1561,13 @@ export class MembershipService {
     const claimed = cycle === 'yearly' && target.foundingPriceYearly !== null && target.foundingCap !== null ? await this.store.claimFoundingSlot(target.id) : false;
     const price = claimed ? target.foundingPriceYearly! : priceFor(target, cycle);
     const amount = Math.max(0, price - credit);
+    const transfer = amount > 0 && (rawMethod !== undefined && rawMethod !== null && rawMethod !== ''
+      ? rawMethod === 'bank_transfer'
+      : await this.usesTransfer(sub));
+    if (transfer && !(await this.availableMethods()).includes('bank_transfer')) {
+      if (claimed) await this.releaseFoundingQuietly(target.id);
+      throw httpError(400, 'method_unavailable', 'Metode pembayaran ini sedang tidak tersedia untuk keanggotaan.');
+    }
     let invoice: InvoiceRecord;
     try {
       invoice = await this.store.createInvoice({
@@ -1281,6 +1587,7 @@ export class MembershipService {
         snapCreatedAt: null,
         midtransTransactionId: null,
         paymentType: null,
+        ...(transfer ? await this.transferFields(amount) : {}),
         claimsFounding: claimed,
         isFoundingPrice: claimed,
         issuedAt: nowIso,
@@ -1299,6 +1606,10 @@ export class MembershipService {
     if (amount <= 0) {
       await this.applyPaid(invoice, EMPTY_PAYMENT, null);
       return { invoice: null, applied: true, credit, price, subscription: await this.publicSubscription((await this.store.getSubscription(sub.id))!) };
+    }
+    if (transfer) {
+      this.notify(sub, 'transferInstructions', await this.transferNotice(invoice, sub, target));
+      return { invoice: this.publicInvoice(invoice, target), applied: false, credit, price, subscription: await this.publicSubscription(sub) };
     }
     if (!this.ctx.midtrans.enabled) {
       await this.voidInvoice(invoice, 'payment_unavailable');

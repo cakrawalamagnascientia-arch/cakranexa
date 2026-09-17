@@ -260,7 +260,7 @@ export type LegacyPlanCode = 'free' | 'reader' | 'professional' | 'author';
 export type ShelfAccess = 'none' | 'pick' | 'full';
 export type BillingCycle = 'monthly' | 'yearly';
 export type SubscriptionStatus = 'pending' | 'active' | 'past_due' | 'grace' | 'canceled' | 'expired';
-export type MembershipPaymentMethod = 'card' | 'gopay' | 'va' | 'qris' | 'other';
+export type MembershipPaymentMethod = 'card' | 'gopay' | 'va' | 'qris' | 'other' | 'bank_transfer';
 export type InvoiceStatus = 'draft' | 'issued' | 'paid' | 'failed' | 'void';
 /** initial = pembayaran pertama; renewal = periode berikutnya; upgrade = selisih prorata; manual = pembayaran offline oleh admin. */
 export type InvoiceKind = 'initial' | 'renewal' | 'upgrade' | 'manual';
@@ -378,11 +378,24 @@ export interface InvoiceRecord {
   attempt: number;
   failureReason: string | null;
   isTest: boolean;
+  /** Fase 6 transfer bank: kode unik 1–999 (null = bukan transfer / tanpa kode) dan potongan (amount = harga - potongan). */
+  uniqueCode: number | null;
+  uniqueDiscount: number;
+  /** Path bukti transfer di bucket privat. */
+  paymentProofPath: string | null;
+  paymentProofUploadedAt: string | null;
+  /** 'admin' (konfirmasi Finance) atau 'midtrans'. */
+  paymentConfirmedBy: string | null;
+  /** Referensi mutasi bank dari Finance. */
+  paymentReference: string | null;
+  dueExtendedCount: number;
   createdAt: string;
   updatedAt: string;
 }
 
-export type NewInvoice = Omit<InvoiceRecord, 'id' | 'createdAt' | 'updatedAt'>;
+/** Kolom transfer bank fase 6: opsional saat membuat invoice (bawaan: bukan transfer, tanpa bukti). */
+export type InvoiceTransferField = 'uniqueCode' | 'uniqueDiscount' | 'paymentProofPath' | 'paymentProofUploadedAt' | 'paymentConfirmedBy' | 'paymentReference' | 'dueExtendedCount';
+export type NewInvoice = Omit<InvoiceRecord, 'id' | 'createdAt' | 'updatedAt' | InvoiceTransferField> & Partial<Pick<InvoiceRecord, InvoiceTransferField>>;
 export type InvoicePatch = Partial<Omit<InvoiceRecord, 'id' | 'subscriptionId' | 'userId' | 'orderRef' | 'createdAt' | 'updatedAt'>>;
 
 export type SubscriptionEventType =
@@ -390,7 +403,8 @@ export type SubscriptionEventType =
   | 'upgraded' | 'downgraded' | 'founding_notice' | 'invoice_issued' | 'cancel_reverted' | 'change_canceled'
   | 'payment_method_changed' | 'pick_selected' | 'reconciled' | 'admin_extended' | 'admin_grace' | 'admin_plan_changed'
   | 'admin_founding' | 'admin_canceled' | 'autodebit_error' | 'refunded' | 'payment_orphan' | 'whatsapp_failed'
-  | 'plan_migration_notice' | 'plan_migrated' | 'title_picked' | 'family_added' | 'family_removed';
+  | 'plan_migration_notice' | 'plan_migrated' | 'title_picked' | 'family_added' | 'family_removed'
+  | 'transfer_proof' | 'transfer_confirmed';
 
 export interface SubscriptionEventRecord {
   id: string;

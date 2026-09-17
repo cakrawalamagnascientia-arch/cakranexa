@@ -34,6 +34,10 @@ Halaman `/membership` selalu tampil. Selama pendaftaran tertutup, tombol paket m
 | `FONNTE_TOKEN` | *(kosong)* | Token perangkat Fonnte (bila `WHATSAPP_PROVIDER=fonnte`). **Rahasia.** |
 | `WHATSAPP_CLOUD_TOKEN`, `WHATSAPP_CLOUD_PHONE_NUMBER_ID` | *(kosong)* | Token sistem Meta dan Phone Number ID (bila `WHATSAPP_PROVIDER=cloud`). Token **rahasia**. |
 | `WHATSAPP_TEMPLATE_PREFIX`, `WHATSAPP_CLOUD_API_VERSION` | `cnx_`, `v21.0` | Opsional, hanya untuk Cloud API. |
+| `FINANCE_WHATSAPP` | `+62 852 8614 6806` | **Cadangan** nomor WhatsApp Finance untuk konfirmasi transfer (cetak & keanggotaan). Sumber utamanya kolom "WhatsApp Finance" di Admin → Pembayaran; env dipakai hanya bila kolom itu kosong. |
+| `ENABLE_OFFLINE` | `false` | Fase 6 Langkah 5: baca/dengar offline (Gold 2 judul, Platinum 5). Mati: manfaat offline tidak ditampilkan di paket, tabel perbandingan, dan hero. |
+| `ENABLE_CROSS_FORMAT_SYNC` | `false` | Fase 6 Langkah 5: lanjut e-book ↔ audio. Mati: manfaat sinkron tidak ditampilkan. |
+| `VITE_ENABLE_GOOGLE_LOGIN` (Vercel) | `false` | Tombol "Lanjutkan dengan Google" di halaman masuk/daftar. Nyalakan hanya setelah provider Google diaktifkan di Supabase Auth. |
 
 Batas perangkat tidak bergantung flag: Reader 1, Professional 2, Author 2. Harga, kuota Founding, batas perangkat, akses rak,
 dan persen harga member bisa diubah admin tanpa deploy (tab Keanggotaan → Paket). Flag env di atas tetap perlu diubah di Render.
@@ -126,6 +130,34 @@ Aturannya:
 | `cnx_founding_notice` | nama, paket, tanggal akhir harga Founding, harga reguler, tautan |
 
 Contoh `cnx_reminder` (id): *Halo {{1}}, pengingat: tagihan keanggotaan {{2}} sebesar {{3}} jatuh tempo {{4}} ({{5}}). Bayar di: {{6}}*
+| `cnx_transfer_instructions` | nama, paket, nominal transfer, batas waktu, tautan |
+| `cnx_transfer_expired` | nama, paket, nominal transfer, tautan halaman paket |
+
+### Teks pengajuan template transfer (fase 6)
+
+Dua template di bawah dipakai alur transfer bank keanggotaan. Ajukan di WhatsApp Manager → Message templates → **Create template**, kategori **Utility**, tanpa tombol dan tanpa header (body saja). Ajukan tiap bahasa sebagai *language* terpisah pada template yang sama: `id` (Indonesian), `en` (English), dan `zh_CN` (Chinese Simplified). Bila Meta menolak `zh_CN`, biarkan kosong: pesan berbahasa Mandarin otomatis memakai versi `en`.
+
+**1. `cnx_transfer_instructions`** — dikirim setelah tagihan transfer dibuat.
+
+| Bahasa | Body |
+|---|---|
+| id | Halo {{1}}, terima kasih telah memilih paket {{2}}. Transfer tepat {{3}} (termasuk kode unik) sebelum {{4}}. Rekening tujuan, bukti transfer, dan konfirmasi Finance: {{5}} |
+| en | Hello {{1}}, thank you for choosing {{2}}. Please transfer exactly {{3}} (unique code included) before {{4}}. Bank accounts, proof upload, and Finance confirmation: {{5}} |
+| zh_CN | 您好 {{1}}，感谢您选择 {{2}} 方案。请在 {{4}} 前准确转账 {{3}}（含唯一识别码）。收款账户、上传凭证与财务确认：{{5}} |
+
+Contoh nilai untuk peninjauan Meta: {{1}} Budi Santoso · {{2}} Gold · {{3}} Rp 989.443 · {{4}} 19 September 2026 pukul 01.07 WIB · {{5}} https://cakranexa.com/account/membership
+
+**2. `cnx_transfer_expired`** — dikirim saat batas transfer terlewati dan tagihan ditutup.
+
+| Bahasa | Body |
+|---|---|
+| id | Halo {{1}}, batas transfer paket {{2}} sebesar {{3}} sudah lewat sehingga tagihan ditutup. Bila sudah mentransfer, kirim bukti ke Finance. Pilih paket lagi di: {{4}} |
+| en | Hello {{1}}, the transfer deadline for {{2}} ({{3}}) has passed, so the invoice was closed. If you already transferred, send the proof to Finance. Choose a plan again at: {{4}} |
+| zh_CN | 您好 {{1}}，{{2}} 方案 {{3}} 的转账期限已过，账单已关闭。若您已转账，请将凭证发送给财务。重新选择方案：{{4}} |
+
+Contoh nilai: {{1}} Budi Santoso · {{2}} Gold · {{3}} Rp 989.443 · {{4}} https://cakranexa.com/membership
+
+> **Fonnte sebagai cadangan sementara.** Selama template Cloud API belum disetujui, `WHATSAPP_PROVIDER=fonnte` mengirim teks bebas yang sama tanpa persetujuan. Risikonya: Fonnte bukan gateway resmi WhatsApp, sehingga nomor +62 852 8614 6806 (nomor kontak utama perusahaan) dapat dibatasi atau diblokir bila volume pesan dianggap tidak wajar. Batasi pemakaian pada pengingat transaksional, jangan untuk promosi, dan pindah ke `cloud` setelah template disetujui. Dengan `WHATSAPP_PROVIDER=off`, seluruh pemberitahuan tetap terkirim lewat email.
 
 ---
 

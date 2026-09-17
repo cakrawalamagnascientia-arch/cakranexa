@@ -20,7 +20,7 @@ const bodyOf = (req: Request) => (req.body || {}) as Record<string, unknown>;
 const PAYMENT_TYPE_LABEL: Record<string, { id: string; en: string }> = {
   credit_card: { id: 'Kartu kredit/debit', en: 'Credit/debit card' },
   gopay: { id: 'GoPay', en: 'GoPay' },
-  bank_transfer: { id: 'Virtual Account', en: 'Virtual Account' },
+  bank_transfer: { id: 'Transfer bank', en: 'Bank transfer' },
   echannel: { id: 'Mandiri Bill Payment', en: 'Mandiri Bill Payment' },
   qris: { id: 'QRIS', en: 'QRIS' },
   other_qris: { id: 'QRIS', en: 'QRIS' }
@@ -126,10 +126,13 @@ export const createMembershipRouter = (ctx: DigitalContext, service: MembershipS
         email = null;
       }
     }
+    // Fase 6: tombol "Pilih paket" mengikuti payment_routing (transfer bank manual tidak butuh Midtrans).
+    const paymentMethods = await service.availableMethods();
     res.json({
       plans: await service.publicPlans(),
       flags: service.flags(),
-      paymentAvailable: ctx.midtrans.enabled,
+      paymentAvailable: paymentMethods.length > 0,
+      paymentMethods,
       purchaseEnabled: ctx.feature.allows(email),
       current,
       foundingEligible
@@ -154,6 +157,18 @@ export const createMembershipRouter = (ctx: DigitalContext, service: MembershipS
   router.post('/api/membership/invoices/:id/pay', ctx.requireUser, write, asyncRoute(async (req, res) => {
     const { invoice } = await ownInvoice(req);
     res.json({ invoice: await service.payInvoice(userOf(req), invoice.id, bodyOf(req)) });
+  }));
+
+  // Fase 6: instruksi transfer bank (nominal berkode unik, rekening perusahaan, batas waktu, status bukti).
+  router.get('/api/membership/invoices/:id', ctx.requireUser, read, asyncRoute(async (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.json(await service.transferDetail(userOf(req), String(req.params.id)));
+  }));
+
+  // Bukti transfer (multipart, field "file"; PDF/PNG/JPG/WebP maks. 10 MB) ke bucket privat.
+  router.post('/api/membership/invoices/:id/proof', ctx.requireUser, write, asyncRoute(async (req, res) => {
+    const { invoice } = await ownInvoice(req);
+    res.json({ invoice: await service.uploadProof(userOf(req), invoice.id, req) });
   }));
 
   // Periksa status pembayaran ke Midtrans (setelah kembali dari Snap, bila notifikasi belum masuk).

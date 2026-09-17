@@ -214,6 +214,13 @@ export interface ContinueItem {
 
 export const getContinueReading = () => memberRequest<{ items: ContinueItem[] }>('/api/library/continue');
 
+/** Pustaka Saya: progres semua judul (tab "Sedang dibaca" dan "Selesai"). */
+export const getReadingProgress = () => memberRequest<{ items: ContinueItem[] }>('/api/library/progress');
+
+/** Pustaka Saya: jumlah catatan per judul (isinya dibuka di pembaca). */
+export const getNoteCounts = () =>
+  memberRequest<{ items: Array<{ productId: string; format: 'ebook' | 'audiobook'; bookId: string; count: number }> }>('/api/library/notes');
+
 /** Beranda digital: urutan judul terpopuler 30 hari terakhir (publik). Gagal = rak tidak ditampilkan. */
 export const getPopularProductIds = async (): Promise<string[]> => {
   try {

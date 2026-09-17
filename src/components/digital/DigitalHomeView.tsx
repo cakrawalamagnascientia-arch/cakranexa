@@ -4,6 +4,7 @@ import { ArrowRight, Check, Headphones, Pause, SkipBack, SkipForward } from 'luc
 import type { BookCategory } from '../../types';
 import { useDigitalCatalog, type DigitalEntry } from '../../hooks/useDigitalCatalog';
 import { useShelfRules } from '../../hooks/useShelfRules';
+import { useMembershipPlans } from '../../hooks/useMembershipPlans';
 import { useBookText, useCategoryLabel } from '../../i18n/hooks';
 import { useMemberSession } from '../../services/memberSession';
 import { getContinueReading, getPopularProductIds, type ContinueItem } from '../../services/digitalApi';
@@ -15,6 +16,7 @@ import { DigitalShelfCard } from './DigitalShelfCard';
 import { Shelf } from './Shelf';
 
 const CATEGORIES: BookCategory[] = ['Perpajakan', 'Akuntansi', 'Hukum', 'Ekonomi & Bisnis', 'Filsafat', 'Teologia'];
+/** Poin "sync" hanya tampil bila flag ENABLE_CROSS_FORMAT_SYNC aktif; selain itu diganti poin jatah. */
 const BENEFITS = ['shelf', 'samples', 'devices', 'sync', 'print'] as const;
 const SHELF_LIMIT = 18;
 
@@ -71,6 +73,8 @@ export const DigitalHomeView: React.FC<DigitalHomeViewProps> = ({ onOpenProduct 
   const member = useMemberSession();
   const catalog = useDigitalCatalog();
   const rules = useShelfRules();
+  const { data: membership } = useMembershipPlans();
+  const benefits = BENEFITS.map((key) => (key === 'sync' && !membership.flags.crossFormatSync ? 'quota' as const : key));
   const [popularIds, setPopularIds] = useState<string[]>([]);
   const [continueItems, setContinueItems] = useState<ContinueItem[]>([]);
 
@@ -136,7 +140,7 @@ export const DigitalHomeView: React.FC<DigitalHomeViewProps> = ({ onOpenProduct 
             </h1>
             <p className="mt-4 max-w-xl text-sm text-cream-200 sm:text-base">{t('home.hero.subtitle')}</p>
             <ul className="mt-5 space-y-2">
-              {BENEFITS.map((key) => (
+              {benefits.map((key) => (
                 <li key={key} className="flex items-start gap-2 text-sm text-cream-100">
                   <Check className="mt-0.5 h-4 w-4 shrink-0 text-gold-400" aria-hidden="true" />
                   <span>{t(`home.hero.benefits.${key}`)}</span>

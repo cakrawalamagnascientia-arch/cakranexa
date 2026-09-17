@@ -595,7 +595,10 @@ export class MemoryDigitalStore implements DigitalStore {
       i.subscriptionId === row.subscriptionId && i.kind === row.kind && i.periodStart === row.periodStart && i.status !== 'void')) {
       throw new ConflictError('invoice_period_exists');
     }
-    const record: InvoiceRecord = { ...clone(row), id: uuid(), createdAt: nowIso(), updatedAt: nowIso() };
+    const record: InvoiceRecord = {
+      uniqueCode: null, uniqueDiscount: 0, paymentProofPath: null, paymentProofUploadedAt: null, paymentConfirmedBy: null, paymentReference: null, dueExtendedCount: 0,
+      ...clone(row), id: uuid(), createdAt: nowIso(), updatedAt: nowIso()
+    };
     this.invoices.push(record);
     return clone(record);
   }

@@ -281,6 +281,13 @@ const toInvoice = (r: any): InvoiceRecord => ({
   attempt: Number(r.attempt) || 0,
   failureReason: r.failure_reason ?? null,
   isTest: r.is_test === true,
+  uniqueCode: r.unique_code === null || r.unique_code === undefined ? null : Number(r.unique_code),
+  uniqueDiscount: Number(r.unique_discount) || 0,
+  paymentProofPath: r.payment_proof_path ?? null,
+  paymentProofUploadedAt: r.payment_proof_uploaded_at ?? null,
+  paymentConfirmedBy: r.payment_confirmed_by ?? null,
+  paymentReference: r.payment_reference ?? null,
+  dueExtendedCount: Number(r.due_extended_count) || 0,
   createdAt: r.created_at,
   updatedAt: r.updated_at
 });

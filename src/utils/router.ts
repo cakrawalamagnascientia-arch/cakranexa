@@ -11,9 +11,11 @@ import { DEFAULT_LANGUAGE, getCurrentLanguage, isAppLanguage, type AppLanguage }
  *
  * Produk digital: /digital (beranda fase 6), /digital/ebook, /digital/audiobook (daftar, ?kategori=), /digital/<format>/<slug-buku> (detail),
  * /digital/sample/<id-produk> (sampel), /digital/checkout?items=... (checkout). Keanggotaan: /membership,
- * /membership/checkout?plan=&cycle=, /membership/terms, /institutions, /library (Pustaka Saya, ?welcome=1),
+ * /membership/checkout?plan=&cycle=, /membership/terms, /membership/invoice/<id-tagihan> (instruksi transfer),
+ * /institutions, /library (Pustaka Saya, ?welcome=1, ?tab=), /library/pick (pilih buku bulan ini),
  * /library/read/<id-produk>, /library/listen/<id-produk>.
- * Akun pembeli: /account/login|register|reset|update-password (?next=<path>), /account/membership (?invoice=).
+ * Akun pembeli: /account/login|register|reset|update-password (?next=<path>), /account/membership (?invoice=),
+ * /account/onboarding (3 langkah setelah daftar).
  * Hasil pembayaran Midtrans: /payment/success dan /payment/failed (?order_id=&transaction_status=).
  */
 export interface RouteState {
@@ -58,7 +60,7 @@ const VALID_SUBSECTIONS = new Set<string>([
   'proses', 'faq', 'profil', 'visi-misi', 'tim', 'legalitas'
 ]);
 
-const ACCOUNT_SUBSECTIONS = new Set<string>(['login', 'register', 'reset', 'update-password', 'membership']);
+const ACCOUNT_SUBSECTIONS = new Set<string>(['login', 'register', 'reset', 'update-password', 'membership', 'onboarding']);
 
 const CATEGORIES = new Set(['Perpajakan', 'Akuntansi', 'Hukum', 'Ekonomi & Bisnis', 'Filsafat', 'Teologia']);
 
@@ -127,6 +129,8 @@ export const parseLocation = (pathname: string = window.location.pathname, searc
     if ((segments[1] === 'read' || segments[1] === 'listen') && segments[2]) {
       state.subSection = segments[1];
       state.digitalItem = segments[2];
+    } else if (segments[1] === 'pick') {
+      state.subSection = 'pick';
     } else if (rawQuery) {
       state.query = rawQuery;
     }
@@ -136,6 +140,9 @@ export const parseLocation = (pathname: string = window.location.pathname, searc
       state.query = rawQuery;
     } else if (segments[1] === 'terms') {
       state.subSection = 'terms';
+    } else if (segments[1] === 'invoice' && segments[2]) {
+      state.subSection = 'invoice';
+      state.digitalItem = segments[2];
     }
   } else if (page === 'account') {
     state.subSection = (ACCOUNT_SUBSECTIONS.has(segments[1]) ? segments[1] : 'login') as SubSection;
@@ -183,11 +190,13 @@ const buildBasePath = (state: RouteState): string => {
   }
   if (page === 'library') {
     if ((subSection === 'read' || subSection === 'listen') && digitalItem) return `${base}/${subSection}/${encodeURIComponent(digitalItem)}`;
+    if (subSection === 'pick') return `${base}/pick`;
     return withQuery(base);
   }
   if (page === 'membership') {
     if (subSection === 'checkout') return withQuery(`${base}/checkout`);
     if (subSection === 'terms') return `${base}/terms`;
+    if (subSection === 'invoice' && digitalItem) return `${base}/invoice/${encodeURIComponent(digitalItem)}`;
     return base;
   }
   if (page === 'account') {
