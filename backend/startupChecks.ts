@@ -69,7 +69,10 @@ export const REQUIRED_SCHEMA: SchemaRequirement[] = [
   { migration: 'src/db/print_checkout_migration.sql', table: 'print_checkout_settings' },
   { migration: 'src/db/print_checkout_migration.sql', table: 'print_checkout_settings', columns: ['fallback_mode', 'origin_id', 'origin_label', 'couriers', 'packaging_gram', 'daily_quota'] },
   { migration: 'src/db/print_checkout_migration.sql', table: 'shipping_api_usage' },
-  { migration: 'src/db/print_checkout_migration.sql', table: 'payment_routing' }
+  { migration: 'src/db/print_checkout_migration.sql', table: 'payment_routing' },
+  // Fase 5R (docs/PHASE-5-BRIEF.md): kontrak naskah jual putus dan jadwal honor.
+  { migration: 'src/db/manuscript_contracts_migration.sql', table: 'manuscript_contracts' },
+  { migration: 'src/db/manuscript_contracts_migration.sql', table: 'manuscript_payments' }
 ];
 
 export interface MissingSchemaObject {

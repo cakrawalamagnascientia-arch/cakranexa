@@ -77,7 +77,9 @@ WITH required (urutan, migration, object, kind) AS (
         (9, 'src/db/print_checkout_migration.sql', 'print_checkout_settings.origin_id', 'column'),
         (9, 'src/db/print_checkout_migration.sql', 'shipping_api_usage', 'table'),
         (9, 'src/db/print_checkout_migration.sql', 'print_checkout_settings', 'table'),
-        (9, 'src/db/print_checkout_migration.sql', 'payment_routing', 'table')
+        (9, 'src/db/print_checkout_migration.sql', 'payment_routing', 'table'),
+        (10, 'src/db/manuscript_contracts_migration.sql', 'manuscript_contracts', 'table'),
+        (10, 'src/db/manuscript_contracts_migration.sql', 'manuscript_payments', 'table')
 )
 SELECT
     urutan,

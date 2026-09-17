@@ -41,12 +41,13 @@ Akibatnya:
 
 1. Supabase → **SQL Editor** → **New query**.
 2. Tempel seluruh isi [`src/db/check_schema.sql`](../src/db/check_schema.sql), lalu klik **Run**.
-3. Hasilnya 70 baris dengan kolom `urutan`, `migration`, `object`, dan `ada`:
+3. Hasilnya 72 baris dengan kolom `urutan`, `migration`, `object`, dan `ada`:
    - 29 baris fase 1–2 (urutan 1–5);
    - 12 baris fase 3 (urutan 6);
    - 4 baris data royalti pesanan cetak (urutan 7);
    - 16 baris akses institusi fase 4 (urutan 8);
-   - 6 baris checkout buku cetak transfer bank (urutan 9).
+   - 9 baris checkout buku cetak transfer bank dan ongkir RajaOngkir (urutan 9);
+   - 2 baris kontrak naskah jual putus fase 5R (urutan 10).
 
    Baris dengan `ada = false` menunjukkan migration yang belum dijalankan.
 
@@ -69,6 +70,7 @@ Jalankan **satu file per kueri**. Buka file di GitHub → **Raw** → salin semu
 | 7 | `src/db/print_orders_royalty_migration.sql` (data royalti pesanan cetak) | Ya | Ada baris urutan 7 yang false. Jalankan sebelum men-deploy versi yang menulis kolom ini (bagian 9). |
 | 8 | `src/db/institution_phase4_migration.sql` (**fase 4**, institusi) | Ya | Ada baris urutan 8 yang false. Jalankan sebelum men-deploy kode fase 4 (server menolak start tanpanya). Panduan: [`docs/SETUP-INSTITUSI.md`](SETUP-INSTITUSI.md). |
 | 9 | `src/db/print_checkout_migration.sql` (checkout buku cetak: transfer bank, ongkir RajaOngkir/zona, kode unik) | Ya | Ada baris urutan 9 yang false. Jalankan sebelum men-deploy versi checkout transfer (server menolak start tanpanya). Bagian 5 file ini menandai pesanan uji lama sebagai `is_test`. Panduan: [`docs/SETUP-CHECKOUT-CETAK.md`](SETUP-CHECKOUT-CETAK.md). |
+| 10 | `src/db/manuscript_contracts_migration.sql` (**fase 5R**, kontrak naskah jual putus & jadwal honor) | Ya | Ada baris urutan 10 yang false. Jalankan sebelum men-deploy kode fase 5R (server menolak start tanpanya). Spesifikasi: [`docs/PHASE-5-BRIEF.md`](PHASE-5-BRIEF.md). |
 
 Semua file di urutan 2–5 memakai `IF NOT EXISTS` atau bentuk yang setara. Kelimanya sudah diuji di Postgres lokal: dijalankan berurutan, dijalankan ulang, lalu diperiksa dengan `check_schema.sql`.
 
@@ -87,7 +89,7 @@ File-file ini mengubah atau menambah data dan bukan syarat server.
 
 ## 4. Verifikasi
 
-- Jalankan ulang `check_schema.sql`. Semua baris harus `ada = true`: 29 sebelum fase 3, 41 setelah migration fase 3, 45 setelah migration data royalti cetak, 61 setelah migration fase 4, dan 70 setelah migration checkout buku cetak.
+- Jalankan ulang `check_schema.sql`. Semua baris harus `ada = true`: 29 sebelum fase 3, 41 setelah migration fase 3, 45 setelah migration data royalti cetak, 61 setelah migration fase 4, 70 setelah migration checkout buku cetak, dan 72 setelah migration kontrak naskah fase 5R.
 - Di **Storage**, bucket `digital-assets` harus **Private** dan `digital-samples` **Public**.
 
 ---
