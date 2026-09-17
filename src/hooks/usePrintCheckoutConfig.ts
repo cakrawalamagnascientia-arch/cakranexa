@@ -15,7 +15,8 @@ export const FALLBACK_PRINT_CHECKOUT_CONFIG: PrintCheckoutConfig = {
   manualQuoteMinCopies: DEFAULT_PRINT_CHECKOUT_SETTINGS.manualQuoteMinCopies,
   uniqueCodeEnabled: DEFAULT_PRINT_CHECKOUT_SETTINGS.uniqueCodeEnabled,
   transferDueHours: DEFAULT_PRINT_CHECKOUT_SETTINGS.transferDueHours,
-  methods: ['bank_transfer']
+  methods: ['bank_transfer'],
+  usdTransfer: { available: false, dueBusinessDays: 5 }
 };
 
 export const settingsOfConfig = (config: PrintCheckoutConfig): PrintCheckoutSettings => ({

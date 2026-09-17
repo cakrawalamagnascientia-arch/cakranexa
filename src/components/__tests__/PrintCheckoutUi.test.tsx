@@ -118,4 +118,58 @@ describe('halaman pesanan: instruksi transfer', () => {
     expect(html).toContain(`href="${wa}"`);
     expect(html).toContain('accept="image/jpeg,image/png,image/webp,application/pdf"');
   });
+
+  const USD_DETAIL: PrintOrderDetail = {
+    ...DETAIL,
+    uniqueCode: null,
+    uniqueDiscount: 0,
+    total: 200000,
+    paymentDueAt: '2026-09-22T03:00:00.000Z',
+    transferCurrency: 'USD',
+    transferDueBusinessDays: 5,
+    bankAccounts: [
+      { bankName: 'Bank Mandiri', accountNumber: '167-00-1171867-2', accountHolder: 'PT CAKRAWALA MAGNA SCIENTIA', branch: null, currency: 'USD', swiftCode: 'BMRIIDJA' },
+      { bankName: 'Bank Mandiri', accountNumber: '167-00-1164499-3', accountHolder: 'PT CAKRAWALA MAGNA SCIENTIA', branch: null, currency: 'IDR', swiftCode: null }
+    ]
+  };
+
+  it('rekening IDR utama, rekening USD di bawahnya berjudul "Untuk pembayaran dari luar negeri" dengan pemilik, nomor, dan SWIFT', () => {
+    const html = renderToStaticMarkup(<TransferInstructions detail={USD_DETAIL} language="id" copied={null} onCopy={() => undefined} />);
+    const idrAt = html.indexOf('167-00-1164499-3');
+    const titleAt = html.indexOf('Untuk pembayaran dari luar negeri');
+    const usdAt = html.indexOf('167-00-1171867-2');
+    expect(idrAt).toBeGreaterThan(-1);
+    expect(titleAt).toBeGreaterThan(idrAt);
+    expect(usdAt).toBeGreaterThan(titleAt);
+    expect(html.slice(titleAt)).toContain('PT CAKRAWALA MAGNA SCIENTIA');
+    expect(html).toContain('BMRIIDJA');
+    expect(html).toContain('nomor pesanan CNX-202609-000123 di berita transfer');
+    expect(html).toContain('Rp200.000');
+    expect(html).toContain('tanpa kode unik');
+    expect(html).toContain('5 hari kerja');
+    expect(html).not.toContain('Potongan kode unik');
+    expect(html).not.toContain('24 jam');
+  });
+
+  it('jalur IDR tetap menampilkan kode unik dan batas jam; rekening USD tetap tercantum untuk pembayaran luar negeri', () => {
+    const html = renderToStaticMarkup(<TransferInstructions detail={{ ...DETAIL, bankAccounts: USD_DETAIL.bankAccounts }} language="id" copied={null} onCopy={() => undefined} />);
+    expect(html).toContain('Potongan kode unik (417)');
+    expect(html).toContain('24 jam');
+    expect(html).toContain('Untuk pembayaran dari luar negeri');
+    expect(html).not.toContain('hari kerja');
+  });
+});
+
+describe('checkout buku cetak: pilihan transfer dari luar negeri', () => {
+  it('muncul hanya bila rekening USD aktif; terpilih -> keterangan 5 hari kerja', () => {
+    const props = { methods: ['bank_transfer' as const], selected: 'bank_transfer' as const, onSelect: () => undefined, transferDueHours: 24, onForeignTransferChange: () => undefined };
+    const hidden = renderToStaticMarkup(<PrintPaymentMethodPicker {...props} usdTransfer={{ available: false, dueBusinessDays: 5 }} foreignTransfer={false} />);
+    expect(hidden).not.toContain('data-foreign-transfer');
+    const offered = renderToStaticMarkup(<PrintPaymentMethodPicker {...props} usdTransfer={{ available: true, dueBusinessDays: 5 }} foreignTransfer={false} />);
+    expect(offered).toContain('Saya membayar dari luar negeri (transfer USD)');
+    expect(offered).toContain('24 jam');
+    const chosen = renderToStaticMarkup(<PrintPaymentMethodPicker {...props} usdTransfer={{ available: true, dueBusinessDays: 5 }} foreignTransfer />);
+    expect(chosen).toContain('checked=""');
+    expect(chosen).toContain('batas waktu 5 hari kerja tampil setelah pesanan dibuat');
+  });
 });

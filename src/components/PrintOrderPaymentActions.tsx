@@ -45,7 +45,14 @@ export const PrintOrderPaymentActions: React.FC<{
   const confirm = () => {
     const reference = window.prompt(`Konfirmasi pembayaran ${order.orderNumber} sebesar Rp${order.total.toLocaleString('id-ID')}.\nCatatan mutasi (opsional):`, '');
     if (reference === null) return;
-    void run(() => confirmOrderPayment(order.orderNumber, reference.trim() || undefined), `Pembayaran ${order.orderNumber} dikonfirmasi. Pesanan masuk antrean kirim.`);
+    // Jalur transfer dari luar negeri: catat jumlah USD yang diterima (opsional).
+    let usdAmount: string | undefined;
+    if (order.transferCurrency === 'USD') {
+      const value = window.prompt('Jumlah USD diterima (opsional, mis. 12.50):', '');
+      if (value === null) return;
+      usdAmount = value.trim() || undefined;
+    }
+    void run(() => confirmOrderPayment(order.orderNumber, reference.trim() || undefined, usdAmount), `Pembayaran ${order.orderNumber} dikonfirmasi. Pesanan masuk antrean kirim.`);
   };
 
   // Tarif RajaOngkir (bila pesanan punya kecamatan tujuan): ketik nomor layanan atau nominal ongkir.
@@ -93,6 +100,14 @@ export const PrintOrderPaymentActions: React.FC<{
         <span className="rounded bg-amber-100 px-1.5 py-0.5 font-bold text-amber-800" title="Ongkir dari tabel zona karena RajaOngkir tidak tersedia saat checkout" data-shipping-fallback>
           ONGKIR ESTIMASI
         </span>
+      )}
+      {order.transferCurrency === 'USD' && (
+        <span className="rounded bg-sky-100 px-1.5 py-0.5 font-bold text-sky-800" title="Pembeli membayar dari luar negeri ke rekening USD" data-transfer-usd>
+          TRANSFER USD
+        </span>
+      )}
+      {order.usdAmountReceived !== null && order.usdAmountReceived !== undefined && (
+        <span className="font-mono text-slate-600">USD diterima: {order.usdAmountReceived.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
       )}
       {status === 'awaiting_transfer' && order.paymentDueAt && (
         <span className="inline-flex items-center gap-1 text-slate-500"><Clock className="h-3 w-3" />Batas {fmtWib(order.paymentDueAt)}</span>

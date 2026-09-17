@@ -148,6 +148,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   };
 
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('bank_transfer');
+  // Transfer dari luar negeri (rekening USD): nominal tetap Rupiah, tanpa kode unik, batas waktu hari kerja.
+  const [foreignTransfer, setForeignTransfer] = useState(false);
+  const usdPath = selectedMethod === 'bank_transfer' && foreignTransfer && Boolean(checkoutConfig.usdTransfer?.available);
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
   const [copiedVA, setCopiedVA] = useState(false);
   const [copiedBankAcc, setCopiedBankAcc] = useState<string | null>(null);
@@ -207,6 +210,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         : customer,
       paymentMethod: selectedMethod,
       paymentStatus: selectedMethod === 'bank_transfer' ? 'awaiting_transfer' : 'pending',
+      transferCurrency: usdPath ? 'USD' : 'IDR',
       createdAt: nowIso()
     };
 
@@ -545,10 +549,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <p className="text-[10px] text-amber-300" data-shipping-estimate>{t('printCheckout.estimateNote')}</p>
               )}
               <div className="pt-2 border-t border-white/20 flex justify-between text-sm font-bold text-[#DFBF64]">
-                <span>{selectedMethod === 'bank_transfer' && checkoutConfig.uniqueCodeEnabled && !manualShipping ? t('printCheckout.totalBeforeCode') : t('modal.summary.total')}</span>
+                <span>{selectedMethod === 'bank_transfer' && checkoutConfig.uniqueCodeEnabled && !manualShipping && !usdPath ? t('printCheckout.totalBeforeCode') : t('modal.summary.total')}</span>
                 <span className="font-mono text-base">{currency(total)}</span>
               </div>
-              {selectedMethod === 'bank_transfer' && checkoutConfig.uniqueCodeEnabled && !manualShipping && (
+              {selectedMethod === 'bank_transfer' && checkoutConfig.uniqueCodeEnabled && !manualShipping && !usdPath && (
                 <p className="text-[10px] text-slate-400">{t('printCheckout.uniqueCodeNote')}</p>
               )}
             </div>
@@ -558,6 +562,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               selected={selectedMethod}
               onSelect={setSelectedMethod}
               transferDueHours={checkoutConfig.transferDueHours}
+              usdTransfer={checkoutConfig.usdTransfer}
+              foreignTransfer={foreignTransfer}
+              onForeignTransferChange={setForeignTransfer}
             />
 
             {/* Submit CTA */}

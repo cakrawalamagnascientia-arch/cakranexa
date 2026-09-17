@@ -77,7 +77,10 @@ export const REQUIRED_SCHEMA: SchemaRequirement[] = [
   { migration: 'src/db/manuscript_admin_migration.sql', table: 'authors', columns: ['user_id', 'user_link_source', 'user_linked_at'] },
   { migration: 'src/db/manuscript_admin_migration.sql', table: 'author_account_links' },
   { migration: 'src/db/manuscript_admin_migration.sql', table: 'manuscript_contract_addenda' },
-  { migration: 'src/db/manuscript_admin_migration.sql', table: 'manuscript_reminders' }
+  { migration: 'src/db/manuscript_admin_migration.sql', table: 'manuscript_reminders' },
+  // Checkout buku cetak: transfer dari luar negeri ke rekening USD.
+  { migration: 'src/db/print_usd_transfer_migration.sql', table: 'admin_bank_accounts', columns: ['currency', 'swift_code'] },
+  { migration: 'src/db/print_usd_transfer_migration.sql', table: 'orders', columns: ['transfer_currency', 'usd_amount_received'] }
 ];
 
 export interface MissingSchemaObject {

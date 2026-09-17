@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check, Copy, MessageCircle, Upload } from 'lucide-react';
-import type { PrintOrderDetail } from '../services/printCheckoutApi';
+import type { OrderBankAccount, PrintOrderDetail } from '../services/printCheckoutApi';
 import { formatRupiahPlain, whatsappLink } from '../utils/transferConfirmation';
 
 /**
  * Instruksi transfer pesanan buku cetak (halaman /pesanan/<nomor>): nominal PERSIS termasuk ongkir dan kode unik,
- * rincian, rekening PT, batas waktu, tombol konfirmasi WhatsApp Finance, dan slot unggah bukti transfer.
+ * rincian, rekening PT (IDR sebagai rekening utama, rekening USD di bawahnya untuk pembayaran dari luar negeri),
+ * batas waktu, tombol konfirmasi WhatsApp Finance, dan slot unggah bukti transfer.
  */
 
 const LOCALES: Record<string, string> = { id: 'id-ID', en: 'en-GB', zh: 'zh-CN' };
@@ -23,6 +24,9 @@ export const TransferInstructions: React.FC<{
   children?: React.ReactNode;
 }> = ({ detail, language, copied, onCopy, children }) => {
   const { t } = useTranslation('checkout');
+  const usdPath = detail.transferCurrency === 'USD';
+  const localAccounts = detail.bankAccounts.filter((account) => account.currency !== 'USD');
+  const foreignAccounts = detail.bankAccounts.filter((account) => account.currency === 'USD');
   const copyButton = (key: string, value: string, label: string) => (
     <button
       type="button"
@@ -34,6 +38,23 @@ export const TransferInstructions: React.FC<{
     </button>
   );
 
+  const accountCard = (account: OrderBankAccount) => (
+    <div key={account.accountNumber} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white p-3">
+      <div className="text-sm">
+        <span className="block text-[11px] text-slate-500">{t('orderPage.bank')}: <strong className="text-slate-800">{account.bankName} · {account.currency || 'IDR'}</strong>{account.branch ? ` (${account.branch})` : ''}</span>
+        <span className="block text-[11px] text-slate-500">{t('orderPage.accountHolder')}: <strong className="text-slate-800">{account.accountHolder}</strong></span>
+        <span className="block font-mono text-base font-bold text-slate-900">{account.accountNumber}</span>
+        {account.swiftCode && (
+          <span className="block text-[11px] text-slate-500">{t('orderPage.foreign.swift')}: <strong className="font-mono text-slate-800" data-swift>{account.swiftCode}</strong></span>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-1">
+        {copyButton(`account-${account.accountNumber}`, account.accountNumber.replace(/[^0-9]/g, ''), t('orderPage.copyAccount'))}
+        {account.swiftCode && copyButton(`swift-${account.accountNumber}`, account.swiftCode, t('orderPage.foreign.copySwift'))}
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-5" data-transfer-instructions>
       <div className="rounded-xl border-2 border-[#D4AF37] bg-amber-50 p-5">
@@ -42,7 +63,7 @@ export const TransferInstructions: React.FC<{
           <span className="font-mono text-3xl font-black text-slate-900" data-amount>{formatRupiahPlain(detail.total)}</span>
           {copyButton('amount', String(detail.total), t('orderPage.copyAmount'))}
         </div>
-        <p className="mt-2 text-xs text-amber-900">{t('orderPage.exactNote')}</p>
+        <p className="mt-2 text-xs text-amber-900">{usdPath ? t('orderPage.foreign.amountNote') : t('orderPage.exactNote')}</p>
       </div>
 
       <dl className="space-y-1 text-sm">
@@ -60,34 +81,28 @@ export const TransferInstructions: React.FC<{
         <div className="flex justify-between border-t border-slate-200 pt-1 font-bold"><dt>{t('orderPage.breakdown.total')}</dt><dd className="font-mono">{formatRupiahPlain(detail.total)}</dd></div>
       </dl>
 
-      <div>
-        <h3 className="mb-2 text-sm font-bold text-slate-900">{t('orderPage.transferTo')}</h3>
-        <div className="space-y-4">
-          {[
-            { title: 'Pembayaran Lokal (IDR)', accounts: detail.bankAccounts.filter((account) => (account.currency || 'IDR') === 'IDR') },
-            { title: 'Pembayaran Internasional (USD)', accounts: detail.bankAccounts.filter((account) => account.currency === 'USD') }
-          ].filter((group) => group.accounts.length > 0).map((group) => (
-            <section key={group.title} className="space-y-2" aria-label={group.title}>
-              <h4 className="text-[11px] font-bold uppercase tracking-wide text-slate-600">{group.title}</h4>
-              {group.accounts.map((account) => (
-            <div key={account.accountNumber} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white p-3">
-              <div className="text-sm">
-                <span className="block text-[11px] text-slate-500">{t('orderPage.bank')}: <strong className="text-slate-800">{account.bankName} · {account.currency || 'IDR'}</strong>{account.branch ? ` (${account.branch})` : ''}</span>
-                <span className="block font-mono text-base font-bold text-slate-900">{account.accountNumber}</span>
-                <span className="block text-[11px] text-slate-500">{t('orderPage.accountHolder')}: <strong className="text-slate-800">{account.accountHolder}</strong></span>
-              </div>
-              {copyButton(`account-${account.accountNumber}`, account.accountNumber.replace(/[^0-9]/g, ''), t('orderPage.copyAccount'))}
-            </div>
-              ))}
-            </section>
-          ))}
-        </div>
+      <div className="space-y-4">
+        <section className="space-y-2">
+          <h3 className="text-sm font-bold text-slate-900">{t('orderPage.transferTo')}</h3>
+          {localAccounts.map(accountCard)}
+        </section>
+        {foreignAccounts.length > 0 && (
+          <section className="space-y-2" data-foreign-accounts>
+            <h4 className="text-sm font-bold text-slate-900">{t('orderPage.foreign.title')}</h4>
+            {foreignAccounts.map(accountCard)}
+            <p className="text-xs text-slate-600">{t('orderPage.foreign.note', { orderNumber: detail.orderNumber })}</p>
+          </section>
+        )}
       </div>
 
       {detail.paymentDueAt && (
         <p className="text-sm">
           <strong>{t('orderPage.deadline')}:</strong> <span data-deadline>{formatWib(detail.paymentDueAt, language)}</span>
-          <span className="block text-xs text-slate-500">{t('orderPage.deadlineNote', { hours: detail.transferDueHours })}</span>
+          <span className="block text-xs text-slate-500">
+            {usdPath && detail.transferDueBusinessDays
+              ? t('orderPage.foreign.deadlineNote', { days: detail.transferDueBusinessDays })
+              : t('orderPage.deadlineNote', { hours: detail.transferDueHours })}
+          </span>
         </p>
       )}
 

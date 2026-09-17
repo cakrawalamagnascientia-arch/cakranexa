@@ -83,7 +83,10 @@ WITH required (urutan, migration, object, kind) AS (
         (11, 'src/db/manuscript_admin_migration.sql', 'authors.user_id', 'column'),
         (11, 'src/db/manuscript_admin_migration.sql', 'author_account_links', 'table'),
         (11, 'src/db/manuscript_admin_migration.sql', 'manuscript_contract_addenda', 'table'),
-        (11, 'src/db/manuscript_admin_migration.sql', 'manuscript_reminders', 'table')
+        (11, 'src/db/manuscript_admin_migration.sql', 'manuscript_reminders', 'table'),
+        (12, 'src/db/print_usd_transfer_migration.sql', 'admin_bank_accounts.swift_code', 'column'),
+        (12, 'src/db/print_usd_transfer_migration.sql', 'orders.transfer_currency', 'column'),
+        (12, 'src/db/print_usd_transfer_migration.sql', 'orders.usd_amount_received', 'column')
 )
 SELECT
     urutan,

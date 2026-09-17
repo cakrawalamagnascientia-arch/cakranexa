@@ -43,6 +43,7 @@ import type { RajaOngkirClient } from './rajaongkir';
 import type { ApiUsageSnapshot } from './apiUsage';
 import type { PrintOrderStore } from './store';
 import { pickUniqueCode, type UniqueCode } from './uniqueCode';
+import { addBusinessDaysWib, USD_DUE_BUSINESS_DAYS } from './businessDays';
 import {
   ADMIN_PAYABLE_STATUSES,
   PAID_STATUSES,
@@ -66,6 +67,8 @@ import {
  *  - Efek "lunas" (stok, email pembeli, masuk antrean kirim) hanya lewat markOrderPaid: konfirmasi admin dan webhook
  *    Midtrans memakai fungsi yang sama, dan update bersyarat menjamin efek hanya terjadi sekali.
  *  - Metode pembayaran mengikuti payment_routing (bawaan: hanya transfer bank).
+ *  - Jalur transfer dari luar negeri (rekening USD aktif): nominal tetap Rupiah, tanpa kode unik, batas waktu 5 hari
+ *    kerja; Finance mengonfirmasi dengan alur yang sama dan bisa mencatat jumlah USD yang diterima.
  */
 
 export interface PrintCheckoutDeps {
@@ -211,7 +214,9 @@ export class PrintCheckoutService {
       manualQuoteMinCopies: settings.manualQuoteMinCopies,
       uniqueCodeEnabled: settings.uniqueCodeEnabled,
       transferDueHours: settings.transferDueHours,
-      methods: enabledPrintMethods(routing, { midtransEnabled: this.deps.midtrans.enabled })
+      methods: enabledPrintMethods(routing, { midtransEnabled: this.deps.midtrans.enabled }),
+      /** Transfer dari luar negeri ke rekening USD (tersedia bila ada rekening USD aktif). */
+      usdTransfer: { available: await this.usdTransferAvailable(), dueBusinessDays: USD_DUE_BUSINESS_DAYS }
     };
   }
 
@@ -241,8 +246,22 @@ export class PrintCheckoutService {
       bankName: a.bankName,
       accountNumber: a.accountNumber,
       accountHolder: a.accountHolder,
-      branch: a.branch || null
+      branch: a.branch || null,
+      currency: a.currency ?? 'IDR',
+      swiftCode: a.swiftCode ?? null
     }));
+  }
+
+  /** Ada rekening USD aktif (jalur transfer dari luar negeri). */
+  private async usdTransferAvailable(): Promise<boolean> {
+    return (await this.bankAccounts()).some((a) => a.currency === 'USD');
+  }
+
+  /** Batas waktu transfer: jalur USD 5 hari kerja (WIB), selain itu jam dari pengaturan. */
+  private dueDateFor(transferCurrency: string | null | undefined, from: Date, settings: PrintCheckoutSettings): string {
+    return transferCurrency === 'USD'
+      ? addBusinessDaysWib(from, USD_DUE_BUSINESS_DAYS).toISOString()
+      : new Date(from.getTime() + settings.transferDueHours * HOUR_MS).toISOString();
   }
 
   // ------------------------------------------------------- ongkir RajaOngkir
@@ -496,11 +515,17 @@ export class PrintCheckoutService {
     const transfer = provider === 'manual' || manualQuote;
     const status = manualQuote ? 'awaiting_shipping_quote' : transfer ? 'awaiting_transfer' : 'pending';
     const paymentMethod: PaymentMethod = transfer ? 'bank_transfer' : method;
-    const unique = status === 'awaiting_transfer' ? await this.uniqueCodeFor(subtotal + shippingFee, settings) : null;
+    // Jalur transfer dari luar negeri (rekening USD): nominal tetap Rupiah, tanpa kode unik, batas 5 hari kerja.
+    const wantsUsd = String(order.transferCurrency ?? '').toUpperCase() === 'USD';
+    if (transfer && wantsUsd && !(await this.usdTransferAvailable())) {
+      throw fail(400, 'usd_unavailable', 'Transfer dari luar negeri (USD) sedang tidak tersedia. Pilih transfer Rupiah.');
+    }
+    const transferCurrency: 'IDR' | 'USD' | null = transfer ? (wantsUsd ? 'USD' : 'IDR') : null;
+    const unique = status === 'awaiting_transfer' && transferCurrency !== 'USD' ? await this.uniqueCodeFor(subtotal + shippingFee, settings) : null;
     const total = subtotal + shippingFee - (unique?.discount ?? 0);
     const now = this.now();
     const nowIso = now.toISOString();
-    const dueAt = status === 'awaiting_transfer' ? new Date(now.getTime() + settings.transferDueHours * HOUR_MS).toISOString() : null;
+    const dueAt = status === 'awaiting_transfer' ? this.dueDateFor(transferCurrency, now, settings) : null;
     const language = ['id', 'en', 'zh'].includes(order.language) ? String(order.language) : 'id';
 
     const royalty = printOrderRoyaltyFields({
@@ -555,6 +580,7 @@ export class PrintCheckoutService {
       shipping_destination_label: destination?.label ?? null,
       shipping_weight_gram: weightGram,
       shipping_etd: plan.rate?.etd || null,
+      transfer_currency: transferCurrency,
       copies,
       subtotal_amount: subtotal,
       unique_code: unique?.code ?? null,
@@ -610,6 +636,7 @@ export class PrintCheckoutService {
       uniqueDiscount: unique?.discount ?? 0,
       total,
       paymentDueAt: dueAt,
+      transferCurrency,
       snapToken: placed.snapToken,
       paymentMode: placed.snapToken ? (this.deps.midtrans.isProduction ? 'midtrans_production' : 'midtrans_sandbox') : transfer ? 'manual' : 'unavailable',
       ...(memberDiscount ? { memberDiscount } : {})
@@ -655,13 +682,28 @@ export class PrintCheckoutService {
   }
 
   async confirmPayment(orderId: string, body: Record<string, unknown>) {
+    // Catatan jumlah USD diterima (opsional) dicek dulu, lalu disimpan setelah konfirmasi; alur konfirmasi tidak berubah.
+    const rawUsd = body?.usdAmountReceived;
+    let usdAmountReceived: number | null = null;
+    if (rawUsd !== undefined && rawUsd !== null && rawUsd !== '') {
+      const amount = Number(String(rawUsd).trim().replace(',', '.'));
+      if (!Number.isFinite(amount) || amount <= 0 || amount > 1_000_000_000) {
+        throw fail(400, 'invalid_usd_amount', 'Jumlah USD diterima harus angka lebih dari 0 (mis. 12.50).');
+      }
+      usdAmountReceived = Math.round(amount * 100) / 100;
+    }
     const result = await this.markOrderPaid(orderId, { by: 'admin', reference: text(body?.reference, 200) || null, allowClosed: true });
     if (result.result === 'not_found') throw fail(404, 'order_not_found', 'Pesanan tidak ditemukan.');
     if (result.result === 'duplicate') throw fail(409, 'already_paid', 'Pembayaran pesanan ini sudah dikonfirmasi.');
     if (result.result !== 'paid') throw fail(409, 'invalid_state', result.order.payment_status === 'awaiting_shipping_quote'
       ? 'Isi ongkos kirim terlebih dahulu sebelum mengonfirmasi pembayaran.'
       : `Pesanan berstatus ${result.order.payment_status} tidak dapat dikonfirmasi.`);
-    return { order: this.adminRow(result.order) };
+    let order = result.order;
+    if (usdAmountReceived !== null) {
+      const updated = await this.deps.store.updateOrder(orderId, { usd_amount_received: usdAmountReceived });
+      if (updated) order = { ...order, ...updated, order_items: order.order_items };
+    }
+    return { order: this.adminRow(order) };
   }
 
   // ------------------------------------------------------ batas waktu transfer
@@ -710,7 +752,10 @@ export class PrintCheckoutService {
     const base = Math.max(nowMs, order.payment_due_at ? Date.parse(order.payment_due_at) : nowMs);
     const updated = await this.deps.store.updateOrder(orderId, {
       payment_status: 'awaiting_transfer',
-      payment_due_at: new Date(base + hours * HOUR_MS).toISOString(),
+      // Jalur USD tanpa jam yang ditentukan admin: diperpanjang 5 hari kerja.
+      payment_due_at: body?.hours === undefined && order.transfer_currency === 'USD'
+        ? addBusinessDaysWib(new Date(base), USD_DUE_BUSINESS_DAYS).toISOString()
+        : new Date(base + hours * HOUR_MS).toISOString(),
       expired_at: null,
       due_extended_count: (order.due_extended_count ?? 0) + 1
     }, ['awaiting_transfer']);
@@ -731,7 +776,7 @@ export class PrintCheckoutService {
     if (order.payment_status !== 'awaiting_shipping_quote' && !correcting) throw fail(409, 'invalid_state', 'Pesanan ini tidak sedang menunggu ongkos kirim.');
     const settings = await this.settings();
     const subtotal = Number(order.subtotal_amount ?? order.total_amount);
-    const unique = await this.uniqueCodeFor(subtotal + fee, settings);
+    const unique = order.transfer_currency === 'USD' ? null : await this.uniqueCodeFor(subtotal + fee, settings);
     const now = this.now();
     const updated = await this.deps.store.updateOrder(orderId, {
       shipping_fee: fee,
@@ -741,7 +786,7 @@ export class PrintCheckoutService {
       payment_method: 'bank_transfer',
       gateway_fee_estimate: 0,
       payment_status: 'awaiting_transfer',
-      payment_due_at: new Date(now.getTime() + settings.transferDueHours * HOUR_MS).toISOString(),
+      payment_due_at: this.dueDateFor(order.transfer_currency, now, settings),
       shipping_quoted_at: now.toISOString(),
       shipping_source: 'manual',
       expired_at: null
@@ -861,6 +906,8 @@ export class PrintCheckoutService {
       canUploadProof: showPayment && Boolean(this.deps.storage),
       manualQuoteMinCopies: settings.manualQuoteMinCopies,
       transferDueHours: settings.transferDueHours,
+      transferCurrency: order.transfer_currency ?? null,
+      transferDueBusinessDays: order.transfer_currency === 'USD' ? USD_DUE_BUSINESS_DAYS : null,
       companyName: this.deps.companyName
     };
   }
@@ -947,6 +994,8 @@ export class PrintCheckoutService {
         total,
         dueAt: order.payment_due_at ?? null,
         dueHours: settings.transferDueHours,
+        transferCurrency: order.transfer_currency ?? null,
+        dueBusinessDays: order.transfer_currency === 'USD' ? USD_DUE_BUSINESS_DAYS : null,
         manualQuoteMinCopies: settings.manualQuoteMinCopies,
         manualQuoteReason: this.manualQuoteReason(order, settings),
         bankAccounts,

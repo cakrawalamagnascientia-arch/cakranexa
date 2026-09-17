@@ -5,7 +5,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { INITIAL_BOOKS, normalizeBookAuthors } from './src/data/booksData';
-import { BANK_ID_RE, publicBankAccounts, rowToBankAccount, type BankAccountRow } from './backend/bankAccounts';
+import { BANK_ID_RE, SWIFT_RE, publicBankAccounts, rowToBankAccount, type BankAccountRow } from './backend/bankAccounts';
 import { PrintCheckoutService } from './backend/printCheckout/service';
 import { createPrintCheckoutRouter } from './backend/printCheckout/router';
 import { MemoryPrintOrderStore, SupabasePrintOrderStore } from './backend/printCheckout/store';
@@ -886,7 +886,8 @@ async function startServer() {
       accountNumber: String(row.account_number),
       accountHolder: String(row.account_holder),
       branch: row.branch ? String(row.branch) : null,
-      currency: String(row.currency || 'IDR').toUpperCase() === 'USD' ? 'USD' : 'IDR'
+      currency: String(row.currency || 'IDR').toUpperCase() === 'USD' ? 'USD' : 'IDR',
+      swiftCode: row.swift_code ? String(row.swift_code) : null
     }));
   };
   // Kedaluwarsa pesanan cetak (transfer manual) ikut POST /api/internal/cron; diisi setelah layanan checkout dibuat.
@@ -1794,7 +1795,7 @@ async function startServer() {
   app.get('/api/bank-accounts', async (_req, res) => {
     if (!supabaseAdmin) return res.set('Cache-Control', 'no-store').json({ accounts: [], persisted: false });
     const { data, error } = await supabaseAdmin.from('admin_bank_accounts')
-      .select('id, bank_name, bank_code, account_number, account_holder, branch, currency, is_active, is_default')
+      .select('id, bank_name, bank_code, account_number, account_holder, branch, currency, swift_code, is_active, is_default')
       .eq('is_active', true)
       .order('is_default', { ascending: false }).order('created_at', { ascending: true });
     if (error) return res.set('Cache-Control', 'no-store').status(503).json({ error: 'Rekening belum dapat dimuat.' });
@@ -1825,11 +1826,15 @@ async function startServer() {
         account_holder: text(account?.accountHolder, 128),
         branch: text(account?.branch, 128) || null,
         currency: String(account?.currency || 'IDR').toUpperCase() === 'USD' ? 'USD' : 'IDR',
+        swift_code: text(account?.swiftCode, 11).toUpperCase() || null,
         is_active: account?.isActive !== false,
         is_default: account?.isDefault === true
       };
       if (!BANK_ID_RE.test(row.id) || !row.bank_name || !/^[0-9][0-9 .-]{3,63}$/.test(row.account_number) || !row.account_holder) {
         return res.status(400).json({ error: `Rekening tidak valid: ${row.bank_name || row.id || '(tanpa nama)'}.` });
+      }
+      if (row.swift_code && !SWIFT_RE.test(row.swift_code)) {
+        return res.status(400).json({ error: `Kode SWIFT tidak valid untuk ${row.bank_name}: 8 atau 11 karakter (mis. BMRIIDJA).` });
       }
       rows.push(row);
     }

@@ -383,6 +383,11 @@
       "note": "The account number, exact amount, and {{hours}}-hour deadline are shown after you place the order and are also sent to your email."
     },
     "paymentChoose": "Choose a payment method",
+    "foreign": {
+      "label": "I am paying from abroad (USD transfer)",
+      "note": "The invoice stays in Indonesian rupiah; transfer the USD equivalent to our Mandiri USD account with your order number in the transfer reference. No unique code; deadline {{days}} business days.",
+      "singleNote": "The USD account, the exact amount in rupiah, and the {{days}}-business-day deadline are shown after you place the order and are also sent to your email."
+    },
     "submit": "Place Order",
     "offline": "We cannot reach the server yet. Check your connection and try again."
   },
@@ -409,6 +414,14 @@
     "copyAccount": "Copy account number",
     "deadline": "Payment deadline",
     "deadlineNote": "{{hours}} hours after the invoice is issued. The order expires automatically if unpaid by the deadline.",
+    "foreign": {
+      "title": "For payments from abroad",
+      "swift": "SWIFT code",
+      "copySwift": "Copy SWIFT",
+      "note": "The invoice stays in Indonesian rupiah. Transfer the USD equivalent of the amount above (sender bank fees are borne by the sender) and write order number {{orderNumber}} in the transfer reference.",
+      "amountNote": "Amount in Indonesian rupiah. Transfer the equivalent in USD; no unique code applies.",
+      "deadlineNote": "{{days}} business days after the invoice is issued for transfers from abroad. The order expires automatically if unpaid by the deadline."
+    },
     "confirmWhatsApp": "Confirm via WhatsApp",
     "proof": {
       "title": "Upload transfer receipt (optional)",

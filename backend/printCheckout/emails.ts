@@ -22,6 +22,9 @@ export interface PrintOrderEmailData {
   total: number;
   dueAt: string | null;
   dueHours: number;
+  /** 'USD' = pembeli membayar dari luar negeri (tanpa kode unik, batas hari kerja). */
+  transferCurrency?: 'IDR' | 'USD' | null;
+  dueBusinessDays?: number | null;
   manualQuoteMinCopies: number;
   /** Alasan ongkir diisi admin: pesanan besar (bulk) atau tarif kurir tidak tersedia (rates). */
   manualQuoteReason?: 'bulk' | 'rates';
@@ -71,6 +74,11 @@ const TEXT = {
     accountHolder: 'Atas nama',
     deadline: 'Batas waktu pembayaran',
     deadlineNote: (hours: number) => `${hours} jam sejak tagihan terbit. Pesanan otomatis kedaluwarsa bila belum dibayar sampai batas waktu.`,
+    deadlineNoteBusinessDays: (days: number) => `${days} hari kerja sejak tagihan terbit untuk transfer dari luar negeri. Pesanan otomatis kedaluwarsa bila belum dibayar sampai batas waktu.`,
+    foreignTitle: 'Untuk pembayaran dari luar negeri',
+    swift: 'Kode SWIFT',
+    foreignNote: (n: string) => `Tagihan tetap dalam Rupiah. Transfer USD senilai nominal di atas (biaya bank pengirim ditanggung pengirim) dan tulis nomor pesanan ${n} di berita transfer.`,
+    usdAmountNote: 'Nominal dalam Rupiah. Transfer USD dengan nilai setara; tanpa kode unik.',
     confirmWhatsApp: 'Konfirmasi via WhatsApp',
     viewOrder: 'Lihat pesanan dan unggah bukti transfer (opsional)',
     viewOrderPlain: 'Lihat pesanan',
@@ -113,6 +121,11 @@ const TEXT = {
     accountHolder: 'Account name',
     deadline: 'Payment deadline',
     deadlineNote: (hours: number) => `${hours} hours after the invoice is issued. The order expires automatically if unpaid by the deadline.`,
+    deadlineNoteBusinessDays: (days: number) => `${days} business days after the invoice is issued for transfers from abroad. The order expires automatically if unpaid by the deadline.`,
+    foreignTitle: 'For payments from abroad',
+    swift: 'SWIFT code',
+    foreignNote: (n: string) => `The invoice stays in Indonesian rupiah. Transfer the USD equivalent of the amount above (sender bank fees are borne by the sender) and write order number ${n} in the transfer reference.`,
+    usdAmountNote: 'Amount in Indonesian rupiah. Transfer the equivalent in USD; no unique code applies.',
     confirmWhatsApp: 'Confirm via WhatsApp',
     viewOrder: 'View order and upload transfer receipt (optional)',
     viewOrderPlain: 'View order',
@@ -155,6 +168,11 @@ const TEXT = {
     accountHolder: '户名',
     deadline: '付款期限',
     deadlineNote: (hours: number) => `账单开具后 ${hours} 小时。逾期未付款，订单将自动过期。`,
+    deadlineNoteBusinessDays: (days: number) => `境外转账的付款期限为账单开具后 ${days} 个工作日。逾期未付款，订单将自动过期。`,
+    foreignTitle: '境外付款',
+    swift: 'SWIFT 代码',
+    foreignNote: (n: string) => `账单金额以印尼盾计。请转账与上述金额等值的美元（汇款行手续费由汇款人承担），并在转账附言中注明订单号 ${n}。`,
+    usdAmountNote: '金额以印尼盾计。请以等值美元转账，不适用唯一码。',
     confirmWhatsApp: '通过 WhatsApp 确认',
     viewOrder: '查看订单并上传转账凭证（可选）',
     viewOrderPlain: '查看订单',
@@ -202,23 +220,39 @@ export const printOrderEmail = (kind: PrintOrderEmailKind, d: PrintOrderEmailDat
   let payment = '';
   if (PAYMENT_KINDS.includes(kind)) {
     const waText = transferConfirmationText({ orderNumber: d.orderNumber, amount: d.total, buyerName: d.buyerName });
-    const accounts = d.bankAccounts.map((b) =>
+    // Rekening IDR sebagai rekening utama; rekening USD di bawahnya untuk pembayaran dari luar negeri.
+    const usdPath = d.transferCurrency === 'USD';
+    const local = d.bankAccounts.filter((b) => b.currency !== 'USD');
+    const foreign = d.bankAccounts.filter((b) => b.currency === 'USD');
+    const accounts = local.map((b) =>
       `<tr><td style="padding:4px 12px 4px 0">${escapeHtml(b.bankName)}${b.currency ? ` (${escapeHtml(b.currency)})` : ''}${b.branch ? ` - ${escapeHtml(b.branch)}` : ''}</td>` +
       `<td style="padding:4px 12px 4px 0;font-family:monospace;font-weight:bold">${escapeHtml(b.accountNumber)}</td>` +
       `<td style="padding:4px 0">${escapeHtml(b.accountHolder)}</td></tr>`).join('');
+    const label = (text: string) => `<td style="padding:2px 12px 2px 0;color:#64748B">${escapeHtml(text)}</td>`;
+    const foreignBlock = foreign.length === 0 ? '' : `
+      <p style="margin:16px 0 6px;font-weight:bold">${escapeHtml(t.foreignTitle)}</p>
+      ${foreign.map((b) => `<table style="border-collapse:collapse;font-size:14px;margin-bottom:6px">
+        <tr>${label(t.bank)}<td>${escapeHtml(b.bankName)} (USD)${b.branch ? ` - ${escapeHtml(b.branch)}` : ''}</td></tr>
+        <tr>${label(t.accountHolder)}<td>${escapeHtml(b.accountHolder)}</td></tr>
+        <tr>${label(t.accountNumber)}<td style="font-family:monospace;font-weight:bold">${escapeHtml(b.accountNumber)}</td></tr>
+        ${b.swiftCode ? `<tr>${label(t.swift)}<td style="font-family:monospace;font-weight:bold">${escapeHtml(b.swiftCode)}</td></tr>` : ''}
+      </table>`).join('')}
+      <p style="margin:4px 0 0;font-size:12px;color:#475569">${escapeHtml(t.foreignNote(d.orderNumber))}</p>`;
+    const deadlineNote = usdPath && d.dueBusinessDays ? t.deadlineNoteBusinessDays(d.dueBusinessDays) : t.deadlineNote(d.dueHours);
     payment = `
       <div style="margin:20px 0;padding:16px;border:2px solid #D4AF37;border-radius:10px;background:#FFFBEB">
         <div style="font-size:12px;color:#92400E;text-transform:uppercase;letter-spacing:.05em">${escapeHtml(t.amountDue)}</div>
         <div style="font-size:26px;font-weight:bold;font-family:monospace;color:#0F172A">${money(d.total)}</div>
-        <div style="font-size:12px;color:#92400E">${escapeHtml(t.exactNote)}</div>
+        <div style="font-size:12px;color:#92400E">${escapeHtml(usdPath ? t.usdAmountNote : t.exactNote)}</div>
       </div>
       <p style="margin:16px 0 6px;font-weight:bold">${escapeHtml(t.transferTo)}</p>
       <table style="border-collapse:collapse;font-size:14px">
         <tr style="color:#64748B;font-size:12px"><td style="padding:2px 12px 2px 0">${escapeHtml(t.bank)}</td><td style="padding:2px 12px 2px 0">${escapeHtml(t.accountNumber)}</td><td>${escapeHtml(t.accountHolder)}</td></tr>
         ${accounts}
       </table>
+      ${foreignBlock}
       ${d.dueAt ? `<p style="margin:16px 0 4px"><strong>${escapeHtml(t.deadline)}:</strong> ${escapeHtml(formatDeadline(d.dueAt, lang))}</p>
-      <p style="margin:0;font-size:12px;color:#64748B">${escapeHtml(t.deadlineNote(d.dueHours))}</p>` : ''}
+      <p style="margin:0;font-size:12px;color:#64748B">${escapeHtml(deadlineNote)}</p>` : ''}
       <p style="margin:20px 0">
         <a href="${escapeHtml(whatsappLink(d.financeWhatsapp, waText))}" style="display:inline-block;padding:10px 16px;background:#059669;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold">${escapeHtml(t.confirmWhatsApp)}</a>
       </p>`;
